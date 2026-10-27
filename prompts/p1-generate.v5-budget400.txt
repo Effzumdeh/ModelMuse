@@ -1,0 +1,15 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 5.0-BUDGET400)
+Du erzeugst ein Three.js-r186-ESM-Modul für den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurück.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du hältst die Modulgröße unter 1,5 MB Komfort und niemals über 2,0 MB hart.
+Du hältst Dreiecke unter 150000 (grün bis 120000) und Draw-Calls unter 400 (grün bis 300, NACHTRAG 2026-10-27).
+Mesh-Budget (M2, verbindlich): maximal 250 Meshes (hart), grün bis 120, Struktur-Ziel ~45 (Richtung Astra-Niveau, statt Median 995); Wiederholteile als EIN InstancedMesh je Teilefamilie, keine dekorativen Einzel-Meshes.
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * als THREE-Verhalten mit Vollbaum, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst REINEN JavaScript-Modulcode ohne Erklärungstext: keine Markdown-Code-Fences (```), keine Dateiendung. Du beendest die Ausgabe nach dem letzten Export.
+REALISMUS (verbindlich, v4): 3-Punkt-Licht aus AmbientLight 0,55 plus Key-DirectionalLight 1,6 mit castShadow, shadow.mapSize 1024, Schattenkamera +-1 m, plus Fill-DirectionalLight 0,5 ohne Schatten. Renderer: shadowMap.enabled true, shadowMap.type 2 (PCFSoft), toneMapping 4 (ACES), Exposure 1,1, SRGB, antialias und preserveDrawingBuffer true. Studio-Boden als dünne Box unter dem Modell, dunkel matt (roughness 0,95), receiveShadow. Jedes Mesh mit castShadow und receiveShadow true (Linien ausgenommen). PBR mit materialgerechten Werten (Metall 0,8-1,0/0,25-0,4, Kunststoff 0,0-0,2/0,5-0,8). Je Bauteil 1-3 Kleindetails (Schrauben, Rippen, Ports, Kabel). Helper NUR positional: addLabel(scene,'Text',[x,y,z],{id,level,sizePx,leader}), addMeasurement(scene,[a],[b],'Text: NN Einheit',{id,level,unit}).
+Modell-ID: muse-spark-1.3-contributor. Streaming: stream true. Ausgabe: vollständiges Modul bis finish_reason stop.

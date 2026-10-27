@@ -1,0 +1,61 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 6.0-HYPER-BUDGET400) + HYPERREALISMUS-Block
+Du erzeugst ein Three.js-r186-ESM-Modul für den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurück.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du haeltst die Moduldatei unter 34000 Bytes (hart, Hyper-Maximum je Lab).
+HYPER-UPGRADE (verbindlich, im Budget 400, aus .claude/skills threejs-materials/lighting/geometry/textures):
+- Sichtbare Szene NUR MeshStandardMaterial (PBR metalness/roughness je Werkstoff, KEIN MeshBasicMaterial an sichtbaren Meshes). MeshBasicMaterial NUR in der verworfenen PMREM-Raumszene.
+- Kanten mit Fase wo sinnvoll: Gehaeuse/Boxen/Tafeln als ExtrudeGeometry mit bevel (abgerundetes Rechteck-Shape, bevelThickness/bevelSize klein, 1 Segment) statt scharfer Box, wo es die Bauteilform hergibt.
+- Prozedurale Feintexturen NUR via DataTexture (rohe Uint8-Pixel, KEIN document/canvas — document ist S1-verboten); klein (max 128x128), LinearFilter, als map wo sinnvoll (z.B. Leiterbahnen, Aetzung, Buerstmetall, Typenschilder); Farb-Maps mit colorSpace SRGBColorSpace und magFilter LinearFilter.
+- Wiederholteile als EIN InstancedMesh je Teilefamilie (Schrauben, Ports, LEDs, Lamellen, Pins, Pads); Platzierung via Matrix4/Quaternion/Vector3 direkt mit setMatrixAt (KEIN Object3D-Dummy, KEIN setColorAt ohne Color-Import); danach instanceMatrix.needsUpdate = true, computeBoundingSphere().
+- KEIN Postprocessing (Budget/Determinismus SwiftShader-Baselines S3).
+- VERBOTENE Bezeichner (S1, Wortgrenzen): nutze niemals document, window, parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon, WebSocket, XMLHttpRequest als Variablen/Properties/Strings. Also KEIN obj.parent, KEIN .top, KEIN stop-Flag mit diesem Namen (nutze running/active), KEIN desktop/ontop. Nur container und renderer.domElement anfassen. Frustum-Grenzen per Schleife ueber String-Literale (z.B. const frustumKeys = ['left','right','top','bottom']).
+Du haeltst Dreiecke unter 60000 und Draw-Calls unter 350 (gruen bis 300, NACHTRAG 2026-10-27, hart 400) exklusive Helper-Handles. Mesh-Budget (M2, verbindlich): maximal 250 Meshes (hart), gruen bis 120, Struktur-Ziel ~45 (Richtung Astra-Niveau, statt Median 995); Wiederholteile als EIN InstancedMesh je Teilefamilie, keine dekorativen Einzel-Meshes.
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * as THREE-Verhalten mit Vollbaum, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst nur das Modul ohne Erklärungstext, und du beendest die Ausgabe nach dem letzten Export.
+REALISMUS-V5 (verbindlich, fotorealistisch, im Budget): 4-Punkt-Licht (Hemisphere plus Key mit PCFSoft-Schatten 2048 plus Rim plus warmer Point-Akzent), ACES-ToneMapping, SRGB, Antialiasing, PMREM-Inline-Environment aus Mini-Raumszene, PBR-Materialien, geteilte Geometrien, weiche Schatten auf Bodenkreis, je Bauteil 1-3 Kleindetails. Helper NUR positional: addLabel(scene,'Text',[x,y,z],{id,level,sizePx,leader}), addMeasurement(scene,[a],[b],'Text: NN Einheit',{id,level,unit}). Details siehe AUFGABEN-ANHANG.
+Modell-ID: muse-spark-1.3-contributor. Streaming: stream true. Ausgabe: vollständiges Modul bis finish_reason stop.
+
+AUFGABEN-ANHANG si-2 (Netzwerk-Verkabelung Systemintegration, Modell-ID muse-spark-1.3-contributor):
+Baue eine Netzwerk-Verkabelung mit Switch, Router, Patchfeld und Client, zentriert am Ursprung, Bounding-Box in 3 m Wuerfel.
+Pflicht-Bauteile (alle modellieren): Switch als Box 0,44 m x 0,044 m x 0,24 m bei (0, 0,18, 0) plus 8 Port-Boxen je 0,03 m x 0,012 m x 0,01 m an der Front,
+Router als Box 0,30 m x 0,05 m x 0,20 m bei (0, -0,02, 0) plus 2 Antennen als Zylinder Radius 0,008 m Hoehe 0,18 m,
+Patchfeld als Box 0,44 m x 0,044 m x 0,12 m bei (0, -0,22, 0) plus 8 Buchsen als kleine Boxen,
+Client als Tower-Box 0,10 m x 0,36 m x 0,36 m bei (0,42, -0,05, 0,18),
+2 Patchkabel als Linien (Line mit BufferGeometry) vom Patchfeld zum Switch und zum Client, leicht durchhaengend über je 3 Stuetzpunkte.
+Kleindetails (zusaetzlich, im Budget): je Switch-Port 1 LED-Box (0,008 m), je Geraet 4 Schrauben (SphereGeometry Radius 0,006 m), Kabelstecker als kleine Boxen an beiden Kabelenden.
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial,
+ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry,
+TorusGeometry, ExtrudeGeometry, Shape, DataTexture, AmbientLight, DirectionalLight, HemisphereLight, PointLight,
+Line, LineBasicMaterial, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping,
+PCFSoftShadowMap, Vector3, BufferGeometry, Matrix4, Quaternion, PMREMGenerator.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+meta (Pflicht, exakt so): export const meta = { title: 'Netzwerk-Verkabelung (SI-2)', category: 'hardware', detailLevel: 2,
+parts: ['Switch','Router','Patchfeld','Client'], units: 'm' }.
+init(container, params): Szene, Kamera (overview bei (0.55, 0.42, 0.60), erfasst Bounding-Box), V5-Licht/Renderer/Umgebung siehe REALISMUS-V5 unten,
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}) mit toneMapping ACESFilmicToneMapping, toneMappingExposure 1,1, outputColorSpace SRGB, shadowMap.enabled true, shadowMap.type PCFSoftShadowMap, klarer Farbe 0x0b0e14, setPixelRatio vor setSize, dpr aus params gedeckelt 1..2. Inline-Environment (Pflicht): PMREMGenerator(renderer) plus Mini-Raumszene aus 1 grossen Box (MeshBasicMaterial 0x11141a, Rueckseite) plus 2 hellen Softbox-Ebenen (MeshBasicMaterial 0xffffff und 0xcfe0ff, beidseitig); pmrem.fromScene(room, 0.04).texture auf scene.environment; scene.environmentIntensity falls verfuegbar 0.55, sonst envMapIntensity 0.55 je Standardmaterial; pmrem.dispose nach Erzeugung, envRT in dispose() freigeben. Lichter (genau 4): HemisphereLight(0xdfeaff, 0x1a1410, 0.35); Key-DirectionalLight(0xffffff, 2.0) diagonal von oben, castShadow true, shadow.mapSize 2048, Schattenkamera +-1 m, near 0.1 far 4, bias -0.0005, normalBias 0.002; Rim-DirectionalLight(0xbcd0ff, 0.7) von hinten ohne Schatten; PointLight(0xffd9a0, 3, 1.5, 2) als warmer Akzent im Vordergrund. Bodenschattenfaenger: EINE duenne Kreisflaeche (CircleGeometry r=0.55) unter dem Modell mit ShadowMaterial opacity 0.35, nur receiveShadow, sonst unsichtbar. Jedes Mesh castShadow und receiveShadow true (Linien und Bodenfaenger ausgenommen). Identische Bauteile teilen dieselbe Geometrie- und Materialinstanz. PBR materialgerecht (Metall metalness 0.8-1.0/roughness 0.25-0.4, Kunststoff metalness 0.0-0.2/roughness 0.5-0.8). 
+OrbitControls, RAF-Schleife (statisches Modell, bei params.reducedMotion keine Bewegung), Rueckgabe { update, dispose }.
+init ist SYNCHRON (kein async, kein Promise). addLabel/addMeasurement sind SYNCHRON und geben sofort { id, setVisible, remove } zurueck (KEIN await).
+Beschriftung: genau 4 addLabel-Aufrufe synchron (ids l1..l4, sizePx 14..18, level 'aufbau', leader true). Labeltexte EXAKT:
+'Switch' an [0.0,0.18,0.14], 'Router' an [0.0,-0.02,0.10], 'Patchfeld' an [0.0,-0.22,0.08], 'Client' an [0.42,-0.05,0.40].
+Bemaßung: genau 1 addMeasurement-Aufruf synchron mit Einheit m: 'Kabellaenge: 2 m' von [-0.20,-0.22,0.02] nach [0.20,-0.22,0.02], optisch sichtbare Linie.
+update(patch): patch.labels {enabled,max} schaltet Label-Sichtbarkeit (max 5 bei Basis), patch.measurements {enabled}
+schaltet Messungen, patch.view setzt Kamera-Presets overview/detail(Switch frontal formatfuellend)/front/top. Nie neues Modell.
+dispose(): Animationsschleife stoppen (running-Flag plus cancelAnimationFrame), controls.dispose, Szene traversieren: geometry.dispose, material.dispose (plus map falls vorhanden), envRT freigeben, renderer.dispose,
+Dom-Element entfernen.
+VERBOTENE Bezeichner (S1-Verbotsliste, Wortgrenzen): nutze niemals die Woerter document, window,
+parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon,
+WebSocket, XMLHttpRequest als Variablen, Properties oder Strings im Code. Also KEIN obj.parent,
+KEIN .top, KEIN stop-Flag mit diesem Namen (nutze running/active). Nur
+container (Parameter) und renderer.domElement anfassen.
+Verwende im Code AUSSCHLIESSLICH die genannten Label-/Messtexte, keine weiteren Saetze, keine Lernziele, keine Aufgaben.
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences, Ende nach dem letzten Export.

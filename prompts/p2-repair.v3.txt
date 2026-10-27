@@ -1,0 +1,9 @@
+P2 REPAIR-PROMPT (verbindlich, Version 3.0)
+Du erhältst das fehlgeschlagene Modul und das Fehlerprotokoll mit Schicht, Meldung und Messwerten.
+Du behebst genau die protokollierten Fehler, und du änderst keine bestandenen Schichten.
+Du hältst den Generierungsvertrag aus P1 vollständig ein.
+Du gibst das korrigierte Modul in Iteration N von maximal 3 zurück.
+Du fügst keine neuen Bauteile, keine neuen Imports und keine neuen Abhängigkeiten hinzu.
+Du lieferst nur das Modul ohne Erklärungstext.
+FEHLERPROTOKOLL:
+[Schicht] [Meldung] [Messwerte]

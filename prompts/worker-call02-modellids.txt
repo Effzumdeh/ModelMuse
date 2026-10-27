@@ -1,0 +1,21 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Nur diese Dateien aendern, minimal invasiv.
+
+AUFGABE (Call 2 von max. 12 im Restposten-Auftrag):
+Erfundene Modell-IDs entfernen. Befund (SELBST verifiziert):
+- src/runtime/providers.js, recommendModel(): empfiehlt fuer openrouter die IDs gpt-6-astra, claude-opus-5-5, gemini-4-argon. Diese Modelle existieren NICHT auf OpenRouter (Beleg dist/openrouter-free-beleg.json: 16 echte :free-Slugs, kein Spark, kein Astra/Opus/Argon).
+- scripts/proxy.mjs, PROVIDERS.openrouter.models: enthaelt dieselben drei erfundenen IDs neben dem echten gratis Slug google/gemma-4-26b-a4b-it:free.
+- tests/i18n-ui.spec.mjs erwartet als erstes OpenRouter-Modell gemma-4-26b-it-free (Registry-ID) — das ist korrekt und muss gruene bleiben.
+
+VORGEHEN:
+1. Lies src/runtime/providers.js, src/data/providers.json, scripts/proxy.mjs (PROVIDERS-Block), tests-unit/providers.test.mjs, tests-unit/proxy.test.mjs, src/shell/ui-providers.js.
+2. Ersetze ALLE erfundenen OpenRouter-Modell-IDs durch belegte Werte: Entweder nur den verifizierten Gratis-Slug google/gemma-4-26b-a4b-it:free (Registry-ID gemma-4-26b-it-free) als einziges OpenRouter-Modell, ODER zusaetzlich die realen kostenpflichtigen Slugs aus dist/openrouter-free-beleg.json ableiten (dort stehen nur :free-Slugs; nimm keine an, die nicht im Beleg stehen — im Zweifel nur das Gratis-Modell). recommendModel()-Domaenen geometrie/aesthetik/praeferenz duerfen NICHT mehr auf nichtexistente IDs zeigen: zeige auf belegte Registry-Eintraege (ggf. meta-muse-Modelle mit ehrlicher Begruendung aus docs/ki-modellqualitaet-recherche.md) oder kennzeichne die Empfehlung ehrlich als "nicht verifiziert/deaktiviert".
+3. Passe Registry (src/data/providers.json), UI-Texte (Hinweis "NUR Gratis-Modell" wo noetig) und betroffene Unit-Tests konsistent an — keine Test-Fakes (kein assert auf IDs, die nicht in der Registry stehen).
+4. Verifiziere: grep ueber src/scripts/tests/prompts findet KEINE der Strings gpt-6-astra, claude-opus-5-5, gemini-4-argon mehr (Ausnahme: dist/-Belege historischer Laeufe duerfen bleiben, src/dist-Live-Code nicht). Unit-Suite (alle Dateien aus package.json scripts.test:unit plus tests-unit/i18n.test.mjs) GRUEN. Playwright-Suite MUSS gruene bleiben (npx playwright test --reporter=list); wenn zu langsam, mindestens tests/i18n-ui.spec.mjs + tests/harness.spec.mjs gruene.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat (kein Key-Kontakt noetig fuer diesen Call).
+- KEINE Wonder-Calls, KEINE neuen Dependencies, keine Trust-Aenderungen.
+- Bei HTTP 429 (falls du die Modellliste live re-verifizierst): 60 s warten, EINMAL wiederholen; notfalls Beleg dist/openrouter-free-beleg.json als Quelle nutzen und das im Report vermerken.
+
+RUECKGABE (kurz, max. 20 Zeilen):
+Geaenderte Dateien / ersetzte IDs (alt -> neu) / grep-Nachweis (0 Treffer) / Unit-Resultat / Playwright-Resultat.

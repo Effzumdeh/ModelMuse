@@ -1,0 +1,24 @@
+# SkillSpark Erst-Commit 2026-10-27 — Versionsverwaltung ab Restposten-Auftrag
+# Dependencies
+node_modules/
+# Keys — nie versionieren (Key_muse.md, Key_openrouter.md, .env)
+*Key*.md
+*key*.md
+.env
+.env.*
+# Diagnose/Temporaer (O-15): Root-Tmp-Skripte und Logs bleiben lokal
+*-tmp.mjs
+*-tmp.js
+*.log
+# dist: ~230 Diagnose-Artefakte lokal; versioniert werden nur Baselines + Audit-Logs
+dist/*
+!dist/baselines/
+!dist/baselines/*
+!dist/generation-log.json
+!dist/verify-report.json
+!dist/build-report.json
+!dist/attestation.json
+!dist/BACKLOGFIX-REPORT.md
+# OS/Editor
+.DS_Store
+Thumbs.db

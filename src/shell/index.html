@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://localhost:* http://127.0.0.1:*; frame-src 'self' blob:; child-src blob:; base-uri 'none'; form-action 'none'">
+<title data-i18n="app.title">SkillSpark Lab-Player</title>
+<link rel="stylesheet" href="./src/shell/theme.css">
+</head>
+<body x-data="labShell" :data-ampel="$store.lab.ampel">
+<header class="lab-top">
+  <div class="lab-brand">SkillSpark <span class="lab-sub">Lab-Player</span></div>
+  <div class="lab-field lab-lang">
+    <label for="lang-select" data-i18n="sprache.titel">Sprache</label>
+    <select id="lang-select">
+      <option value="de">Deutsch</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+    </select>
+  </div>
+  <div class="lab-ampel" role="status" data-i18n-aria="app.freigabestatus" aria-label="Freigabestatus">
+    <span class="ampel-dot" aria-hidden="true"></span>
+    <span x-text="$store.lab.ampelLabel">gelb</span>
+  </div>
+</header>
+<main class="lab-layout">
+  <section class="lab-view">
+    <div id="lab-mount" class="lab-mount" aria-label="3D-Ansicht"></div>
+    <div class="lab-toolbar" role="toolbar" aria-label="Ansicht">
+      <div class="lab-field">
+        <label for="model-select" data-i18n="toolbar.modell">Modell</label>
+        <select id="model-select" x-model="$store.lab.modelId" @change="loadModel()">
+          <template x-for="m in $store.lab.models" :key="m.id">
+            <option :value="m.id" x-text="m.title"></option>
+          </template>
+        </select>
+      </div>
+      <div class="lab-field">
+        <label for="level-select" data-i18n="toolbar.niveau">Niveau</label>
+        <select id="level-select" x-model="$store.lab.level" @change="setLevel()">
+          <option value="basis" data-i18n="toolbar.basis">Basis</option>
+          <option value="aufbau" data-i18n="toolbar.aufbau">Aufbau</option>
+          <option value="profi" data-i18n="toolbar.profi">Profi</option>
+        </select>
+      </div>
+      <div class="lab-field lab-check">
+        <label><input type="checkbox" x-model="$store.lab.labels" @change="setAnnotations()"> <span data-i18n="toolbar.labels">Labels</span></label>
+        <label><input type="checkbox" x-model="$store.lab.measurements" @change="setAnnotations()"> <span data-i18n="toolbar.messungen">Messungen</span></label>
+      </div>
+      <div class="lab-field">
+        <label for="view-select" data-i18n="toolbar.ansicht">Ansicht</label>
+        <select id="view-select" @change="setView($event.target.value)">
+          <option value="overview" data-i18n="toolbar.overview">Übersicht</option>
+          <option value="detail" data-i18n="toolbar.detail">Detail</option>
+          <option value="front" data-i18n="toolbar.front">Front</option>
+          <option value="top" data-i18n="toolbar.top">Top</option>
+        </select>
+      </div>
+      <button type="button" class="lab-btn" @click="useFallback2D()" data-i18n="toolbar.modus2d">2D-Modus</button>
+    </div>
+    <section class="lab-panel" aria-label="Aufgaben">
+      <h2><span data-i18n="aufgaben.titel">Aufgaben</span> <span class="lab-level" x-text="$store.lab.level"></span></h2>
+      <ul id="task-list" class="lab-tasks"></ul>
+    </section>
+  </section>
+  <aside class="lab-side" aria-label="Bericht">
+    <section class="lab-panel">
+      <h2 data-i18n="bauteile.titel">Bauteile &amp; Maße</h2>
+      <ul id="annotation-list" class="lab-annotations"></ul>
+    </section>
+    <section class="lab-panel">
+      <h2 data-i18n="bericht.titel">Verify-Bericht S1–S5</h2>
+      <div id="verify-report" class="lab-report" data-i18n="bericht.leer">Noch kein Lauf.</div>
+    </section>
+    <section class="lab-panel lab-fallback" id="fallback-panel" hidden>
+      <h2 data-i18n="hinweis.titel">Hinweis</h2>
+      <p id="fallback-text"></p>
+    </section>
+    <section class="lab-panel lab-livegen" aria-label="Freimodus mit eigenem Key">
+      <h2 data-i18n="freimodus.titel">Freimodus (eigener Key)</h2>
+      <p class="lab-note" data-i18n="freimodus.notiz">Generierung über den lokalen Proxy (scripts/proxy.mjs, nur localhost). Key optional: leer lassen = Server-Key des Proxys, eigene Eingabe = BYOK nur für diese Sitzung.</p>
+      <div class="lab-field">
+        <label for="live-proxy" data-i18n="freimodus.proxyUrl">Proxy-URL</label>
+        <input id="live-proxy" type="url" inputmode="url" value="http://127.0.0.1:8787/generate" placeholder="http://127.0.0.1:8787/generate" autocomplete="off">
+      </div>
+      <div class="lab-field">
+        <label for="live-key" data-i18n="freimodus.eigenerKey">Eigener Muse-API-Key</label>
+        <input id="live-key" type="password" autocomplete="off" data-i18n-ph="freimodus.keyPlatzhalter" placeholder="Nur diese Sitzung">
+      </div>
+      <div class="lab-field lab-check">
+        <label><input id="live-consent" type="checkbox" disabled> <span data-i18n="freimodus.keyMerken">Key in dieser Sitzung merken (Session-Storage)</span></label>
+      </div>
+      <div class="lab-field">
+        <label for="live-term" data-i18n="freimodus.freierBegriff">Freier Begriff</label>
+        <input id="live-term" type="text" maxlength="80" data-i18n-ph="freimodus.begriffPlatzhalter" placeholder="z. B. Windkraftanlage" autocomplete="off">
+      </div>
+      <button type="button" class="lab-btn" id="live-go" data-i18n="freimodus.generieren">Modell generieren</button>
+      <p id="live-status" role="status" data-i18n="freimodus.statusLeer">Noch keine Freimodus-Generierung.</p>
+    </section>
+    <section class="lab-panel lab-providers" aria-label="Anbieter und Modell">
+      <h2 data-i18n="anbieter.titel">Anbieter &amp; Modell (M3)</h2>
+      <div class="lab-field">
+        <label for="prov-provider" data-i18n="anbieter.anbieter">Anbieter</label>
+        <select id="prov-provider"></select>
+      </div>
+      <div class="lab-field">
+        <label for="prov-model" data-i18n="anbieter.modell">Modell</label>
+        <select id="prov-model"></select>
+      </div>
+      <div id="prov-badges" class="prov-badges" aria-label="Benchmark-Empfehlungen"></div>
+      <p id="prov-privacy" class="lab-note" role="note"></p>
+      <p id="prov-cmd" class="lab-note"></p>
+      <p id="prov-docs" class="lab-note"></p>
+      <div class="lab-field" id="prov-proxy-wrap" hidden>
+        <label for="prov-proxy" data-i18n="anbieter.proxyUrl">OpenRouter-Proxy-URL (laufzeitsseitig)</label>
+        <input id="prov-proxy" type="url" autocomplete="off" placeholder="https://…">
+      </div>
+      <p id="prov-status" class="lab-note" role="status"></p>
+    </section>
+    <section class="lab-panel lab-library" aria-label="Modellbibliothek">
+      <h2 data-i18n="bibliothek.titel">Modellbibliothek (Sitzung)</h2>
+      <p class="lab-note" data-i18n="bibliothek.notiz">Kuratierte 10er-Bibliothek = Referenz (schreibgeschützt). Sitzungseinträge: ansehen, überarbeiten, löschen, exportieren.</p>
+      <ul id="lib-list" class="lab-library-list"></ul>
+      <div class="lab-field lab-check">
+        <label><input id="lib-consent" type="checkbox"> <span data-i18n="bibliothek.sitzungMerken">Bibliothek dauerhaft merken</span></label>
+      </div>
+      <div class="lab-row">
+        <button type="button" class="lab-btn" id="lib-adopt" data-i18n="bibliothek.uebernehmen">Aktuelles Modell übernehmen</button>
+        <label class="lab-btn" for="lib-import" data-i18n="bibliothek.importieren">.js importieren</label>
+        <input id="lib-import" type="file" accept=".js,text/javascript" hidden>
+      </div>
+      <pre id="lib-detail" class="lab-detail" aria-label="Überarbeitungs-Protokoll"></pre>
+      <p id="lib-status" role="status" data-i18n="bibliothek.bereit">Bibliothek bereit.</p>
+    </section>
+    <section class="lab-panel lab-harness" aria-label="Harness-Scoreboard">
+      <h2 data-i18n="harness.titel">Harness-Scoreboard (M1–M8)</h2>
+      <div class="lab-row">
+        <button type="button" class="lab-btn" id="harness-one" data-i18n="harness.pruefenEins">Harness: aktuelles Modell prüfen</button>
+        <button type="button" class="lab-btn" id="harness-all" data-i18n="harness.pruefenAlle">Harness: alle kuratierten prüfen</button>
+      </div>
+      <div id="harness-soll" class="lab-soll" aria-label="S5-Soll-Werte"></div>
+      <div id="harness-board" class="lab-board" aria-label="Qualitäts-Scoreboard"></div>
+      <p id="harness-m7" class="lab-note" role="status"></p>
+      <p id="harness-status" role="status" data-i18n="harness.bereit">Harness bereit.</p>
+    </section>
+  </aside>
+</main>
+<script id="lab-models" type="application/json">[]</script>
+<script type="module" src="./src/shell/main.js"></script>
+</body>
+</html>

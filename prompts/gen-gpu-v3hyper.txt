@@ -1,0 +1,127 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 6.0-HYPER) + HYPERREALISMUS-Block V3 fuer gpu-example
+Du erzeugst ein Three.js-r186-ESM-Modul fuer den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurueck.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du haeltst die Moduldatei unter 34000 Bytes (hart, Modell-Maximum gpu-example).
+Du haeltst Dreiecke unter 60000 und Draw-Calls (Meshes + InstancedMesh) unter 65 exklusive Helper-Handles.
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * als Namespace, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst nur das Modul ohne Erklaerungstext, keine Fences, Ende nach dem letzten Export.
+
+SKILL-QUELLEN (verbindlich anzuwenden, eingearbeitet aus .claude/skills):
+- threejs-materials: sichtbare Szene NUR MeshStandardMaterial (PBR: metalness/roughness je Werkstoff,
+  KEIN MeshBasicMaterial an sichtbaren Meshes). MeshBasicMaterial NUR in der weggeworfenen PMREM-Raumszene.
+- threejs-lighting: 3-Punkt-Licht (Key mit weichen PCFSoft-Schatten 2048 + Fill/Hemisphere + Rim) plus warmer
+  Point-Akzent; Inline-Environment via PMREMGenerator aus prozeduraler Mini-Raumszene (KEIN CDN, KEINE externen HDR-Files).
+- threejs-geometry: abgeschraegte Kanten (PCB/Backplate als ExtrudeGeometry mit bevel), Kuehlrippen als EIN
+  InstancedMesh, Luefterblaetter als echte angestellte Geometrie (9 pro Rotor), Schrauben/Kontakte als InstancedMesh.
+- threejs-textures: prozedurale Texturen NUR via DataTexture (rohe Uint8-Pixel, KEIN document/canvas —
+  document ist S1-verboten); klein (max 128x128), LinearFilter, als map auf PCB (Leiterbahnen) und Backplate
+  (Buerstmetall) und Luefternabe (Typenschild-Ringe).
+- threejs-postprocessing: KEIN Postprocessing (Budget/Determinismus SwiftShader-Baselines S3).
+
+AUFGABE gpu-example (Graphics Card HYPERREAL): fotorealistische Dual-Fan-Grafikkarte, zentriert am Ursprung,
+Bounding-Box in 3 m Wuerfel. Jedes Pflicht-Bauteil mit 2-4 Kleindetails. Pflicht-Bauteile (alle modellieren):
+1. PCB 0.267 m x 0.11 m (Kartenlaenge 267 mm) als ExtrudeGeometry (abgerundetes Rechteck r=0.004, Tiefe 0.0016,
+   bevelThickness 0.0006, bevelSize 0.0006, bevelSegments 1) mit DataTexture-Loetstop (128x64: dunkelblau-grauer
+   Grund, hellere Leiterbahn-Linien horizontal/vertikal, Loetpads als Punkte) als map; zusaetzlich 4 winzige
+   Kondensator-Zylinder und 1 Spulen-Wuerfel nahe Stromanschluss.
+2. GPU-Die mit Substrat: gruene Substrat-Box 0.036x0.036, Silizium-Die 0.02x0.02 (metalness 1.0, roughness 0.15)
+   mit DataTexture-Aetzung (64x64: dunkles Silizium, helle eingeritzte Typen-Rechtecke + Seriennummer-Zeile als
+   Pixelbloecke) als map, plus duenner Gold-Rahmen (4 schmale Boxen) ums Die.
+3. 6 VRAM-Bausteine (3 links + 3 rechts vom Die, je 0.012x0.012 schwarz, metalness 0.4 roughness 0.45), jeder mit
+   je 1 heller Pin-1-Markierung (winzige helle Box, geteilte Geometrie), plus Pin-Reihen: EIN InstancedMesh mit
+   allen Pins (je Chip 2x6 Pins als 0.0015-Boxen, silbern) = 72 Instanzen, 1 Draw-Call.
+4. 2 Axialluefter: je Schutzring (Torus), 4 Rahmenstreben (schmale Boxen), Nabe (Zylinder) mit Typenschild
+   (Kreis-Scheibe mit DataTexture 64x64: konzentrische Ringe + Hersteller-Block), genau 9 angestellte Rotorblaetter
+   (echte Box-Geometrie mit Pitch 0.55, geteilt), je 2 Sechskant-Schrauben (Zylinder 6 Segmente, EIN InstancedMesh
+   fuer alle 4 Luefter-Schrauben).
+5. 3 Heatpipes Kupfer (metalness 1.0 roughness 0.28): 2 gerade Zylinder + 1 U-Bogen (Torus-Halbkreis), dazu
+   vernickelte Kontaktplatte (flache Box, metalness 1.0 roughness 0.2) ueber dem Die.
+6. Kuehlrippenstapel: EIN InstancedMesh mit 24 duennen Lamellen (Box 0.0015x0.09x0.014, Alu metalness 0.9
+   roughness 0.4) + 2 Seiten-Schienen (Boxen).
+7. Backplate: ExtrudeGeometry mit bevel (wie PCB), Buerstmetall-DataTexture (128x128: horizontale Streifen,
+   als map mit colorSpace SRGBColorSpace, magFilter LinearFilter), Zierstreifen, 6 Schrauben (EIN InstancedMesh),
+   2 dunkle Lueftungs-Inlays.
+8. PCIe-x16-Stecker zweigeteilt mit Notch: 2 goldene Segmente + 22 Kontakt-Pads (EIN InstancedMesh, gold,
+   je Segment 11 Pads 0.002x0.008) + Rastnase (kleine Box).
+9. Stromanschluss 8-Pin: weisses Gehaeuse (metalness 0.05 roughness 0.6) + 8 dunkle Kavitaeten (EIN InstancedMesh)
+   + Rastclip (schmale Box).
+10. Slotblende L-foermig (2 Boxen, Stahl metalness 0.95 roughness 0.3): 3 DisplayPort-Oeffnungen (dunkle Inlays
+    je mit innerem Metallrahmen aus 4 schmalen Boxen), 8 Lueftungsschlitze (EIN InstancedMesh dunkler Boxen),
+    2 Blenden-Schrauben.
+Bodenschattenfaenger: EINE Kreisflaeche (CircleGeometry r=0.35) bei y=-0.072 mit ShadowMaterial opacity 0.38,
+nur receiveShadow, sonst unsichtbar.
+
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial,
+ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry, TorusGeometry,
+ExtrudeGeometry, Shape, DataTexture, AmbientLight, DirectionalLight, HemisphereLight, PointLight,
+DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, Vector3,
+BufferGeometry, Matrix4, Quaternion, PMREMGenerator.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+VERBOTENE Bezeichner (S1-Verbotsliste, Wortgrenzen): nutze niemals die Woerter document, window,
+parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon,
+WebSocket, XMLHttpRequest als Variablen, Properties oder Strings im Code. Also KEIN obj.parent,
+KEIN .top, KEIN stop-Flag mit diesem Namen (nutze running/active), KEIN desktop/ontop. Nur
+container (Parameter) und renderer.domElement anfassen. DataTexture-Pixel als Uint8Array/Uint8ClampedArray
+direkt fuellen, dataTexture.needsUpdate = true setzen. Farb-Maps (map) erhalten colorSpace SRGBColorSpace
+und magFilter LinearFilter; skalar wirkende Feinmuster bleiben linear (KeinColorSpace-Default).
+
+LICHT & MATERIAL (PBR-Studio, alles inline, kein CDN, keine externen Files):
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}), setPixelRatio vor setSize, dpr aus
+params gedeckelt 1..2. renderer.toneMapping = ACESFilmicToneMapping, toneMappingExposure 1.1.
+renderer.outputColorSpace = SRGBColorSpace. renderer.shadowMap.enabled = true,
+renderer.shadowMap.type = PCFSoftShadowMap. Klare Farbe 0x0b0e14.
+Inline-Environment (Pflicht): PMREMGenerator(renderer); Mini-Raumszene aus 1 grossen
+Box (MeshBasicMaterial 0x11141a, Rueckseite) + 2 hellen Softbox-Ebenen (MeshBasicMaterial
+0xffffff und 0xcfe0ff, beidseitig); pmrem.fromScene(room, 0.04).texture auf scene.environment;
+scene.environmentIntensity falls verfuegbar 0.55, sonst envMapIntensity 0.55 je Standardmaterial.
+pmrem.dispose nach Erzeugung, envRT in dispose() freigeben.
+Lichter (genau 4): HemisphereLight(0xdfeaff, 0x1a1410, 0.35); Key-DirectionalLight(0xffffff, 2.5)
+von (0.5, 0.8, 0.6), castShadow true, shadow.mapSize 2048, Kamera +-0.3, near 0.1 far 3,
+bias -0.0005, normalBias 0.002; Rim-DirectionalLight(0xbcd0ff, 0.7) von (-0.6, 0.3, -0.5) ohne
+Schatten; PointLight(0xffd9a0, 0.12, 1.5, 2) bei (0.1, -0.05, 0.25) als warmer Akzent (candela-Skala:
+  bei Objektabstand ~0.3 m und decay 2 keine hohen Werte, sonst Ueberbelichtung).
+Material-Werkstoffe (MeshStandardMaterial): PCB mit Leiterbahn-map; Silizium metalness 1.0 roughness 0.15;
+VRAM schwarz metalness 0.4 roughness 0.45; Silber/Kontakte metalness 1.0 roughness 0.3; Kupfer metalness 1.0
+roughness 0.28; Alu-Lamellen metalness 0.9 roughness 0.4; Backplate Buerstmetall-map metalness 0.85
+roughness 0.38; Luefterrahmen schwarz metalness 0.3 roughness 0.5; Blaetter dunkelgrau metalness 0.6
+roughness 0.35 DoubleSide; Weiss-Kunststoff metalness 0.05 roughness 0.6; Blende Stahl metalness 0.95
+roughness 0.3; Inlays fast schwarz roughness 0.7.
+Schatten: traverse ueber card: jedes Mesh castShadow = true, receiveShadow = true (Bodenfaenger nur
+receive). InstancedMesh-Zaehler: Finnen + Pins castShadow true. Labels/Messungen NICHT in card.
+Geometrien/Materialien teilen: identische Bauteile nutzen dieselbe Instanz (Pins, Finnen, Schrauben,
+Pads, Kavitaeten, Schlitze je EIN InstancedMesh mit setMatrixAt-Platzierung via Matrix4/Quaternion/Vector3
+direkt (KEIN Object3D-Dummy, KEIN setColorAt — Color-Import ist verboten); danach instanceMatrix.needsUpdate = true,
+computeBoundingSphere() nach dem Befuellen.
+
+meta (Pflicht, exakt so): export const meta = { title: 'Graphics Card', category: 'hardware', detailLevel: 2,
+parts: ['PCB','GPU-Die','VRAM 1','VRAM 2','Luefter 1','Luefter 2','Heatpipe','Backplate','PCIe-x16-Stecker','Stromanschluss','Slotblende'], units: 'm' }.
+init(container, params): Szene, Kamera overview diagonal (0,34, 0,26, 0,38), erfasst Karte plus
+Bodenschatten, OrbitControls, RAF-Schleife (bei params.reducedMotion keine Luefter-Rotation),
+Rueckgabe { update, dispose }.
+init ist SYNCHRON (kein async, kein Promise). addLabel/addMeasurement sind SYNCHRON (KEIN await).
+Beschriftung: genau 10 addLabel-Aufrufe positional (root, text, [x,y,z], {id, level, sizePx, leader}):
+'GPU-Die' [-0.02,-0.01,0.004], 'VRAM 1' [-0.032,0.008,0.003], 'VRAM 2' [0.012,-0.028,0.003],
+'Luefter 1' [-0.065,0,0.032], 'Luefter 2' [0.065,0,0.032], 'Heatpipe' [0,0.032,0.012],
+'Backplate' [0.06,-0.02,-0.006], 'PCIe-x16-Stecker' [-0.03,-0.061,0.002],
+'Stromanschluss' [0.08,0.06,0.008], 'Slotblende' [-0.135,0,0.01]; ids l1..l10, level 'aufbau',
+sizePx 16, leader true.
+Bemassung: genau 2 addMeasurement-Aufrufe positional mit Einheit mm: 'Kartenlaenge: 267 mm'
+from [-0.1335,-0.075,0] to [0.1335,-0.075,0], 'Slotbreite: 40 mm'
+from [-0.136,0.055,-0.02] to [-0.136,0.055,0.02]; opts {id m1/m2, level 'aufbau', unit 'mm'}.
+update(patch): patch.labels {enabled,max} schaltet Label-Sichtbarkeit (max 5 bei Basis),
+patch.measurements {enabled} schaltet Messungen, patch.view setzt overview/detail(frontales
+GPU-Die-Format)/front/top. Nie neues Modell.
+dispose(): RAF stoppen (running-Flag + cancelAnimationFrame), controls.dispose,
+Szene traversieren: geometry.dispose, material.dispose (+map/bumpMap falls vorhanden),
+renderer.dispose, pmrem/envRT freigeben, renderer.domElement entfernen.
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences.

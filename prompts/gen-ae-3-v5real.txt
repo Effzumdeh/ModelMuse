@@ -1,0 +1,55 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 4.0) + REALISMUS-V5 (fotorealistisch, verbindlich)
+Du erzeugst ein Three.js-r186-ESM-Modul für den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurück.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du hältst die Modulgröße unter 1,5 MB Komfort und niemals über 2,0 MB hart.
+Du hältst Dreiecke unter 150000 (grün bis 120000) und Draw-Calls unter 120 (grün bis 90).
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * as THREE-Verhalten mit Vollbaum, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst nur das Modul ohne Erklärungstext, und du beendest die Ausgabe nach dem letzten Export.
+REALISMUS-V5 (verbindlich, fotorealistisch, im Budget): 4-Punkt-Licht (Hemisphere plus Key mit PCFSoft-Schatten 2048 plus Rim plus warmer Point-Akzent), ACES-ToneMapping, SRGB, Antialiasing, PMREM-Inline-Environment aus Mini-Raumszene, PBR-Materialien, geteilte Geometrien, weiche Schatten auf Bodenkreis, je Bauteil 1-3 Kleindetails. Helper NUR positional: addLabel(scene,'Text',[x,y,z],{id,level,sizePx,leader}), addMeasurement(scene,[a],[b],'Text: NN Einheit',{id,level,unit}). Details siehe AUFGABEN-ANHANG.
+Modell-ID: muse-spark-1.3-contributor. Streaming: stream true. Ausgabe: vollständiges Modul bis finish_reason stop.
+
+AUFGABEN-ANHANG ae-3 (Client-Server-API Anwendungsentwicklung, Modell-ID muse-spark-1.3-contributor):
+Baue eine Client-API-Gateway-Server-Datenbank-Kette von links nach rechts, zentriert am Ursprung, Bounding-Box in 3 m Wuerfel.
+Pflicht-Bauteile (alle modellieren): Client als Monitor-Box 0,16 m x 0,10 m x 0,01 m bei (-0,50, 0, 0,10) plus Standfuss-Box,
+API-Gateway als Box 0,20 m x 0,14 m x 0,14 m bei (-0,17, 0, 0,07),
+Server als Box 0,30 m x 0,18 m x 0,30 m bei (0,18, 0, 0,09) plus 3 LED-Boxen 0,02 m an der Front,
+Datenbank als Zylinder Radius 0,10 m Hoehe 0,16 m bei (0,52, 0, 0,08),
+3 Request-Kanten als Linien (Line mit BufferGeometry) Client-Gateway, Gateway-Server, Server-Datenbank plus je 1 Pfeilspitze als kleiner Kegel (CylinderGeometry Radius 0,012 m zu 0,0 m).
+Kleindetails (zusaetzlich, im Budget): Standfuss plus Tastatur-Box beim Client, 3 Lueftungsschlitze (duenne Boxen) am Server, Sockelring (Cylinder) unter der Datenbank.
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, MeshBasicMaterial,
+ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry,
+TorusGeometry, AmbientLight, DirectionalLight, HemisphereLight, PointLight, Line, LineBasicMaterial,
+DoubleSide, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, Vector3, BufferGeometry,
+PMREMGenerator.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+meta (Pflicht, exakt so): export const meta = { title: 'Client-Server-API (AE-3)', category: 'sonstiges', detailLevel: 2,
+parts: ['Client','API-Gateway','Server','Datenbank'], units: 'm' }.
+init(container, params): Szene, Kamera (overview bei (0.0, -0.60, 0.60), erfasst Bounding-Box), V5-Licht/Renderer/Umgebung siehe REALISMUS-V5 unten,
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}) mit toneMapping ACESFilmicToneMapping, toneMappingExposure 1,1, outputColorSpace SRGB, shadowMap.enabled true, shadowMap.type PCFSoftShadowMap, klarer Farbe 0x0b0e14, setPixelRatio vor setSize, dpr aus params gedeckelt 1..2. Inline-Environment (Pflicht): PMREMGenerator(renderer) plus Mini-Raumszene aus 1 grossen Box (MeshBasicMaterial 0x11141a, Rueckseite) plus 2 hellen Softbox-Ebenen (MeshBasicMaterial 0xffffff und 0xcfe0ff, beidseitig); pmrem.fromScene(room, 0.04).texture auf scene.environment; scene.environmentIntensity falls verfuegbar 0.55, sonst envMapIntensity 0.55 je Standardmaterial; pmrem.dispose nach Erzeugung, envRT in dispose() freigeben. Lichter (genau 4): HemisphereLight(0xdfeaff, 0x1a1410, 0.35); Key-DirectionalLight(0xffffff, 2.0) diagonal von oben, castShadow true, shadow.mapSize 2048, Schattenkamera +-1 m, near 0.1 far 4, bias -0.0005, normalBias 0.002; Rim-DirectionalLight(0xbcd0ff, 0.7) von hinten ohne Schatten; PointLight(0xffd9a0, 3, 1.5, 2) als warmer Akzent im Vordergrund. Bodenschattenfaenger: EINE duenne Kreisflaeche (CircleGeometry r=0.55) unter dem Modell mit ShadowMaterial opacity 0.35, nur receiveShadow, sonst unsichtbar. Jedes Mesh castShadow und receiveShadow true (Linien und Bodenfaenger ausgenommen). Identische Bauteile teilen dieselbe Geometrie- und Materialinstanz. PBR materialgerecht (Metall metalness 0.8-1.0/roughness 0.25-0.4, Kunststoff metalness 0.0-0.2/roughness 0.5-0.8). 
+OrbitControls, RAF-Schleife (statisches Modell, bei params.reducedMotion keine Bewegung), Rueckgabe { update, dispose }.
+init ist SYNCHRON (kein async, kein Promise). addLabel/addMeasurement sind SYNCHRON und geben sofort { id, setVisible, remove } zurueck (KEIN await).
+Beschriftung: genau 4 addLabel-Aufrufe synchron (ids l1..l4, sizePx 14..18, level 'aufbau', leader true). Labeltexte EXAKT:
+'Client' an [-0.50,0.0,0.20], 'API-Gateway' an [-0.17,0.0,0.18], 'Server' an [0.18,0.0,0.22], 'Datenbank' an [0.52,0.0,0.20].
+Bemaßung: genau 1 addMeasurement-Aufruf synchron mit Einheit m: 'Distanz: 1 m' von [-0.50,-0.14,0.0] nach [0.50,-0.14,0.0], optisch sichtbare Linie.
+update(patch): patch.labels {enabled,max} schaltet Label-Sichtbarkeit (max 5 bei Basis), patch.measurements {enabled}
+schaltet Messungen, patch.view setzt Kamera-Presets overview/detail(Server frontal formatfuellend)/front/top. Nie neues Modell.
+dispose(): Animationsschleife stoppen (running-Flag plus cancelAnimationFrame), controls.dispose, Szene traversieren: geometry.dispose, material.dispose (plus map falls vorhanden), envRT freigeben, renderer.dispose,
+Dom-Element entfernen.
+VERBOTENE Bezeichner (S1-Verbotsliste, Wortgrenzen): nutze niemals die Woerter document, window,
+parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon,
+WebSocket, XMLHttpRequest als Variablen, Properties oder Strings im Code. Also KEIN obj.parent,
+KEIN .top, KEIN stop-Flag mit diesem Namen (nutze running/active). Nur
+container (Parameter) und renderer.domElement anfassen.
+Verwende im Code AUSSCHLIESSLICH die genannten Label-/Messtexte, keine weiteren Saetze, keine Lernziele, keine Aufgaben.
+Helper-Syntax EXAKT positional (kein Objekt-Stil): addLabel(scene, 'Text', [x,y,z], { id: 'l1', level: 'aufbau', sizePx: 16, leader: true }) und addMeasurement(scene, [x0,y0,z0], [x1,y1,z1], 'Text: NN Einheit', { id: 'm1', level: 'aufbau', unit: 'cm' }).
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences, Ende nach dem letzten Export.

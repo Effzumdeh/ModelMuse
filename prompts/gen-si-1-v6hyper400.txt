@@ -1,0 +1,95 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 6.0-HYPER-BUDGET400) + HYPERREALISMUS-Block
+Du erzeugst ein Three.js-r186-ESM-Modul fuer den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurueck.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du haeltst die Moduldatei unter 34000 Bytes (hart, Hyper-Maximum je Lab).
+HYPER-UPGRADE (verbindlich, im Budget 400, aus .claude/skills threejs-materials/lighting/geometry/textures):
+- Sichtbare Szene NUR MeshStandardMaterial (PBR metalness/roughness je Werkstoff, KEIN MeshBasicMaterial an sichtbaren Meshes). MeshBasicMaterial NUR in der verworfenen PMREM-Raumszene.
+- Kanten mit Fase wo sinnvoll: Gehaeuse/Boxen/Tafeln als ExtrudeGeometry mit bevel (abgerundetes Rechteck-Shape, bevelThickness/bevelSize klein, 1 Segment) statt scharfer Box, wo es die Bauteilform hergibt.
+- Prozedurale Feintexturen NUR via DataTexture (rohe Uint8-Pixel, KEIN document/canvas — document ist S1-verboten); klein (max 128x128), LinearFilter, als map wo sinnvoll (z.B. Leiterbahnen, Aetzung, Buerstmetall, Typenschilder); Farb-Maps mit colorSpace SRGBColorSpace und magFilter LinearFilter.
+- Wiederholteile als EIN InstancedMesh je Teilefamilie (Schrauben, Ports, LEDs, Lamellen, Pins, Pads); Platzierung via Matrix4/Quaternion/Vector3 direkt mit setMatrixAt (KEIN Object3D-Dummy, KEIN setColorAt ohne Color-Import); danach instanceMatrix.needsUpdate = true, computeBoundingSphere().
+- KEIN Postprocessing (Budget/Determinismus SwiftShader-Baselines S3).
+- VERBOTENE Bezeichner (S1, Wortgrenzen): nutze niemals document, window, parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon, WebSocket, XMLHttpRequest als Variablen/Properties/Strings. Also KEIN obj.parent, KEIN .top, KEIN stop-Flag mit diesem Namen (nutze running/active), KEIN desktop/ontop. Nur container und renderer.domElement anfassen. Frustum-Grenzen per Schleife ueber String-Literale (z.B. const frustumKeys = ['left','right','top','bottom']).
+Du haeltst Dreiecke unter 60000 und Draw-Calls unter 350 (gruen bis 300, NACHTRAG 2026-10-27, hart 400) exklusive Helper-Handles. Mesh-Budget (M2, verbindlich): maximal 250 Meshes (hart), gruen bis 120, Struktur-Ziel ~45 (Richtung Astra-Niveau, statt Median 995); Wiederholteile als EIN InstancedMesh je Teilefamilie, keine dekorativen Einzel-Meshes.
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * als Namespace, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst nur das Modul ohne Erklaerungstext, keine Fences, Ende nach dem letzten Export.
+
+AUFGABE si-1 (PC-Arbeitsplatz): Mainboard ATX 0,24 m x 0,24 m stehend in XY-Ebene (Dicke 0,002 m,
+wie Referenz), darauf CPU-Sockel mit Heatspreader und Kuehler (6 Lamellen aus EINER geteilten
+Box-Geometrie + Axialluefter mit Ring, Nabe, 7 angestellten Rotorblaettern in +z-Richtung),
+2 RAM-Riegel
+(parallel, je Leiter + Heatspreader mit Notch-Andeutung), kleine Grafikkarte quer (PCB,
+Luefter mit 7 Blaettern, Slotblende), Netzteil-Box (0,15 x 0,086 x 0,14 m) mit Lueftergitter
+(Rahmen + dunkles Inlet + 4-Blatt-Luefter) und 24-Pin-ATX-Stecker (weiss + dunkle Kavitaet),
+4 Mainboard-Schrauben (Ecken, EINE geteilte Zylinder-Geometrie), I/O-Blende hinten (helles
+Blech + 2 dunkle Oeffnungen). Bodenschattenfaenger: EINE Kreisflaeche (CircleGeometry r=0.35)
+bei y=-0.14 mit ShadowMaterial opacity 0.38, nur receiveShadow, sonst unsichtbar.
+
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial,
+ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry,
+TorusGeometry, ExtrudeGeometry, Shape, DataTexture, AmbientLight, DirectionalLight, HemisphereLight, PointLight,
+Line, LineBasicMaterial, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping,
+PCFSoftShadowMap, Vector3, BufferGeometry, Matrix4, Quaternion, PMREMGenerator.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+VERBOTENE Bezeichner (S1-Verbotsliste, Wortgrenzen): nutze niemals die Woerter document, window,
+parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon,
+WebSocket, XMLHttpRequest als Variablen, Properties oder Strings im Code. Also KEIN obj.parent,
+KEIN .top, KEIN running-Flag mit Stopp-Namen (nutze running/active), KEIN desktop/ontop. Nur
+container (Parameter) und renderer.domElement anfassen. Frustum-Grenzen der Schattenkamera per
+Schleife ueber String-Literale setzen (Beispiel: const frustumKeys = ['left','right','top','bottom']).
+
+LICHT & MATERIAL (PBR-Studio, alles inline, kein CDN, keine Texturen):
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}), setPixelRatio vor setSize, dpr aus
+params gedeckelt 1..2. renderer.toneMapping = ACESFilmicToneMapping, toneMappingExposure 1.1.
+renderer.outputColorSpace = SRGBColorSpace. renderer.shadowMap.enabled = true,
+renderer.shadowMap.type = PCFSoftShadowMap. Klare Farbe 0x0b0e14.
+Inline-Environment (Pflicht): PMREMGenerator(renderer); Mini-Raumszene aus 1 grossen Box
+(MeshBasicMaterial 0x11141a, Rueckseite) + 2 hellen Softbox-Ebenen (MeshBasicMaterial 0xffffff
+und 0xcfe0ff, beidseitig); pmrem.fromScene(room, 0.04).texture auf scene.environment;
+scene.environmentIntensity 0.55 wenn vorhanden, sonst envMapIntensity 0.55 je Standardmaterial.
+pmrem.dispose nach Erzeugung; room-Geometrien/Materialien danach per traverse disposen.
+Lichter (genau 4): HemisphereLight(0xdfeaff, 0x1a1410, 0.35); Key-DirectionalLight(0xffffff, 2.5)
+von (0.5, 0.8, 0.6), castShadow true, shadow.mapSize 2048, Frustum +-0.3 per Schleife, near 0.1,
+far 3, bias -0.0005, normalBias 0.002, danach updateProjectionMatrix; Rim-DirectionalLight
+(0xbcd0ff, 0.7) von (-0.6, 0.3, -0.5) ohne Schatten; PointLight(0xffd9a0, 0.12, 1.5, 2) als warmer
+Akzent. KEIN AmbientLight.
+Materialien (MeshStandardMaterial): PCB dunkelgruen metalness 0.3 roughness 0.55; CPU-Silber
+metalness 1.0 roughness 0.25; Kuehler-Alu hell metalness 0.9 roughness 0.4 (Lamellen EIN Material);
+Luefter schwarz metalness 0.3 roughness 0.5; Blaetter dunkelgrau metalness 0.6 roughness 0.35
+DoubleSide; RAM gruen/blau + Spreader metalness 0.8; GPU-PCB dunkel + Shroud schwarz; NT-Box
+dunkelgrau metalness 0.7 roughness 0.5; Gitter schwarz; Weiss-Kunststoff metalness 0.05
+roughness 0.6; Blende hell metalness 0.95 roughness 0.3; Dunkel-Inlets fast schwarz.
+Schatten: traverse ueber Baugruppe: alle Meshes receiveShadow = true, castShadow = false;
+danach castShadow = true NUR fuer Mainboard, CPU-Kuehler (Lamellen+Luefterrotor), beide RAM,
+Grafikkarte, Netzteil-Box.
+Geometrien/Materialien teilen: identische Bauteile (Blaetter, Lamellen, Schrauben) nutzen
+dieselbe Geometrie- und Materialinstanz.
+
+meta (Pflicht, EXAKT): export const meta = { title: 'PC-Arbeitsplatz (SI-1)', category: 'hardware', detailLevel: 2, parts: ['Mainboard','CPU','Arbeitsspeicher','Grafikkarte','Netzteil'], units: 'm' }.
+init(container, params): Szene, Kamera overview diagonal (0.38, 0.28, 0.42), erfasst Board plus
+Bodenschatten, OrbitControls, RAF-Schleife (bei params.reducedMotion keine Luefter-Rotation),
+Rueckgabe { update, dispose }.
+Beschriftung: genau 5 addLabel-Aufrufe positional (root, text, [x,y,z], {id, level, sizePx, leader}):
+'Mainboard' [0.0,-0.115,0.004] l1, 'CPU' [-0.05,0.02,0.04] l2, 'Arbeitsspeicher' [0.04,0.085,0.035] l3,
+'Grafikkarte' [0.0,-0.055,0.028] l4, 'Netzteil' [0.19,-0.02,0.095] l5; level 'aufbau', sizePx 16,
+leader true. Texte EXAKT wie Manifest (kein Lernzieltext im Code).
+Bemassung: genau 1 addMeasurement-Aufruf positional: from [-0.12,0.145,0.002] to [0.12,0.145,0.002],
+'Mainboard-Breite: 24 cm', opts {id 'm1', level 'aufbau', unit 'cm'}.
+update(patch): patch.labels {enabled,max} schaltet Label-Sichtbarkeit (max 5 bei Basis),
+patch.measurements {enabled} schaltet Messung, patch.view setzt overview/detail(CPU-Kuehler
+frontal formatfuellend)/front/top. Nie neues Modell.
+dispose(): RAF stoppen (running-Flag + cancelAnimationFrame), controls.dispose,
+Szene traversieren: geometry.dispose, material.dispose (+map falls vorhanden),
+renderer.dispose, pmrem-Ressourcen freigeben, renderer.domElement.remove.
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences.
+
+Modell-ID: muse-spark-1.3-contributor.

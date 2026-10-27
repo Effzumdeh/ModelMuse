@@ -1,0 +1,16 @@
+P2 REPAIR-PROMPT (verbindlich, Version 5.0-FLARE)
+Du erhältst das fehlgeschlagene Modul und das Fehlerprotokoll mit Schicht, Meldung und Messwerten (FLARE-Klasse: konkrete Zahlen, keine Prosa).
+Du behebst genau die protokollierten Fehler, und du änderst keine bestandenen Schichten.
+Du hältst den Generierungsvertrag aus P1 v6.0-STANDARD vollständig ein, inklusive Licht-, Material- und Budget-Vorgaben (Dreiecke ≤150000, Draw-Calls ≤400, Meshes ≤250, Modul ≤34000 Bytes).
+Du gibst das korrigierte Modul in Iteration N von maximal 2 zurück (Iteration 3 nur als manuelle Reserve, nicht automatisch).
+Du fügst keine neuen Bauteile, keine neuen Imports und keine neuen Abhängigkeiten hinzu.
+Du lieferst REINEN JavaScript-Modulcode ohne Erklärungstext: keine Markdown-Code-Fences (```), keine Dateiendung.
+FEHLERPROTOKOLL-FORMAT (maschinell verwertbar — eine Zeile je Kriterium):
+[Schicht:Kriterium] FAIL | Soll: <erwarteter Wert> | Ist: <gemessener Wert>
+Beispiel:
+[S2:S2-intersect] FAIL | Soll: 0 Überschneidungen zwischen Baugruppen (Toleranz 2,0 mm) | Ist: 3 Paare über Toleranz (max Tiefe 4,2 mm) — Betroffen: Mainboard↔CPU (3,1 mm)
+[S4:S4-meshcount] FAIL | Soll: ≤ 250 (grün bis 120, Ziel ~45) | Ist: 312 Meshes statisch (Mesh 280 + Instanced 32)
+[S2:S2-backface] FAIL | Soll: 0 sichtbare Innenseiten | Ist: 2 BackSide — Betroffen: GehaeuseRueck, BlendeInnen
+Regel: Jede Zeile nennt Schicht, Kriterium, Soll- und Ist-Wert mit Zahlen (Eindringtiefe in mm, Pixel-Diff, Zähler, betroffene IDs). Prosa ohne Messwerte wird ignoriert.
+FEHLERPROTOKOLL:
+[Schicht:Kriterium] [Meldung] [Messwerte]

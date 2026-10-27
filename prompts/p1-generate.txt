@@ -1,0 +1,60 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 6.0-STANDARD)
+V6-Promptstruktur als Standardformat (M4/M5/M8). Zahlenquelle: src/runtime/budget.js
+(DEFAULT_BUDGET_LIMITS + TRAFFIC) — Prompt und Gate laufen nicht auseinander.
+Modell-ID: muse-spark-1.3-contributor. Streaming: stream true. Ausgabe: vollstaendiges Modul bis finish_reason stop.
+Du erzeugst ein Three.js-r186-ESM-Modul fuer den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurueck.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial,
+ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry,
+TorusGeometry, ExtrudeGeometry, Shape, DataTexture, AmbientLight, DirectionalLight, HemisphereLight, PointLight,
+Line, LineBasicMaterial, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping,
+PCFSoftShadowMap, Vector3, BufferGeometry, Matrix4, Quaternion, PMREMGenerator.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+VERBOTENE Bezeichner (S1-Wortgrenzen): nutze niemals document, window, parent, top, fetch, eval, Function,
+navigator, localStorage, sessionStorage, indexedDB, sendBeacon, WebSocket, XMLHttpRequest als Variablen,
+Properties oder Strings. Nur container und renderer.domElement anfassen.
+Du lieferst REINEN JavaScript-Modulcode. Keine Markdown-Code-Fences (```), keine Erklaerung, keine Dateiendung.
+Du beendest die Ausgabe nach dem letzten Export.
+Budgets (eine Quelle der Wahrheit, Ampel-Korridor gruen/gelb/rot):
+Moduldatei unter 34000 Bytes (hart je Lab); Komfort 1,5 MB, niemals ueber 2,0 MB hart.
+Dreiecke unter 150000 (gruen bis 120000). Draw-Calls unter 400 (gruen bis 300).
+Mesh-Budget (M2, verbindlich): maximal 250 Meshes (hart), gruen bis 120, Struktur-Ziel ~45 (Richtung Astra-Niveau [20], statt Median 995).
+Wiederholteile als EIN InstancedMesh je Teilefamilie (Schrauben, Ports, LEDs, Lamellen, Pins, Pads);
+Platzierung via Matrix4/Quaternion/Vector3 direkt mit setMatrixAt (KEIN Object3D-Dummy, KEIN setColorAt ohne Color-Import);
+danach instanceMatrix.needsUpdate = true, computeBoundingSphere(). Keine dekorativen Einzel-Meshes.
+Erster Frame unter 8000 ms, mindestens 30 FPS, Heap unter 256 MB.
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+AUFGABE-Block (je Lab ergaenzt, EXAKT und messbar — Anforderung statt Verfahren):
+Bauteilliste mit exakten Massen in Metern; je Bauteil Geometrie + Materialklasse.
+Beschriftung: exakte addLabel-Aufrufe positional (root, text, [x,y,z], {id, level, sizePx, leader}) —
+Texte EXAKT wie Manifest (kein Lernzieltext im Code, S5-deklarativ).
+Bemassung: exakte addMeasurement-Aufrufe positional mit Endpunkten und Einheit (S5: ≥1 Messung, IDs m1…).
+Jede Checklisten-Zeile entspricht einem S5-Kriterium (labels ≥3, measurements ≥1, Aufbau ≥2, Profi-Transfer ≥1).
+LICHT & MATERIAL (PBR-Studio, alles inline, kein CDN, keine Texturen aus dem Netz):
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}), dpr aus params gedeckelt 1..2.
+toneMapping ACESFilmic, Exposure 1,1, outputColorSpace SRGB, shadowMap PCFSoft, klare Farbe 0x0b0e14.
+Inline-Environment (Pflicht): PMREMGenerator + Mini-Raumszene (grosse Box Rueckseite + 2 Softbox-Ebenen),
+pmrem.fromScene(room, 0.04).texture auf scene.environment; environmentIntensity 0,55 (sonst envMapIntensity je Material).
+Lichter (genau 4): HemisphereLight(0xdfeaff, 0x1a1410, 0.35); Key-DirectionalLight(0xffffff, 2,5) mit Schatten
+(mapSize 2048, Frustum ±0,3 per Schleife, near 0,1, far 3, bias -0,0005, normalBias 0,002); Rim-DirectionalLight
+(0xbcd0ff, 0,7) ohne Schatten; PointLight(0xffd9a0, 0,12, 1,5, 2) als warmer Akzent. KEIN AmbientLight.
+Material-Dosierung (M8, gezielt statt global): MeshStandardMaterial je Werkstoff (Metall 0,8-1,0/0,25-0,4,
+Kunststoff 0,0-0,2/0,5-0,8). DataTexture-Mikrostruktur (max 128x128, LinearFilter, rohe Uint8-Pixel,
+KEIN document/canvas) gezielt pro Bauteilklasse benennen (z.B. Leiterbahnen, Aetzung, Buerstmetall, Typenschilder).
+MeshPhysicalMaterial NUR fuer lackierte Blechflaechen (Gehaeuse, Blenden) mit clearcoat 0,35,
+clearcoatRoughness 0,25 — KEIN Global-Einsatz (Shaderkosten Schul-iGPU). AUSDRUECKLICH NICHT:
+transmission, iridescence, sheen. Kanten mit Fase wo sinnvoll (ExtrudeGeometry mit Bevel, 1 Segment).
+Schatten: traverse ueber Baugruppe — alle Meshes receiveShadow true, castShadow false; danach castShadow true
+NUR fuer Hauptbauteile. Geometrien/Materialien teilen (identische Teile: dieselbe Instanz).
+meta (Pflicht, EXAKT): export const meta = { title, category, detailLevel, parts, units: 'm' }.
+init(container, params): Szene, Kamera, OrbitControls, RAF-Schleife (bei params.reducedMotion keine Rotation),
+Rueckgabe { update, dispose }. update(patch): labels {enabled,max}, measurements {enabled}, view overview/detail/front/top.
+dispose(): RAF stoppen, controls.dispose, Szene traversieren (geometry.dispose, material.dispose),
+renderer.dispose, pmrem-Ressourcen freigeben, renderer.domElement.remove.

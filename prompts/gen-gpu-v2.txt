@@ -1,0 +1,88 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 3.0) + REALISMUS-ERWEITERUNG v2 fuer gpu-example
+Du erzeugst ein Three.js-r186-ESM-Modul fuer den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurueck.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du haeltst die Moduldatei unter 30000 Bytes (harter Abort darueber nicht noetig, aber Ziel).
+Du haeltst Dreiecke unter 60000 und Draw-Calls (Meshes) unter 65 exklusive Helper-Handles.
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * als Namespace, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst nur das Modul ohne Erklaerungstext, keine Fences, Ende nach dem letzten Export.
+
+AUFGABE gpu-example (Graphics Card): fotorealistische Dual-Fan-Grafikkarte, zentriert am Ursprung,
+Bounding-Box in 3 m Wuerfel. Pflicht-Bauteile (alle modellieren): Mainboard-PCB 0,267 m x 0,11 m
+(Kartenlaenge 267 mm), GPU-Die mit Substrat, 6 VRAM-Bausteine (3 links + 3 rechts vom Die),
+2 Axialluefter (je Ring, Nabe, genau 9 angestellte Rotorblaetter mit Pitch, 2 Schrauben),
+12 Kuehllamellen als Stack (EINE geteilte Box-Geometrie, EIN geteiltes Material),
+3 Heatpipes aus Kupfer (2 gerade + 1 U-Bogen aus Torus-Halbkreis), Backplate mit Zierstreifen
+und 4 Schrauben, PCIe-x16-Stecker zweigeteilt mit Notch (Goldkontakte), Stromanschluss 8-Pin
+(weisses Gehaeuse + dunkle Kavitaet), Slotblende mit 3 DisplayPort-Oeffnungen (dunkle Inlays)
+und Lueftungsschlitz. Bodenschattenfaenger: EINE Kreisflaeche (CircleGeometry r=0.35) bei
+y=-0.072 mit ShadowMaterial opacity 0.38, nur receiveShadow, sonst unsichtbar.
+
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, MeshBasicMaterial,
+ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry,
+TorusGeometry, AmbientLight, DirectionalLight, HemisphereLight, PointLight, Line, LineBasicMaterial,
+DoubleSide, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, Vector3, BufferGeometry,
+PMREMGenerator.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+VERBOTENE Bezeichner (S1-Verbotsliste, Wortgrenzen): nutze niemals die Woerter document, window,
+parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon,
+WebSocket, XMLHttpRequest als Variablen, Properties oder Strings im Code. Also KEIN obj.parent,
+KEIN .top, KEIN stop-Flag mit diesem Namen (nutze running/active), KEIN desktop/ontop. Nur
+container (Parameter) und renderer.domElement anfassen.
+
+LICHT & MATERIAL (PBR-Studio, alles inline, kein CDN, keine Texturen):
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}), setPixelRatio vor setSize, dpr aus
+params gedeckelt 1..2. renderer.toneMapping = ACESFilmicToneMapping, toneMappingExposure 1.1.
+renderer.outputColorSpace = SRGBColorSpace. renderer.shadowMap.enabled = true,
+renderer.shadowMap.type = PCFSoftShadowMap. Klare Farbe 0x0b0e14.
+Inline-Environment (Pflicht, ca. 15 Zeilen): PMREMGenerator(renderer); Mini-Raumszene aus 1 grossen
+Box (MeshBasicMaterial 0x11141a, Rueckseite) + 2 hellen Softbox-Ebenen (MeshBasicMaterial
+0xffffff und 0xcfe0ff, beidseitig); pmrem.fromScene(room, 0.04).texture auf scene.environment;
+scene.environmentIntensity falls verfuegbar 0.55, sonst envMapIntensity 0.55 je Standardmaterial.
+pmrem.dispose nach Erzeugung, envRT in dispose() freigeben.
+Lichter (genau 4): HemisphereLight(0xdfeaff, 0x1a1410, 0.35); Key-DirectionalLight(0xffffff, 2.5)
+von (0.5, 0.8, 0.6), castShadow true, shadow.mapSize 2048, Kamera +-0.3, near 0.1 far 3,
+bias -0.0005, normalBias 0.002; Rim-DirectionalLight(0xbcd0ff, 0.7) von (-0.6, 0.3, -0.5) ohne
+Schatten; PointLight(0xffd9a0, 3, 1.5, 2) bei (0.1, -0.05, 0.25) als warmer Akzent.
+Materialien (MeshStandardMaterial, PBR): PCB dunkelblau metalness 0.35 roughness 0.55; Die
+silbern metalness 1.0 roughness 0.25; VRAM schwarz metalness 0.4 roughness 0.45 mit je 1 winziger
+Silber-Markierung? (Nein: Mesh-Budget! Markierung weglassen); Luefterrahmen schwarz metalness 0.3
+roughness 0.5; Blaetter dunkelgrau metalness 0.6 roughness 0.35 DoubleSide; Kupfer metalness 1.0
+roughness 0.28; Backplate dunkel metalness 0.85 roughness 0.38 + Streifen metalness 1.0
+roughness 0.22; Gold metalness 1.0 roughness 0.3; Weiss-Kunststoff metalness 0.05 roughness 0.6;
+Blende hell metalness 0.95 roughness 0.3; DP-Inlays fast schwarz roughness 0.7.
+Schatten: traverse ueber card: jedes Mesh castShadow = true, receiveShadow = true (ausser
+Bodenfaenger: nur receive). Labels/Messungen NICHT in card, keine Schatten dort.
+Geometrien/Materialien teilen: identische Bauteile (Blaetter, Lamellen, VRAM, Schrauben)
+nutzen dieselbe Geometrie- und Materialinstanz.
+
+meta (Pflicht): export const meta = { title: 'Graphics Card', category: 'hardware', detailLevel: 2,
+parts: ['PCB','GPU-Die','VRAM 1','VRAM 2','Luefter 1','Luefter 2','Heatpipe','Backplate','PCIe-x16-Stecker','Stromanschluss','Slotblende'], units: 'm' }.
+init(container, params): Szene, Kamera overview diagonal (0.34, 0.26, 0.38), erfasst Karte plus
+Bodenschatten, OrbitControls, RAF-Schleife (bei params.reducedMotion keine Luefter-Rotation),
+Rueckgabe { update, dispose }.
+Beschriftung: genau 10 addLabel-Aufrufe positional (root, text, [x,y,z], {id, level, sizePx, leader}):
+'GPU-Die' [-0.02,-0.01,0.004], 'VRAM 1' [-0.032,0.008,0.003], 'VRAM 2' [0.012,-0.028,0.003],
+'Luefter 1' [-0.065,0,0.032], 'Luefter 2' [0.065,0,0.032], 'Heatpipe' [0,0.032,0.012],
+'Backplate' [0.06,-0.02,-0.006], 'PCIe-x16-Stecker' [-0.03,-0.061,0.002],
+'Stromanschluss' [0.08,0.06,0.008], 'Slotblende' [-0.135,0,0.01]; ids l1..l10, level 'aufbau',
+sizePx 16, leader true.
+Bemassung: genau 2 addMeasurement-Aufrufe positional mit Einheit mm: 'Kartenlaenge: 267 mm'
+from [-0.1335,-0.075,0] to [0.1335,-0.075,0], 'Slotbreite: 40 mm' from [-0.136,0.055,-0.02] to
+[-0.136,0.055,0.02]; opts {id m1/m2, level 'aufbau', unit 'mm'}.
+update(patch): patch.labels {enabled,max} schaltet Label-Sichtbarkeit (max 5 bei Basis),
+patch.measurements {enabled} schaltet Messungen, patch.view setzt overview/detail(frontales
+GPU-Die-Format)/front/top. Nie neues Modell.
+dispose(): RAF stoppen (running-Flag + cancelAnimationFrame), controls.dispose,
+Szene traversieren: geometry.dispose, material.dispose (+map falls vorhanden),
+renderer.dispose, pmrem/envRT freigeben, renderer.domElement entfernen.
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences.

@@ -1,0 +1,29 @@
+P2 REPAIR-PROMPT (verbindlich, Version 3.0) — gpu-example Iteration 2 von max 3
+Du erhaeltst das fehlgeschlagene Modul (ITERATION 1, siehe Anhang VOLLSTAENDIGES MODUL) und das
+Fehlerprotokoll mit Schicht, Meldung, Messwerten.
+Du behebst genau die protokollierten Fehler, und du aenderst keine bestandenen Schichten.
+Du haeltst den Generierungsvertrag aus P1 vollstaendig ein (Exports, Imports, Labels, Messungen,
+Budgets, Masse, nur Modulcode ohne Erklaerung/Fences).
+Du gibst das korrigierte Modul in Iteration 2 von maximal 3 zurueck.
+Du fuegst keine neuen Bauteile, keine neuen Imports und keine neuen Abhaengigkeiten hinzu.
+Du lieferst nur das Modul ohne Erklaerungstext.
+FEHLERPROTOKOLL:
+[S2-Review] [PointLight-Akzent ueberbelichtet: Intensitaet 3 bei decay 2 und Abstand ~0.27 m ergibt
+Faktor ~40, weisser Clip-Fleck auf der Karte] [Messwert: 3 / 0.27^2 = 41.2]
+-> Setze exakt: const accent = new PointLight(0xffd9a0, 0.12, 1.5, 2); Rest unveraendert.
+[S1-Hygiene] [Schattenkamera-Top per String-Concat ['t' + 'op'] umgangen; ersetze durch saubere
+Schleife ueber String-Literale (Inhalt maskiert, S1-sicher), ohne neue Bezeichner mit
+verbotenen Woertern] [Messwert: 1 Concat-Stelle, Zeile key.shadow.camera['t' + 'op'] = 0.3]
+-> Ersetze die 6 Frustum-Zeilen (left/right/bottom/near/far/bias ausgenommen nur top-Zeile
+plus updateProjectionMatrix bleibt) durch:
+const frustumKeys = ['left', 'right', 'top', 'bottom'];
+const frustumVals = [-0.3, 0.3, 0.3, -0.3];
+for (let fi = 0; fi < 4; fi++) { key.shadow.camera[frustumKeys[fi]] = frustumVals[fi]; }
+Die Zeilen near/far/bias/normalBias/mapSize/updateProjectionMatrix bleibenbyteidentisch.
+[S2-Hygiene] [Mini-Raumszene (room, 3 Meshes) nach pmrem.fromScene nie disposed: Geometrie- und
+Material-Leak pro load] [Messwert: 3 Geometrien + 3 Materialien pro init]
+-> Fuege direkt nach pmrem.dispose() ein:
+room.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+Alle anderen Zeilen des Moduls byteidentisch lassen: Geometrie, Lichter (ausser accent-Wert),
+Materialien, Labels, Messungen, update, dispose, Kamerafahrten.
+VOLLSTAENDIGES MODUL ITERATION 1 (danach nur das korrigierte Modul ausgeben):

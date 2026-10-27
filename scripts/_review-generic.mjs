@@ -1,0 +1,16 @@
+import { readFile } from 'node:fs/promises';
+import { staticGate } from '../src/runtime/guard-static.js';
+import { extractMeta, verifyDidacticsLayer } from '../src/runtime/verify.js';
+const file = process.argv[2];
+const manPath = process.argv[3];
+const src = await readFile(file, 'utf8');
+const gate = staticGate(src, { comfort: 1500000, hard: 2000000 });
+console.log('bytes=' + Buffer.byteLength(src, 'utf8'));
+console.log('S1 hits=' + gate.hits.length + ' size=' + gate.size.tier + ' imports=' + (gate.imports.ok ? 'ok:' + gate.imports.specifiers.join(',') : 'FREMD:' + gate.imports.offending.join(',')));
+console.log('meta=' + JSON.stringify(extractMeta(src)));
+console.log('addLabel=' + (src.match(/addLabel\s*\(/g) || []).length + ' addMeasurement=' + (src.match(/addMeasurement\s*\(/g) || []).length);
+console.log('InstancedMesh=' + (src.match(/new InstancedMesh/g) || []).length + ' DataTexture=' + (src.match(/new DataTexture/g) || []).length + ' Extrude=' + (src.match(/new ExtrudeGeometry/g) || []).length);
+console.log('await-helper=' + (src.match(/await (addLabel|addMeasurement)/g) || []).length);
+const man = JSON.parse(await readFile(manPath, 'utf8'));
+const { layer } = verifyDidacticsLayer(man, src);
+console.log('S5=' + layer.verdict + ' ' + layer.criteria.map((c) => c.id + ':' + c.verdict).join(' '));

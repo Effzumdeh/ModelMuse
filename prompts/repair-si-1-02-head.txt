@@ -1,0 +1,25 @@
+P2 REPAIR-PROMPT (verbindlich, Version 3.0) — si-1 Iteration 2 von max 3
+Du erhaeltst das Modul aus Iteration 1 (Anhang VOLLSTAENDIGES MODUL) und das Fehlerprotokoll.
+Du behebst genau die protokollierten Fehler, und du aenderst keine bestandenen Schichten.
+Du haeltst den Generierungsvertrag aus P1 vollstaendig ein.
+Du gibst das korrigierte Modul in Iteration 2 von maximal 3 zurueck.
+Du fuegst keine neuen Bauteile, keine neuen Imports und keine neuen Abhaengigkeiten hinzu.
+Du lieferst nur das Modul ohne Erklaerungstext.
+FEHLERPROTOKOLL:
+[S2-Funktion] [Label-/Messungs-Toggles wirkungslos: setVis prueft 'visible' in h, doch
+addLabel/addMeasurement-Handles besitzen NUR {id, setVisible, remove} — weder visible noch
+object noch group. update() wuerde still nichts umschalten (Basis/Aufbau-Umschaltung tot)]
+Messwerte: 5 Labels + 1 Messung ohne setVisible-Aufruf im update-Pfad]
+-> Ersetze EXAKT den Block
+const setVis = (h, v) => {
+durch (Rest der Datei unveraendert lassen, nur diese Ersetzung plus die zwei Aufrufstellen unten)
+const setVis = (h, v) => {
+if (h && h.setVisible) h.setVisible(Boolean(v));
+};
+-> Falls der Block mehr Zeilen enthaelt (if 'visible' in h etc.), ersetze den GESAMTEN
+setVis-Block (von const setVis bis einschliesslich schliessendem }; vor const update) durch die
+3-Zeilen-Version oben. Die Aufrufstellen setVis(labels[i], v) und setVis(meas, en) bleiben
+unveraendert und funktionieren danach korrekt.
+Alle anderen Zeilen byteidentisch: Geometrie, Lichter, Environment, Materialien, Labels (5x
+exakte Texte), Messung (exakte Koordinaten/Texte), update-Presets, dispose, Kamera.
+VOLLSTAENDIGES MODUL ITERATION 1 (danach nur das korrigierte Modul ausgeben):

@@ -1,0 +1,42 @@
+P2 REPAIR-PROMPT (verbindlich, Version 3.0) — gpu-example Iteration 3 von max 3 (LETZTE)
+Du erhaeltst das Modul aus Iteration 2 (Anhang VOLLSTAENDIGES MODUL) und das Fehlerprotokoll.
+Du behebst genau die protokollierten Fehler, und du aenderst keine bestandenen Schichten.
+Du haeltst den Generierungsvertrag aus P1 vollstaendig ein.
+Du gibst das korrigierte Modul in Iteration 3 von maximal 3 zurueck.
+Du fuegst keine neuen Bauteile, keine neuen Imports und keine neuen Abhaengigkeiten hinzu.
+Du lieferst nur das Modul ohne Erklaerungstext.
+FEHLERPROTOKOLL:
+[S4-Budget] [Draw-Calls 150 ueber Limit 120: Schattenpass rendert alle 59 Karten-Meshes doppelt,
+dazu 28 Helper-Calls] [Messwert: calls=150, Limit=120, Budget triangles=4622 von 150000 ok]
+-> Ersetze EXAKT den Block
+card.traverse((o) => {
+if (o.isMesh) {
+o.castShadow = true;
+o.receiveShadow = true;
+}
+});
+durch
+card.traverse((o) => {
+if (o.isMesh) {
+o.castShadow = false;
+o.receiveShadow = true;
+}
+});
+const casters = [pcb, sub, die, back, bracket];
+for (let c = 0; c < casters.length; c++) { casters[c].castShadow = true; }
+for (let r = 0; r < rotor1.children.length; r++) { rotor1.children[r].castShadow = true; }
+for (let r2 = 0; r2 < rotor2.children.length; r2++) { rotor2.children[r2].castShadow = true; }
+Nur grosse Massen werfen Schatten (PCB, Substrat, Die, Luefterrotoren, Backplate, Blende).
+[S4-Budget] [Zusatz-Reduktion: Finnen-Stack 12 -> 8 Lamellen, Positionen neu zentrieren]
+[Messwert: 12 Meshes -> 8 Meshes, spart 4 Draw-Calls]
+-> Ersetze EXAKT
+for (let f = 0; f < 12; f++) {
+durch
+for (let f = 0; f < 8; f++) {
+und ersetze EXAKT
+fin.position.set(-0.099 + f * 0.018, 0, 0.0105);
+durch
+fin.position.set(-0.063 + f * 0.018, 0, 0.0105);
+Alle anderen Zeilen byteidentisch: Geometrie, Lichter, Materialien, Environment, Labels (10x),
+Messungen (2x), update, dispose, Kamera-Presets. Keine neuen Imports. Keine neuen Meshes.
+VOLLSTAENDIGES MODUL ITERATION 2 (danach nur das korrigierte Modul ausgeben):

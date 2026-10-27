@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillspark.local/schema/model-meta.schema.json",
+  "title": "ModelMeta",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "category", "detailLevel", "parts", "units"],
+  "properties": {
+    "title": { "type": "string", "minLength": 3, "maxLength": 80 },
+    "category": {
+      "type": "string",
+      "enum": ["hardware", "architektur", "auto", "pflanze", "sonstiges"]
+    },
+    "detailLevel": { "type": "integer", "enum": [1, 2, 3] },
+    "parts": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 80 }
+    },
+    "units": { "type": "string", "const": "m" }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "skillspark-lab-player",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SkillSpark Code-Gen-Kern: Single-Page-Wrapper fuer generierte Three.js-Modelle",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "render": "node scripts/render-single-file.mjs",
+    "verify:static": "node scripts/verify-all.mjs --only=S1",
+    "verify:sandbox": "node scripts/verify-all.mjs --only=S2",
+    "verify:visual": "node scripts/verify-all.mjs --only=S3",
+    "verify:perf": "node scripts/verify-all.mjs --only=S4",
+    "verify:didactics": "node scripts/verify-all.mjs --only=S5",
+    "verify:all": "node scripts/verify-all.mjs",
+    "baseline:update": "node scripts/baseline-update.mjs",
+    "serve": "node scripts/serve.mjs",
+    "test": "playwright test",
+    "proxy": "node scripts/proxy.mjs 8787",
+    "test:unit": "node --test tests-unit/guard-static.test.mjs tests-unit/budget.test.mjs tests-unit/didactics.test.mjs tests-unit/livegen.test.mjs tests-unit/matrix.test.mjs tests-unit/geometry-checks.test.mjs tests-unit/prompts-eval.test.mjs tests-unit/providers.test.mjs tests-unit/session-library.test.mjs tests-unit/scoreboard.test.mjs tests-unit/proxy.test.mjs tests-unit/parts.test.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "alpinejs": "3.17.5",
+    "esbuild": "0.28.2",
+    "three": "0.186.1"
+  }
+}

@@ -1,0 +1,11 @@
+P2 REPAIR-PROMPT (verbindlich, Version 3.0)
+Du erhältst das fehlgeschlagene Modul und das Fehlerprotokoll mit Schicht, Meldung und Messwerten.
+Du behebst genau die protokollierten Fehler, und du änderst keine bestandenen Schichten.
+Du hältst den Generierungsvertrag aus P1 vollständig ein.
+Du gibst das korrigierte Modul in Iteration 2 von maximal 3 zurück.
+Du fügst keine neuen Bauteile, keine neuen Imports und keine neuen Abhängigkeiten hinzu.
+Du lieferst nur das Modul ohne Erklärungstext.
+FEHLERPROTOKOLL:
+[S2] [E-S2-HELPERS: alle 10 addLabel- und beide addMeasurement-Aufrufe nutzen die falsche Signatur (scene, {id, text, position...}-Objekt). Korrektur: positionale Signatur addLabel(root, text, position, opts) und addMeasurement(root, from, to, label, opts). Beispiel: addLabel(scene, 'GPU-Die', [-0.02, -0.01, 0.004], { id: 'l1', level: 'aufbau', sizePx: 16, leader: true }). Beispiel: addMeasurement(scene, [-0.1335, -0.075, 0], [0.1335, -0.075, 0], 'Kartenlaenge: 267 mm', { id: 'm1', level: 'aufbau', unit: 'mm' }).] [Messwerte: 10 Labels, 2 Messungen, Geometrie/Szene unveraendert]
+KORREKTUR: Schreibe NUR die 12 Helper-Aufrufe auf die positionale Signatur um. Behalte alle ids, texte, Positionen, sizePx, level, units exakt bei. Aendere nichts an Geometrie, Materialien, Licht, Kamera, update, dispose, meta oder Imports. Liefere das VOLLSTAENDIGE korrigierte Modul ohne Erklaerungstext.
+FEHLGESCHLAGENES MODUL:

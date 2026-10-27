@@ -1,0 +1,48 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 3.0)
+Du erzeugst ein Three.js-r186-ESM-Modul für den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurück.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du hältst die Modulgröße unter 1,5 MB Komfort und niemals über 2,0 MB hart.
+Du hältst Dreiecke unter 150000 und Draw-Calls unter 120.
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * as THREE-Verhalten mit Vollbaum, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst nur das Modul ohne Erklärungstext, und du beendest die Ausgabe nach dem letzten Export.
+Modell-ID: muse-spark-1.3. Streaming: stream true. Ausgabe: vollständiges Modul bis finish_reason stop.
+
+AUFGABEN-ANHANG dup-2 (BPMN-Prozess Datenanalyse, Modell-ID muse-spark-1.3-contributor):
+Baue einen BPMN-Prozess als Kette von links nach rechts, zentriert am Ursprung, Bounding-Box in 3 m Wuerfel.
+Pflicht-Bauteile (alle modellieren): Startereignis als flacher Zylinder Radius 0,05 m Hoehe 0,01 m bei (-0,45, 0, 0),
+Aufgabe als Box 0,20 m x 0,12 m x 0,01 m bei (-0,15, 0, 0),
+Entscheidung als Raute (Box 0,14 m x 0,14 m x 0,01 m um 45 Grad um Z rotiert) bei (0,15, 0, 0),
+Endereignis als Doppelkreis aus 2 flachen Zylindern Radius 0,05 m und 0,038 m Hoehe 0,012 m bei (0,45, 0, 0),
+3 Sequenzfluss-Kanten als Linien (Line mit BufferGeometry) zwischen den Symbolen plus je 1 Pfeilspitze als kleiner Kegel (CylinderGeometry Radius 0,012 m zu 0,0 m, Hoehe 0,03 m).
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, MeshBasicMaterial,
+BoxGeometry, CylinderGeometry, SphereGeometry, AmbientLight, DirectionalLight, Line, LineBasicMaterial,
+DoubleSide, SRGBColorSpace, Vector3, BufferGeometry.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+meta (Pflicht, exakt so): export const meta = { title: 'BPMN-Prozess (DuP-2)', category: 'sonstiges', detailLevel: 2,
+parts: ['Startereignis','Aufgabe','Entscheidung','Endereignis'], units: 'm' }.
+init(container, params): Szene, Kamera (overview bei (0.0, -0.50, 0.55), erfasst Bounding-Box), AmbientLight plus DirectionalLight,
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}), setPixelRatio vor setSize, dpr aus params gedeckelt 1..2,
+OrbitControls, RAF-Schleife (statisches Modell, bei params.reducedMotion keine Bewegung), Rueckgabe { update, dispose }.
+init ist SYNCHRON (kein async, kein Promise). addLabel/addMeasurement sind SYNCHRON und geben sofort { id, setVisible, remove } zurueck (KEIN await).
+Beschriftung: genau 4 addLabel-Aufrufe synchron (ids l1..l4, sizePx 14..18, level 'aufbau', leader true). Labeltexte EXAKT:
+'Startereignis' an [-0.45,0.0,0.07], 'Aufgabe' an [-0.15,0.0,0.09], 'Entscheidung' an [0.15,0.0,0.10], 'Endereignis' an [0.45,0.0,0.07].
+Bemaßung: genau 1 addMeasurement-Aufruf synchron mit Einheit cm: 'Pfadlaenge: 60 cm' von [-0.45,-0.12,0.0] nach [0.15,-0.12,0.0], optisch sichtbare Linie.
+update(patch): patch.labels {enabled,max} schaltet Label-Sichtbarkeit (max 5 bei Basis), patch.measurements {enabled}
+schaltet Messungen, patch.view setzt Kamera-Presets overview/detail(Entscheidung frontal formatfuellend)/front/top. Nie neues Modell.
+dispose(): Animationsschleife stoppen, Geometrien/Materialien/Texturen traversieren und disposen, renderer.dispose,
+Dom-Element entfernen.
+Verboten im Modul: fetch, XMLHttpRequest, WebSocket, document, window, parent, top, localStorage, sessionStorage,
+indexedDB, sendBeacon, navigator, eval, Function, import(, setTimeout/setInterval mit String.
+Nur container (Parameter) und renderer.domElement anfassen. Kein Zugriff auf parent/top/opener.
+Verwende im Code AUSSCHLIESSLICH die genannten Label-/Messtexte, keine weiteren Saetze, keine Lernziele, keine Aufgaben.
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences, Ende nach dem letzten Export.

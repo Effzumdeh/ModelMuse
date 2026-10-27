@@ -1,0 +1,23 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Nur diese Dateien aendern, minimal invasiv.
+
+AUFGABE (Call 1 von max. 12 im Restposten-Auftrag):
+Der Proxy-E2E Meta-Pfad schlaegt fehl. Letzter Stand (e2e-real.log):
+  status-head = "Modellpruefung: E-S2-BOOT: Scene is not defined"
+Der Upstream liefert (Diagnose-Logs diag-stream.log/diag-ttfb.log): HTTP 200, SSE-Stream ok (~112 KB). Der Fehler passiert beim Boot des generierten Moduls im Sandbox-Iframe.
+
+DIAGNOSE + FIX:
+1. Lies: src/shell/ui-livegen.js (buildFreePrompt), src/runtime/livegen.js, src/runtime/guard-runtime.js, src/runtime/frame-bootstrap.js, src/runtime/sandbox-host.js, scripts/proxy-e2e-browser.mjs.
+2. Finde die exakte Ursache von "Scene is not defined" (z.B. generiertes Modul ohne Scene-Import trotz Prompt-Vorgabe, oder Wrapper/Import-Rewrite-Problem, oder Sandbox-Importmap-Luecke).
+3. Fixiere minimal: Prompt-Verschaerfung in buildFreePrompt und/oder statische Import-Nachpruefung/Repair vor dem Boot (kein neues Framework, keine neuen Dependencies).
+4. Verifiziere: `node scripts/proxy-e2e-browser.mjs Handbohrmaschine` muss mit Exit 0 enden, Status "geladen", dist/proxy-e2e.png (1280x720, Modell sichtbar) + dist/proxy-e2e.json + genau EIN generation-log-Eintrag Quelle "browser-e2e".
+5. Danach: `npx playwright test --reporter=list` (bzw. npm test) muss weiterhin gruene Suite liefern; bei Failures nur eigene Regressionen fixen.
+
+REGELN (Verstoss = Abbruch):
+- Modell-/Key-Disziplin: KEIN Key in Prompt-Ausgabe/Logs/Dateien/Chat. Das Skript liest C:/Users/flori/OneDrive/Key_muse.md selbst; du gibst den Key NIE aus, NIE als Argument, NIE in Dateien.
+- KEINE erfundenen Modell-IDs. Erlaubt: meta-muse nur muse-spark-1.3-contributor, muse-spark-1.3, muse-wonder-1.0; openrouter NUR google/gemma-4-26b-a4b-it:free. KEINE Wonder-Calls.
+- Bei HTTP 429: 60 s warten, EINMAL einzeln wiederholen, dann ehrlich abbrechen.
+- Keine Fake-Belege: Screenshots nur aus echten Laeufen. Keine Aenderung an Trust-Settings.
+- Unit-Suite danach: node --test der Dateien aus package.json scripts.test:unit (plus tests-unit/i18n.test.mjs) muss gruen bleiben.
+
+RUECKGABE (kurz, max. 25 Zeilen):
+Geaenderte Dateien (Pfade+Zeilen) / Root-Cause (1 Satz) / e2e-Exit + Screenshot-Bytes/SHA256 / Playwright-Resultat / Unit-Resultat / generation-log-Eintrag ja-nein.

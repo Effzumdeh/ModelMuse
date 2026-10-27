@@ -1,0 +1,121 @@
+:root {
+  --bg: #0c1118;
+  --bg2: #10141c;
+  --panel: #151c27;
+  --line: #26313f;
+  --text: #e8edf3;
+  --muted: #9fb2c8;
+  --accent: #ffd34d;
+  --accent2: #4dd2ff;
+  --ok: #37c26a;
+  --warn: #e0a100;
+  --bad: #e05252;
+  --focus: #7cc4ff;
+  --radius: 10px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.lab-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; background: var(--bg2); border-bottom: 1px solid var(--line);
+}
+.lab-brand { font-weight: 700; font-size: 20px; }
+.lab-lang { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.lab-sub { color: var(--muted); font-weight: 400; font-size: 14px; }
+.lab-ampel { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.ampel-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--warn); }
+body[data-ampel="gruen"] .ampel-dot, [data-ampel="gruen"] .ampel-dot { background: var(--ok); }
+body[data-ampel="gelb"] .ampel-dot, [data-ampel="gelb"] .ampel-dot { background: var(--warn); }
+body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: var(--bad); }
+.lab-layout {
+  display: grid; gap: 16px; padding: 16px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) {
+  .lab-layout { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+}
+.lab-view { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.lab-mount {
+  width: 100%; aspect-ratio: 16/9; background: #05070b;
+  border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+}
+.lab-mount canvas { width: 100%; height: auto; display: block; }
+.lab-stage { width: 100%; height: 100%; }
+.lab-toolbar {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: end;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px;
+}
+.lab-field { display: flex; flex-direction: column; gap: 4px; }
+.lab-field label { font-size: 13px; color: var(--muted); }
+.lab-field select, .lab-btn {
+  background: #0d141d; color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px;
+}
+.lab-check { flex-direction: row; gap: 12px; align-items: center; }
+.lab-check label { color: var(--text); font-size: 15px; }
+.lab-btn { cursor: pointer; }
+.lab-btn:hover { border-color: var(--accent); }
+.lab-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.lab-panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px 14px;
+}
+.lab-panel h2 { margin: 0 0 8px; font-size: 17px; }
+.lab-level { color: var(--accent); font-size: 14px; }
+.lab-tasks, .lab-annotations { margin: 0; padding-left: 20px; }
+.lab-tasks li, .lab-annotations li { margin: 6px 0; }
+.lab-report { font-size: 14px; }
+.lab-report .crit-pass { color: var(--ok); }
+.lab-report .crit-fail { color: var(--bad); font-weight: 700; }
+.lab-report table { border-collapse: collapse; width: 100%; }
+.lab-report td, .lab-report th { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
+.lab-fallback { border-color: var(--warn); }
+.lab-note { font-size: 13px; color: var(--muted); }
+.lab-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.prov-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.prov-badge { font-size: 12px; border: 1px solid var(--line); border-radius: 20px; padding: 2px 10px; }
+.prov-geometrie { border-color: var(--accent2); color: var(--accent2); }
+.prov-aesthetik, .prov-praeferenz { border-color: var(--accent); color: var(--accent); }
+.prov-preis, .prov-allround { border-color: var(--ok); color: var(--ok); }
+.prov-datenschutz, .prov-reasoning { border-color: #b78cff; color: #b78cff; }
+.prov-belegt { border-color: var(--line); color: var(--muted); }
+.lab-library-list { list-style: none; margin: 0 0 8px; padding: 0; }
+.lib-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--line); padding: 6px 0; font-size: 14px; }
+.lib-btn { font-size: 13px; padding: 5px 8px; }
+.lab-detail { white-space: pre-wrap; font-size: 12px; max-height: 260px; overflow: auto; background: #0d141d; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+.harness-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.harness-table td, .harness-table th { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
+.harness-compare { font-size: 13px; }
+.crit-pass { color: var(--ok); }
+.crit-fail { color: var(--bad); font-weight: 700; }
+.crit-offen { color: var(--muted); }
+.lab-soll table { border-collapse: collapse; font-size: 13px; }
+.lab-soll td { border: 1px solid var(--line); padding: 3px 8px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+/* Teil 3 — UI-Modernisierung: Viewer dominant, Overlay-Toolbar, Side-Drawer. */
+@media (min-width: 1280px) {
+  .lab-layout { grid-template-columns: minmax(0, 3fr) minmax(320px, 1fr); }
+}
+.lab-view { position: sticky; top: 12px; align-self: start; }
+.lab-mount { position: relative; aspect-ratio: 16/10; min-height: 420px; box-shadow: 0 12px 40px rgba(0,0,0,.45); }
+.lab-toolbar {
+  position: relative; z-index: 6; margin: -84px 12px 12px;
+  background: rgba(16,21,30,.9); backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+}
+.lab-side { position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; }
+.lab-panel { box-shadow: 0 4px 18px rgba(0,0,0,.35); border-radius: 12px; }
+.part-head { display: flex; align-items: center; gap: 8px; list-style: none; margin: 4px 0; }
+.part-row { display: flex; align-items: center; gap: 8px; list-style: none; margin: 4px 0; }
+.part-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+.part-btn { padding: 3px 8px; font-size: 12px; }

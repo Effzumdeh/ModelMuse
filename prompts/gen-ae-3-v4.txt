@@ -1,0 +1,51 @@
+P1 GENERIERUNGSPROMPT (verbindlich, Version 4.0)
+Du erzeugst ein Three.js-r186-ESM-Modul für den Single-Page-Wrapper.
+Du exportierst meta, init, und du gibst aus init update und dispose zurück.
+Du importierst nur three und wrapper-helpers, und du nutzt keine weiteren Module.
+Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
+Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement inklusive Einheit.
+Du hältst die Modulgröße unter 1,5 MB Komfort und niemals über 2,0 MB hart.
+Du hältst Dreiecke unter 150000 (grün bis 120000) und Draw-Calls unter 120 (grün bis 90).
+Du verwendest reale Proportionen in Metern, und du positionierst das Modell zentriert am Ursprung.
+Du nutzt nur benannte Imports aus three, kein import * as THREE-Verhalten mit Vollbaum, kein three/webgpu, kein three/tsl.
+Du beendest die Ausgabe nach dem letzten Export.
+Du lieferst nur das Modul ohne Erklärungstext, und du beendest die Ausgabe nach dem letzten Export.
+REALISMUS (verbindlich, v4): 3-Punkt-Licht aus AmbientLight 0,55 plus Key-DirectionalLight 1,6 mit castShadow, shadow.mapSize 1024, Schattenkamera +-1 m, plus Fill-DirectionalLight 0,5 ohne Schatten. Renderer: shadowMap.enabled true, shadowMap.type 2 (PCFSoft), toneMapping 4 (ACES), Exposure 1,1, SRGB, antialias und preserveDrawingBuffer true. Studio-Boden als dünne Box unter dem Modell, dunkel matt (roughness 0,95), receiveShadow. Jedes Mesh mit castShadow und receiveShadow true (Linien ausgenommen). PBR mit materialgerechten Werten (Metall 0,8-1,0/0,25-0,4, Kunststoff 0,0-0,2/0,5-0,8). Je Bauteil 1-3 Kleindetails (Schrauben, Rippen, Ports, Kabel). Helper NUR positional: addLabel(scene,'Text',[x,y,z],{id,level,sizePx,leader}), addMeasurement(scene,[a],[b],'Text: NN Einheit',{id,level,unit}).
+Modell-ID: muse-spark-1.3-contributor. Streaming: stream true. Ausgabe: vollständiges Modul bis finish_reason stop.
+
+AUFGABEN-ANHANG ae-3 (Client-Server-API Anwendungsentwicklung, Modell-ID muse-spark-1.3-contributor):
+Baue eine Client-API-Gateway-Server-Datenbank-Kette von links nach rechts, zentriert am Ursprung, Bounding-Box in 3 m Wuerfel.
+Pflicht-Bauteile (alle modellieren): Client als Monitor-Box 0,16 m x 0,10 m x 0,01 m bei (-0,50, 0, 0,10) plus Standfuss-Box,
+API-Gateway als Box 0,20 m x 0,14 m x 0,14 m bei (-0,17, 0, 0,07),
+Server als Box 0,30 m x 0,18 m x 0,30 m bei (0,18, 0, 0,09) plus 3 LED-Boxen 0,02 m an der Front,
+Datenbank als Zylinder Radius 0,10 m Hoehe 0,16 m bei (0,52, 0, 0,08),
+3 Request-Kanten als Linien (Line mit BufferGeometry) Client-Gateway, Gateway-Server, Server-Datenbank plus je 1 Pfeilspitze als kleiner Kegel (CylinderGeometry Radius 0,012 m zu 0,0 m).
+Kleindetails (zusaetzlich, im Budget): Standfuss plus Tastatur-Box beim Client, 3 Lueftungsschlitze (duenne Boxen) am Server, Sockelring (Cylinder) unter der Datenbank.
+Erlaubte Imports aus three (ABSCHLIESSEND, exakt diese Namen, keine anderen):
+Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, MeshBasicMaterial,
+BoxGeometry, CylinderGeometry, SphereGeometry, AmbientLight, DirectionalLight, Line, LineBasicMaterial,
+DoubleSide, SRGBColorSpace, Vector3, BufferGeometry.
+Zusaetzlich genau ein Addon-Import erlaubt:
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
+import { addLabel, addMeasurement } from 'wrapper-helpers';
+Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
+meta (Pflicht, exakt so): export const meta = { title: 'Client-Server-API (AE-3)', category: 'sonstiges', detailLevel: 2,
+parts: ['Client','API-Gateway','Server','Datenbank'], units: 'm' }.
+init(container, params): Szene, Kamera (overview bei (0.0, -0.60, 0.60), erfasst Bounding-Box), AmbientLight(0xffffff, 0,55) plus Key-DirectionalLight(0xffffff, 1,6, castShadow, shadow.mapSize 1024, Schattenkamera +-1 m) plus Fill-DirectionalLight(0xdfe8ff, 0,5) ohne Schatten,
+WebGLRenderer({antialias:true, preserveDrawingBuffer:true}), danach shadowMap.enabled true, shadowMap.type 2 (PCFSoft), toneMapping 4 (ACES), toneMappingExposure 1,1, setPixelRatio vor setSize, dpr aus params gedeckelt 1..2, Studio-Boden als duenne Box unter dem Modell (dunkel matt, roughness 0,95, receiveShadow), jedes Mesh castShadow und receiveShadow true (Linien ausgenommen),
+OrbitControls, RAF-Schleife (statisches Modell, bei params.reducedMotion keine Bewegung), Rueckgabe { update, dispose }.
+init ist SYNCHRON (kein async, kein Promise). addLabel/addMeasurement sind SYNCHRON und geben sofort { id, setVisible, remove } zurueck (KEIN await).
+Beschriftung: genau 4 addLabel-Aufrufe synchron (ids l1..l4, sizePx 14..18, level 'aufbau', leader true). Labeltexte EXAKT:
+'Client' an [-0.50,0.0,0.20], 'API-Gateway' an [-0.17,0.0,0.18], 'Server' an [0.18,0.0,0.22], 'Datenbank' an [0.52,0.0,0.20].
+Bemaßung: genau 1 addMeasurement-Aufruf synchron mit Einheit m: 'Distanz: 1 m' von [-0.50,-0.14,0.0] nach [0.50,-0.14,0.0], optisch sichtbare Linie.
+update(patch): patch.labels {enabled,max} schaltet Label-Sichtbarkeit (max 5 bei Basis), patch.measurements {enabled}
+schaltet Messungen, patch.view setzt Kamera-Presets overview/detail(Server frontal formatfuellend)/front/top. Nie neues Modell.
+dispose(): Animationsschleife stoppen, Geometrien/Materialien/Texturen traversieren und disposen, renderer.dispose,
+Dom-Element entfernen.
+Verboten im Modul: fetch, XMLHttpRequest, WebSocket, document, window, parent, top, localStorage, sessionStorage,
+indexedDB, sendBeacon, navigator, eval, Function, import(, setTimeout/setInterval mit String.
+Nur container (Parameter) und renderer.domElement anfassen. Kein Zugriff auf parent/top/opener.
+Verwende im Code AUSSCHLIESSLICH die genannten Label-/Messtexte, keine weiteren Saetze, keine Lernziele, keine Aufgaben.
+Helper-Syntax EXAKT positional (kein Objekt-Stil): addLabel(scene, 'Text', [x,y,z], { id: 'l1', level: 'aufbau', sizePx: 16, leader: true }) und addMeasurement(scene, [x0,y0,z0], [x1,y1,z1], 'Text: NN Einheit', { id: 'm1', level: 'aufbau', unit: 'cm' }).
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences, Ende nach dem letzten Export.
