@@ -2,6 +2,11 @@
  * Bauteil-Toggles (rein, DOM-frei): Teileliste aus Manifest, Hidden-State,
  * Harness-Check pro Teil (Meta-Eintrag, addLabel-Quelle, Manifest-Label).
  * Bauplan-Erw.: Teil 3 Bauteil-Checkboxen + Harness-Test pro Teil.
+ * Vertrags-Absatz (A-06, Option b): player.setParts sendet
+ * {labels:{hidden}, parts:{hidden}} an den Gast. Ausgewertet wird nur
+ * labels.hidden. parts.hidden ist optional — kuratierte Gaeste ignorieren
+ * es graceful (kein Geometrie-Umbau, Provenienz bleibt); Gaeste DUERFEN
+ * es kuenftig auswerten.
  */
 
 /**

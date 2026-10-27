@@ -2,6 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Mesh, InstancedMesh, MeshStand
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Bubblesort-Vergleich (AE-2)', category: 'sonstiges', detailLevel: 2, parts: ['Balkenfeld', 'Vergleichsmarker', 'Tauschpfeil'], units: 'm' };
+export const meta_i18n = { en: { title: 'Bubble sort comparison (AE-2)', parts: ['Bar field', 'Comparison marker', 'Swap arrow'] }, es: { title: 'Comparación de burbuja (AE-2)', parts: ['Campo de barras', 'Marcador de comparación', 'Flecha de intercambio'] } };
 export function init(container, params) {
   const scene = new Scene();
   const camera = new PerspectiveCamera(45, 1, 0.01, 10);

@@ -1,0 +1,30 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, Nachfolge-Fix zum eigenen Matrix-Test.
+
+STAND (frisch belegt, 27.10.2026, Orchestrator-Lauf):
+- tests/visual-matrix.spec.mjs wartet dank deines Lade-Signals korrekt (Viewport rendert).
+- Trotzdem: 11 failed / 9 passed bei ratio ~0.02 (Schwelle 0.002, z.B. si-1-overview 11571 px).
+- Beleg per Screenshot-Vergleich: Der 3D-Viewport ist in beiden Laeufen korrekt gefuellt.
+  Die Differenz steckt in der rechten Seitenleiste: Das Verify-Panel zeigt STABIL FALSCH
+  "Modell gpu-example" (staler Default-Report, unabhaengig vom geladenen Modell — bekannter
+  Nebenbefund), und seine Ampel flippt zwischen den Laeufen (rot/gelb), was tausende
+  Differenz-Pixel erzeugt. Das Panel ist damit kein deterministischer Bildbestandteil.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies tests/visual-matrix.spec.mjs (SHOT_OPTS, Aufruf toHaveScreenshot).
+2. Maskiere in tests/visual-matrix.spec.mjs den dynamischen Panel-Bereich per
+   Playwright-mask (Selektor des Verify-Panels, z.B. '#verify-report' oder das
+   umschliessende Panel-Element — verifiziere den Selektor in src/shell/index.html,
+   erfinde keinen). Begruendung als Kommentar an die Stelle: Panel zeigt stalen
+   Default-Report (gpu-example) mit flippernder Ampel, abgedeckt durch verify:all +
+   Harness-Suite; S3-Gate bleibt Viewport + Nicht-Leere + Schwelle 0.002.
+   Schwellwerte selbst NICHT lockern, keine anderen Aenderungen.
+3. VERIFIKATION durch dich: nur Syntax (node --check). KEINE Playwright-/npm-Laeufe.
+   KEINen E2E-/Generierungs-Lauf starten. KEIN Key noetig.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Selektoren.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Maskierter Selektor (Datei+Zeile) / node --check / offen fuer Orchestrator.

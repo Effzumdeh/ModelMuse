@@ -1,0 +1,41 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog O-03, Stand 27.10.2026 abends):
+- S3-Baselines unvollstaendig: dist/baselines/ enthaelt nur overview.png + detail.png
+  (EIN Modell, Stand 16:47), statt zwei Ansichten JE Modell (10 Modelle x overview/detail).
+- scripts/baseline-update.mjs ist ein No-Op (nur Konsolen-Text, schreibt nichts, kein --accept-Effekt).
+- playwright.config.mjs snapshotPathTemplate zeigt auf dist/baselines/{arg}{ext}.
+- Ordner dist/failures existiert nicht (Diff-Ablage fehlt).
+- dist/attestation.json hat keinen Bildbezug je Modell.
+- tests/visual.spec.mjs prueft nur das Default-Modell (overview + detail), nutzt
+  toHaveScreenshot + eigene Nicht-Leere-Statistik (nonEmptyShot, PNG-Decoder ohne Dep).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies scripts/baseline-update.mjs, tests/visual.spec.mjs, playwright.config.mjs,
+   src/shell/ui-model-picker.js (Modellwahl im Player), dist/attestation.json.
+2. Erweitere tests/visual.spec.mjs (oder lege tests/visual-matrix.spec.mjs an, falls
+   sauberer): Schleife ueber alle 10 Modell-IDs (si-1..3, dup-1..3, ae-1..3, gpu-example),
+   je Modell overview- und detail-Ansicht laden (Modellpicker + view-select), je Ansicht
+   Nicht-Leere-Statistik (nonEmptyShot wiederverwenden) + toHaveScreenshot
+   `<id>-overview.png` / `<id>-detail.png`. Schwellwerte wie bisher
+   (threshold 0.2, maxDiffPixelRatio 0.002). Kein neues Framework, keine Deps.
+3. Mache scripts/baseline-update.mjs zu einem echten Schreiber: mit --accept die im
+   Visual-Lauf erzeugten Referenzen nach dist/baselines/ uebernehmen
+   (oder dort direkt erzeugen); ohne --accept weiter verweigern (Exit 2).
+   Lege dist/failures/ per .gitkeep an (Diff-Ablage).
+4. Ergaenze dist/attestation.json pro Modell um `screenshots: [<id>-overview.png, <id>-detail.png]`
+   (Pfade relativ zu dist/baselines/).
+5. VERIFIKATION durch dich: nur Syntax (node --check der geaenderten .mjs/.spec-Dateien).
+   KEINE Playwright-/npm-Laeufe (laufen in deiner Sandbox nicht) — das macht der Orchestrator.
+   KEINEN E2E-/Generierungs-Lauf starten. KEIN Key noetig.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Modell-IDs (nur die 10 belegten).
+- Keine Fake-Belege: keine Baseline-PNGs erfinden oder kopieren (overview/detail duerfen
+  NICHT als Vorlage fuer andere Modelle dienen). Referenzen entstehen erst im echten Lauf.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 20 Zeilen):
+Geaenderte/angelegte Dateien / Suite-Struktur (Tests gesamt) / node --check Ergebnis /
+offen fuer Orchestrator (Baseline-Lauf + Report-Verlinkung).

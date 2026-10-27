@@ -1,0 +1,32 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Problem.
+
+SYMPTOM (frisch belegt, 27.10.2026, E2E-Lauf `node scripts/proxy-e2e-browser.mjs Handbohrmaschine`):
+`E-S2-BOOT: The requested module 'blob:null/...' does not provide an export named 'Color'`
+Der Meta-Generierungsaufruf selbst funktioniert (Proxy ok, Modul wird erzeugt). Der Boot im
+Sandbox-Iframe scheitert: Das generierte Modul verlangt den benannten Export `Color`, das
+Blob-Modul (Specifier-Rewrite von 'three') liefert ihn nicht. Frueherer Fehler an gleicher
+Stelle (`Scene is not defined`) wurde per `repairThreeImports` (src/runtime/guard-static.js,
+verdrahtet in src/runtime/livegen.js Z. 187) behoben — jetzt fehlt der naechste Export.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/runtime/guard-static.js (`repairThreeImports`, ALLOW_SPECIFIERS, THREE_KNOWN_EXPORTS),
+   src/runtime/frame-bootstrap.js + src/runtime/sandbox-host.js (Specifier-Rewrite, Blob-Erzeugung,
+   Importmap), src/runtime/livegen.js (buildFreePrompt-Importvorgaben).
+2. Finde die exakte Ursache: Warum fordert das generierte Modul `Color` als Named-Export, und warum
+   liefert der Rewrite kein Modul mit diesem Export (falscher Specifier? unvollstaendige
+   Exportliste? Import-Stil des Modells vs. Rewrite-Annahme?).
+3. Fixiere minimal an EINER Stelle: entweder Repair um fehlende THREE-Named-Exports ergaenzen
+   (Whitelist aus three-API, keine erfundenen Namen) oder Rewrite/Importmap so korrigieren, dass
+   das echte three-Modul mit allen Named-Exports bereitsteht. Kein neues Framework, keine Deps.
+4. Verifiziere LOKAL ohne neue Modell-Calls: `node --test` der Dateien aus package.json
+   scripts.test:unit plus tests-unit/i18n.test.mjs GRUEN. KEINEN E2E-Lauf starten
+   (die Verifikation per E2E macht der Orchestrator selbst).
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. Du brauchst keinen Key (kein Generierungs-Call).
+- KEINE Wonder-Calls, KEINE neuen Dependencies, keine Trust-Aenderungen.
+- KEINE erfundenen Modell-/Export-IDs: Exportnamen nur aus der three.js-API.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 20 Zeilen):
+Geaenderte Dateien (Pfade+Zeilen) / Root-Cause (1 Satz) / Unit-Resultat.

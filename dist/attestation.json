@@ -1,0 +1,72 @@
+[
+  {
+    "id": "ae-1",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 12305 Bytes vs Beleg 11944 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "ae-2",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 12369 Bytes vs Beleg 12006 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "ae-3",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 14803 Bytes vs Beleg 14457 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "dup-1",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 10994 Bytes vs Beleg 10609 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "dup-2",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 13076 Bytes vs Beleg 12746 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "dup-3",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 14963 Bytes vs Beleg 14628 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "gpu-example",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 21435 Bytes vs Beleg 20892 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "si-1",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 15837 Bytes vs Beleg 15423 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "si-2",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 13224 Bytes vs Beleg 12903 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  },
+  {
+    "id": "si-3",
+    "ampel": "gelb",
+    "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 10604 Bytes vs Beleg 10270 Bytes))",
+    "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
+    "datum": "2026-10-27"
+  }
+]

@@ -1,0 +1,34 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog O-11 Teil 2b, Stand 27.10.2026 abends):
+- Briefs liegen BEREITS vor: eval/3jsbench/<id>/prompt.md (100 Stk. verbatim) +
+  eval/3jsbench/LIZENZ.md + eval/3jsbench/LICENSE-MIT-upstream (MIT, 2026 General
+  Context). KEIN Web-Zugriff noetig, KEINE Briefs anfassen.
+- Fehlt: scripts/regression-3jsbench.mjs (Geometrie-Regression + A/B-Haken).
+- Kosten-Schranke (hart): max. 3 Sample-Briefs faehrt der Orchestrator. Skript MUSS
+  --limit N (Default 3) + --tag <name> (Pflicht) + --prompt <p1> (Default
+  prompts/p1-generate.txt = A/B-Haken) + --all (nur Flag + Warnung "100 Calls!").
+  KEINE Generierung durch dich.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies scripts/_gen-one.mjs (Aufruf + JSON-Ausgabe + 429-Retry als Vorbild),
+   src/runtime/guard-static.js (S1-Exporte), src/runtime/verify.js (S2/S5-Exporte),
+   scripts/eval-harness.mjs (Report-Stil).
+2. Lege an: scripts/regression-3jsbench.mjs — je Brief (erste N aus eval/3jsbench,
+   sortiert): P1-Text + Brief als Promptdatei bauen, scripts/_gen-one.mjs als
+   Kindprozess aufrufen (Key-Handling bleibt dort!), Modul durch S1-Guard +
+   S2/S5-Verify (vorhandene Funktionen, keine erfinden), Ergebnis {id, pass/fail,
+   S1, S5, dauerS, bytes}. Report dist/regression-3jsbench-<tag>.json
+   {tag, promptDatei, limit, buildHash (aus build-report.json, fallback "dev"),
+   passRate, ergebnisse[], kostenHinweis}. Exit 0 nur bei 100 % S1+S5-pass.
+3. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-/Generierungs-Laeufe
+   (Sandbox + Kosten), KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Guard-/Verify-APIs.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Skript (Args + Ablauf + Report-Felder) / A/B-Nutzung (ein Satz) /
+offen fuer Orchestrator (3er-Sample-Lauf).

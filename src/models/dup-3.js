@@ -2,6 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'ETL-Pipeline (DuP-3)', category: 'sonstiges', detailLevel: 2, parts: ['Quelle', 'ETL-Stufe', 'Speicher', 'Zielsystem'], units: 'm' };
+export const meta_i18n = { en: { title: 'ETL pipeline (DuP-3)', parts: ['Source', 'ETL stage', 'Storage', 'Target system'] }, es: { title: 'Pipeline ETL (DuP-3)', parts: ['Fuente', 'Etapa ETL', 'Almacenamiento', 'Sistema destino'] } };
 export function init(container, params) {
   const p = params || {};
   const dprRaw = p.dpr || 1;

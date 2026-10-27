@@ -1,0 +1,44 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog O-04 + O-05, Stand 27.10.2026 abends):
+Auslieferungs-Nachweise fehlen. Kein Doppel-Build-Nachweis, kein dist-Pruefskript auf
+CDN/Key/Netz, kein Offline-/file://-Kaltstart-Nachweis. Vorhanden: scripts/build.mjs
+(schreibt dist/lab-player.html + .sha256 + buildHash), scripts/serve.mjs (statischer
+HTTP-Server, Root Repo, kein file:// wegen ES-Modul-CORS), tests/sandbox.spec.mjs,
+tests/determinism.spec.mjs (prueft nur Modellquelle 2x, trivial).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies scripts/build.mjs (Hash-Bildung Z. 150-185), scripts/serve.mjs, tests/sandbox.spec.mjs,
+   tests/determinism.spec.mjs, package.json (scripts-Abschnitt).
+2. Lege an: scripts/verify-dist.mjs — prueft das GEBAUTE Artefakt:
+   a) dist/lab-player.html existiert + .sha256 stimmt (nachrechnen, vergleichen).
+   b) Kein CDN: keine http(s)-URLs ausser http://127.0.0.1/localhost (erlaubte Liste
+      klein halten, alles andere = Fail). Kein Key: keine Muster sk-, Bearer, api-key
+      (erlaube das WORT api-key nur in BYOK-Hinweistexten? Nein — strikt: Fail bei
+      Schluessel-MUSTERN mit Wert, dokumentiere die Regel im Skriptkopf).
+   c) buildHash aus dist/build-report.json gegen .sha256-Datei abgleichen (gleicher Stand?).
+   Exit 0 nur wenn alles gilt; package.json-Skript "verify:dist" eintragen.
+3. Lege an: scripts/double-build.mjs — dist leeren (nur Artefakte, kein .gitkeep),
+   zweimal bauen (build.mjs als Funktion/Kindprozess), beide .sha256 vergleichen,
+   Identitaet loggen (konsole + dist/double-build.json mit beiden Hashes + Ergebnis).
+   package.json-Skript "build:double" eintragen. Determinismus-Hinweis: Falls der Hash
+   Bauzeit/Erstellungsdatum enthaelt und NIEMALS identisch sein kann, melde DAS ehrlich
+   zurueck statt zu tricksen (dann wird O-04 als "nicht deterministisch, dokumentiert").
+4. Lege an: tests/coldstart.spec.mjs — zwei Tests:
+   a) Offline: context.setOffline(true), Seite laden, Nachweis dass der Start-FEHLERPFAD
+      sauber greift (kein Haengen, Fehlermeldung sichtbar oder definierter Fallback —
+      lies dazu src/shell/main.js + fallback2d, erfinde kein Verhalten, teste das
+      vorhandene).
+   b) file://: dist/lab-player.html per file:// oeffnen, Erwartung ESM-CORS blockiert —
+      belege den Start-Fehlerpfad (Titel/Fehler sichtbar), kein Hang (Timeout 30 s).
+5. VERIFIKATION durch dich: nur Syntax (node --check aller neuen/geanderten Dateien).
+   KEINE npm-/Playwright-Laeufe (Sandbox), KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen URLs/IDs/Verhaltensweisen.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 15 Zeilen):
+Angelegte Dateien / Skript-Signaturen (Aufruf + Exit-Regel) / Determinismus-Urteil /
+node --check / offen fuer Orchestrator.

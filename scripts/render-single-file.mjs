@@ -5,7 +5,7 @@
  * Abbruch bei > 1500000 Bytes (Komfortgrenze).
  * Bauplan Abschnitt 3 (Artefakt) und Abschnitt 8.
  */
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, copyFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
@@ -17,8 +17,42 @@ const HARD = 2000000;
 
 await mkdir(DIST, { recursive: true });
 
+// O-07 (27.10.2026): letzte gruene Version sichern vor dem ersten Schreiben.
+// Gruen = build-report.json verdict pass + verify-report.json buildHash == build-report.json buildHash.
+const LAST_GREEN = `${DIST}/last-green`;
+async function fallbackRot(grund) {
+  try {
+    if (existsSync(`${LAST_GREEN}/lab-player.html`) && existsSync(`${LAST_GREEN}/lab-player.html.sha256`)) {
+      await copyFile(`${LAST_GREEN}/lab-player.html`, `${DIST}/lab-player.html`);
+      await copyFile(`${LAST_GREEN}/lab-player.html.sha256`, `${DIST}/lab-player.html.sha256`);
+      await writeFile(`${DIST}/FALLBACK-ROT.json`, JSON.stringify({ datum: new Date().toISOString(), grund: String(grund).slice(0, 160), quelle: 'last-green' }, null, 2));
+      console.error('render: FALLBACK letzte gruene Version (ROT markiert)');
+    }
+  } catch { /* kein Fallback moeglich */ }
+}
+try {
+  if (existsSync(`${DIST}/lab-player.html`) && existsSync(`${DIST}/lab-player.html.sha256`)) {
+    const buildRep = JSON.parse(await readFile(`${DIST}/build-report.json`, 'utf8'));
+    const verifyRep = JSON.parse(await readFile(`${DIST}/verify-report.json`, 'utf8'));
+    if (buildRep?.verdict === 'pass' && verifyRep?.buildHash && verifyRep.buildHash === buildRep.buildHash) {
+      await mkdir(LAST_GREEN, { recursive: true });
+      await copyFile(`${DIST}/lab-player.html`, `${LAST_GREEN}/lab-player.html`);
+      await copyFile(`${DIST}/lab-player.html.sha256`, `${LAST_GREEN}/lab-player.html.sha256`);
+    }
+  }
+} catch { /* ohne Gruen-Beleg keine Sicherung */ }
+
 // App-Bundle: Shell + Runtime + Alpine inline (three bleibt Text-Asset im Frame).
-const app = await build({
+// O-07-Nachtrag (Orchestrator): unbehandelte Fehler (z.B. fehlender Entry) wuerden
+// sonst ohne Fallback crashen — globale Wache sichert die letzte gruene Version.
+process.on('unhandledRejection', async (e) => {
+  console.error(`render: ABBRUCH unbehandelt: ${String((e && e.message) || e).slice(0, 160)}`);
+  await fallbackRot(`unbehandelt: ${String((e && e.message) || e).slice(0, 160)}`);
+  process.exit(1);
+});
+let app;
+try {
+app = await build({
   entryPoints: [`${ROOT}/src/shell/main.js`],
   bundle: true,
   minify: true,
@@ -27,9 +61,15 @@ const app = await build({
   write: false,
   logLevel: 'silent',
 });
+} catch (e) {
+  console.error(`render: ABBRUCH App-Bundle: ${String((e && e.message) || e).slice(0, 160)}`);
+  await fallbackRot(`App-Bundle: ${String((e && e.message) || e).slice(0, 160)}`);
+  process.exit(1);
+}
 const appCode = app.outputFiles[0].text;
 if (/<\/script/i.test(appCode)) {
   console.error('render: ABBRUCH App-Bundle enthaelt </script');
+  await fallbackRot('App-Bundle enthaelt </script');
   process.exit(1);
 }
 
@@ -46,11 +86,20 @@ const providersReg = JSON.parse(await readFile(`${ROOT}/src/data/providers.json`
 const providersJson = scriptSafe(providersReg);
 if (/<\/script/i.test(providersJson)) {
   console.error('render: ABBRUCH unescaptes </script in providers.json');
+  await fallbackRot('unescaptes </script in providers.json');
+  process.exit(1);
+}
+// Modellmatrix (O-10, S5-soll): Datei als Single Source, Build bettet ein.
+const matrixReg = JSON.parse(await readFile(`${ROOT}/src/data/modellmatrix.json`, 'utf8'));
+const matrixJson = scriptSafe(matrixReg);
+if (/<\/script/i.test(matrixJson)) {
+  console.error('render: ABBRUCH unescaptes </script in modellmatrix.json');
+  await fallbackRot('unescaptes </script in modellmatrix.json');
   process.exit(1);
 }
 html = html.replace(
   '<script id="lab-models" type="application/json">[]</script>',
-  () => `<script>window.__PROVIDERS__=${providersJson};</script>\n<script id="lab-models" type="application/json">[]</script>`
+  () => `<script>window.__PROVIDERS__=${providersJson};</script>\n<script>window.__MODELLMATRIX__=${matrixJson};</script>\n<script id="lab-models" type="application/json">[]</script>`
 );
 // Modelle + Manifeste einsammeln.
 const models = [];
@@ -70,6 +119,7 @@ models.sort((a, b) => (a.id < b.id ? -1 : 1));
 // Vendor-Texte als Frame-Payloads (Blob-Umschreibung im Frame).
 const threeText = await readFile(`${DIST}/vendor-three.bundle.js`, 'utf8').catch(async () => {
   console.error('render: vendor-three.bundle.js fehlt — zuerst npm run build');
+  await fallbackRot('vendor-three.bundle.js fehlt');
   process.exit(1);
 });
 const helpersText = await readFile(`${ROOT}/src/runtime/annotate.js`, 'utf8');
@@ -84,6 +134,7 @@ const assetsJson = { three: scriptSafe(threeText), helpers: scriptSafe(helpersTe
 for (const [name, payload] of [['models', modelsJson], ['threeText', assetsJson.three], ['helpersText', assetsJson.helpers]]) {
   if (/<\/script/i.test(payload)) {
     console.error(`render: ABBRUCH unescaptes </script in ${name}`);
+    await fallbackRot(`unescaptes </script in ${name}`);
     process.exit(1);
   }
 }
@@ -100,13 +151,16 @@ const bytes = Buffer.byteLength(html, 'utf8');
 console.log(`single-file: ${bytes} bytes, modelle: ${models.length}, app-bundle: ${appCode.length}`);
 if (bytes > HARD) {
   console.error(`render: ABBRUCH harte Grenze ${HARD} ueberschritten`);
+  await fallbackRot(`harte Grenze ${HARD} ueberschritten`);
   process.exit(1);
 }
 if (bytes > COMFORT) {
   console.error(`render: ABBRUCH Komfortgrenze ${COMFORT} ueberschritten`);
+  await fallbackRot(`Komfortgrenze ${COMFORT} ueberschritten`);
   process.exit(1);
 }
 await writeFile(`${DIST}/lab-player.html`, html);
 const sha = createHash('sha256').update(html, 'utf8').digest('hex');
 await writeFile(`${DIST}/lab-player.html.sha256`, `${sha}  lab-player.html\n`);
+await rm(`${DIST}/FALLBACK-ROT.json`, { force: true });
 console.log(`render: OK sha256=${sha.slice(0, 16)}…`);

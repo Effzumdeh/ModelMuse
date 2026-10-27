@@ -69,6 +69,7 @@ function blobOf(id, mime) {
 var handle = null;
 var container = null;
 var rendererSeen = [];
+var NSref = null; // instrumentiertes THREE (Box3/Raycaster fuer S2-Probe, A-08)
 var probePatched = false;
 function instrument(THREE) {
   var OrigRenderer = THREE.WebGLRenderer;
@@ -95,10 +96,132 @@ function countMeshes() {
     return n;
   } catch (e) { return 0; }
 }
+function probeMeshes(root, max) {
+  var out = [];
+  try {
+    if (!root || typeof root.traverse !== 'function') return out;
+    root.traverse(function (o) {
+      if (out.length >= max) return;
+      if (o && (o.isMesh || o.isInstancedMesh)) out.push(o);
+    });
+  } catch (e) {}
+  return out;
+}
+function probeScene() {
+  try {
+    if (handle && handle.scene) return handle.scene;
+    if (handle && handle.root) return handle.root;
+    if (handle && handle.group) return handle.group;
+  } catch (e) {}
+  return null;
+}
+function probeCamera(scene) {
+  try {
+    if (handle && handle.camera) return handle.camera;
+    if (scene && typeof scene.traverse === 'function') {
+      var found = null;
+      scene.traverse(function (o) { if (!found && o && o.isCamera) found = o; });
+      if (found) return found;
+    }
+  } catch (e) {}
+  return null;
+}
+function roundMm(v) {
+  var n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(n * 1000) / 1000;
+}
+function probeBoxes() {
+  // S2-intersect (A-08): Welt-AABBs der obersten Mesh-Gruppen (Baugruppen-Proxys).
+  // Caps: max. 64 Meshes gescannt, max. 16 Boxen. Alles try/catch, keine Fakes.
+  try {
+    var scene = probeScene();
+    if (!scene || !NSref || !NSref.Box3) return { boxes: [], note: 'keine Szene (Boxen unvermessen)' };
+    var meshes = probeMeshes(scene, 64);
+    if (meshes.length === 0) return { boxes: [], note: '0 Meshes in Szene' };
+    var tops = [];
+    for (var i = 0; i < meshes.length; i += 1) {
+      var top = meshes[i];
+      try { while (top && top.parent && top.parent !== scene) top = top.parent; } catch (e0) {}
+      if (!top || top === scene) top = meshes[i];
+      var known = false;
+      for (var j = 0; j < tops.length; j += 1) { if (tops[j].node === top) { known = true; break; } }
+      if (!known && tops.length < 16) {
+        var nm = '';
+        try { nm = String(top.name || ''); } catch (e1) {}
+        tops.push({ node: top, name: nm || ('gruppe-' + tops.length) });
+      }
+    }
+    var boxes = [];
+    for (var g = 0; g < tops.length; g += 1) {
+      try {
+        var b = new NSref.Box3().setFromObject(tops[g].node);
+        if (b.isEmpty && b.isEmpty()) continue;
+        boxes.push({
+          id: String(tops[g].name).slice(0, 80),
+          min: [roundMm(b.min.x), roundMm(b.min.y), roundMm(b.min.z)],
+          max: [roundMm(b.max.x), roundMm(b.max.y), roundMm(b.max.z)]
+        });
+      } catch (e2) {}
+    }
+    if (boxes.length === 0) return { boxes: [], note: 'Boxen leer (unvermessen)' };
+    return { boxes: boxes, note: '' };
+  } catch (e3) { return { boxes: [], note: 'Boxen-Fehler' }; }
+}
+function probeBackfaces() {
+  // S2-backface (A-08): Raycast Kamera -> max. 32 Meshes. Zaehlt BackSide-Material
+  // bzw. Rueckseiten-Normalen. Ohne Kamera-/Szenen-Zugriff: 0 + Grund, KEIN Fake.
+  try {
+    var scene = probeScene();
+    var camera = probeCamera(scene);
+    if (!scene || !camera || !NSref || !NSref.Raycaster || !NSref.Vector3 || !NSref.Box3) {
+      return { hits: 0, note: 'kein Kamera-/Szenen-Zugriff (Rueckseiten unvermessen)' };
+    }
+    try { scene.updateMatrixWorld(true); } catch (e0) {}
+    var meshes = probeMeshes(scene, 32);
+    if (meshes.length === 0) return { hits: 0, note: '' };
+    var origin = null;
+    try {
+      origin = new NSref.Vector3();
+      if (camera.getWorldPosition) camera.getWorldPosition(origin);
+      else if (camera.position) origin.copy(camera.position);
+      else return { hits: 0, note: 'Kameraposition unlesbar' };
+    } catch (e1) { return { hits: 0, note: 'Kameraposition unlesbar' }; }
+    var hits = 0;
+    for (var i = 0; i < meshes.length && i < 32; i += 1) {
+      try {
+        var m = meshes[i];
+        var mats = Array.isArray(m.material) ? m.material : [m.material];
+        var backMat = false;
+        for (var k = 0; k < mats.length; k += 1) {
+          if (mats[k] && mats[k].side === NSref.BackSide) { backMat = true; break; }
+        }
+        if (backMat) { hits += 1; continue; }
+        var bc = new NSref.Box3().setFromObject(m);
+        if (bc.isEmpty && bc.isEmpty()) continue;
+        var target = bc.getCenter(new NSref.Vector3());
+        var dir = target.sub(origin);
+        var dist = dir.length();
+        if (!(dist > 1e-6)) continue;
+        dir.normalize();
+        var rc = new NSref.Raycaster(origin, dir, 0, dist + 0.02);
+        var xs = rc.intersectObject(m, false);
+        if (xs && xs.length > 0 && xs[0].face && xs[0].face.normal) {
+          var n = xs[0].face.normal.clone().transformDirection(xs[0].object.matrixWorld);
+          if (n.dot(dir) > 0) hits += 1;
+        }
+      } catch (e2) {}
+    }
+    return { hits: hits, note: '' };
+  } catch (e3) { return { hits: 0, note: 'Raycast-Fehler' }; }
+}
 function snapshot() {
   var p = window.__labprobe;
   var last = rendererSeen[rendererSeen.length - 1];
   var info = last && last.info ? last.info : null;
+  var bx = probeBoxes();
+  var bf = probeBackfaces();
+  var note = bx.note || bf.note;
   return {
     calls: info ? info.render.calls : p.calls,
     triangles: info ? info.render.triangles : p.triangles,
@@ -107,7 +230,10 @@ function snapshot() {
     textures: info && info.memory ? info.memory.textures : p.textures,
     programs: info && info.programs ? info.programs.length : p.programs,
     frames: p.frames,
-    firstFrameAt: p.firstFrameAt
+    firstFrameAt: p.firstFrameAt,
+    boxes: bx.boxes,
+    backfaceHits: bf.hits,
+    geoNote: note ? String(note).slice(0, 160) : ''
   };
 }
 var rafTimes = [];
@@ -142,6 +268,7 @@ window.addEventListener('message', function (ev) {
     var moduleUrl = blobOf('lab-module');
     var THREE = await import(threeUrl);
     var NS = instrument(THREE);
+    NSref = NS; // S2-Probe (A-08): Box3/Raycaster aus instrumentiertem THREE
     var helpersSrc = unescapePayload(document.getElementById('lab-helpers').textContent || '');
     var helpersCode = helpersSrc
       .split("from 'three'").join("from '" + threeUrl + "'")

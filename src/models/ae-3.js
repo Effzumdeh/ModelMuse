@@ -2,6 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Client-Server-API (AE-3)', category: 'sonstiges', detailLevel: 2, parts: ['Client', 'API-Gateway', 'Server', 'Datenbank'], units: 'm' };
+export const meta_i18n = { en: { title: 'Client-server API (AE-3)', parts: ['Client', 'API gateway', 'Server', 'Database'] }, es: { title: 'API cliente-servidor (AE-3)', parts: ['Cliente', 'Puerta de enlace API', 'Servidor', 'Base de datos'] } };
 export function init(container, params) {
   const p = params || {};
   let dpr = 1;

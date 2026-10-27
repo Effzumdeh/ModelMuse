@@ -1,0 +1,20 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Nur lesen + E2E-Lauf, minimal invasiv (keine Quellaenderungen ausser Bugfix falls noetig).
+
+AUFGABE (Call 7 von max. 12 im Restposten-Auftrag):
+Chemie-Testfall NaCl ueber Meta-Pfad — GENAU EIN Call (A-04). Spec (aus scripts/chemie-e2e.mjs, SELBST verifiziert):
+- Begriff: "Natriumchlorid-Kristallgitter NaCl: kubisch flaechenzentriertes Gitter aus Natrium- und Chlorid-Ionen im Wechsel (Na violett, Cl gruen), mindestens 8 Ionen, Gitterkonstante 564 pm als Kantenlaenge der Elementarzelle messen und beschriften."
+- Pruef-Zahl: 564; Labels mind. Na, Cl.
+
+VORGEHEN:
+1. Lies scripts/chemie-e2e.mjs (Ablauf: Player-Freimodus ueber Proxy Meta-Pfad, Key aus C:/Users/flori/OneDrive/Key_muse.md NUR in Browserspeicher/Prozessspeicher, nie in Logs).
+2. EIN Lauf: `node scripts/chemie-e2e.mjs nacl meta` (genau EIN Modell-Call in diesem Auftrag). Bei HTTP 429: 60 s warten, EINMAL einzeln wiederholen, danach ehrlich abbrechen.
+3. Belege: dist/chemie-nacl-meta.png (1280x720, Gitter sichtbar) + dist/chemie-nacl-meta.json (Labels/Ionen, Messwerte, Spec-Abgleich 564 pm). Ehrlichkeitsvermerk: Spec-Abgleich prueft ModellANGABEN (Texte); ob Gitterkonstante physikalisch stimmt oder geraten ist, steht als Report-Absatz in der JSON (Feld `ehrlichkeit`).
+4. NICHT in kuratierte Bibliothek aufnehmen. GENAU EIN generation-log-Eintrag (Quelle "chemie-meta") — Eintrag als JSON-Block in der RUECKGABE liefern (ich trage ihn ein).
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat (nur Laenge/Status loggen). KEINE Wonder-Calls. NUR dieser EINE Call (kein Nachpolieren mit weiteren Calls).
+- Keine Fake-Belege: Screenshot nur aus echtem Lauf.
+- Abhängigkeit: Falls der Proxy-E2E-Meta-Pfad (Call 2/A-01) noch rot ist, zuerst ehrlich abbrechen statt Workarounds — in RUECKGABE vermerken.
+
+RUECKGABE (kurz, max. 20 Zeilen):
+Exit + Dauer / Screenshot-Pfad+Bytes+SHA16 / JSON-Kernaussagen (Labels, Messwerte, Spec-Abgleich, Ehrlichkeit) / generation-log-Eintrag als JSON.

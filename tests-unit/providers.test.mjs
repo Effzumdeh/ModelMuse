@@ -9,11 +9,11 @@ import {
 
 const reg = JSON.parse(await readFile('src/data/providers.json', 'utf8'));
 
-test('Registry ist gueltig: 2 Anbieter, 6 Modelle, Defaults belegt', () => {
+test('Registry ist gueltig: 2 Anbieter, 3 Modelle, Defaults belegt', () => {
   const { ok, errors } = validateProviders(reg);
   assert.equal(ok, true, errors.join('; '));
   assert.equal(reg.providers.length, 2);
-  assert.equal(listModels(reg).length, 6);
+  assert.equal(listModels(reg).length, 3);
   assert.equal(reg.defaultProvider, 'meta-muse');
   assert.equal(reg.defaultModel, 'muse-spark-1.3-contributor');
 });
@@ -28,15 +28,12 @@ test('Meta: beide Muse-Varianten mit Datenschutz-Hinweis', () => {
   assert.ok((s.tags ?? []).includes('Standard'));
 });
 
-test('OpenRouter: Gratis-Test zuerst, verifizierte Slugs, Rest Benchmark-Referenz', () => {
+test('OpenRouter: NUR verifiziertes Gratis-Modell (keine erfundenen Slugs)', () => {
   const ids = (getProvider(reg, 'openrouter')?.models ?? []).map((m) => m.id);
-  assert.deepEqual(ids, ['gemma-4-26b-it-free', 'gpt-6-astra', 'claude-opus-5-5', 'gemini-4-argon']);
-  // Verifizierte Slugs (offizielle OpenRouter-Modellliste GET /api/v1/models,
+  assert.deepEqual(ids, ['gemma-4-26b-it-free']);
+  // Verifizierter Slug (offizielle OpenRouter-Modellliste GET /api/v1/models,
   // Stand 27.10.2026 live geprueft, kein Raten).
   assert.equal(getModel(reg, 'openrouter', 'gemma-4-26b-it-free')?.providerModellId, 'google/gemma-4-26b-a4b-it:free');
-  assert.equal(getModel(reg, 'openrouter', 'gpt-6-astra')?.providerModellId, 'openai/gpt-6-astra');
-  assert.equal(getModel(reg, 'openrouter', 'claude-opus-5-5')?.providerModellId, 'anthropic/claude-opus-5.5');
-  assert.equal(getModel(reg, 'openrouter', 'gemini-4-argon')?.providerModellId, 'google/gemini-4-argon');
   for (const id of ids) {
     const m = getModel(reg, 'openrouter', id);
     assert.ok((m.badges ?? []).length >= 1, `${id}: Badge fehlt`);
@@ -47,11 +44,17 @@ test('OpenRouter: Gratis-Test zuerst, verifizierte Slugs, Rest Benchmark-Referen
   }
 });
 
-test('Empfehlungen: Geometrie=Astra, Aesthetik=Opus, Allround=Spark, Datenschutz=Standard', () => {
-  assert.equal(recommendModel(reg, 'geometrie').modelId, 'gpt-6-astra');
-  assert.equal(recommendModel(reg, 'aesthetik').modelId, 'claude-opus-5-5');
+test('Empfehlungen: Geometrie/Aesthetik/Praeferenz=Fallback Standard, Allround=Contributor, Datenschutz=Standard', () => {
+  assert.equal(recommendModel(reg, 'geometrie').modelId, 'muse-spark-1.3');
+  assert.equal(recommendModel(reg, 'aesthetik').modelId, 'muse-spark-1.3');
+  assert.equal(recommendModel(reg, 'praeferenz').modelId, 'muse-spark-1.3');
   assert.equal(recommendModel(reg, 'allround').modelId, 'muse-spark-1.3-contributor');
   assert.equal(recommendModel(reg, 'datenschutz').modelId, 'muse-spark-1.3');
+  // Keine Empfehlung darf auf eine ID zeigen, die nicht in der Registry steht.
+  for (const d of ['geometrie', 'aesthetik', 'praeferenz', 'allround', 'datenschutz']) {
+    const r = recommendModel(reg, d);
+    assert.ok(getModel(reg, r.providerId, r.modelId), `${d}: ${r.providerId}/${r.modelId} nicht in Registry`);
+  }
 });
 
 test('Generierungspfade: Muse-CLI echt, OpenRouter ehrlich deaktiviert (kein Key)', () => {
@@ -60,7 +63,7 @@ test('Generierungspfade: Muse-CLI echt, OpenRouter ehrlich deaktiviert (kein Key
   assert.ok(cli.text.includes('muse.exe exec --model muse-spark-1.3-contributor'));
   assert.ok(cli.text.includes('--api-key-stdin'), 'Key nur per stdin (Flag-Name, kein Key-Wert)');
   assert.ok(!cli.text.includes('Key_muse'), 'kein Key-Dateiname mit Inhalt');
-  const proxy = generationTarget(reg, 'openrouter', 'gpt-6-astra');
+  const proxy = generationTarget(reg, 'openrouter', 'gemma-4-26b-it-free');
   assert.equal(proxy.ready, false);
   assert.match(proxy.text, /Deaktiviert/);
 });

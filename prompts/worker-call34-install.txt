@@ -1,0 +1,30 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN kleines Thema.
+
+THEMA (Backlog O-14, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- dist/generation-log.json enthaelt bereits: cli-Pfad + Version 1.4.13, creditsLog
+  ("muse usage -> No subscription allowance (api_key)"), 31 Calls.
+- Fehlt: Installationsnotiz IM REPO (Pfad + Version + Auth-Modus + Abrechnungsweg).
+- Nicht machbar (ehrlich dokumentieren statt erfinden): creditsRemaining pro Call —
+  `muse usage` liefert im Key-Modus kein Kontingent, es gibt keine abfragbare Zahl.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies dist/generation-log.json (nur Kopf-Felder cli/modellFlag/keyKontakt/creditsLog —
+   KEINE Call-Inhalte noetig), scripts/_gen-one.mjs (stdin-Keyuebergabe als Beleg).
+2. Lege an: docs/INSTALLATION-MUSE.md (max. 30 Zeilen): Installationspfad
+   (C:/Users/flori/AppData/Local/Programs/muse/muse.exe, 419 MB, Version 1.4.13,
+   Stand 27.10.2026), Auth NUR via --api-key-stdin (Key nie als Argument/in Logs),
+   Modell-Pin pro Call, Abrechnung: Key-Modus = Verbrauch im Schluessel-Portal,
+   `muse usage` meldet kein Kontingent (erwartet, kein Fehler), Beleg je Call =
+   dist/ledger-muse-calls.md + dist/usage-tagesstand (npm run usage:tagesstand).
+   Verweis: dist/generation-log.json (Kopf cli/creditsLog).
+3. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Versions-/Pfad-Angaben (nur belegte).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 10 Zeilen):
+Datei (Zeilen) / Fakten-Quellen (woher je Angabe) / nicht-machbar-Vermerk (ja) /
+offen fuer Orchestrator (nur Lesen).

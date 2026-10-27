@@ -110,6 +110,22 @@ async function boot() {
 
   let player = null;
   let registry = [];
+  // O-12: nur fuer Levelwechsel-Test, keine Steuerfunktion (rein lesend).
+  const labDebugState = { sessionId: null, meshes: null };
+  window.__labDebug = {
+    sessionId: () => labDebugState.sessionId,
+    meshes: () => labDebugState.meshes,
+  };
+  /** Letzte bekannte Mesh-Anzahl aus dem Bericht (S4-meshcount aus der Probe). @param {unknown} r */
+  const noteMeshCount = (r) => {
+    try {
+      const layers = /** @type {Array<{ layer?: string, criteria?: Array<{ id?: string, actual?: unknown }> }>} */ (/** @type {{ layers?: unknown }} */ (r)?.layers ?? []);
+      const s4 = layers.find((l) => l?.layer === 'S4');
+      const crit = s4?.criteria?.find((c) => c?.id === 'S4-meshcount');
+      const n = parseInt(String(crit?.actual ?? ''), 10);
+      if (Number.isFinite(n)) labDebugState.meshes = n;
+    } catch { /* Debug-Stand bleibt erhalten */ }
+  };
   try {
     registry = await loadRegistry();
   } catch (e) {
@@ -204,7 +220,7 @@ async function boot() {
     renderTasks(taskList, manifest, store.level, store.tasksDone, (id, ok) => {
       store.tasksDone = { ...store.tasksDone, [id]: ok };
     });
-    renderSoll($('harness-soll'), manifest);
+    renderSoll($('harness-soll'), manifest, current?.id);
     document.body.dataset.ampel = store.ampel;
   };
 
@@ -252,6 +268,7 @@ async function boot() {
         mount,
         assets,
         onReport: (r) => {
+          noteMeshCount(r);
           store.ampel = r.verdict === 'rot' ? 'rot' : 'gelb';
           reportsById.set(r.modelId, r);
           renderReport(reportBox, r);
@@ -314,7 +331,8 @@ async function boot() {
       try {
         const current = registry.find((m) => m.id === store.modelId);
         if (!current) return;
-        await player.load({ id: current.id, kind: 'lab', source: current.source, manifest: current.manifest });
+        const loaded = await player.load({ id: current.id, kind: 'lab', source: current.source, manifest: current.manifest });
+        if (loaded?.sessionId) labDebugState.sessionId = loaded.sessionId;
         paint();
       } catch (e) {
         try {
@@ -418,7 +436,10 @@ async function boot() {
   if (player && store.modelId) {
     try {
       const current = registry.find((m) => m.id === store.modelId);
-      if (current) await player.load({ id: current.id, kind: 'lab', source: current.source, manifest: current.manifest });
+      if (current) {
+        const first = await player.load({ id: current.id, kind: 'lab', source: current.source, manifest: current.manifest });
+        if (first?.sessionId) labDebugState.sessionId = first.sessionId;
+      }
     } catch {
       /* Startfehler steht im Bericht */
     }

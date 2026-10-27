@@ -1,0 +1,36 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema (Teil 1 von 2).
+
+THEMA (Backlog O-11 Teil 1, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- eval/didaktik-minimalsatz.json: 5 Aufgaben (ein Dict mit "aufgaben"-Liste, je Aufgabe
+  labels/measurements/objectives/...), scripts/eval-harness.mjs prueft sie mit S5
+  (validateManifest + checkLevelRules), schreibt dist/eval-harness.json.
+- Luecke: 5 Aufgaben sind kein Benchmark — gefordert 30-50 ueber 3 Fachrichtungen
+  (SI/DuP/AE) und Niveaus, versioniert. Der Harness liest NUR die eine Datei.
+- Teil 2 (naechster Auftrag, NICHT hier): 3JSBench-Briefings als Geometrie-Regression
+  + Lizenzvermerk. NICHT in diesem Call.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies eval/didaktik-minimalsatz.json (vollstaendig — Format je Aufgabe exakt
+   uebernehmen), scripts/eval-harness.mjs (Dateiname fix verdrahtet?).
+2. Erweitere den Satz auf 35 Aufgaben: je Fachrichtung SI/DuP/AE mindestens 10,
+   je Niveau (basis/aufbau/profi) mindestens 8 ueber den Gesamtsatz, Themen aus dem
+   belegten Bestand (die 10 kuratierten Modelle + H2O/NaCl als fachfremd-Kontrolle —
+   KEINE neuen Fantasie-Themen). Format je Aufgabe IDENTISCH zum Bestand (Felder,
+   Einheiten mit UNIT_RE-Einheiten mm/cm/m/HE/kB/MB, tasks mit prompt>=8 Zeichen).
+   Datei: eval/didaktik-benchmark-v1.json (Minimalsatz unangetastet lassen).
+   ZAEHLUNG im Kopf als Kommentar? JSON ohne Kommentare — fuehre "version":"1",
+   "stand":"2026-10-27", "anzahl":35 als Felder.
+3. Erweitere scripts/eval-harness.mjs: Dateipfad als argv[2] (Default Minimalsatz),
+   Report um {datei, version, anzahl, passRate} ergaenzen. Exit 0 nur wenn alle pass.
+   Rueckwaertskompatibel: Default-Lauf ohne Args wie bisher.
+4. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Formate (exakt Bestand), keine Fantasie-Themen.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 14 Zeilen):
+Neue Datei (Anzahl je Track/Niveau) / Harness-Aenderung (Arg + Report-Felder) /
+Format-Treue (ja/nein) / offen fuer Orchestrator (Harness-Lauf alt + neu).

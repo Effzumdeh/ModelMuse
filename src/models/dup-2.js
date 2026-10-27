@@ -2,6 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'BPMN-Prozess (DuP-2)', category: 'sonstiges', detailLevel: 2, parts: ['Startereignis', 'Aufgabe', 'Entscheidung', 'Endereignis'], units: 'm' };
+export const meta_i18n = { en: { title: 'BPMN process (DuP-2)', parts: ['Start event', 'Task', 'Gateway', 'End event'] }, es: { title: 'Proceso BPMN (DuP-2)', parts: ['Evento de inicio', 'Tarea', 'Compuerta', 'Evento de fin'] } };
 export function init(container, params) {
   const p = params || {};
   const scene = new Scene();

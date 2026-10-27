@@ -2,7 +2,8 @@
  * M7: Eigene Eval-Harness (didaktischer Minimalsatz, kein 3JSBench-Grader noetig).
  * Prueft eval/didaktik-minimalsatz.json mit S5 (Manifest, Niveauregeln) und
  * schreibt dist/eval-harness.json. Exit 0 nur wenn alle Aufgaben S5-pass.
- * Aufruf: node scripts/eval-harness.mjs
+ * Aufruf: node scripts/eval-harness.mjs [eval-Datei]
+ * Default: eval/didaktik-minimalsatz.json (rueckwaertskompatibel).
  * Bauplan-Erw.: A/B-Vergleiche (Prompt-Versionen, contributor vs. Standard)
  * laufen ueber denselben Harness (Ergebnis + buildHash im Report).
  */
@@ -16,7 +17,8 @@ try {
   buildHash = JSON.parse(await readFile(`${ROOT}/dist/build-report.json`, 'utf8')).buildHash ?? 'dev';
 } catch { /* Build-Report fehlt: Hash dev */ }
 
-const set = JSON.parse(await readFile(`${ROOT}/eval/didaktik-minimalsatz.json`, 'utf8'));
+const DATEI = process.argv[2] ?? 'eval/didaktik-minimalsatz.json';
+const set = JSON.parse(await readFile(`${ROOT}/${DATEI}`, 'utf8'));
 for (const aufgabe of set.aufgaben ?? []) {
   const rep = validateManifest(aufgabe);
   const criteria = [];
@@ -43,9 +45,10 @@ for (const aufgabe of set.aufgaben ?? []) {
 }
 
 await mkdir(`${ROOT}/dist`, { recursive: true });
+const passCount = results.filter((r) => r.verdict === 'pass').length;
 await writeFile(
   `${ROOT}/dist/eval-harness.json`,
-  JSON.stringify({ createdAt: new Date().toISOString(), buildHash, standard: set.standard, count: results.length, results }, null, 2)
+  JSON.stringify({ createdAt: new Date().toISOString(), buildHash, datei: DATEI, version: set.version ?? null, anzahl: set.anzahl ?? results.length, standard: set.standard, count: results.length, passRate: results.length === 0 ? 0 : passCount / results.length, results }, null, 2)
 );
 const bad = results.filter((r) => r.verdict !== 'pass');
 if (bad.length > 0) {

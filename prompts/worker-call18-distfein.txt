@@ -1,0 +1,37 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, Praezisierung des eigenen Skripts.
+
+STAND (frisch belegt, 27.10.2026, Orchestrator-Lauf `npm run verify:dist`):
+Dein Skript funktioniert, ist aber zu strikt: Es meldet 13 "externe URLs", darunter
+inerte Strings, die NIE Netzverkehr verursachen: XML-Namespace `http://www.w3.org/1999/xhtml`,
+Kommentar-URLs in three.js-Shadern (jcgt.org), Alpine-Dev-Strings (alpinejs.dev) sowie
+Doku-Hyperlinks aus providers.json (openrouter.ai, benchmark.ai, artificialanalysis.ai —
+reine <a>-Links/Anzeigetexte, kein Load). Bauplan T0-3/T0-4 meint LADEZEIT-Netz
+(CDN-Skripte, fetch, Imports), nicht erwaehnte Strings. Zusaetzlich: buildHash
+(Quellen-Hash e8c75470…) != Artefakt-sha256 (b86b5602…) — by design, aber der Report
+sollte den Artefakt-Hash stempeln, damit der Abgleich maschinell klappt.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies scripts/verify-dist.mjs + scripts/build.mjs (Report-Schreibung).
+2. Verfeinere die URL-Pruefung in scripts/verify-dist.mjs zu zwei Klassen:
+   - LOAD (Fail): Ladezeit-Referenzen — <script src="http...">, <link href="http...">,
+     url(http...), fetch('http...'), new WebSocket, import('http...')/import "...http...",
+     .src = 'http...'. NUR diese lassen den Check fehlschlagen.
+   - MENTION (Warnung, kein Fail): alle uebrigen http(s)-Strings — auflisten
+     (gekuerzt, max. 80 Zeichen), aber Exit 0 nicht blockieren. Regel im Skriptkopf
+     dokumentieren (T0-3/T0-4 = Ladezeit-Netzfreiheit).
+   Key-Pruefung (Muster+Wert) unveraendert lassen.
+3. Stempele in scripts/build.mjs zusaetzlich `artefaktSha256` (Hex des geschriebenen
+   lab-player.html) in dist/build-report.json; verify-dist.mjs vergleicht GENAU DAS
+   gegen die .sha256-Datei (statt buildHash). buildHash bleibt wie es ist.
+4. VERIFIKATION durch dich: nur Syntax (node --check beider Dateien). KEINE npm-/
+   Playwright-Laeufe (Sandbox), KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen URLs/Verhaltensweisen.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+LOAD-Regeln (Liste) / Report-Feld / node --check /
+Erwartung (verify:dist sollte jetzt MENTION-Warnungen + Exit 0 liefern) /
+offen fuer Orchestrator.

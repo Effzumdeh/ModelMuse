@@ -1,0 +1,32 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, Nachfolge-Fix zum eigenen Matrix-Test.
+
+STAND (frisch belegt, 27.10.2026, Orchestrator mit Screenshot-Sichtung):
+- Viewport-Gate + Reload-Retry + Maske funktionieren, Syntax ok.
+- Trotzdem schreibt der --update-Lauf teils SCHWARZE Baselines (z.B. ae-1-detail.png),
+  obwohl der Test "pass" meldet. Ursache (Mechanik, kein Verdacht): nonEmptyShot macht
+  Screenshot 1 (geprueft, ggf. Retry = Screenshot 2), danach ruft toHaveScreenshot einen
+  DRITTEN Screenshot fuers Baseline-Schreiben/Vergleichen auf. Das Canvas flackert pro
+  Frame (SwiftShader): Gate sieht ein gutes Frame, der Vergleichs-Shot ein schwarzes
+  (oder umgekehrt) — Validierung und Vergleich laufen auf verschiedenen Frames.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies tests/visual-matrix.spec.mjs (nonEmptyShot mit Rueckgabe buf/buf2 + Aufrufstelle
+   mit expect(page).toHaveScreenshot).
+2. Baue den Vergleich auf den VALIDIERTEN Buffer um: nonEmptyShot gibt den geprueften
+   Buffer zurueck; ersetze `expect(page).toHaveScreenshot(...)` durch
+   `expect(<validierter Buffer>).toMatchSnapshot(...)` mit denselben Optionen
+   (Name `<id>-<view>.png`, threshold 0.2, maxDiffPixelRatio 0.002). Kein dritter
+   Screenshot mehr — Gate und Vergleich laufen auf demselben Frame. Maske dabei
+   behalten (als Option von toMatchSnapshot, falls dort gestuetzt, sonst als
+   mask-Locator-Option analog zum bisherigen Aufruf).
+3. VERIFIKATION durch dich: nur Syntax (node --check). KEINE Playwright-/npm-Laeufe.
+   KEINen E2E-/Generierungs-Lauf starten. KEIN Key noetig.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen. Keine Schwellen lockern, keine anderen Aenderungen.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 10 Zeilen):
+Geaenderte Zeilen / Vergleichs-Call (Signatur) / node --check /
+offen fuer Orchestrator (Baseline-Regeneration + Doppel-Lauf).

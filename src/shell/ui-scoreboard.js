@@ -4,6 +4,7 @@
  * (bestes Modell je Domaene Geometrie/Didaktik).
  */
 import { SIX_CLASSES, scoreReport, compareProviders, sollWerte } from '../runtime/scoreboard.js';
+import { sollFromMatrixEntry } from '../runtime/verify.js';
 import { tt } from './i18n.js';
 
 /**
@@ -51,11 +52,17 @@ export function renderScoreboard(el, reports, opts = {}) {
 
 /**
  * S5-Soll-Werte-Tabelle (M5/M7) zum aktuellen Manifest.
+ * O-10: MATRIX aus derselben JSON (src/data/modellmatrix.json, eingebettet als
+ * window.__MODELLMATRIX__) — exakte Zeilen bei bekannter Modell-ID, sonst
+ * alte Mindesttabelle (graceful). Eigene Zahlen standen nicht hier, sondern in
+ * sollWerte (scoreboard.js); angeglichen per optionalem soll-Param.
  * @param {HTMLElement} el
  * @param {unknown} manifest
+ * @param {string} [modelId]
  */
-export function renderSoll(el, manifest) {
-  const { rows, ok } = sollWerte(manifest);
+export function renderSoll(el, manifest, modelId) {
+  const reg = (typeof window !== 'undefined' && window.__MODELLMATRIX__) || null;
+  const { rows, ok } = sollWerte(manifest, sollFromMatrixEntry(reg?.[modelId]));
   el.innerHTML = '';
   const table = document.createElement('table');
   for (const r of rows) {

@@ -1,0 +1,33 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, Nachfolge-Fix zum eigenen Matrix-Test.
+
+STAND (frisch belegt, 27.10.2026, Orchestrator-Lauf mit Screenshot-Sichtung):
+- Dein Lade-Signal (Verify-Report zeigt Modell-ID) + Maske funktionieren: Der aktuelle
+  Lauf rendert korrekt (Viewport gefuellt, Maske als Box sichtbar).
+- Trotzdem flakig, jetzt mit klarer Ursache: Die BASELINES aus dem --update-Lauf sind
+  teils SCHWARZ (leerer Viewport, z.B. dist/baselines/ae-1-detail.png), obwohl der Test
+  damals "pass" meldete. nonEmptyShot misst die GANZE Seite — UI allein besteht immer,
+  schwarzer Viewport faellt nie auf. Das Lade-Signal feuert (Report steht), aber das
+  Canvas bleibt in manchen Laeufen schwarz (SwiftShader-Flake, kein App-Fehler: E2E +
+  Harness sind stabil gruen).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies tests/visual-matrix.spec.mjs (nonEmptyShot mit vorhandenem PNG-Decoder + stats).
+2. Staerke nonEmptyShot (nur dort, keine neue Datei, keine Deps): Pruefe ZUSAETZLICH
+   zur Ganzseiten-Statistik einen Bildausschnitt in der Viewport-Mitte (z.B. x 30–65 %,
+   y 25–75 % — Seitenleiste rechts und Steuerleisten bleiben draussen). Dort muss der
+   Nicht-Hintergrund-Anteil DEUTLICH hoch sein (>= 25 %): Bei schwarzem Viewport schlaegt
+   der Test damit FEHL statt eine schwarze Baseline zu schreiben/bestaetigen.
+3. Baue GENAU EINEN Reload-Retry: Faellt die Viewport-Probe beim ersten Screenshot fehl,
+   EINMAL page.reload() + Lade-Signal erneut abwarten + neu screenshotten. Danach gilt
+   das Ergebnis (kein zweiter Retry, keine Schleife).
+4. VERIFIKATION durch dich: nur Syntax (node --check). KEINE Playwright-/npm-Laeufe.
+   KEINen E2E-/Generierungs-Lauf starten. KEIN Key noetig.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Selektoren/Schwellen (nimm die genannten).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Geaenderte Funktion (Datei+Zeile) / Schwelle / Retry-Regel / node --check /
+offen fuer Orchestrator (Baseline-Regeneration + Doppel-Lauf als Stabilitaetsbeweis).

@@ -4,18 +4,10 @@ import assert from 'node:assert/strict';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 
-const MATRIX = {
-  'si-1': { labelsMin: 5, units: ['cm'], tasks: [0, 2, 1] },
-  'si-2': { labelsMin: 4, units: ['m'], tasks: [0, 2, 1] },
-  'si-3': { labelsMin: 4, units: ['HE'], tasks: [0, 2, 1] },
-  'dup-1': { labelsMin: 4, units: ['cm'], tasks: [0, 2, 1] },
-  'dup-2': { labelsMin: 4, units: ['cm'], tasks: [0, 2, 1] },
-  'dup-3': { labelsMin: 4, units: ['cm'], tasks: [0, 2, 1] },
-  'ae-1': { labelsMin: 4, units: ['cm'], tasks: [0, 2, 1] },
-  'ae-2': { labelsMin: 3, units: ['cm'], tasks: [0, 2, 1] },
-  'ae-3': { labelsMin: 4, units: ['m'], tasks: [0, 2, 1] },
-  'gpu-example': { labelsMin: 9, units: ['mm'], tasks: [0, 2, 1] },
-};
+// O-10: MATRIX als einzige Quelle in src/data/modellmatrix.json (Lesart per
+// readFile, gleiche Konvention wie tests-unit/providers.test.mjs — kein
+// statischer JSON-Import, damit node --test ohne Import-Attribute laeuft).
+const MATRIX = JSON.parse(await readFile('src/data/modellmatrix.json', 'utf8'));
 
 test('alle zehn Modellmodule vorhanden und im Byte-Budget (<=34000)', async () => {
   for (const id of Object.keys(MATRIX)) {

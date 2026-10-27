@@ -1,0 +1,32 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Problem.
+
+SYMPTOM (frisch belegt, 27.10.2026, zwei Laeufe tests/visual-matrix.spec.mjs):
+- Lauf 1 mit --update-snapshots: 20/20 pass, 20 Baselines geschrieben (10 Modelle x overview/detail).
+- Lauf 2 ohne Flag: nur 9–11 pass, Rest fail. Beleg: ae-1-detail-actual.png zeigt SCHWARZEN
+  Viewport (Modell nicht geladen/gerendert), waehrend die Baseline dasselbe Modell korrekt
+  zeigt. Auswahl steht in beiden Faellen korrekt (Modell AE-1, Niveau Aufbau, Ansicht Detail).
+- Ursache: Der Test wartet starr 9 s (waitForTimeout) statt auf echtes Laden. Die
+  Nicht-Leere-Pruefung greift nicht, weil sie die ganze Seite misst (UI allein ist nie leer).
+- Nebenbefund (NICHT Teil dieser Aufgabe, nur zur Kenntnis): Das Verify-Panel zeigt
+  "Modell gpu-example" obwohl AE-1 geladen ist — Panel-Stand, kein Test-Fehler.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies tests/visual-matrix.spec.mjs, src/runtime/player.js + src/runtime/frame-bootstrap.js
+   (gibt es ein verlaessliches "geladen"-Signal? z.B. Callback, DOM-Flag, verify-report-Text,
+   first-frame-Event — nimm das staerkste vorhandene, erfinde keins).
+2. Ersetze in tests/visual-matrix.spec.mjs die starre 9-s-Wartezeit durch Warten auf das
+   echte Lade-Signal (waitForFunction mit Timeout 60 s) + kleinen Puffer (max. 2 s) fuers
+   erste Frame. Nichts sonst aendern (Selektoren, Schwellwerte 0.2/0.002, nonEmptyShot bleiben).
+   Falls ZWEI Signale noetig sind (Modellwechsel + Viewwechsel), beide abwarten.
+   Falls es KEIN verlaessliches Signal gibt: melde das ehrlich zurueck (kein Fix erfinden),
+   aendere nichts.
+3. VERIFIKATION durch dich: nur Syntax (node --check). KEINE Playwright-/npm-Laeufe
+   (laufen in deiner Sandbox nicht). KEINen E2E-/Generierungs-Lauf starten. KEIN Key noetig.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Modell-IDs oder DOM-Signale.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 15 Zeilen):
+Signal (Datei+Zeile) / geaenderte Stellen / node --check / offen fuer Orchestrator.

@@ -1,0 +1,30 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, Verdrahtungs-Fix (kein neues Feature).
+
+STAND (frisch belegt, 27.10.2026, Orchestrator-verifiziert):
+- frame-bootstrap.js snapshot() liefert boxes (≤16, 1-mm) + backfaceHits — auch im
+  model-ready-Snapshot (Z. 313/318/328, gleiche Funktion).
+- verify.js versteht sceneStats {boxes, backfaceHits} (withProbeIds Z.169, Z.201-202).
+- LUECKE: src/runtime/player.js Z.141 ruft verifyGeometryLayer(ref.source, null) —
+  die Probe liegt dort als `probe` vor (wird Z.130 fuer watcher.sample genutzt),
+  erreicht die Geometrie-Kriterien aber nie. Deshalb steht im Browser-Report weiter
+  der statische Text, obwohl echte Messwerte vorhanden sind.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/runtime/player.js Z. 120-145 (probe-Herkunft + verifyGeometryLayer-Aufruf),
+   src/runtime/verify.js Z. 167-230 (erwartete sceneStats-Form).
+2. Baue GENAU EINEN Adapter (max. 10 Zeilen) vor dem Aufruf: sceneStats aus `probe`
+   mappen (boxes, backfaceHits; meshes/geometries NICHT doppeln; alles mit
+   Array.isArray-/typeof-Guards, fehlende Felder = undefined, kein Throw).
+   Aufruf ändern: verifyGeometryLayer(ref.source, sceneStats) statt null.
+   Graceful bleibt: ohne Probe-Felder entscheidet verify.js wie bisher (statisch).
+3. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Feldnamen (nur belegte Probe-Felder).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 10 Zeilen):
+Adapter (Datei+Zeilen, gemappte Felder) / Graceful (ja/nein) /
+offen fuer Orchestrator (Unit + Harness-Browser-Lauf).

@@ -1,0 +1,34 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Problem.
+
+SYMPTOM (frisch belegt, 27.10.2026, `npm run build`):
+Build bricht ab mit `build: ABBRUCH Groessenpruefung rot`. Drei MAX-Verletzungen in
+scripts/build.mjs (maxTable mit datierten Begruendungen — Konvention im Repo ist Anheben
+mit Datums-Kommentar, siehe dort Teil 5 / E2E-Befund / A-3):
+- src/runtime/guard-static.js: 12902 > max 9000 (gewachsen durch repairThreeImports + String-Maskierung)
+- src/runtime/livegen.js: 9023 > max 9000 (Tabelle erst heute 7500 -> 9000, jetzt 23 B drueber durch Repair-Verdrahtung)
+- src/shell/ui-livegen.js: 15585 > max 15500 (85 B drueber)
+Der Vorgaenger-Fix (Color-Re-Export in src/vendor/three.entry.js, +7 B, Bundle 606231)
+ist NICHT die Ursache — diese drei Dateien sind unveraendert seit dem Erst-Commit,
+die Tabelle wurde beim parallelen Bauen (17:03–17:19) nicht nachgezogen.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Miss die drei Ist-Groessen selbst nach (keine Zahlen aus diesem Prompt uebernehmen).
+2. Hebe die drei Maxima in scripts/build.mjs auf sinnvolle runde Werte ueber Ist
+   (kleiner Puffer ok), im Stil der bestehenden Eintraege: `// 27.10.2026: alt -> neu, Grund`.
+3. Lege das Abweichungsblatt an (Backlog O-13): Datei docs/ABWEICHUNGSBLATT-2026-10-27.md —
+   Tabelle mit Datei, Plan-alt, Ist, Neu-Max, datierte Begruendung; Verweis auf
+   dist/BUDGET-NACHTRAG-2026-10-27.md. Falls die Datei schon existiert, Eintraege anhaengen.
+4. Verifiziere LOKAL: `npm run build` muss mit `verdict: pass` enden (kein ABBRUCH).
+   Danach `node --test` der Dateien aus package.json scripts.test:unit plus
+   tests-unit/i18n.test.mjs GRUEN. Falls build dabei in der Muse-Sandbox scheitert
+   (Sandbox-Limit, nicht Code-Fehler): 1 Wiederholung, dann ehrlich als blockiert melden,
+   nichts erfinden. KEINEN E2E-Lauf starten (macht der Orchestrator).
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. Du brauchst keinen Key.
+- KEINE Wonder-Calls, KEINE neuen Dependencies, keine Trust-Aenderungen, kein Slimming,
+  das Verhalten aendert (nur Tabellenwerte + Doku).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 20 Zeilen):
+Geaenderte Tabellenwerte (alt -> neu) / Build-Verdict / Unit-Resultat.

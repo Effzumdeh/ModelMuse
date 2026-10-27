@@ -6,8 +6,8 @@
 import { staticGate, repairThreeImports } from './guard-static.js';
 import { createBudgetWatcher, DEFAULT_BUDGET_LIMITS } from './budget.js';
 import { createGuestSession, loadModule, readProbe, captureFrame, disposeSession } from './sandbox-host.js';
-import { buildLevelPatch, validateManifest } from './didactics.js';
-import { verifyStaticLayer, verifyGeometryLayer, skipLayer, buildVerifyReport } from './verify.js';
+import { buildLevelPatch } from './didactics.js';
+import { verifyStaticLayer, verifyGeometryLayer, verifyDidacticsLayer, sollFromMatrixEntry, skipLayer, buildVerifyReport } from './verify.js';
 import { extractMeta } from './verify.js';
 import { renderFallback2D } from './fallback2d.js';
 
@@ -102,7 +102,7 @@ export function createPlayer(options) {
         layers.push({ layer: 'S2', verdict: 'fail', criteria: [{ id: code, verdict: 'fail', expected: 'erster Frame', actual: String((e && e.message) || e).slice(0, 200) }], durationMs: Date.now() - t2 });
         layers.push(skipLayer('S3', 'S2 fehlgeschlagen'));
         layers.push(skipLayer('S4', 'S2 fehlgeschlagen'));
-        layers.push(lastManifest ? validateLayer(lastManifest, ref.source) : skipLayer('S5', 'kein Manifest'));
+        layers.push(lastManifest ? validateLayer(lastManifest, ref.source, ref.id) : skipLayer('S5', 'kein Manifest'));
         lastReport = buildVerifyReport({ modelId: ref.id, layers });
         if (options.onReport) options.onReport(lastReport);
         await disposeSessionOnly();
@@ -128,7 +128,7 @@ export function createPlayer(options) {
         layers.push({ layer: 'S2', verdict: 'fail', criteria: [{ id: 'E-S2-PROBE', verdict: 'fail', expected: 'Probe lesbar', actual: String((e && e.message) || e).slice(0, 200) }], durationMs: Date.now() - t2 });
         layers.push(skipLayer('S3', 'S2 fehlgeschlagen'));
         layers.push(skipLayer('S4', 'S2 fehlgeschlagen'));
-        layers.push(lastManifest ? validateLayer(lastManifest, ref.source) : skipLayer('S5', 'kein Manifest'));
+        layers.push(lastManifest ? validateLayer(lastManifest, ref.source, ref.id) : skipLayer('S5', 'kein Manifest'));
         lastReport = buildVerifyReport({ modelId: ref.id, layers });
         if (options.onReport) options.onReport(lastReport);
         throw e;
@@ -138,7 +138,11 @@ export function createPlayer(options) {
       // HARNESS (M1/M2): deterministische Geometrie-Checks als echte S2-Kriterien
       // (sechs Fehlerklassen, deutsche Meldungen + FLARE-Messwerte) — dadurch
       // misst JEDER Browser-Report die Klassen, nicht nur der Node-Verify-Lauf.
-      const geo = verifyGeometryLayer(ref.source, null);
+      const sceneStats = probe && typeof probe === 'object' ? {
+        boxes: Array.isArray(probe.boxes) ? probe.boxes : undefined,
+        backfaceHits: typeof probe.backfaceHits === 'number' ? probe.backfaceHits : undefined,
+      } : undefined;
+      const geo = verifyGeometryLayer(ref.source, sceneStats);
       layers.push({
         layer: 'S2',
         verdict: s2ok && geo.layer.verdict === 'pass' ? 'pass' : 'fail',
@@ -162,7 +166,7 @@ export function createPlayer(options) {
         ],
         durationMs: 0,
       });
-      layers.push(lastManifest ? validateLayer(lastManifest, ref.source) : skipLayer('S5', 'kein Manifest'));
+      layers.push(lastManifest ? validateLayer(lastManifest, ref.source, ref.id) : skipLayer('S5', 'kein Manifest'));
       lastReport = buildVerifyReport({ modelId: ref.id, layers });
       if (options.onReport) options.onReport(lastReport);
       const mode = '3d';
@@ -260,16 +264,17 @@ export function createPlayer(options) {
   };
 }
 
-function validateLayer(manifest, source) {
-  const t0 = Date.now();
-  const v = validateManifest(manifest);
-  const layer = {
-    layer: 'S5',
-    verdict: v.ok ? 'pass' : 'fail',
-    criteria: [
-      { id: 'S5-manifest', verdict: v.ok ? 'pass' : 'fail', expected: 'Manifest ok', actual: v.ok ? `labels=${v.counts.labels}` : `missing=${v.missing.join(',')} invalid=${v.invalid.join(',')}` },
-    ],
-    durationMs: Date.now() - t0,
-  };
-  return layer;
+/**
+ * O-10: S5 als volle Didaktik-Schicht (wie verify-all.mjs) plus S5-soll exakt.
+ * Matrix kommt aus window.__MODELLMATRIX__ (render-single-file.mjs bettet
+ * src/data/modellmatrix.json ein); fehlt sie (free-Modell/Roh-Dev), laeuft
+ * S5-soll graceful (Mindestpruefung bleibt gueltig).
+ */
+function matrixSoll(modelId) {
+  const reg = (typeof window !== 'undefined' && window.__MODELLMATRIX__) || null;
+  return sollFromMatrixEntry(reg?.[modelId]);
+}
+
+function validateLayer(manifest, source, modelId) {
+  return verifyDidacticsLayer(manifest, source, matrixSoll(modelId)).layer;
 }

@@ -1,0 +1,1796 @@
+{
+  "createdAt": "2026-10-27T20:12:38.419Z",
+  "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+  "models": [
+    {
+      "modelId": "ae-1",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "12305 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 3
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 19 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 3 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [0,00, 0,02, 0,05], Spanne 0,35 m (4 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 72,8 mm, Spanne 0,35 m (4 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "19 Meshes statisch (Mesh 18 + Instanced 1)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-ae-1.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 12305 Bytes vs Beleg 11944 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "19 Meshes statisch (Mesh 18 + Instanced 1)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12305 Bytes vs Beleg 11944 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12305 Bytes vs Beleg 11944 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.402Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-ae-1.png"
+    },
+    {
+      "modelId": "ae-2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "12369 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 2
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 11 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [-0,08, 0,06, 0,06], Spanne 0,37 m (3 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 123,7 mm, Spanne 0,37 m (3 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "11 Meshes statisch (Mesh 7 + Instanced 4)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-ae-2.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 12369 Bytes vs Beleg 12006 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "11 Meshes statisch (Mesh 7 + Instanced 4)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12369 Bytes vs Beleg 12006 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12369 Bytes vs Beleg 12006 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=3 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 3 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==3, B/A/P=0/2/1",
+              "actual": "Labels=3, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.406Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-ae-2.png"
+    },
+    {
+      "modelId": "ae-3",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "14803 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 2
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 14 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [0,01, 0,00, 0,20], Spanne 1,02 m (4 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 330,6 mm, Spanne 1,02 m (4 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "14 Meshes statisch (Mesh 11 + Instanced 3)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-ae-3.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 14803 Bytes vs Beleg 14457 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "14 Meshes statisch (Mesh 11 + Instanced 3)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14803 Bytes vs Beleg 14457 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14803 Bytes vs Beleg 14457 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.408Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-ae-3.png"
+    },
+    {
+      "modelId": "dup-1",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "10994 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 11 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [-0,13, 0,03, 0,06], Spanne 0,40 m (4 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 100,5 mm, Spanne 0,40 m (4 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "11 Meshes statisch (Mesh 8 + Instanced 3)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-dup-1.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 10994 Bytes vs Beleg 10609 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "11 Meshes statisch (Mesh 8 + Instanced 3)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10994 Bytes vs Beleg 10609 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10994 Bytes vs Beleg 10609 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.409Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-dup-1.png"
+    },
+    {
+      "modelId": "dup-2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "13076 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 19 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [0,00, 0,00, 0,08], Spanne 0,90 m (4 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 300,2 mm, Spanne 0,90 m (4 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "19 Meshes statisch (Mesh 16 + Instanced 3)"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-dup-2.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 13076 Bytes vs Beleg 12746 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "19 Meshes statisch (Mesh 16 + Instanced 3)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13076 Bytes vs Beleg 12746 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13076 Bytes vs Beleg 12746 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.411Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-dup-2.png"
+    },
+    {
+      "modelId": "dup-3",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "14963 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 15 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 3 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [0,01, 0,00, 0,19], Spanne 0,93 m (4 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 300,7 mm, Spanne 0,93 m (4 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "15 Meshes statisch (Mesh 10 + Instanced 5)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-dup-3.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 14963 Bytes vs Beleg 14628 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "15 Meshes statisch (Mesh 10 + Instanced 5)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14963 Bytes vs Beleg 14628 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14963 Bytes vs Beleg 14628 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.412Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-dup-3.png"
+    },
+    {
+      "modelId": "gpu-example",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "21435 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 2
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 22 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [-0,01, -0,00, 0,01], Spanne 0,22 m (10 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 21,7 mm, Spanne 0,22 m (10 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "22 Meshes statisch (Mesh 5 + Instanced 17)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-gpu-example.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 21435 Bytes vs Beleg 20892 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "22 Meshes statisch (Mesh 5 + Instanced 17)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21435 Bytes vs Beleg 20892 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21435 Bytes vs Beleg 20892 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=10 mess=2"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 10 Labels, 2 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==10, B/A/P=0/2/1",
+              "actual": "Labels=10, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.414Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-gpu-example.png"
+    },
+    {
+      "modelId": "si-1",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "15837 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 33 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [0,04, -0,02, 0,04], Spanne 0,24 m (5 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 64,6 mm, Spanne 0,24 m (5 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "33 Meshes statisch (Mesh 28 + Instanced 5)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-si-1.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 15837 Bytes vs Beleg 15423 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "33 Meshes statisch (Mesh 28 + Instanced 5)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15837 Bytes vs Beleg 15423 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15837 Bytes vs Beleg 15423 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=5 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 5 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==5, B/A/P=0/2/1",
+              "actual": "Labels=5, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.416Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-si-1.png"
+    },
+    {
+      "modelId": "si-2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "13224 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 14 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 3 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [0,10, -0,03, 0,18], Spanne 0,42 m (4 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 201,0 mm, Spanne 0,42 m (4 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "14 Meshes statisch (Mesh 8 + Instanced 6)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-si-2.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 13224 Bytes vs Beleg 12903 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "14 Meshes statisch (Mesh 8 + Instanced 6)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13224 Bytes vs Beleg 12903 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13224 Bytes vs Beleg 12903 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.417Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-si-2.png"
+    },
+    {
+      "modelId": "si-3",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "10604 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three + wrapper-helpers",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 13 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [-0,06, 0,09, 0,26], Spanne 0,45 m (4 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 250,8 mm, Spanne 0,45 m (4 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "13 Meshes statisch (Mesh 5 + Instanced 8)"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": "dist/final-si-3.png",
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "Beleg aelter als Modellquelle (Quelle 10604 Bytes vs Beleg 10270 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "13 Meshes statisch (Mesh 5 + Instanced 8)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10604 Bytes vs Beleg 10270 Bytes)"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10604 Bytes vs Beleg 10270 Bytes)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-27T20:12:38.419Z",
+      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "screenshot": "dist/final-si-3.png"
+    }
+  ]
+}

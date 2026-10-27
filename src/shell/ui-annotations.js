@@ -1,5 +1,5 @@
 /**
- * Label- und Messungsliste, Bauteil-Checkboxen (ein-/ausblenden)
+ * Label- und Messungsliste, Beschriftungs-Checkboxen (ein-/ausblenden)
  * + Harness-Test pro Teil. Callbacks aus main.js, Logik in runtime/parts.js.
  */
 import { labelsForLevel, measurementsForLevel } from './store.js';

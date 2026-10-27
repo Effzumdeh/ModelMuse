@@ -25,14 +25,14 @@
   },
   "aufgaben": { "titel": "Tasks" },
   "bauteile": {
-    "titel": "Parts & Dimensions",
-    "kopf": "Parts ({n})",
+    "titel": "Labels & Dimensions",
+    "kopf": "Labels ({n})",
     "allePruefen": "Check all",
     "pruefen": "Check",
     "keineAnnotationen": "No annotations at this level.",
     "etikett": "Label: {label}",
     "mass": "Dimension: {text}",
-    "bauteilAnzeigen": "Show part {name}"
+    "bauteilAnzeigen": "Show label {name}"
   },
   "bericht": { "titel": "Verify report S1–S5", "leer": "No run yet.", "modell": "Model", "iteration": "Iteration", "ampel": "Status", "fehler": "Errors:" },
   "hinweis": { "titel": "Notice" },
@@ -79,6 +79,8 @@
     "p2Titel": "P2 EMERGENCY PATH for {id} (rev {rev} → {next}, max. iteration 2; iteration 3 manual only):",
     "p2Schritt": "Next step outside the browser:\n1. Place the error log + module source in p2-{id}-r{next}.txt (note P2 emergency path prompts/p2-repair.v6-harness.txt).\n2. {cmd}\n3. Import the result as .js (becomes a new revision).",
     "p2Bereit": "P2 log created for {id} — command shown, no key in the UI.",
+    "p2Datei": "Load P2 file",
+    "p2Reserve": "Iteration 3 manual only — no automatic revision ({id}).",
     "exportiert": "{datei} exported (provenance in header, no key).",
     "geloescht": "{id} deleted (session).",
     "uebernommen": "{id} adopted into library (rev 1).",

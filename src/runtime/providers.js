@@ -69,9 +69,9 @@ export function listModels(reg) {
  */
 export function recommendModel(reg, domain) {
   const table = {
-    geometrie: { providerId: 'openrouter', modelId: 'gpt-6-astra', grund: 'Geometrie: 3JSBench-Passrate 80,0 % (Rang 1)' },
-    aesthetik: { providerId: 'openrouter', modelId: 'claude-opus-5-5', grund: 'Human-Aesthetik: threejseval 2064 (Rang 1), 3JSBench-Preference 1083' },
-    praeferenz: { providerId: 'openrouter', modelId: 'gemini-4-argon', grund: 'Human-Praeferenz: benchmark.ai 1606 (Rang 1)' },
+    geometrie: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Geometrie: kein OpenRouter-Slug verifiziert (Beleg: nur :free-Slugs, kein paid-Geometrie-Modell) — Fallback Standard mit reasoning_effort max (M3)' },
+    aesthetik: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Aesthetik: threejseval/benchmark.ai-Top-Modelle nicht auf OpenRouter verifiziert — Fallback Standard mit max-Reasoning (M3)' },
+    praeferenz: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Praeferenz: kein OpenRouter-Slug verifiziert — Fallback Standard mit max-Reasoning (M3)' },
     allround: { providerId: 'meta-muse', modelId: 'muse-spark-1.3-contributor', grund: 'Allround/Preis: Hackathon-Tarif, kuratierte Bibliothek damit erzeugt' },
     datenschutz: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Standard-Vertrag ohne Trainingsnutzung + reasoning_effort max' },
   };

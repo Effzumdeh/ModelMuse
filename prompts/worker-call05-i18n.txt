@@ -1,0 +1,22 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Nur diese Dateien aendern, minimal invasiv.
+
+AUFGABE (Call 5 von max. 12 im Restposten-Auftrag):
+i18n-Manifeste de/en/es fuer alle 10 Modelle — UEBERSETZEN, nicht neu generieren (A-05). Befund (SELBST verifiziert):
+- src/models/manifests/*.json (10/10) enthalten i18n.en + i18n.es.
+- Aber src/models/*.js (10/10) enthalten KEIN meta_i18n (0 Treffer) — der Freimodus-Prompt verlangt meta_i18n (extractMetaI18n in src/shell/ui-livegen.js).
+- package.json scripts.test:unit listet tests-unit/i18n.test.mjs NICHT (12 von 13 Dateien).
+
+VORGEHEN:
+1. Lies src/models/si-1.js (meta-Export, ca. Z.4), src/models/manifests/si-1.json (i18n.en/i18n.es als Uebersetzungsvorlage), src/shell/ui-livegen.js (extractMetaI18n: erwartetes Format), src/runtime/guard-static.js (S1-Regeln: meta_i18n als reines Datenobjekt, keine verbotenen Tokens).
+2. Ergaenze in ALLEN 10 Modulen (si-1..3, dup-1..3, ae-1..3, gpu-example) einen `export const meta_i18n = { en: {...}, es: {...} }` durch UEBERSETZUNG des deutschen meta (Titel, Bauteilnamen aus meta.parts, units bleiben): en- und es-Texte aus den vorhandenen Manifest-i18n uebernehmen wo vorhanden, Rest sorgfaeltig uebersetzen (keine neuen Inhalte erfinden, keine Modell-Calls ausser diesem). Format exakt wie extractMetaI18n es erwartet.
+3. S1-GRUEN halten: nach jedem Modul `node scripts/verify-all.mjs --only=S1` (meta_i18n darf keine verbotenen Tokens enthalten).
+4. package.json: scripts.test:unit um tests-unit/i18n.test.mjs ergaenzen; `npm run test:unit` GRUEN.
+5. Drei Screenshots: dist/i18n-de.png, dist/i18n-en.png, dist/i18n-es.png (Player mit je einer Locale, Manifest-Texte sichtbar lokalisiert, 1280x720).
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, KEINE neuen Dependencies. KEINE Modell-Neugenerierung (nur Uebersetzung vorhandener Strings).
+- Keine Fake-Belege: Screenshots nur aus echten Laeufen.
+- Bei HTTP 429: 60 s warten, EINMAL wiederholen.
+
+RUECKGABE (kurz, max. 20 Zeilen):
+Geaenderte Dateien / Beispiel meta_i18n (si-1, gekuerzt) / S1-Resultat / Unit-Resultat inkl. Testzahl / 3 Screenshot-Pfade+Bytes.

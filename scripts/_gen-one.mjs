@@ -1,5 +1,8 @@
 /**
- * Ein Generierungs-Call via muse.exe (NUR muse-spark-1.3-contributor).
+ * Ein Generierungs-Call via muse.exe (Default muse-spark-1.3-contributor).
+ * M3-Wahl per Env: MUSE_MODEL (nur muse-spark-1.3-contributor |
+ * muse-spark-1.3, sonst Exit 2), MUSE_EFFORT (nur high | max,
+ * Default high, als --reasoning-effort durchgereicht).
  * Key kommt aus Key_muse.md und wird NUR via stdin (--api-key-stdin)
  * uebergeben — er erscheint nie in Logs, Chat oder der Prozessliste.
  * Aufruf: node scripts/_gen-one.mjs <promptFile> <rawOut> <errOut>
@@ -10,7 +13,16 @@ import { spawn } from 'node:child_process';
 
 const MUSE = 'C:/Users/flori/AppData/Local/Programs/muse/muse.exe';
 const KEYFILE = 'C:/Users/flori/OneDrive/Key_muse.md';
-const MODEL = 'muse-spark-1.3-contributor';
+const MODEL = process.env.MUSE_MODEL || 'muse-spark-1.3-contributor';
+if (MODEL !== 'muse-spark-1.3-contributor' && MODEL !== 'muse-spark-1.3') {
+  console.error('GEN: MUSE_MODEL ungueltig (nur muse-spark-1.3-contributor | muse-spark-1.3)');
+  process.exit(2);
+}
+const EFFORT = process.env.MUSE_EFFORT || 'high';
+if (EFFORT !== 'high' && EFFORT !== 'max') {
+  console.error('GEN: MUSE_EFFORT ungueltig (nur high | max)');
+  process.exit(2);
+}
 
 const [promptFile, rawOut, errOut] = process.argv.slice(2);
 if (!promptFile || !rawOut || !errOut) {
@@ -27,7 +39,7 @@ if (key.length < 8 || /\s/.test(key)) {
 async function once() {
   const start = new Date();
   const res = await new Promise((resolve) => {
-    const child = spawn(MUSE, ['exec', '--model', MODEL, '--api-key-stdin', '--prompt-file', promptFile], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(MUSE, ['exec', '--model', MODEL, '--reasoning-effort', EFFORT, '--api-key-stdin', '--prompt-file', promptFile], { stdio: ['pipe', 'pipe', 'pipe'] });
     let out = '';
     let err = '';
     child.stdout.on('data', (d) => { out += d.toString('utf8'); });

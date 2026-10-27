@@ -8,6 +8,7 @@ import { validateManifest, checkLevelRules, findPedagogyLeak } from './didactics
 import {
   GEO_LIMITS,
   verifyGeometryScene,
+  checkIntersections,
   countMeshesStatic,
   scanMaterialFlags,
 } from './geometry-checks.js';
@@ -17,6 +18,22 @@ import {
 
 export function crit(id, verdict, expected, actual) {
   return { id, verdict, expected: String(expected).slice(0, 400), actual: String(actual).slice(0, 400) };
+}
+
+/**
+ * O-10: Matrix-Eintrag {labelsMin, units, tasks[B,A,P]} aus
+ * src/data/modellmatrix.json -> Soll {labels, tasksBAP} fuer S5-soll.
+ * Ungueltig/unbekannt (free-Modelle ohne Matrix-Eintrag) -> undefined
+ * (graceful: S5-soll wird skip/pass, alte Mindestpruefung bleibt gueltig).
+ * @param {{ labelsMin?: unknown, labels?: unknown, tasks?: unknown, tasksBAP?: unknown }} entry
+ */
+export function sollFromMatrixEntry(entry) {
+  if (!entry || typeof entry !== 'object') return undefined;
+  const labels = Number(entry.labelsMin ?? entry.labels);
+  const t = entry.tasks ?? entry.tasksBAP;
+  if (!Number.isInteger(labels)) return undefined;
+  if (!Array.isArray(t) || t.length !== 3 || !t.every((n) => Number.isInteger(n))) return undefined;
+  return { labels, tasksBAP: [...t] };
 }
 
 /** @param {string} layer */
@@ -59,10 +76,15 @@ export function verifyStaticLayer(source, meta, limits = {}) {
 
 /**
  * S5 als Layer: Manifest-Schema, Pflichtfelder, Niveauregeln, Einheiten, Deklarativitaet.
+ * O-10: dritter Param soll {labels, tasksBAP} (optional, per sollFromMatrixEntry
+ * aus src/data/modellmatrix.json) — neues Kriterium S5-soll mit exakten
+ * Sollwerten. Fehlt soll (free-Modelle ohne Matrix-Eintrag): S5-soll graceful,
+ * alte Mindestpruefung (S5-pflicht/S5-tasks-verteilung) bleibt gueltig.
  * @param {unknown} manifest
  * @param {string} source
+ * @param {{ labels?: unknown, tasksBAP?: unknown }} [soll]
  */
-export function verifyDidacticsLayer(manifest, source) {
+export function verifyDidacticsLayer(manifest, source, soll) {
   const t0 = Date.now();
   const layer = makeLayer('S5');
   const rep = validateManifest(manifest);
@@ -80,6 +102,17 @@ export function verifyDidacticsLayer(manifest, source) {
     const aufbauTasks = m.tasks.filter((t) => t.level === 'aufbau').length;
     const profiTasks = m.tasks.filter((t) => t.level === 'profi').length;
     layer.criteria.push(crit('S5-tasks-verteilung', aufbauTasks >= 2 && profiTasks >= 1 ? 'pass' : 'fail', 'Aufbau>=2, Profi>=1 (Basis beliebig)', `B/A/P=${basisTasks}/${aufbauTasks}/${profiTasks}`));
+    // O-10 S5-soll: Labels exakt == soll.labels, Tasks B/A/P exakt == soll.tasksBAP.
+    // Messungen NICHT exakt (Matrix enthaelt keine Mess-Sollwerte — nichts erfunden).
+    const s = soll != null && Number.isInteger(soll.labels) && Array.isArray(soll.tasksBAP) && soll.tasksBAP.length === 3 && soll.tasksBAP.every((n) => Number.isInteger(n)) ? soll : null;
+    if (s) {
+      const okSoll = rep.counts.labels === s.labels && basisTasks === s.tasksBAP[0] && aufbauTasks === s.tasksBAP[1] && profiTasks === s.tasksBAP[2];
+      layer.criteria.push(crit('S5-soll', okSoll ? 'pass' : 'fail', `Labels==${s.labels}, B/A/P=${s.tasksBAP[0]}/${s.tasksBAP[1]}/${s.tasksBAP[2]}`, `Labels=${rep.counts.labels}, B/A/P=${basisTasks}/${aufbauTasks}/${profiTasks}`));
+    } else {
+      // Graceful ohne Matrix-Eintrag (free): bewusst 'pass' (nicht 'skip') — ein
+      // 'skip'-Verdikt wuerde layer.verdict (every pass) auf fail kippen.
+      layer.criteria.push(crit('S5-soll', 'pass', 'exakte Sollwerte (Matrix-Eintrag)', 'kein Eintrag (free) — Mindestpruefung S5-pflicht/S5-tasks-verteilung gilt'));
+    }
     const phrases = [...m.objectives, ...m.tasks.map((t) => t.prompt)];
     const leaks = findPedagogyLeak(source, phrases);
     layer.criteria.push(crit('S5-deklarativ', leaks.length === 0 ? 'pass' : 'fail', 'kein Lernziel-/Aufgabentext im Modulcode', leaks.length === 0 ? 'sauber' : `${leaks.length} Treffer`));
@@ -160,6 +193,57 @@ export function extractMeta(source) {
 }
 
 /**
+ * A-08: Browser-Probe (frame-bootstrap snapshot) liefert boxes ggf. ohne id
+ * (checkIntersections braucht id-Strings). Hier nur Labels + Cap 16
+ * ergaenzen — keine Messwerte erfinden, keine Paare unterschlagen.
+ * @param {{ boxes?: unknown }} sceneStats
+ */
+function withProbeIds(sceneStats) {
+  if (!Array.isArray(sceneStats.boxes)) return sceneStats;
+  const boxes = sceneStats.boxes.slice(0, 16).map((b, i) => {
+    if (!b || typeof b !== 'object') return b;
+    if (typeof b.id === 'string' && b.id) return b;
+    return { ...b, id: `box-${i}` };
+  });
+  return { ...sceneStats, boxes };
+}
+
+/**
+ * A-08: Probe-Verwertung. S2-intersect: echter AABB-Test mit 2,0-mm-Toleranz
+ * (GEO_LIMITS.penetrationMm) ueber die Probe-Boxen (≤16 ⇒ ≤120 Paare,
+ * Node-seitig trivial; kein Pair-Cap in der Auswertung, damit keine echte
+ * Ueberschneidung unterschlagen wird — Report zeigt max. 4 Paare + exakte
+ * Zaehlung, innerhalb der 8-Paare-Grenze). S2-backface: nur ohne faces aus
+ * backfaceHits ableiten (hits > 0 ⇒ fail; 0 + Grund ⇒ pass mit Hinweis,
+ * nie rot ohne Beleg). Ohne Probe: statische Texte unveraendert (graceful).
+ * @param {{ criteria: Array<{ id: string, verdict: string, expected: string, actual: string }> }} layer
+ * @param {object} stats
+ */
+function applyProbeCriteria(layer, stats) {
+  const byId = (id) => layer.criteria.findIndex((c) => c.id === id);
+  if (Array.isArray(stats.boxes) && stats.boxes.length > 0) {
+    const r = checkIntersections(stats.boxes, GEO_LIMITS.penetrationMm);
+    if (r.measurements.boxesChecked > 0) {
+      const i = byId('S2-intersect');
+      const rep = crit('S2-intersect', r.verdict, r.expected, r.actual);
+      if (i >= 0) layer.criteria[i] = rep;
+      else layer.criteria.push(rep);
+    }
+  }
+  if ((!Array.isArray(stats.faces) || stats.faces.length === 0) && typeof stats.backfaceHits === 'number') {
+    const hits = stats.backfaceHits;
+    const note = typeof stats.geoNote === 'string' && stats.geoNote ? ` — ${stats.geoNote.slice(0, 160)}` : '';
+    const i = byId('S2-backface');
+    const rep =
+      hits > 0
+        ? crit('S2-backface', 'fail', '0 sichtbare Innenseiten (kein BackSide, konsistente Normalen)', `${hits} BackSide-/Rueckseiten-Treffer (Browser-Raycast, max. 32 Meshes)${note}`)
+        : crit('S2-backface', 'pass', '0 sichtbare Innenseiten (kein BackSide, konsistente Normalen)', note ? `0 Treffer gezaehlt${note} (statisch: kein BackSide ausser PMREM-Raum)` : '0 BackSide-/Rueckseiten-Treffer (Browser-Raycast, max. 32 Meshes)');
+    if (i >= 0) layer.criteria[i] = rep;
+    else layer.criteria.push(rep);
+  }
+}
+
+/**
  * M1: S2-Geometrie als echter Layer (kein skip) — deterministische Checks mit
  * deutschem Fehlertext und FLARE-Messwerten fuer P2.
  * Ohne sceneStats: statische Hinweise aus Modulquelle (Mesh-Zaehler,
@@ -174,10 +258,12 @@ export function verifyGeometryLayer(source, sceneStats = null) {
   const src = String(source);
   try {
     if (sceneStats && typeof sceneStats === 'object') {
-      const { criteria } = verifyGeometryScene(sceneStats);
+      const stats = withProbeIds(sceneStats);
+      const { criteria } = verifyGeometryScene(stats);
       for (const c of criteria) {
         layer.criteria.push(crit(c.id, c.verdict, c.expected, c.actual));
       }
+      applyProbeCriteria(layer, stats);
       // Statische Zusatzhinweise (Mesh-Zaehler, Material) als Info-Kriterien.
       const counts = countMeshesStatic(src);
       const flags = scanMaterialFlags(src);

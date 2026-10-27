@@ -71,19 +71,27 @@ export function compareProviders(scores) {
 
 /**
  * S5-Soll-Werte (M5/M7): jede Checklisten-Zeile gegen S5-Kriterien.
+ * O-10: optionaler soll {labels, tasksBAP} (per sollFromMatrixEntry aus
+ * src/data/modellmatrix.json) — dann Labels/Aufbau/Profi exakt statt
+ * Mindestzahl. Messungen/Ziele bleiben Mindestwerte (Matrix enthaelt keine
+ * Mess-Sollwerte — nichts erfunden). Ohne soll: alte Mindesttabelle (graceful).
  * @param {unknown} manifest
+ * @param {{ labels?: unknown, tasksBAP?: unknown }} [soll]
  */
-export function sollWerte(manifest) {
+export function sollWerte(manifest, soll) {
   const m = /** @type {{ labels?: unknown[], measurements?: unknown[], tasks?: Array<{ level: string }>, objectives?: unknown[] }} */ (manifest ?? {});
   const labels = Array.isArray(m.labels) ? m.labels.length : 0;
   const mess = Array.isArray(m.measurements) ? m.measurements.length : 0;
   const tasks = Array.isArray(m.tasks) ? m.tasks : [];
+  const aufbau = tasks.filter((t) => t.level === 'aufbau').length;
+  const profi = tasks.filter((t) => t.level === 'profi').length;
+  const s = soll != null && Number.isInteger(soll.labels) && Array.isArray(soll.tasksBAP) && soll.tasksBAP.length === 3 ? soll : null;
   const rows = [
-    { soll: 'Labels ≥ 3', ist: labels, ok: labels >= 3 },
+    s ? { soll: `Labels == ${s.labels}`, ist: labels, ok: labels === s.labels } : { soll: 'Labels ≥ 3', ist: labels, ok: labels >= 3 },
     { soll: 'Messungen ≥ 1', ist: mess, ok: mess >= 1 },
     { soll: 'Ziele ≥ 2', ist: Array.isArray(m.objectives) ? m.objectives.length : 0, ok: Array.isArray(m.objectives) && m.objectives.length >= 2 },
-    { soll: 'Aufbau ≥ 2', ist: tasks.filter((t) => t.level === 'aufbau').length, ok: tasks.filter((t) => t.level === 'aufbau').length >= 2 },
-    { soll: 'Profi ≥ 1', ist: tasks.filter((t) => t.level === 'profi').length, ok: tasks.filter((t) => t.level === 'profi').length >= 1 },
+    s ? { soll: `Aufbau == ${s.tasksBAP[1]}`, ist: aufbau, ok: aufbau === s.tasksBAP[1] } : { soll: 'Aufbau ≥ 2', ist: aufbau, ok: aufbau >= 2 },
+    s ? { soll: `Profi == ${s.tasksBAP[2]}`, ist: profi, ok: profi === s.tasksBAP[2] } : { soll: 'Profi ≥ 1', ist: profi, ok: profi >= 1 },
   ];
   return { rows, ok: rows.every((r) => r.ok) };
 }

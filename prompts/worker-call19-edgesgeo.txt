@@ -1,0 +1,28 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Problem.
+
+SYMPTOM (frisch belegt, 27.10.2026, `node scripts/chemie-e2e.mjs nacl meta`):
+`E-S2-BOOT: The requested module 'blob:null/...' does not provide an export named 'EdgesGeometry'`
+Gleiche Fehlerklasse wie der Color-Fix (dort 1 Zeile in src/vendor/three.entry.js).
+H2O vom selben Tag rendert korrekt — kein Systemfehler, nur fehlender Re-Export.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/vendor/three.entry.js (explizite Re-Export-Liste aus 'three').
+2. Ergaenze `EdgesGeometry` alphabetisch korrekt in die Liste (ein Name, sonst nichts).
+   Pruefe ZUSAETZLICH per grep in src/models/*.js, welche weiteren three-Named-Imports
+   die kuratierten Modelle verwenden, die in der Liste FEHLEN (reine Feststellung,
+   NICHT automatisch alles hinzufuegen): Liste die fehlenden als Kandidaten in der
+   Rueckgabe, aendere aber nur EdgesGeometry. Begruendung:Whack-a-mole vermeiden,
+   aber kein unreviewtes Aufblaehen des Vendor-Bundles (esbuild-Bundle, Plan 567964 B).
+3. VERIFIKATION durch dich: nur Syntax (node --check src/vendor/three.entry.js ist kein
+   Modul-Check — lies die Datei nach dem Edit erneut und bestaetige Format
+   `export { ... } from 'three'` intakt + Komma korrekt). KEINE npm-/Playwright-Laeufe
+   (Sandbox), KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Export-Namen (nur belegte three-API).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Geaenderte Zeile / Format-Bestaetigung / fehlende Kandidaten (Liste, nicht geaendert) /
+offen fuer Orchestrator (Rebuild + NaCl-Re-Run).

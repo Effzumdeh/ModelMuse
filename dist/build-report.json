@@ -1,0 +1,90 @@
+{
+  "createdAt": "2026-10-27T19:29:45.717Z",
+  "versions": {
+    "three": "0.186.1",
+    "esbuild": "0.28.2",
+    "alpine": "3.17.5",
+    "playwright": "1.64.1",
+    "node": "v22.23.2"
+  },
+  "plan": {
+    "threeBundle": 567964,
+    "helpers": 10000,
+    "alpine": 55919,
+    "shellJs": 90000,
+    "css": 20000,
+    "models": 304000,
+    "manifestsSchemas": 60000,
+    "overhead": 12000,
+    "sum": 1099883,
+    "comfort": 1500000,
+    "hard": 2000000,
+    "budgetTriangles": 150000,
+    "budgetDrawCalls": 400,
+    "budgetDrawCallsGreenBis": 300,
+    "budgetMeshCount": 250,
+    "budgetMeshCountGreenBis": 120,
+    "budgetMinFps": 30,
+    "budgetFirstFrameMs": 8000,
+    "budgetHeapMb": 256
+  },
+  "measured": {
+    "threeBundle": 607591,
+    "alpine": 55919,
+    "helpers": 7827,
+    "shellJs": 62952,
+    "runtimeJs": 138340,
+    "shellJsTotal": 201292,
+    "css": 6104,
+    "modelsTotal": 136888,
+    "modelFiles": [
+      {
+        "file": "ae-1.js",
+        "bytes": 12041
+      },
+      {
+        "file": "ae-2.js",
+        "bytes": 12105
+      },
+      {
+        "file": "ae-3.js",
+        "bytes": 14556
+      },
+      {
+        "file": "dup-1.js",
+        "bytes": 10702
+      },
+      {
+        "file": "dup-2.js",
+        "bytes": 12845
+      },
+      {
+        "file": "dup-3.js",
+        "bytes": 14727
+      },
+      {
+        "file": "gpu-example.js",
+        "bytes": 20985
+      },
+      {
+        "file": "si-1.js",
+        "bytes": 15570
+      },
+      {
+        "file": "si-2.js",
+        "bytes": 12996
+      },
+      {
+        "file": "si-3.js",
+        "bytes": 10361
+      }
+    ],
+    "manifests": 32618,
+    "schemas": 6380,
+    "manifestsSchemas": 38998
+  },
+  "maxViolations": [],
+  "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+  "artefaktSha256": "d162860fc3db1589d858dcde76227c6a7b9cd9396b29fe49e4e87531a6a3f931",
+  "verdict": "pass"
+}

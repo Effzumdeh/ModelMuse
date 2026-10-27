@@ -1,0 +1,37 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog A-06, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- src/shell/ui-annotations.js: Bauteil-Checkboxen + src/runtime/player.js setParts()
+  schicken {labels:{hidden}, parts:{hidden}} an den Gast.
+- ABER: kein kuratiertes Modell wertet patch.parts aus (10/10 nur labels/measurements/view
+  in update(); Meshes liegen flach/Rotor-Gruppen ohne Bauteil-Index — nachzulesen in
+  src/models/si-1.js Z.122/176/227/267 + update() Z.368-400). Geometrie-Umbau in 10
+  kuratierten Modellen waere invasiv und braeche ihre Provenienz.
+Entscheidung VORGEGEBEN (keine Rueckfrage, nimm diese): Option (b) — ehrlich umbenennen
+statt Geometrie vorzutäuschen. Der Gast-Vertrag (parts.hidden) bleibt als optionales,
+graceful ignoriertes Feld bestehen (Zukunft: Gaeste duerfen es auswerten).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/shell/ui-annotations.js (Z. 30-60, Checkbox-Texte + i18n-Keys),
+   src/shell/i18n/de.json + en.json + es.json (betroffene Keys),
+   src/runtime/parts.js (Modulkopf — Vertrag dokumentieren).
+2. Benenne die Checkbox-Sprache ehrlich um: "Bauteil" -> "Beschriftung" (de),
+   konsistent en + es (NUR belegte Woerter aus den drei Dateien, nichts erfinden;
+   falls unsicher: en "label", es "etiqueta" — pruefe, ob diese Woerter in den
+   i18n-Dateien bereits vorkommen, sonst generischen Wortlaut ohne Neuwort).
+   Betrifft: Checkbox-Label, i18n-Keys (de/en/es synchron!), interne Variablennamen
+   NUR wenn trivial (kein Rename-Risiko eingehen — Funktionalitaet unveraendert).
+3. Ergaenze im Kopf von src/runtime/parts.js einen Vertrags-Absatz (3-5 Zeilen):
+   player.setParts sendet labels.hidden (ausgewertet) + parts.hidden (optional,
+   kuratierte Gaeste ignorieren es graceful; Gaeste DUERFEN es auswerten).
+4. VERIFIKATION durch dich: nur Re-Read der geaenderten Stellen. KEINE npm-/
+   Playwright-Laeufe (Sandbox), KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Uebersetzungen, keine Funktionsaenderung.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Geaenderte Texte (de/en/es je ein Beispiel) / Vertrags-Absatz (ja/nein) /
+Funktionsaenderung (muss "keine" sein) / offen fuer Orchestrator (i18n-UI-Test).

@@ -1,0 +1,40 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog O-12, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- Bauplan: setLevel schaltet nur Sichtbarkeit + Kamera, erzeugt NIE ein neues Modell.
+  Gefordert: Test mit setLevel 3x (basis/aufbau/profi) → gleiche Session-ID, gleiche
+  Mesh-Anzahl, nur Label-/Messungs-Sichtbarkeit aendert sich; Pixelgleichheit beim
+  zweiten load (statt nur Berichtstext wie bisher in tests/determinism.spec.mjs).
+- Hindernis: Der Player (src/runtime/player.js, createPlayer) lebt im Modul-Scope von
+  src/shell/main.js — aus Playwright nicht abfragbar (kein window-Handle). Session-ID
+  und Mesh-Count sind von aussen unsichtbar.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/shell/main.js (Player-Erzeugung, setLevel Z. 329-339), src/runtime/player.js
+   (Session-ID, probe.meshes-Verfuegbarkeit), tests/determinism.spec.mjs (Stil-Vorbild).
+2. Lege in src/shell/main.js EIN read-only Debug-Fenster an:
+   window.__labDebug = { sessionId: () => ..., meshes: () => ... } — NUR lesend
+   (Session-ID + letzte bekannte Mesh-Anzahl aus Probe), kein Eingriff in Steuerung,
+   mit Kommentar "O-12: nur fuer Levelwechsel-Test, keine Steuerfunktion".
+   Nimm vorhandene Werte (erfinde keine IDs/Zaehlung).
+3. Erweitere tests/determinism.spec.mjs um Test "Levelwechsel ohne Neuladen":
+   level-select 3x (basis/aufbau/profi), nach jedem: __labDebug.sessionId identisch,
+   __labDebug.meshes identisch, Screenshot-Puffer via toMatchSnapshot NICHT noetig —
+   stattdessen: Report enthaelt weiter S1, UND Sichtbarkeits-Nachweis minimal
+   (Label-Anzahl im DOM aendert sich ODER Annotations-Liste unterscheidet sich —
+   nimm das einfachste vorhandene DOM-Signal aus ui-annotations.js).
+   Zusaetzlich: zweites load desselben Modells → Verify-Report-Text identisch
+   (Pixelgleichheit ist durch S3-Matrix 20/20 abgedeckt — im Test als Kommentar
+   begruenden, KEIN Image-Diff hier).
+4. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine Steuerfunktion ins Debug-Fenster (nur lesend),
+  keine erfundenen Selektoren/Signale.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Debug-Fenster (Datei+Zeilen, Felder) / neuer Test (Name + 4 Pruefschritte) /
+Pixel-Begruendung (ein Satz) / offen fuer Orchestrator (Determinismus-Lauf).

@@ -1,0 +1,21 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Nur diese Dateien aendern, minimal invasiv.
+
+AUFGABE (Call 3 von max. 12 im Restposten-Auftrag):
+S3/S4 im Verify-Report ehrlich belegen (O-01/O-02). Befund (SELBST verifiziert):
+- scripts/verify-all.mjs Z.56: S3 ist fuer alle 10 Modelle `skipLayer('S3', 'Messung in Visual-Suite (Browser)')`.
+- scripts/verify-all.mjs Z.65-66: S4-triangles/S4-drawcalls stehen pauschal `pass` ohne Messwert ("Messung in Perf-Suite (Browser)").
+- Die echten Messwerte EXISTIEREN: dist/final-budgets.json (10 Eintraege mit triangles, drawCalls, nonEmpty, png-Pfad, probe-JSON aus renderer.info) + dist/final-<id>.png (10 Screenshots).
+
+VORGEHEN:
+1. Lies scripts/verify-all.mjs, src/runtime/verify.js (skipLayer, buildVerifyReport), dist/final-budgets.json, tests/visual.spec.mjs (nonEmpty-Statistik), tests/perf.spec.mjs.
+2. Erweitere scripts/verify-all.mjs: pro Modell S3-Kriterien aus final-budgets.json spiegeln (Screenshot-Bytes + nonEmpty-Statistik statt skip; falls ein Modell dort fehlt: ehrlich `skip` mit Grund "kein Browser-Beleg", NICHT pauschal-pass). S4-triangles/S4-drawcalls mit den gemessenen Zahlen aus final-budgets.json fuellen (erwartet: Triangles <= 150000, DrawCalls <= 400; verdict aus Zahl ableiten, NICHT pauschal-pass). Screenshots je Modell im Report verlinken (png-Pfad).
+3. dist/attestation.json bleibt bei "gelb (auto-geprueft)", ergaenze aber pro Modell das Feld `beleg: 'S3-BrowserSCREENSHOT+nonEmpty, S4-renderer.info'` bzw. ehrlich "Teilbasis" wo skip bleibt.
+4. Verifiziere: `npm run verify:all` Exit 0, dist/verify-report.json enthaelt 10x S3-Kriterien MIT Messwerten (kein "S3-skip" mehr ausser ehrlich begruendet) + 10x S4 mit Zahlen; `npm run test:unit` GRUEN; Playwright-Mindestnachweis tests/visual.spec.mjs + tests/perf.spec.mjs GRUEN.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, KEINE neuen Dependencies.
+- Keine Fake-Belege: nur Zahlen aus echten vorhandenen Messdateien uebernehmen, nichts erfinden.
+- Bei HTTP 429 (falls du etwas live nachmisst): 60 s warten, EINMAL wiederholen.
+
+RUECKGABE (kurz, max. 20 Zeilen):
+Geaenderte Dateien / S3 vorher-nachher (skip->Messwert Beispiel) / S4 Beispiel-Zahlen / verify-Exit + Report-Beleg / Unit- + Playwright-Resultat.

@@ -69,12 +69,27 @@ export function mountLibrary(els) {
         }
       });
       mk(tt('bibliothek.ueberarbeiten'), (entry) => {
+        const next = Number(entry.rev) + 1;
         const rep = els.onScores(String(entry.id));
         const proto = formatP2Protocol(rep?.layers ?? [], { iteration: (rep?.iteration ?? 1) + 1 });
-        const cmd = `muse.exe exec --model ${entry.modelId} --api-key-stdin --prompt-file p2-${entry.id}-r${Number(entry.rev) + 1}.txt`;
+        const cmd = `muse.exe exec --model ${entry.modelId} --api-key-stdin --prompt-file p2-${entry.id}-r${next}.txt`;
         els.detailBox.textContent =
-          tt('bibliothek.p2Titel', { id: entry.id, rev: entry.rev, next: Number(entry.rev) + 1 }) + `\n${proto}\n\n` +
-          tt('bibliothek.p2Schritt', { id: entry.id, next: Number(entry.rev) + 1, cmd });
+          tt('bibliothek.p2Titel', { id: entry.id, rev: entry.rev, next }) + `\n${proto}\n\n` +
+          tt('bibliothek.p2Schritt', { id: entry.id, next, cmd });
+        if (next > 2) {
+          say(tt('bibliothek.p2Reserve', { id: entry.id }), true);
+          return;
+        }
+        const dl = document.createElement('button');
+        dl.type = 'button';
+        dl.className = 'lab-btn lib-btn';
+        dl.textContent = tt('bibliothek.p2Datei');
+        dl.addEventListener('click', () => {
+          downloadFile(`p2-${entry.id}-r${next}.txt`, `${proto}\n\n${cmd}\n`);
+          say(tt('bibliothek.exportiert', { datei: `p2-${entry.id}-r${next}.txt` }));
+        });
+        els.detailBox.appendChild(document.createElement('br'));
+        els.detailBox.appendChild(dl);
         say(tt('bibliothek.p2Bereit', { id: entry.id }));
       });
       mk(tt('bibliothek.export'), (entry) => {

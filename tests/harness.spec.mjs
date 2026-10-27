@@ -41,10 +41,10 @@ test('Teil 1: Anbieter- und Modellauswahl klickbar mit Badges + Datenschutz', as
   await page.selectOption('#prov-model', 'muse-spark-1.3');
   await expect(page.locator('#prov-privacy')).toContainText('datenschutzfreundlich');
   await expect(page.locator('#prov-cmd')).toContainText('--model muse-spark-1.3 ');
-  // Wechsel: OpenRouter/Astra — ehrlich deaktivierter Pfad + Benchmark-Badges.
+  // Wechsel: OpenRouter/Gratis — ehrlich deaktivierter Pfad + Gratis-Badge (NUR Gratis-Modell).
   await page.selectOption('#prov-provider', 'openrouter');
-  await page.selectOption('#prov-model', 'gpt-6-astra');
-  await expect(page.locator('#prov-badges')).toContainText('Geometrie: 3JSBench 80,0 %');
+  await page.selectOption('#prov-model', 'gemma-4-26b-it-free');
+  await expect(page.locator('#prov-badges')).toContainText('Gratis-Test: $0');
   await expect(page.locator('#prov-cmd')).toContainText('Deaktiviert');
   await expect(page.locator('#prov-status')).toContainText('Benchmark misst Didaktik');
   const docs = await page.locator('#prov-docs a').evaluateAll((els) => els.map((e) => e.href));

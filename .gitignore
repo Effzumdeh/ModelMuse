@@ -19,6 +19,10 @@ dist/*
 !dist/build-report.json
 !dist/attestation.json
 !dist/BACKLOGFIX-REPORT.md
+# O-07: letzte gruene Auslieferung lokal (Fallback-Quelle)
+dist/last-green/
 # OS/Editor
 .DS_Store
 Thumbs.db
+# Playwright-Laufartefakte (Traces, Screenshots, Reports) — lokal, nie versionieren
+test-results/

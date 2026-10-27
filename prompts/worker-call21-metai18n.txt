@@ -1,0 +1,32 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog A-05, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- src/shell/ui-livegen.js verlangt im Freimodus-Prompt meta_i18n (6 Stellen), aber 0/10
+  kuratierte Modelle in src/models/*.js liefern meta_i18n.
+- src/models/manifests/*.json haben 10/10 i18n.en + i18n.es (Titel/Labels uebersetzt).
+- package.json scripts.test:unit listet 12 Dateien, tests-unit/i18n.test.mjs fehlt.
+Entscheidung VORGEGEBEN (keine rueckfrage, nimm diese): Codemod statt Streichung —
+die Manifest-Uebersetzungen sind der belegte Bestand, die Modelle werden nachgezogen.
+KEIN Modell-Call (keine Generierung noetig, reine Datei-Umformung).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/shell/ui-livegen.js (meta_i18n-Erwartung: Form/Felder), je 1 Beispiel
+   src/models/si-1.js (Modell-Export meta-Form) + src/models/manifests/si-1.json
+   (i18n-Struktur), tests-unit/i18n.test.mjs (was wird getestet).
+2. Ergaenze in allen 10 src/models/*.js ein statisches meta_i18n, abgeleitet aus dem
+   jeweiligen Manifest-i18n (en/es; de = vorhandene deutsche Meta). NUR belegte
+   Manifest-Texte uebernehmen, nichts erfinden/uebersetzen. Falls ein Manifest-Feld
+   fehlt: Feld weglassen (nicht erfinden) + in Rueckgabe nennen.
+3. Ergaenze package.json scripts.test:unit um tests-unit/i18n.test.mjs (hinten anhaengen).
+4. VERIFIKATION durch dich: nur Re-Read der 10 Stellen (Stichprobe 2 Dateien genuegt)
+   + JSON-Parse der package.json im Kopf (kein Tool-Aufruf noetig). KEINE npm-/
+   Playwright-Laeufe (Sandbox), KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Uebersetzungen.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+10 Dateien (ok/Anomalie je Datei in einem Satz) / package.json-Zeile /
+fehlende Manifest-Felder (falls) / offen fuer Orchestrator (Unit + Prompt-Konsistenz).

@@ -1,0 +1,1 @@
+Probe: Antworte nur mit dem Wort OK (kein Key-Kontakt, keine Datei-Aenderung).

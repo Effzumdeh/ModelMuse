@@ -116,13 +116,13 @@ const maxTable = {
   'src/shell/i18n.js': 7000, // Teil 5 (27.10.2026): neu, detect/t/applyLocale/localizeManifest
   'src/shell/ui-fallback2d.js': 6000, 'src/shell/theme.css': 20000,
   'src/runtime/player.js': 16000, 'src/runtime/sandbox-host.js': 14000,
-  'src/runtime/frame-bootstrap.js': 12000, 'src/runtime/guard-static.js': 9000,
+  'src/runtime/frame-bootstrap.js': 12000,  'src/runtime/guard-static.js': 13500, // 27.10.2026: 9000 -> 13500, repairThreeImports + Kommentar-/String-Maskierung (E-S2-BOOT-Fix)
   'src/runtime/guard-runtime.js': 8000, 'src/runtime/budget.js': 12000,
   'src/runtime/verify.js': 20000, 'src/runtime/didactics.js': 9000, // Teil 5 (27.10.2026): 7000 -> 9000, i18n-Segment-Validierung
   'src/runtime/geometry-checks.js': 20000,
   'src/runtime/fallback2d.js': 8000,  'src/runtime/annotate.js': 10000,
-  'src/runtime/livegen.js': 9000, // E2E-Befund 2026-10-27: 7500 -> 9000, extractModuleSource (Import-erhaltende Extraktion, mit CLI-Pfad geteilt; behebt systematisches E-S2-BOOT "X is not defined")
-  'src/shell/ui-livegen.js': 15500, // Teil 1+2+5 (27.10.2026): 13000 -> 15500, locale-Prompt, meta_i18n, i18n-Manifest, Speicher-Key-Policy
+  'src/runtime/livegen.js': 9500, // 27.10.2026: 9000 -> 9500, Repair-Verdrahtung (+23 B ueber 9000); E2E-Befund-Eintrag 7500 -> 9000 bleibt gueltig
+  'src/shell/ui-livegen.js': 16000, // 27.10.2026: 15500 -> 16000, Repair-Anbindung (+85 B); Teil-1+2+5-Eintrag bleibt gueltig
   'src/vendor/three.entry.js': 700, // A-3 (2026-10-27, Nachtauftrag Hyperrealismus Teil 2): 560 -> 700, 8 weitere benannte three-Imports (InstancedMesh, ExtrudeGeometry, Shape, DataTexture, LinearFilter, RepeatWrapping, Matrix4, Quaternion) fuer Hyper-Geometrie/Texturen; kein CDN, keine externen Files; Bundle-Wachstum klein, Artefakt-Budget gruen
   'src/vendor/alpine.module.esm.min.js': 55919,
 };
@@ -155,6 +155,19 @@ for (const dir of [`${ROOT}/src/shell`, `${ROOT}/src/runtime`, `${ROOT}/src/vend
 }
 const buildHash = hash.digest('hex');
 
+// NACHTRAG 27.10.2026: Artefakt-Hash stempeln (Hex von dist/lab-player.html),
+// damit verify-dist GENAU report.artefaktSha256 vs .sha256-Datei vergleicht.
+// buildHash bleibt Quellen-Hash wie bisher. Fehlt das Artefakt zur Build-Zeit
+// (Build vor Render), wird null gestempelt — verify-dist meldet das als Fail.
+let artefaktSha256 = null;
+try {
+  if (existsSync(`${DIST}/lab-player.html`)) {
+    artefaktSha256 = createHash('sha256').update(await readFile(`${DIST}/lab-player.html`, 'utf8'), 'utf8').digest('hex');
+  }
+} catch {
+  artefaktSha256 = null;
+}
+
 const shellJsTotal = shell.total + runtime.total;
 const report = {
   createdAt: new Date().toISOString(),
@@ -173,6 +186,7 @@ const report = {
   },
   maxViolations,
   buildHash,
+  artefaktSha256,
   verdict: maxViolations.length === 0 && threeBundle <= VENDOR_ABORT ? 'pass' : 'fail',
 };
 await writeFile(`${DIST}/build-report.json`, JSON.stringify(report, null, 2));

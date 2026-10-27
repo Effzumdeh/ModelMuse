@@ -7,18 +7,21 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "node scripts/build.mjs",
+    "build:double": "node scripts/double-build.mjs",
     "render": "node scripts/render-single-file.mjs",
     "verify:static": "node scripts/verify-all.mjs --only=S1",
     "verify:sandbox": "node scripts/verify-all.mjs --only=S2",
     "verify:visual": "node scripts/verify-all.mjs --only=S3",
     "verify:perf": "node scripts/verify-all.mjs --only=S4",
     "verify:didactics": "node scripts/verify-all.mjs --only=S5",
+    "verify:dist": "node scripts/verify-dist.mjs",
     "verify:all": "node scripts/verify-all.mjs",
     "baseline:update": "node scripts/baseline-update.mjs",
     "serve": "node scripts/serve.mjs",
     "test": "playwright test",
     "proxy": "node scripts/proxy.mjs 8787",
-    "test:unit": "node --test tests-unit/guard-static.test.mjs tests-unit/budget.test.mjs tests-unit/didactics.test.mjs tests-unit/livegen.test.mjs tests-unit/matrix.test.mjs tests-unit/geometry-checks.test.mjs tests-unit/prompts-eval.test.mjs tests-unit/providers.test.mjs tests-unit/session-library.test.mjs tests-unit/scoreboard.test.mjs tests-unit/proxy.test.mjs tests-unit/parts.test.mjs"
+    "test:unit": "node --test tests-unit/guard-static.test.mjs tests-unit/budget.test.mjs tests-unit/didactics.test.mjs tests-unit/livegen.test.mjs tests-unit/matrix.test.mjs tests-unit/geometry-checks.test.mjs tests-unit/prompts-eval.test.mjs tests-unit/providers.test.mjs tests-unit/session-library.test.mjs tests-unit/scoreboard.test.mjs tests-unit/proxy.test.mjs tests-unit/parts.test.mjs tests-unit/i18n.test.mjs",
+    "usage:tagesstand": "node scripts/usage-tagesstand.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

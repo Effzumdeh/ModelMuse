@@ -1,0 +1,43 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema (Teil 2 von 2).
+
+THEMA (Backlog O-11 Teil 2, Stand 27.10.2026, Orchestrator-recherchiert):
+- Quelle: https://github.com/GeneralContext/3jsbench (MIT, Stand 08.10.2026, 9 Stars):
+  100 Aufgaben als tasks/*/prompt.md (reine Brief-Texte). Grader-Quellcode NICHT
+  enthalten ("coming soon") — deshalb misst der EIGENE Verify-Loop als Grader
+  (exakt die Backlog-Forderung). Lizenz-Datei im Repo beachten und vermerken.
+- Zweck: Geometrie-Regression — fremde Briefs durch UNSERE Pipeline (P1 + Guard +
+  Verify), NICHT deren System-Prompt uebernehmen.
+- Kosten-Schranke (hart): Der Orchestrator faehrt nach deinem Code max. 3 Sample-
+  Briefs (3 Generierungen). Das Skript MUSS deshalb mit --limit N (Default 3) und
+  --tag <name> laufen; --all nur mit ausdruecklichem Flag UND Warnung (100 Calls).
+  KEINE Generierung durch dich (Sandbox + Kosten).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Hole die 100 Briefs aus dem Repo (tasks/*/prompt.md, Web-Zugriff ist in deiner
+   Umgebung erlaubt): lege sie VERBATIM ab unter eval/3jsbench/<id>/prompt.md
+   (id = Task-Ordnername). NOTHING veraendern/kuerzen. Dazu eval/3jsbench/LIZENZ.md:
+   MIT, Quelle + URL + Stand-Datum, Hinweis "Grader nicht enthalten (Stand Okt 2026),
+   eigener Verify-Loop als Grader", Anzahl 100.
+2. Lege an: scripts/regression-3jsbench.mjs — Args: --limit N (Default 3, max 100),
+   --tag <name> (Pflicht), --prompt <p1-datei> (Default prompts/p1-generate.txt —
+   DAS ist der A/B-Haken: zwei Tags mit zwei P1-Versionen = Prompt-Vergleich),
+   --all (nur mit Flag, Konsole warnt "100 Generierungs-Calls!").
+   Ablauf je Brief: P1-Text + Brief an scripts/_gen-one.mjs uebergeben (als Kindprozess,
+   Key-Handling bleibt dort!), erzeugtes Modul durch Guard (S1) + Verify (S2/S5)
+   schicken (vorhandene Funktionen wiederverwenden: guard-static.js, verify.js —
+   lies deren Exporte, erfinde keine), Ergebnis je Brief {id, pass/fail, S1, S5,
+   dauerS, bytes}. Report: dist/regression-3jsbench-<tag>.json
+   {tag, promptDatei, limit, buildHash, passRate, ergebnisse[], kostenHinweis}.
+   Exit 0 nur wenn100% der Sample-Briefs S1+S5-pass (Regression = keine Verschlechterung).
+3. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-/Generierungs-Laeufe
+   (Sandbox + Kosten), KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Brief-Texte/Lizenzangaben, keine
+  Generierungs-Calls durch dich (max. 3 faehrt der Orchestrator).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 14 Zeilen):
+Briefs (100? Quelle+Stand) / LIZENZ.md (ja/nein) / Skript (Args + Ablauf + Report-Felder) /
+A/B-Nutzung (ein Satz: zwei Tags vergleichen) / offen fuer Orchestrator (3er-Sample-Lauf).

@@ -120,15 +120,12 @@ test('Server: /generate ohne Key -> E-GEN-CONFIG (nie Upstream)', async () => {
   }
 });
 
-test('Registry: openrouter-Pfad (byokOnly, verifizierte Slugs, localhost-Bindung bleibt)', async () => {
+test('Registry: openrouter-Pfad (byokOnly, NUR Gratis-Slug, localhost-Bindung bleibt)', async () => {
   assert.equal(OPENROUTER_BASE, 'https://openrouter.ai/api/v1');
   assert.equal(PROVIDERS.openrouter.base, 'https://openrouter.ai/api/v1');
   assert.equal(PROVIDERS.openrouter.byokOnly, true);
   assert.equal(PROVIDERS.openrouter.defaultModel, 'google/gemma-4-26b-a4b-it:free');
-  assert.ok(PROVIDERS.openrouter.models.includes('google/gemma-4-26b-a4b-it:free'));
-  assert.ok(PROVIDERS.openrouter.models.includes('openai/gpt-6-astra'));
-  assert.ok(PROVIDERS.openrouter.models.includes('anthropic/claude-opus-5.5'));
-  assert.ok(PROVIDERS.openrouter.models.includes('google/gemini-4-argon'));
+  assert.deepEqual(PROVIDERS.openrouter.models, ['google/gemma-4-26b-a4b-it:free']);
   assert.ok(!PROVIDERS.openrouter.models.some((m) => /muse/i.test(m)), 'KEIN Spark auf OpenRouter-Pfad');
   assert.equal(DEFAULT_PROVIDER, 'meta-muse');
   const okFree = parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'openrouter', model: 'google/gemma-4-26b-a4b-it:free' });

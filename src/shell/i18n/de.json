@@ -25,14 +25,14 @@
   },
   "aufgaben": { "titel": "Aufgaben" },
   "bauteile": {
-    "titel": "Bauteile & Maße",
-    "kopf": "Bauteile ({n})",
+    "titel": "Beschriftungen & Maße",
+    "kopf": "Beschriftungen ({n})",
     "allePruefen": "Alle prüfen",
     "pruefen": "Prüfen",
     "keineAnnotationen": "Keine Annotationen auf diesem Niveau.",
     "etikett": "Etikett: {label}",
     "mass": "Maß: {text}",
-    "bauteilAnzeigen": "Bauteil {name} anzeigen"
+    "bauteilAnzeigen": "Beschriftung {name} anzeigen"
   },
   "bericht": { "titel": "Verify-Bericht S1–S5", "leer": "Noch kein Lauf.", "modell": "Modell", "iteration": "Iteration", "ampel": "Ampel", "fehler": "Fehler:" },
   "hinweis": { "titel": "Hinweis" },
@@ -79,6 +79,8 @@
     "p2Titel": "P2-NOTFALLPFAD für {id} (Rev {rev} → {next}, max. Iteration 2; Iteration 3 nur manuell):",
     "p2Schritt": "Nächster Schritt außerhalb des Browsers:\n1. Fehlerprotokoll + Modulquelle in p2-{id}-r{next}.txt legen (P2-Notfallpfad prompts/p2-repair.v6-harness.txt beachten).\n2. {cmd}\n3. Ergebnis als .js importieren (wird neue Revision).",
     "p2Bereit": "P2-Protokoll für {id} erstellt — Befehl angezeigt, kein Key in der UI.",
+    "p2Datei": "P2-Datei laden",
+    "p2Reserve": "Iteration 3 nur manuell — kein automatischer Repair ({id}).",
     "exportiert": "{datei} exportiert (Provenienz im Kopf, kein Key).",
     "geloescht": "{id} gelöscht (Sitzung).",
     "uebernommen": "{id} in Bibliothek übernommen (Rev 1).",

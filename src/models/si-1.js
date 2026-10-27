@@ -2,6 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'PC-Arbeitsplatz (SI-1)', category: 'hardware', detailLevel: 2, parts: ['Mainboard','CPU','Arbeitsspeicher','Grafikkarte','Netzteil'], units: 'm' };
+export const meta_i18n = { en: { title: 'PC workstation (SI-1)', parts: ['Mainboard', 'CPU', 'Memory', 'Graphics card', 'Power supply'] }, es: { title: 'Puesto de PC (SI-1)', parts: ['Placa base', 'CPU', 'Memoria', 'Tarjeta gráfica', 'Fuente de alimentación'] } };
 export function init(container, params){
 const p = params || {};
 let d = 1;

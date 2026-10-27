@@ -1,0 +1,40 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog A-08, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- S2-Geometrie-Detektoren (src/runtime/geometry-checks.js) laufen nur STATISCH;
+  verify.js meldet "Browser-Probe ausstehend" (S2-intersect-Kriterium).
+- Es EXISTIERT ein Kanal: frame-bootstrap.js instrumentiert WebGLRenderer
+  (rendererSeen/__labinfo), snapshot() liefert calls/triangles/meshes/geometries/
+  textures/programs/frames an lab-probe/lab-get-probe (Z. 45/114-118). container +
+  countMeshes() existieren. Nutze GENAU diesen Kanal — kein neues Protokoll.
+- Scope-Grenze (begruendet): 2-Frame-Pixel-Diff entfaellt — visuelle Stabilitaet ist
+  durch die S3-Matrix-Suite (20/20 stabil) abgedeckt, kein doppelter Mechanismus.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/runtime/frame-bootstrap.js (snapshot/countMeshes/container/instrument),
+   src/runtime/geometry-checks.js (Signaturen checkIntersects/checkBackfaces/...),
+   src/runtime/verify.js (verifyGeometryLayer + S2-intersect/backface-Kriterien).
+2. Erweitere snapshot() in frame-bootstrap.js um echte Messwerte (alles try/catch,
+   harte Caps: max. 64 Meshes, max. 8 Boxen-Paare):
+   a) boxes: Welt-AABBs der obersten max. 16 Mesh-Gruppen (new THREE.Box3().setFromObject,
+      als {min:[x,y,z],max:[x,y,z]} runden auf 1 mm) — aus instrumentiertem THREE (NS).
+   b) backfaceHits: Raycast von Kamera auf max. 32 gesampelte Meshes, zaehle Treffer
+      mit BackSide-Material bzw. Rueckseiten-Normalen (nutze vorhandene Szene/Kamera
+      aus container; falls kein Zugriff: Feld 0 + Grund, KEIN Fake).
+   Kein Pixel-Diff, kein neues Protokoll, keine Deps.
+3. Verwerte in verify.js verifyGeometryLayer: Falls Probe boxes/backfaceHits enthaelt,
+   S2-intersect/backface-Kriterien daraus ableiten (echte Ueberschneidung via AABB-Test
+   mit 2,0-mm-Toleranz aus geometry-checks.js; sonst "statisch"-Text behalten).
+   Scoreboard/verify:all duerfen nicht rot werden, wenn die Probe fehlt
+   (graceful: alter Text).
+4. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Messwerte (Caps einhalten, alles try/catch).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 15 Zeilen):
+Erweiterte Felder (Namen+Caps) / Verwertung in verify.js (Kriterien-Logik) /
+Graceful-Fall (ja/nein) / offen fuer Orchestrator (Unit + Browser-Lauf).

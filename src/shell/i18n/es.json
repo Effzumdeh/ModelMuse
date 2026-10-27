@@ -25,14 +25,14 @@
   },
   "aufgaben": { "titel": "Tareas" },
   "bauteile": {
-    "titel": "Componentes y medidas",
-    "kopf": "Componentes ({n})",
+    "titel": "Etiquetas y medidas",
+    "kopf": "Etiquetas ({n})",
     "allePruefen": "Verificar todo",
     "pruefen": "Verificar",
     "keineAnnotationen": "Sin anotaciones en este nivel.",
     "etikett": "Etiqueta: {label}",
     "mass": "Medida: {text}",
-    "bauteilAnzeigen": "Mostrar componente {name}"
+    "bauteilAnzeigen": "Mostrar etiqueta {name}"
   },
   "bericht": { "titel": "Informe de verificación S1–S5", "leer": "Sin ejecución.", "modell": "Modelo", "iteration": "Iteración", "ampel": "Estado", "fehler": "Errores:" },
   "hinweis": { "titel": "Aviso" },
@@ -79,6 +79,8 @@
     "p2Titel": "RUTA DE EMERGENCIA P2 para {id} (rev {rev} → {next}, máx. iteración 2; iteración 3 solo manual):",
     "p2Schritt": "Siguiente paso fuera del navegador:\n1. Coloque el registro de errores + fuente del módulo en p2-{id}-r{next}.txt (observe la ruta de emergencia P2 prompts/p2-repair.v6-harness.txt).\n2. {cmd}\n3. Importe el resultado como .js (será una nueva revisión).",
     "p2Bereit": "Registro P2 creado para {id} — comando mostrado, sin clave en la UI.",
+    "p2Datei": "Cargar archivo P2",
+    "p2Reserve": "Iteración 3 solo manual — sin revisión automática ({id}).",
     "exportiert": "{datei} exportado (procedencia en el encabezado, sin clave).",
     "geloescht": "{id} eliminado (sesión).",
     "uebernommen": "{id} adoptado en la biblioteca (rev 1).",

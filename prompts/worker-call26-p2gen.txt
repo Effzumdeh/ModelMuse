@@ -1,0 +1,36 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog A-09, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- formatP2Protocol (verify.js Z.370) fuellt echte Werte (fail-Kriterien + Iteration) — OK.
+- LUECKE 1: Der P2-Text wird in ui-library.js ("Ueberarbeiten") NUR ANGEZEIGT
+  (detailBox + Befehl mit --prompt-file p2-<id>-r<n>.txt). Die Datei wird NIE geschrieben
+  — kein Download, kein Generator. Vorbild: exportEntry (session-library.js Z.98-103)
+  + downloadFile (ui-library.js Z.16).
+- LUECKE 2: Keine Iterationsgrenze — rev kann ueber 2 hinaus auto-generiert werden,
+  obwohl P2 max. Iteration 2 vorschreibt (Iteration 3 nur manuelle Reserve).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies src/shell/ui-library.js (Z. 60-90 Ueberarbeiten-Pfad, downloadFile),
+   src/runtime/session-library.js (exportEntry als Bau-Vorbild, rev-Feld),
+   prompts/p2-repair.v6-harness.txt (fester Prompt-Kopf).
+2. Ergaenze im Ueberarbeiten-Pfad: Button/Link "P2-Datei laden" (i18n-de/en/es wie
+   bestehende Keys — nur belegte Woerter, nichts erfinden), der p2-<id>-r<n>.txt als
+   Download schreibt mit Inhalt: P2-Prompt-Kopf (aus p2-repair.v6-harness.txt als
+   statischer Text? NEIN — nicht einbetten; stattdessen Kopf-Verweis +generierter
+   Protokoll-Block von formatP2Protocol + Kurzanleitung) — genauer: Datei =
+   Protokoll-Block + Befehlszeile aus dem bestehenden Code (wiederverwenden, nicht
+   duplizieren). Dateiname exakt p2-<id>-r<n>.txt (n = rev+1).
+3. Iterationswache: Wenn n > 2, statt Download Fehlermeldung anzeigen
+   (i18n-Key im Stil bestehender, nur belegte Woerter): sinngemaess "Iteration 3 nur
+   manuelle Reserve — kein automatischer Repair". Kein Throw, nur say().
+4. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen i18n-Texte/Verhaltensweisen.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Neuer UI-Pfad (Datei+Zeilen) / Dateiname + Inhalt (Bausteine) / Iterationswache
+(Bedingung + Meldung) / offen fuer Orchestrator (Harness-Test).

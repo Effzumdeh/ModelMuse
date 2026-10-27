@@ -1,0 +1,35 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog O-15, Stand 27.10.2026 abends):
+Ablagekonvention umsetzen. .gitignore kennt die Struktur bereits (dist/* ignoriert ausser
+baselines + 4 Audit-JSONs; *-tmp.mjs + *.log ignoriert). Fehlt: echtes Aufraeumen.
+Root enthaelt ~60 Diagnose-Dateien (*-tmp.mjs, probe-*, diag-*, *-bg*.log, Repro-/Merge-/
+Validate-Helfer); dist/ enthaelt ~48 Logs/Roh-Outputs (*.log, *.err.txt, *-prev-backup.js,
+v6hyper.raw.txt u.ae.).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies .gitignore, package.json (scripts-Abschnitt — NICHTS verschieben, was dort oder
+   in anderen Skripten per Pfad referenziert wird; vorher grep-Nachweis), scripts/-Inhalt.
+2. Lege docs/ABLAGEKONVENTION.md an (kurz): Regel — Diagnose-Skripte nach scripts/_tmp/,
+   Logs nach dist/logs/, Roh-Outputs (raw.txt, err.txt, prev-backup.js, diag-JSONs ohne
+   Audit-Status) nach dist/raw/; was versioniert wird (baselines, generation-log.json,
+   verify-report.json, build-report.json, attestation.json) vs. was lokal bleibt.
+   Neue Diagnose-Dateien folgen der Regel ab sofort.
+3. Verschiebe die Dateien entsprechend (git mv NICHT noetig — Repo hat erst 1 Commit,
+   normales mv reicht; KEIN Commit). .gitkeep in den neuen Ordnern, falls leer relevant.
+   Referenzen in prompts/*.txt oder Docs, die auf alte Pfade zeigen, NICHT umschreiben
+   (historische Auftraege), nur code-wirksame Referenzen (package.json, Skripte) pruefen.
+4. VERIFIKATION durch dich: Syntax-Check geht nicht per Shell (Sandbox) — stattdessen:
+   nach dem Verschieben per Re-Read je Zieldir listen (ls-Ersatz: lies das Verzeichnis
+   ueber dein Datei-Werkzeug) und in der Rueckgabe bestaetigen. KEINE npm-/Playwright-/
+   E2E-Laeufe, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Pfade. KEIN Commit (braucht User-Auftrag).
+- Nichts loeschen — nur verschieben. Bei Unklarheit Datei liegen lassen + in Rueckgabe nennen.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 15 Zeilen):
+Konventionsdatei / bewegt (Anzahl je Ziel) / liegen gelassen (mit Grund) /
+Referenz-Check (grep-Befund) / offen fuer Orchestrator (Test-Suite + Verzeichnis-Beleg).

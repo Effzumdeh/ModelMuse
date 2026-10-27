@@ -1,0 +1,43 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Themenpaar.
+
+THEMA (Backlog O-01/O-02 + O-08, Stand 27.10.2026 abends):
+- scripts/verify-all.mjs setzt S3 fuer alle 10 Modelle auf skip ("Messung in Visual-Suite"),
+  S4-triangles/S4-drawcalls pauschal pass ohne Messwert.
+- dist/verify-report.json (createdAt 2026-10-27T15:58:32Z, buildHash 4cc1e79c…) ist aelter
+  als das aktuelle Artefakt (Build-Hash e8c75470…, `npm run build` verdict pass).
+- Messwerte EXISTIEREN in dist/final-budgets.json (10 Eintraege mit id, png, bytes,
+  nonEmpty, triangles, drawCalls, probe aus renderer.info, budgetOk; Stand 08:22 Uhr)
+  plus dist/final-<id>.png (10 Screenshots). ACHTUNG: Die Budgets sind von 08:22 Uhr,
+  die 10 Modelle wurden spaeter neu generiert — pruefe zuerst, ob die Zahlen noch zu den
+  aktuellen Modellquellen passen (Modell-Bytes/Hash gegen Report abgleichen); was nicht
+  passt, wird NICHT uebernommen.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies scripts/verify-all.mjs, src/runtime/verify.js (skipLayer, buildVerifyReport),
+   dist/final-budgets.json, tests/visual.spec.mjs, tests/perf.spec.mjs.
+2. Erweitere scripts/verify-all.mjs: pro Modell S3-Kriterien aus final-budgets.json
+   spiegeln (Screenshot-Bytes + nonEmpty statt skip; passt der Beleg nicht zur aktuellen
+   Modellquelle: ehrlich skip mit Grund "Beleg aelter als Modellquelle", NIEMALS
+   pauschal-pass). S4-triangles/S4-drawcalls mit gemessenen Zahlen fuellen
+   (Grenzen: Triangles <= 150000, DrawCalls <= 400; verdict aus Zahl ableiten).
+   Screenshot-Pfad je Modell in den Report aufnehmen. Report-buildHash muss zum
+   aktuellen Build (e8c75470…) passen — fahre dafuer `npm run verify:all` nach der
+   Aenderung erneut (lokal, kein Modell-Call).
+3. dist/attestation.json bleibt "gelb (auto-geprueft)", ergaenze pro Modell Feld
+   `beleg` ("S3-Screenshot+nonEmpty, S4-renderer.info" bzw. ehrlich "Teilbasis" bei skip).
+4. Verifiziere LOKAL: `npm run verify:all` Exit 0, Report enthaelt 10x S3 MIT Messwert
+   oder begruendetem skip + 10x S4 mit Zahlen; `node --test` (Dateien aus
+   package.json scripts.test:unit + tests-unit/i18n.test.mjs) GRUEN.
+   Falls npm/node in der CLI-Sandbox scheitern (windows_elevated):
+   1 Wiederholung, dann ehrlich blockiert melden, nichts erfinden.
+   KEINEN E2E-Lauf starten (macht der Orchestrator).
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. Du brauchst keinen Key.
+- KEINE Wonder-Calls, KEINE neuen Dependencies, keine Trust-Aenderungen.
+- Keine Fake-Belege: nur Zahlen aus vorhandenen Messdateien, nichts erfinden.
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 20 Zeilen):
+Geaenderte Dateien / S3 vorher-nachher (Beispiel) / S4 Beispiel-Zahlen /
+Beleg-Alter-Urteil (passend/veraltet je Modell) / verify-Exit / Unit-Resultat.

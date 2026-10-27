@@ -1,0 +1,37 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog O-10, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- S5 prueft Mindestzahlen (labels ≥3, measurements ≥1, Aufbau ≥2, Profi ≥1) — ein Modell
+  mit 3 Labels besteht, obwohl die Modellmatrix 5 verlangt (si-1).
+- Die exakten Sollwerte existieren NUR in tests-unit/matrix.test.mjs (MATRIX-Konstante:
+  labelsMin je Modell, units, tasks [B,A,P]) — nicht als wiederverwendbare Quelle.
+- Ziel: S5-Kriterien auf exakte Sollwerte umstellen. Design-Vorgabe (keine Rueckfrage):
+  1. MATRIX nach src/data/modellmatrix.json auslagern (einzige Quelle; Test UND Verify
+     lesen von dort — Test umbauen auf Import der JSON, gleiche Assertions).
+  2. verifyDidacticsLayer(manifest, source, soll) — dritter Param optional {labels, tasksBAP}:
+     NEUES Kriterium S5-soll: Labels exakt == soll.labels (nicht >=), Tasks B/A/P exakt.
+     Fehlt soll (free-Modelle, kein Matrix-Eintrag): Kriterium skip, alte Mindestpruefung
+     bleibt gueltig (graceful). Alle anderen Kriterien unveraendert.
+  3. verify-all.mjs + player.js uebergeben den Matrix-Eintrag (per Modell-ID; free →
+     undefined). Scoreboard-S5-Soll-Tabelle (ui-scoreboard.js) liest MATRIX aus derselben
+     JSON, falls sie heute eigene Zahlen enthaelt (pruefen, angleichen, nichts erfinden).
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies tests-unit/matrix.test.mjs (MATRIX), src/runtime/verify.js (verifyDidacticsLayer),
+   scripts/verify-all.mjs + src/runtime/player.js (Aufrufstellen), src/shell/ui-scoreboard.js
+   (S5-Soll-Tabelle: eigene Zahlen oder Matrix-Verweis?).
+2. Umsetzen wie oben (Punkte 1-3). Messungen (measurements-Anzahl) NICHT exakt stellen
+   (Matrix enthaelt keine Mess-Sollwerte — nichts erfinden).
+3. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Sollwerte (nur Matrix-Werte).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 14 Zeilen):
+JSON-Datei (Eintraege) / neues Kriterium (ID + Exakt-Regel + Graceful) /
+Verdrahtung (Aufrufstellen) / Scoreboard-Angleichung (ja/nein + was) /
+Prognose (welche Modelle wuerden aktuell rot — ERLAUBT, ehrlich nennen) /
+offen fuer Orchestrator (verify:all + Unit + Scoreboard-Test).

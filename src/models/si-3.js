@@ -70,6 +70,7 @@ inst.receiveShadow=true;
 return inst;
 }
 export const meta = { title: 'Server-Rack (SI-3)', category: 'hardware', detailLevel: 2, parts: ['Rack', 'Server', 'Festplatteneinschub', 'Netzteil redundant'], units: 'm' };
+export const meta_i18n = { en: { title: 'Server rack (SI-3)', parts: ['Rack', 'Server', 'Drive bay', 'Redundant power supply'] }, es: { title: 'Armario rack (SI-3)', parts: ['Armario', 'Servidor', 'Bahía de discos', 'Fuente redundante'] } };
 export function init(container,params){
 const p=params||{};
 const w=container.clientWidth||800;

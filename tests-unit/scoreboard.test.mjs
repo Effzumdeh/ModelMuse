@@ -44,12 +44,12 @@ test('scoreReport: nicht gemessene Klassen sind offen, nicht pass', () => {
 });
 
 test('compareProviders: beste Geometrie + beste Didaktik', () => {
-  const a = { ...scoreReport(report('astra-modell')), providerId: 'openrouter', modelId: 'gpt-6-astra' };
+  const a = { ...scoreReport(report('gratis-modell')), providerId: 'openrouter', modelId: 'gemma-4-26b-it-free' };
   const b = { ...scoreReport(report('spark-modell', ['S2-flicker'])), providerId: 'meta-muse', modelId: 'muse-spark-1.3-contributor' };
   const cmp = compareProviders([a, b]);
   assert.equal(cmp.anzahl, 2);
-  assert.equal(cmp.geometrie.id, 'gpt-6-astra');
-  assert.equal(cmp.didaktik.id, 'gpt-6-astra');
+  assert.equal(cmp.geometrie.id, 'gemma-4-26b-it-free');
+  assert.equal(cmp.didaktik.id, 'gemma-4-26b-it-free');
 });
 
 test('sollWerte: S5-Soll gegen Manifest (M5/M7)', () => {

@@ -1,0 +1,36 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog A-11, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- Kostenbefund (live, `muse usage`): "No subscription allowance (api_key)" — Key-Modus,
+  kein Abonnement-Kontingent, Verbrauch laeuft uebers Schluessel-Portal (erwartet,
+  kein Fehler). Contributor-Calls sind damit pro Call nur ueber den Ledger belegbar.
+- Ledger existiert (dist/ledger-muse-calls.md, pro Call), aber: kein Tages-Zaehler,
+  kein dokumentierter Umgang mit `muse usage`.
+- O-13-Nachtrag faellig: EdgesGeometry-Re-Export (+16 B, three.entry.js) fehlt im
+  Abweichungsblatt docs/ABWEICHUNGSBLATT-2026-10-27.md.
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies dist/ledger-muse-calls.md (Format), dist/generation-log.json (Kopf-Felder),
+   docs/ABWEICHUNGSBLATT-2026-10-27.md (Tabellenstil).
+2. Lege an: scripts/usage-tagesstand.mjs — zaehlt Calls je Tag aus
+   dist/generation-log.json (calls[].startUtc/endeUtc-Datum, quelle-Feld) und gibt
+   aus: Tabelle Tag | Calls gesamt | je Quelle (meta-cli, browser-e2e, chemie-meta) |
+   Hinweis "Key-Modus: muse usage meldet kein Kontingent (erwartet); Verbrauch im
+   Schluessel-Portal; Ledger = Beleg je Call". Reine Ausgabe (konsole), schreibt NICHTS.
+   package.json-Skript "usage:tagesstand" eintragen.
+3. Ergaenze docs/ABWEICHUNGSBLATT-2026-10-27.md um EINE Zeile: three.entry.js
+   EdgesGeometry +16 B (NaCl-E-S2-BOOT-Fix 27.10.), Ist ~723 B, Max 700 BLEIBT
+   (Toleranz: Bundle 606231 < 743075 Abbruchschwelle; bei naechstem Fix Max
+   nachziehen). Stil wie bestehende Zeilen.
+4. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Zahlen (nur zaehlen, was in den Dateien steht).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Skript (Aufruf + Beispiel-Output als Format, KEINE echten Zahlen erfinden — Format genuegt,
+echte Zahlen liefert der Orchestrator-Lauf) / Abweichungsblatt-Zeile (ja/nein) /
+offen fuer Orchestrator (Tagesstand-Lauf + Unit).

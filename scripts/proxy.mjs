@@ -50,9 +50,6 @@ export const PROVIDERS = {
     chatPath: '/chat/completions',
     models: [
       'google/gemma-4-26b-a4b-it:free',
-      'openai/gpt-6-astra',
-      'anthropic/claude-opus-5.5',
-      'google/gemini-4-argon',
     ],
     defaultModel: 'google/gemma-4-26b-a4b-it:free',
     byokOnly: true,

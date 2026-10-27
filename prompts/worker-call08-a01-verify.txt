@@ -1,0 +1,42 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Nur diese Dateien aendern, minimal invasiv.
+
+AUFGABE (A-01 Proxy-E2E gruen; Call-Budget fuer DICH: max. 3 muse.exe-Calls, danach Stopp mit Bericht):
+Der Proxy-E2E Meta-Pfad schlaegt fehl mit `E-S2-BOOT: Scene is not defined` beim Boot des
+generierten Moduls (Stand e2e-real.log, Exit 1). Zwischenstand: `repairThreeImports` aus
+src/runtime/guard-static.js (Z. 294) ist in src/runtime/livegen.js (Z. 187) verdrahtet,
+aber es gibt KEINEN gruenen Lauf danach. Ein frueherer Worker (call01) blieb nach 2
+Banner-Zeilen stehen (dist/worker-call01.out.txt). Pruefe zuerst, ob dessen Fix schon
+greift.
+
+VORGEHEN:
+0. PRE-FLIGHT (Pflicht): Pruefe zuerst, ob noch ein anderer muse.exe-Prozess laeuft
+   (tasklist /FI "IMAGENAME eq muse.exe"). Falls ja (z.B. worker-call02, PID 26700):
+   warte, bis er beendet ist (max. 60 Minuten, alle 2 Minuten pruefen), damit ihr euch
+   nicht auf denselben dist-Dateien in die Quere kommt. Erst danach mit Schritt 1 beginnen.
+1. Lies src/runtime/livegen.js (Z. 180-200), src/runtime/guard-static.js (repairThreeImports),
+   scripts/proxy-e2e-browser.mjs, e2e-real.log.
+2. Fahre `node scripts/proxy-e2e-browser.mjs Handbohrmaschine` (lokaler Lauf, KEIN Muse-Call).
+   Bei Exit 0 + Status "geladen": Screenshots/JSON pruefen, fertig, kein weiterer Muse-Call noetig.
+3. Nur bei weiterem Fehlschlag: exakte Root-Cause finden (generiertes Modul ohne Scene-Import?
+   Wrapper/Import-Rewrite? Sandbox-Importmap-Luecke?) und minimal fixen (Prompt-Verschaerfung in
+   buildFreePrompt und/oder Repair vor Boot; kein neues Framework, keine neuen Dependencies).
+   Dafuer maximal EINEN Muse-Call mit Modell muse-spark-1.3-contributor, reasoning high,
+   falls du Generierung brauchst. KEINE Wonder-Calls.
+4. Verifiziere: Exit 0, Status "geladen", dist/proxy-e2e.png (1280x720, Modell sichtbar) +
+   dist/proxy-e2e.json + genau EIN generation-log-Eintrag Quelle "browser-e2e".
+   Danach Unit-Suite (Dateien aus package.json scripts.test:unit plus tests-unit/i18n.test.mjs)
+   GRUEN und `npx playwright test tests/harness.spec.mjs tests/i18n-ui.spec.mjs --reporter=list` GRUEN.
+   Bei HTTP 429: 60 s warten, EINMAL wiederholen, dann ehrlich abbrechen.
+
+REGELN (Verstoss = Abbruch):
+- Modell-/Key-Disziplin: NUR muse-spark-1.3-contributor. Key aus
+  C:/Users/flori/OneDrive/Key_muse.md NUR per stdin (--api-key-stdin), NIE als Argument,
+  NIE in Ausgabe/Logs/Dateien/Chat.
+- KEINE erfundenen Modell-IDs. OpenRouter NUR google/gemma-4-26b-a4b-it:free. Keine Trust-Aenderungen.
+- Keine Fake-Belege: Screenshots nur aus echten Laeufen.
+- Trage JEDEN deiner muse.exe-Calls in dist/ledger-muse-calls.md ein
+  (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (kurz, max. 25 Zeilen):
+Geaenderte Dateien (Pfade+Zeilen) / Root-Cause (1 Satz) / e2e-Exit + Screenshot-Bytes/SHA256 /
+Playwright-Resultat / Unit-Resultat / generation-log-Eintrag ja-nein / eigene Muse-Calls (Anzahl).

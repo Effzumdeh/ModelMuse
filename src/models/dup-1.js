@@ -2,6 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'ER-Modell (DuP-1)', category: 'sonstiges', detailLevel: 2, parts: ['Entitaetstafel','Primaerschluesselfeld','Beziehungslinie','Kardinalitaetsmarke'], units: 'm' };
+export const meta_i18n = { en: { title: 'ER model (DuP-1)', parts: ['Customer entity box', 'Primary key field', 'Relationship line', 'Cardinality'] }, es: { title: 'Modelo ER (DuP-1)', parts: ['Tabla de entidad cliente', 'Campo de clave primaria', 'Línea de relación', 'Cardinalidad'] } };
 export const init = (container, params) => {
 const renderer = new WebGLRenderer({antialias:true, preserveDrawingBuffer:true});
 renderer.toneMapping = ACESFilmicToneMapping;

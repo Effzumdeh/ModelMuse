@@ -2,6 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'UML-Klasse (AE-1)', category: 'sonstiges', detailLevel: 2, parts: ['Klassenquader', 'Attributzeile', 'Methodenzeile', 'Vererbungspfeil'], units: 'm' };
+export const meta_i18n = { en: { title: 'UML class (AE-1)', parts: ['Class box', 'Attribute row', 'Method row', 'Inheritance arrow'] }, es: { title: 'Clase UML (AE-1)', parts: ['Cuadro de clase', 'Fila de atributos', 'Fila de métodos', 'Flecha de herencia'] } };
 export const init = (container, params) => {
 const p = params || {};
 const w = (container && container.clientWidth) || 800;

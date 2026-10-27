@@ -1,0 +1,37 @@
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+
+THEMA (Backlog O-07, Stand 27.10.2026 abends, Orchestrator-verifiziert):
+- Pipeline: `npm run build` (scripts/build.mjs: Groessenpruefung, Report) DANN
+  `npm run render` (scripts/render-single-file.mjs: schreibt dist/lab-player.html +
+  .sha256 DIREKT, ueberschreibt). Bricht build ODER render ab, bleibt ein altes
+  oder halbes Artefakt liegen — ohne Kennzeichnung, ohne Ruecksicherung.
+- F5-Forderung (Bauplan): Bei Build-Abbruch die letzte als GRUEN attestierte
+  lab-player.html ausliefern, ROT kennzeichnen.
+- Gruen-Definition (belegt, nichts erfinden): dist/build-report.json verdict pass +
+  dist/verify-report.json buildHash == Build UND verify-OK (alle gelb, "verify: OK").
+
+AUFGABE (genau EIN Muse-Call, keine weiteren Calls):
+1. Lies scripts/render-single-file.mjs (Schreibstellen Z. ~109-111, ABBRUCH-Exits),
+   scripts/build.mjs (Report-Felder verdict/buildHash/artefaktSha256).
+2. Baue in scripts/render-single-file.mjs VOR dem ersten Schreiben ein:
+   - Falls dist/lab-player.html existiert UND dist/build-report.json verdict pass
+     UND verify-report.json buildHash == build-report.json buildHash:
+     kopiere lab-player.html + .sha256 nach dist/last-green/ (.gitignore: lokal,
+     analog dist/raw — pruefe .gitignore-Stil, ergaenze eine Zeile dist/last-green/).
+   - Bei JEDEM spaeteren ABBRUCH (process.exit(1)-Stellen): falls last-green vollstaendig,
+     zurueckkopieren nach dist/ + dist/FALLBACK-ROT.json schreiben
+     {datum, grund (kurz, aus Fehlermeldung), quelle: "last-green"}; Konsole:
+     "render: FALLBACK letzte gruene Version (ROT markiert)".
+   - Bei Erfolg: dist/FALLBACK-ROT.json entfernen (falls vorhanden).
+   Kein neues npm-Skript noetig (in render integriert, greift automatisch).
+3. VERIFIKATION durch dich: nur Re-Read. KEINE npm-/Playwright-Laeufe (Sandbox),
+   KEINen E2E-/Generierungs-Lauf, KEIN Key.
+
+REGELN (Verstoss = Abbruch):
+- KEIN Key in Ausgabe/Logs/Dateien/Chat. KEINE Wonder-Calls, keine neuen Dependencies,
+  keine Trust-Aenderungen, keine erfundenen Gruen-Kriterien (nur die genannten).
+- Trage dich in dist/ledger-muse-calls.md ein (Zeit, Modell, Zweck, Dauer, Bytes, Exit, Befund).
+
+RUECKGABE (max. 12 Zeilen):
+Sicherung (wann/wohin) / Restore (wann + Marker) / .gitignore-Zeile /
+offen fuer Orchestrator (Trockenlauf: build ok + simulierter Abbruch).
