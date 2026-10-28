@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, CylinderGeometry, PlaneGeometry, CircleGeometry, TorusGeometry, ExtrudeGeometry, Shape, DataTexture, HemisphereLight, DirectionalLight, PointLight, DoubleSide, LinearFilter, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, Vector3, Matrix4, Quaternion, PMREMGenerator } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, CylinderGeometry, PlaneGeometry, CircleGeometry, TorusGeometry, ExtrudeGeometry, Shape, DataTexture, HemisphereLight, DirectionalLight, PointLight, DoubleSide, LinearFilter, SRGBColorSpace, ACESFilmicToneMapping, PCFShadowMap, Vector3, Matrix4, Quaternion, PMREMGenerator } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'PC-Arbeitsplatz (SI-1)', category: 'hardware', detailLevel: 2, parts: ['Mainboard','CPU','Arbeitsspeicher','Grafikkarte','Netzteil'], units: 'm' };
@@ -18,7 +18,7 @@ renderer.toneMapping = ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 renderer.outputColorSpace = SRGBColorSpace;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = PCFSoftShadowMap;
+renderer.shadowMap.type = PCFShadowMap;
 renderer.setClearColor(0x0b0e14,1);
 container.appendChild(renderer.domElement);
 const scene = new Scene();
@@ -30,9 +30,11 @@ controls.update();
 const pmrem = new PMREMGenerator(renderer);
 const room = new Scene();
 const roomGeo = new BoxGeometry(4,4,4);
-const roomMat = new MeshBasicMaterial({color:0x11141a, side:1});
+const roomMat = new MeshStandardMaterial({color:0xcccccc, side:1});
 const roomMesh = new Mesh(roomGeo, roomMat);
 room.add(roomMesh);
+const roomLight = new PointLight(0xffffff, 5, 28, 2);
+room.add(roomLight);
 const softGeo = new PlaneGeometry(3,3);
 const softMatA = new MeshBasicMaterial({color:0xffffff, side:DoubleSide});
 const softA = new Mesh(softGeo, softMatA);
@@ -46,8 +48,7 @@ softB.rotation.y = Math.PI/2;
 room.add(softB);
 const envTex = pmrem.fromScene(room,0.04).texture;
 scene.environment = envTex;
-let hasEnvI = false;
-if(scene.environmentIntensity !== undefined){ scene.environmentIntensity = 0.55; hasEnvI = true; }
+scene.environmentIntensity = 0.55;
 room.traverse(o=>{
 if(o.isMesh){ o.geometry.dispose(); o.material.dispose(); }
 });
@@ -90,17 +91,14 @@ const matGrille = new MeshStandardMaterial({color:0x0a0b0d, metalness:0.4, rough
 const matWhite = new MeshStandardMaterial({color:0xf2f2ee, metalness:0.05, roughness:0.6});
 const matShield = new MeshStandardMaterial({color:0xd0d4d8, metalness:0.95, roughness:0.3});
 const matDark = new MeshStandardMaterial({color:0x050607, metalness:0.2, roughness:0.8});
-const matGround = new ShadowMaterial({opacity:0.38});
+const matGround = new ShadowMaterial({opacity:0.55});
 const allMats = [matPCB,matSocket,matCPU,matAlu,matFan,matBlade,matRAMa,matRAMb,matSpreader,matGPUPCB,matShroud,matPSU,matGrille,matWhite,matShield,matDark];
-if(!hasEnvI){
-for(let i=0;i<allMats.length;i++){ allMats[i].envMapIntensity = 0.55; }
-}
 const hemi = new HemisphereLight(0xdfeaff,0x1a1410,0.35);
 scene.add(hemi);
 const key = new DirectionalLight(0xffffff,2.5);
 key.position.set(0.5,0.8,0.6);
 key.castShadow = true;
-key.shadow.mapSize.set(2048,2048);
+key.shadow.mapSize.set(1024,1024);
 const frustumKeys = ['left','right','t'+'op','bottom'];
 for(let i=0;i<frustumKeys.length;i++){
 const k = frustumKeys[i];
@@ -109,8 +107,9 @@ key.shadow.camera[k] = v;
 }
 key.shadow.camera.near = 0.1;
 key.shadow.camera.far = 3;
-key.shadow.bias = -0.0005;
+key.shadow.bias = -0.0001;
 key.shadow.normalBias = 0.002;
+key.shadow.radius = 4;
 key.shadow.camera.updateProjectionMatrix();
 scene.add(key);
 const rim = new DirectionalLight(0xbcd0ff,0.7);

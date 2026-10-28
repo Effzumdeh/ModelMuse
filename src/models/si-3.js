@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, SphereGeometry, PlaneGeometry, CircleGeometry, ExtrudeGeometry, Shape, DataTexture, DirectionalLight, HemisphereLight, PointLight, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, Vector3, Matrix4, Quaternion, PMREMGenerator } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, SphereGeometry, PlaneGeometry, CircleGeometry, ExtrudeGeometry, Shape, DataTexture, DirectionalLight, HemisphereLight, PointLight, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping, PCFShadowMap, Vector3, Matrix4, Quaternion, PMREMGenerator } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 function roundedRect(w,h,r){
@@ -75,9 +75,7 @@ export function init(container,params){
 const p=params||{};
 const w=container.clientWidth||800;
 const h=container.clientHeight||600;
-let rawDpr=p.dpr||1;
-if(rawDpr<1)rawDpr=1;
-if(rawDpr>2)rawDpr=2;
+let rawDpr=Math.min(2,Math.max(1,p.dpr||1));
 const scene=new Scene();
 const camera=new PerspectiveCamera(45,w/h,0.05,10);
 camera.position.set(0.65,0.50,0.70);
@@ -86,7 +84,7 @@ renderer.toneMapping=ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.1;
 renderer.outputColorSpace=SRGBColorSpace;
 renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=PCFSoftShadowMap;
+renderer.shadowMap.type=PCFShadowMap;
 renderer.setClearColor(0x0b0e14,1);
 renderer.setPixelRatio(rawDpr);
 renderer.setSize(w,h);
@@ -94,9 +92,11 @@ container.appendChild(renderer.domElement);
 const pmrem=new PMREMGenerator(renderer);
 const room=new Scene();
 const roomGeo=new BoxGeometry(4,4,4);
-const roomMat=new MeshBasicMaterial({color:0x11141a,side:DoubleSide});
+const roomMat=new MeshStandardMaterial({color:0xcccccc,side:1});
 const roomMesh=new Mesh(roomGeo,roomMat);
 room.add(roomMesh);
+const roomLight=new PointLight(0xffffff,5,28,2);
+room.add(roomLight);
 const softGeo=new PlaneGeometry(2,1);
 const softMatA=new MeshBasicMaterial({color:0xffffff,side:DoubleSide});
 const softA=new Mesh(softGeo,softMatA);
@@ -110,6 +110,7 @@ softB.lookAt(0,0,0);
 room.add(softB);
 const envRT=pmrem.fromScene(room,0.04);
 scene.environment=envRT.texture;
+scene.environmentIntensity=0.55;
 pmrem.dispose();
 const brushed=makeBrushed();
 const matRack=new MeshStandardMaterial({color:0x3a414c,metalness:0.9,roughness:0.35});
@@ -121,20 +122,12 @@ const matLed=new MeshStandardMaterial({color:0x0a0f0a,metalness:0.1,roughness:0.
 const matGrip=new MeshStandardMaterial({color:0x14161a,metalness:0.1,roughness:0.7});
 const matScrew=new MeshStandardMaterial({color:0xcfd6e0,metalness:1.0,roughness:0.25});
 const matVent=new MeshStandardMaterial({color:0x0e1116,metalness:0.2,roughness:0.6});
-const stdMats=[matRack,matPlate,matServer,matSled,matPsu,matLed,matGrip,matScrew,matVent];
-if('environmentIntensity' in scene){
-scene.environmentIntensity=0.55;
-}else{
-for(let i=0;i<stdMats.length;i++){
-stdMats[i].envMapIntensity=0.55;
-}
-}
 const hemi=new HemisphereLight(0xdfeaff,0x1a1410,0.35);
 scene.add(hemi);
-const key=new DirectionalLight(0xffffff,2.0);
+const key=new DirectionalLight(0xffffff,2.5);
 key.position.set(0.8,1.2,0.6);
 key.castShadow=true;
-key.shadow.mapSize.set(2048,2048);
+key.shadow.mapSize.set(1024,1024);
 const sc=key.shadow.camera;
 const fk0='left';
 const fk1='right';
@@ -147,14 +140,15 @@ sc[fks[i]]=fvs[i];
 }
 sc.near=0.1;
 sc.far=4;
-key.shadow.bias=-0.0005;
+key.shadow.bias=-0.0001;
 key.shadow.normalBias=0.002;
+key.shadow.radius=4;
 sc.updateProjectionMatrix();
 scene.add(key);
 const rim=new DirectionalLight(0xbcd0ff,0.7);
 rim.position.set(-0.5,0.6,-0.9);
 scene.add(rim);
-const accent=new PointLight(0xffd9a0,3,1.5,2);
+const accent=new PointLight(0xffd9a0,0.12,1.5,2);
 accent.position.set(0.3,0.15,0.6);
 scene.add(accent);
 const postGeo=new BoxGeometry(0.04,0.80,0.04);
@@ -199,7 +193,7 @@ const vents=new InstancedMesh(ventGeo,matVent,3);
 setInst(vents,[[0,0.145,-0.10],[0,0.145,0.0],[0,0.145,0.10]]);
 model.add(vents);
 const catchGeo=new CircleGeometry(0.55,48);
-const catchMat=new ShadowMaterial({opacity:0.35});
+const catchMat=new ShadowMaterial({opacity:0.55});
 const catcher=new Mesh(catchGeo,catchMat);
 catcher.rotation.x=-Math.PI/2;
 catcher.position.set(0,-0.405,0);

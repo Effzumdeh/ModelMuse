@@ -18,7 +18,7 @@ if (!accept) {
 }
 
 /** Belegte Modell-IDs (einzige Quelle: Modellmatrix, keine erfundenen IDs). */
-const MODELS = ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'gpu-example'];
+const MODELS = ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'gpu-example', 'free-handbohrmaschine', 'chemie-koffein'];
 const WANTED = MODELS.flatMap((id) => [`${id}-overview.png`, `${id}-detail.png`]);
 const BASELINES_DIR = 'dist/baselines';
 const FAILURES_DIR = 'dist/failures';

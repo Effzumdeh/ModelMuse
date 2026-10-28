@@ -16,7 +16,7 @@ import { renderScoreboard, renderSoll } from './ui-scoreboard.js';
 import { createLibrary, setConsent, serializeForSession, restoreFromSession, addEntry } from '../runtime/session-library.js';
 import { toggleHidden, checkPart, checkAllParts } from '../runtime/parts.js';
 
-const MODEL_IDS = ['gpu-example', 'si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3'];
+const MODEL_IDS = ['gpu-example', 'si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'free-handbohrmaschine', 'chemie-koffein'];
 
 /** @returns {boolean} WebGL2 verfuegbar */
 export function hasWebGL2() {

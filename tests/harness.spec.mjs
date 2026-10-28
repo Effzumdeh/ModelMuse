@@ -41,25 +41,25 @@ test('Teil 1: Anbieter- und Modellauswahl klickbar mit Badges + Datenschutz', as
   await page.selectOption('#prov-model', 'muse-spark-1.3');
   await expect(page.locator('#prov-privacy')).toContainText('datenschutzfreundlich');
   await expect(page.locator('#prov-cmd')).toContainText('--model muse-spark-1.3 ');
-  // Wechsel: OpenRouter/Gratis — ehrlich deaktivierter Pfad + Gratis-Badge (NUR Gratis-Modell).
-  await page.selectOption('#prov-provider', 'openrouter');
-  await page.selectOption('#prov-model', 'gemma-4-26b-it-free');
-  await expect(page.locator('#prov-badges')).toContainText('Gratis-Test: $0');
-  await expect(page.locator('#prov-cmd')).toContainText('Deaktiviert');
+  // Wechsel: Baseten/Muse Spark Open — Proxy-Pfad mit BYOK-Hinweis + Meta-Modell-Badge.
+  await page.selectOption('#prov-provider', 'baseten');
+  await page.selectOption('#prov-model', 'muse-spark-open-1026');
+  await expect(page.locator('#prov-badges')).toContainText('Meta-Modell');
+  await expect(page.locator('#prov-cmd')).toContainText('BYOK');
   await expect(page.locator('#prov-status')).toContainText('Benchmark misst Didaktik');
   const docs = await page.locator('#prov-docs a').evaluateAll((els) => els.map((e) => e.href));
   expect(docs.length).toBeGreaterThanOrEqual(2);
-  expect(docs.join(' ')).toContain('3jsbench.com');
+  expect(docs.join(' ')).toContain('baseten.co');
 });
 
-test('Teil 2: Bibliothek spiegelt kuratierte 10, Adopt/Ueberarbeiten/Loeschen/Import', async ({ page }) => {
+test('Teil 2: Bibliothek spiegelt kuratierte 12, Adopt/Ueberarbeiten/Loeschen/Import', async ({ page }) => {
   await ready(page);
   const rows = page.locator('#lib-list .lib-row');
-  await expect(rows).toHaveCount(10);
+  await expect(rows).toHaveCount(12);
   // Adopt: aktuelles Modell als Sitzungseintrag.
   await settledClick(page, '#lib-adopt');
   await expect(page.locator('#lib-status')).toContainText('bernommen');
-  await expect(rows).toHaveCount(11);
+  await expect(rows).toHaveCount(13);
   // Ueberarbeiten: P2-Notfallpfad mit Messwert-Feedback + muse.exe-Befehl.
   await settledClick(page, '.lib-row[data-id="frei-gpu-example"] >> button:has-text("berarbeiten")', '.lib-row[data-id="frei-gpu-example"]');
   await expect(page.locator('#lib-detail')).toContainText('P2-NOTFALLPFAD');
@@ -69,7 +69,7 @@ test('Teil 2: Bibliothek spiegelt kuratierte 10, Adopt/Ueberarbeiten/Loeschen/Im
   await expect(page.locator('#lib-status')).toContainText('geladen', { timeout: 30000 });
   // Loeschen: Sitzungseintrag weg, kuratierte bleiben.
   await settledClick(page, '.lib-row[data-id="frei-gpu-example"] >> button:has-text("schen")', '.lib-row[data-id="frei-gpu-example"]');
-  await expect(rows).toHaveCount(10);
+  await expect(rows).toHaveCount(12);
   // Import: .js-Datei wird neue Revision.
   await page.setInputFiles('#lib-import', {
     name: 'import-demo.js',
@@ -77,7 +77,7 @@ test('Teil 2: Bibliothek spiegelt kuratierte 10, Adopt/Ueberarbeiten/Loeschen/Im
     buffer: Buffer.from('export const meta = { title: "Import-Demo", category: "demo", detailLevel: 2, parts: ["A","B","C"], units: "m" };\nexport function init(c, p) { return { update(patch) {}, dispose() {} }; }\n'),
   });
   await expect(page.locator('#lib-status')).toContainText('importiert');
-  await expect(rows).toHaveCount(11);
+  await expect(rows).toHaveCount(13);
   await expect(page.locator('#lib-list')).toContainText('Import-Demo');
 });
 

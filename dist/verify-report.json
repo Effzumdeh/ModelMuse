@@ -1,6 +1,18 @@
 {
-  "createdAt": "2026-10-27T20:12:38.419Z",
-  "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+  "createdAt": "2026-10-28T23:03:55.383Z",
+  "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+  "routes": {
+    "p0": true,
+    "p1_2d": true,
+    "models2d": [
+      "ae-1",
+      "ae-2",
+      "ae-3",
+      "dup-1",
+      "dup-2",
+      "dup-3"
+    ]
+  },
   "models": [
     {
       "modelId": "ae-1",
@@ -20,13 +32,13 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "12305 Bytes (green)"
+              "actual": "1234 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
-              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
             },
             {
               "id": "S1-shape",
@@ -35,86 +47,80 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 3
+          "durationMs": 2
         },
         {
           "layer": "S2",
           "verdict": "pass",
           "criteria": [
             {
-              "id": "S2-intersect",
+              "id": "S2-2d-parse",
               "verdict": "pass",
-              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
-              "actual": "statisch: 19 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
             },
             {
-              "id": "S2-backface",
+              "id": "S2-2d-typ",
               "verdict": "pass",
-              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
-              "actual": "0 BackSide ausserhalb PMREM-Raum, 3 DoubleSide (duenne Teile, zulaessig)"
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "uml erlaubt"
             },
             {
-              "id": "S2-flicker",
+              "id": "S2-2d-parse-svg",
               "verdict": "pass",
-              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
-              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1489 Zeichen SVG"
             },
             {
-              "id": "S2-orient",
+              "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
-              "actual": "Zentrum [0,00, 0,02, 0,05], Spanne 0,35 m (4 Labels)"
+              "expected": ">= 4 SVG-Formelemente (gerendert)",
+              "actual": "14 Shapes im Vendor-Render"
             },
             {
-              "id": "S2-connect",
+              "id": "S2-2d-wellformed",
               "verdict": "pass",
-              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
-              "actual": "min Label-Abstand 72,8 mm, Spanne 0,35 m (4 Labels)"
-            },
-            {
-              "id": "S2-meshcount-statisch",
-              "verdict": "pass",
-              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
-              "actual": "19 Meshes statisch (Mesh 18 + Instanced 1)"
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 2
         },
         {
           "layer": "S3",
-          "verdict": "skip",
-          "screenshot": "dist/final-ae-1.png",
+          "verdict": "pass",
+          "screenshot": "dist-2d/ae-1.png",
           "criteria": [
             {
-              "id": "S3-skip",
-              "verdict": "skip",
-              "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 12305 Bytes vs Beleg 11944 Bytes)"
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/ae-1.png: 10630 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 10630 Bytes"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S4",
-          "verdict": "skip",
+          "verdict": "pass",
           "criteria": [
             {
-              "id": "S4-meshcount",
+              "id": "S4-2d-nodes",
               "verdict": "pass",
-              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
-              "actual": "19 Meshes statisch (Mesh 18 + Instanced 1)"
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "14 Shapes (Vendor-Render)"
             },
             {
-              "id": "S4-triangles",
-              "verdict": "skip",
-              "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12305 Bytes vs Beleg 11944 Bytes)"
-            },
-            {
-              "id": "S4-drawcalls",
-              "verdict": "skip",
-              "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12305 Bytes vs Beleg 11944 Bytes)"
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1234 Bytes"
             }
           ],
           "durationMs": 0
@@ -172,13 +178,17 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         }
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.402Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.354Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
       "screenshot": "dist/final-ae-1.png"
     },
     {
@@ -199,13 +209,13 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "12369 Bytes (green)"
+              "actual": "1304 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
-              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
             },
             {
               "id": "S1-shape",
@@ -214,86 +224,80 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "layer": "S2",
           "verdict": "pass",
           "criteria": [
             {
-              "id": "S2-intersect",
+              "id": "S2-2d-parse",
               "verdict": "pass",
-              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
-              "actual": "statisch: 11 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
             },
             {
-              "id": "S2-backface",
+              "id": "S2-2d-typ",
               "verdict": "pass",
-              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
-              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "bars erlaubt"
             },
             {
-              "id": "S2-flicker",
+              "id": "S2-2d-parse-svg",
               "verdict": "pass",
-              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
-              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1790 Zeichen SVG"
             },
             {
-              "id": "S2-orient",
+              "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
-              "actual": "Zentrum [-0,08, 0,06, 0,06], Spanne 0,37 m (3 Labels)"
+              "expected": ">= 4 SVG-Formelemente (gerendert)",
+              "actual": "18 Shapes im Vendor-Render"
             },
             {
-              "id": "S2-connect",
+              "id": "S2-2d-wellformed",
               "verdict": "pass",
-              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
-              "actual": "min Label-Abstand 123,7 mm, Spanne 0,37 m (3 Labels)"
-            },
-            {
-              "id": "S2-meshcount-statisch",
-              "verdict": "pass",
-              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
-              "actual": "11 Meshes statisch (Mesh 7 + Instanced 4)"
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S3",
-          "verdict": "skip",
-          "screenshot": "dist/final-ae-2.png",
+          "verdict": "pass",
+          "screenshot": "dist-2d/ae-2.png",
           "criteria": [
             {
-              "id": "S3-skip",
-              "verdict": "skip",
-              "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 12369 Bytes vs Beleg 12006 Bytes)"
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/ae-2.png: 8302 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 8302 Bytes"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S4",
-          "verdict": "skip",
+          "verdict": "pass",
           "criteria": [
             {
-              "id": "S4-meshcount",
+              "id": "S4-2d-nodes",
               "verdict": "pass",
-              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
-              "actual": "11 Meshes statisch (Mesh 7 + Instanced 4)"
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "18 Shapes (Vendor-Render)"
             },
             {
-              "id": "S4-triangles",
-              "verdict": "skip",
-              "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12369 Bytes vs Beleg 12006 Bytes)"
-            },
-            {
-              "id": "S4-drawcalls",
-              "verdict": "skip",
-              "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 12369 Bytes vs Beleg 12006 Bytes)"
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1304 Bytes"
             }
           ],
           "durationMs": 0
@@ -351,13 +355,17 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         }
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.406Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.359Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
       "screenshot": "dist/final-ae-2.png"
     },
     {
@@ -378,12 +386,189 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "14803 Bytes (green)"
+              "actual": "1187 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "chain erlaubt"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1917 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 SVG-Formelemente (gerendert)",
+              "actual": "19 Shapes im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/ae-3.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/ae-3.png: 9910 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 9910 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "19 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1187 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-28T23:03:55.359Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
+      "screenshot": "dist/final-ae-3.png"
+    },
+    {
+      "modelId": "chemie-koffein",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "10258 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
               "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
             },
             {
@@ -403,13 +588,13 @@
               "id": "S2-intersect",
               "verdict": "pass",
               "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
-              "actual": "statisch: 14 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+              "actual": "statisch: 6 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
             },
             {
               "id": "S2-backface",
               "verdict": "pass",
               "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
-              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 0 DoubleSide (duenne Teile, zulaessig)"
             },
             {
               "id": "S2-flicker",
@@ -421,33 +606,33 @@
               "id": "S2-orient",
               "verdict": "pass",
               "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
-              "actual": "Zentrum [0,01, 0,00, 0,20], Spanne 1,02 m (4 Labels)"
+              "actual": "Zentrum [-0,00, 0,00, 0,01], Spanne 0,05 m (6 Labels)"
             },
             {
               "id": "S2-connect",
               "verdict": "pass",
               "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
-              "actual": "min Label-Abstand 330,6 mm, Spanne 1,02 m (4 Labels)"
+              "actual": "min Label-Abstand 21,3 mm, Spanne 0,05 m (6 Labels)"
             },
             {
               "id": "S2-meshcount-statisch",
               "verdict": "pass",
               "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
-              "actual": "14 Meshes statisch (Mesh 11 + Instanced 3)"
+              "actual": "6 Meshes statisch (Mesh 4 + Instanced 2)"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
           "verdict": "skip",
-          "screenshot": "dist/final-ae-3.png",
+          "screenshot": null,
           "criteria": [
             {
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 14803 Bytes vs Beleg 14457 Bytes)"
+              "actual": "kein Messwert in dist/final-budgets.json"
             }
           ],
           "durationMs": 0
@@ -460,19 +645,19 @@
               "id": "S4-meshcount",
               "verdict": "pass",
               "expected": "<= 250 (gruen bis 120, Ziel ~45)",
-              "actual": "14 Meshes statisch (Mesh 11 + Instanced 3)"
+              "actual": "6 Meshes statisch (Mesh 4 + Instanced 2)"
             },
             {
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14803 Bytes vs Beleg 14457 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: kein Messwert in dist/final-budgets.json"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14803 Bytes vs Beleg 14457 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: kein Messwert in dist/final-budgets.json"
             }
           ],
           "durationMs": 0
@@ -485,13 +670,13 @@
               "id": "S5-manifest",
               "verdict": "pass",
               "expected": "Manifest ok",
-              "actual": "labels=4 mess=1"
+              "actual": "labels=6 mess=2"
             },
             {
               "id": "S5-pflicht",
               "verdict": "pass",
               "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
-              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+              "actual": "2 Ziele, 6 Labels, 2 Messungen"
             },
             {
               "id": "S5-basis-labels-max5",
@@ -520,8 +705,8 @@
             {
               "id": "S5-soll",
               "verdict": "pass",
-              "expected": "Labels==4, B/A/P=0/2/1",
-              "actual": "Labels=4, B/A/P=0/2/1"
+              "expected": "Labels==6, B/A/P=0/2/1",
+              "actual": "Labels=6, B/A/P=0/2/1"
             },
             {
               "id": "S5-deklarativ",
@@ -535,9 +720,12 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.408Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
-      "screenshot": "dist/final-ae-3.png"
+      "createdAt": "2026-10-28T23:03:55.365Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "3d"
+      },
+      "screenshot": null
     },
     {
       "modelId": "dup-1",
@@ -557,13 +745,13 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "10994 Bytes (green)"
+              "actual": "1282 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
-              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
             },
             {
               "id": "S1-shape",
@@ -572,86 +760,80 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
           "verdict": "pass",
           "criteria": [
             {
-              "id": "S2-intersect",
+              "id": "S2-2d-parse",
               "verdict": "pass",
-              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
-              "actual": "statisch: 11 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
             },
             {
-              "id": "S2-backface",
+              "id": "S2-2d-typ",
               "verdict": "pass",
-              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
-              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "er erlaubt"
             },
             {
-              "id": "S2-flicker",
+              "id": "S2-2d-parse-svg",
               "verdict": "pass",
-              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
-              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1554 Zeichen SVG"
             },
             {
-              "id": "S2-orient",
+              "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
-              "actual": "Zentrum [-0,13, 0,03, 0,06], Spanne 0,40 m (4 Labels)"
+              "expected": ">= 4 SVG-Formelemente (gerendert)",
+              "actual": "15 Shapes im Vendor-Render"
             },
             {
-              "id": "S2-connect",
+              "id": "S2-2d-wellformed",
               "verdict": "pass",
-              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
-              "actual": "min Label-Abstand 100,5 mm, Spanne 0,40 m (4 Labels)"
-            },
-            {
-              "id": "S2-meshcount-statisch",
-              "verdict": "pass",
-              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
-              "actual": "11 Meshes statisch (Mesh 8 + Instanced 3)"
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S3",
-          "verdict": "skip",
-          "screenshot": "dist/final-dup-1.png",
+          "verdict": "pass",
+          "screenshot": "dist-2d/dup-1.png",
           "criteria": [
             {
-              "id": "S3-skip",
-              "verdict": "skip",
-              "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 10994 Bytes vs Beleg 10609 Bytes)"
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/dup-1.png: 10606 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 10606 Bytes"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S4",
-          "verdict": "skip",
+          "verdict": "pass",
           "criteria": [
             {
-              "id": "S4-meshcount",
+              "id": "S4-2d-nodes",
               "verdict": "pass",
-              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
-              "actual": "11 Meshes statisch (Mesh 8 + Instanced 3)"
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "15 Shapes (Vendor-Render)"
             },
             {
-              "id": "S4-triangles",
-              "verdict": "skip",
-              "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10994 Bytes vs Beleg 10609 Bytes)"
-            },
-            {
-              "id": "S4-drawcalls",
-              "verdict": "skip",
-              "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10994 Bytes vs Beleg 10609 Bytes)"
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1282 Bytes"
             }
           ],
           "durationMs": 0
@@ -714,8 +896,12 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.409Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.366Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
       "screenshot": "dist/final-dup-1.png"
     },
     {
@@ -736,13 +922,13 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "13076 Bytes (green)"
+              "actual": "1188 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
-              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
             },
             {
               "id": "S1-shape",
@@ -751,86 +937,80 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
           "verdict": "pass",
           "criteria": [
             {
-              "id": "S2-intersect",
+              "id": "S2-2d-parse",
               "verdict": "pass",
-              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
-              "actual": "statisch: 19 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
             },
             {
-              "id": "S2-backface",
+              "id": "S2-2d-typ",
               "verdict": "pass",
-              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
-              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "bpmn erlaubt"
             },
             {
-              "id": "S2-flicker",
+              "id": "S2-2d-parse-svg",
               "verdict": "pass",
-              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
-              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "2012 Zeichen SVG"
             },
             {
-              "id": "S2-orient",
+              "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
-              "actual": "Zentrum [0,00, 0,00, 0,08], Spanne 0,90 m (4 Labels)"
+              "expected": ">= 4 SVG-Formelemente (gerendert)",
+              "actual": "18 Shapes im Vendor-Render"
             },
             {
-              "id": "S2-connect",
+              "id": "S2-2d-wellformed",
               "verdict": "pass",
-              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
-              "actual": "min Label-Abstand 300,2 mm, Spanne 0,90 m (4 Labels)"
-            },
-            {
-              "id": "S2-meshcount-statisch",
-              "verdict": "pass",
-              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
-              "actual": "19 Meshes statisch (Mesh 16 + Instanced 3)"
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S3",
-          "verdict": "skip",
-          "screenshot": "dist/final-dup-2.png",
+          "verdict": "pass",
+          "screenshot": "dist-2d/dup-2.png",
           "criteria": [
             {
-              "id": "S3-skip",
-              "verdict": "skip",
-              "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 13076 Bytes vs Beleg 12746 Bytes)"
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/dup-2.png: 14064 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 14064 Bytes"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S4",
-          "verdict": "skip",
+          "verdict": "pass",
           "criteria": [
             {
-              "id": "S4-meshcount",
+              "id": "S4-2d-nodes",
               "verdict": "pass",
-              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
-              "actual": "19 Meshes statisch (Mesh 16 + Instanced 3)"
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "18 Shapes (Vendor-Render)"
             },
             {
-              "id": "S4-triangles",
-              "verdict": "skip",
-              "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13076 Bytes vs Beleg 12746 Bytes)"
-            },
-            {
-              "id": "S4-drawcalls",
-              "verdict": "skip",
-              "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13076 Bytes vs Beleg 12746 Bytes)"
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1188 Bytes"
             }
           ],
           "durationMs": 0
@@ -893,8 +1073,12 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.411Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.367Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
       "screenshot": "dist/final-dup-2.png"
     },
     {
@@ -915,13 +1099,13 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "14963 Bytes (green)"
+              "actual": "1169 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
-              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
             },
             {
               "id": "S1-shape",
@@ -930,86 +1114,80 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
           "verdict": "pass",
           "criteria": [
             {
-              "id": "S2-intersect",
+              "id": "S2-2d-parse",
               "verdict": "pass",
-              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
-              "actual": "statisch: 15 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
             },
             {
-              "id": "S2-backface",
+              "id": "S2-2d-typ",
               "verdict": "pass",
-              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
-              "actual": "0 BackSide ausserhalb PMREM-Raum, 3 DoubleSide (duenne Teile, zulaessig)"
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "etl erlaubt"
             },
             {
-              "id": "S2-flicker",
+              "id": "S2-2d-parse-svg",
               "verdict": "pass",
-              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
-              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1683 Zeichen SVG"
             },
             {
-              "id": "S2-orient",
+              "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
-              "actual": "Zentrum [0,01, 0,00, 0,19], Spanne 0,93 m (4 Labels)"
+              "expected": ">= 4 SVG-Formelemente (gerendert)",
+              "actual": "15 Shapes im Vendor-Render"
             },
             {
-              "id": "S2-connect",
+              "id": "S2-2d-wellformed",
               "verdict": "pass",
-              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
-              "actual": "min Label-Abstand 300,7 mm, Spanne 0,93 m (4 Labels)"
-            },
-            {
-              "id": "S2-meshcount-statisch",
-              "verdict": "pass",
-              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
-              "actual": "15 Meshes statisch (Mesh 10 + Instanced 5)"
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S3",
-          "verdict": "skip",
-          "screenshot": "dist/final-dup-3.png",
+          "verdict": "pass",
+          "screenshot": "dist-2d/dup-3.png",
           "criteria": [
             {
-              "id": "S3-skip",
-              "verdict": "skip",
-              "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 14963 Bytes vs Beleg 14628 Bytes)"
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/dup-3.png: 9087 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 9087 Bytes"
             }
           ],
           "durationMs": 0
         },
         {
           "layer": "S4",
-          "verdict": "skip",
+          "verdict": "pass",
           "criteria": [
             {
-              "id": "S4-meshcount",
+              "id": "S4-2d-nodes",
               "verdict": "pass",
-              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
-              "actual": "15 Meshes statisch (Mesh 10 + Instanced 5)"
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "15 Shapes (Vendor-Render)"
             },
             {
-              "id": "S4-triangles",
-              "verdict": "skip",
-              "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14963 Bytes vs Beleg 14628 Bytes)"
-            },
-            {
-              "id": "S4-drawcalls",
-              "verdict": "skip",
-              "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14963 Bytes vs Beleg 14628 Bytes)"
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1169 Bytes"
             }
           ],
           "durationMs": 0
@@ -1072,9 +1250,195 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.412Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.368Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
       "screenshot": "dist/final-dup-3.png"
+    },
+    {
+      "modelId": "free-handbohrmaschine",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "10155 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 5 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 0 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [-0,04, 0,06, 0,02], Spanne 0,34 m (6 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 68,7 mm, Spanne 0,34 m (6 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "5 Meshes statisch (Mesh 5 + Instanced 0)"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": null,
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "kein Messwert in dist/final-budgets.json"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "5 Meshes statisch (Mesh 5 + Instanced 0)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: kein Messwert in dist/final-budgets.json"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: kein Messwert in dist/final-budgets.json"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=6 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 6 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==6, B/A/P=0/2/1",
+              "actual": "Labels=6, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-28T23:03:55.371Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "3d"
+      },
+      "screenshot": null
     },
     {
       "modelId": "gpu-example",
@@ -1094,12 +1458,12 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "21435 Bytes (green)"
+              "actual": "21964 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
+              "expected": "nur three/wrapper-helpers/2d-*",
               "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
             },
             {
@@ -1163,7 +1527,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 21435 Bytes vs Beleg 20892 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 21964 Bytes vs Beleg 20892 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1182,13 +1546,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21435 Bytes vs Beleg 20892 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21964 Bytes vs Beleg 20892 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21435 Bytes vs Beleg 20892 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21964 Bytes vs Beleg 20892 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1251,8 +1615,11 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.414Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.375Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "3d"
+      },
       "screenshot": "dist/final-gpu-example.png"
     },
     {
@@ -1273,12 +1640,12 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "15837 Bytes (green)"
+              "actual": "15757 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
+              "expected": "nur three/wrapper-helpers/2d-*",
               "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
             },
             {
@@ -1342,7 +1709,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 15837 Bytes vs Beleg 15423 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 15757 Bytes vs Beleg 15423 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1361,13 +1728,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15837 Bytes vs Beleg 15423 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15757 Bytes vs Beleg 15423 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15837 Bytes vs Beleg 15423 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15757 Bytes vs Beleg 15423 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1430,8 +1797,11 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.416Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.378Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "3d"
+      },
       "screenshot": "dist/final-si-1.png"
     },
     {
@@ -1452,12 +1822,12 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "13224 Bytes (green)"
+              "actual": "13765 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
+              "expected": "nur three/wrapper-helpers/2d-*",
               "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
             },
             {
@@ -1521,7 +1891,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 13224 Bytes vs Beleg 12903 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 13765 Bytes vs Beleg 12903 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1540,13 +1910,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13224 Bytes vs Beleg 12903 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13765 Bytes vs Beleg 12903 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13224 Bytes vs Beleg 12903 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13765 Bytes vs Beleg 12903 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1609,8 +1979,11 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.417Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.381Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "3d"
+      },
       "screenshot": "dist/final-si-2.png"
     },
     {
@@ -1631,12 +2004,12 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "10604 Bytes (green)"
+              "actual": "10457 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
-              "expected": "nur three + wrapper-helpers",
+              "expected": "nur three/wrapper-helpers/2d-*",
               "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
             },
             {
@@ -1646,7 +2019,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -1662,7 +2035,7 @@
               "id": "S2-backface",
               "verdict": "pass",
               "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
-              "actual": "0 BackSide ausserhalb PMREM-Raum, 4 DoubleSide (duenne Teile, zulaessig)"
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 3 DoubleSide (duenne Teile, zulaessig)"
             },
             {
               "id": "S2-flicker",
@@ -1700,7 +2073,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 10604 Bytes vs Beleg 10270 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 10457 Bytes vs Beleg 10270 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1719,13 +2092,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10604 Bytes vs Beleg 10270 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10457 Bytes vs Beleg 10270 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10604 Bytes vs Beleg 10270 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10457 Bytes vs Beleg 10270 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1788,8 +2161,11 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-27T20:12:38.419Z",
-      "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
+      "createdAt": "2026-10-28T23:03:55.383Z",
+      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "route": {
+        "mode": "3d"
+      },
       "screenshot": "dist/final-si-3.png"
     }
   ]

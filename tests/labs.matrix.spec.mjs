@@ -18,16 +18,30 @@ const MATRIX = {
   'ae-2': { labelsMin: 3, units: ['cm'], tasks: [0, 2, 1] },
   'ae-3': { labelsMin: 4, units: ['m'], tasks: [0, 2, 1] },
   'gpu-example': { labelsMin: 9, units: ['mm'], tasks: [0, 2, 1] },
+  'free-handbohrmaschine': { labelsMin: 6, units: ['mm'], tasks: [0, 2, 1] },
+  'chemie-koffein': { labelsMin: 6, units: ['mm'], tasks: [0, 2, 1] },
 };
 
 for (const [id, m] of Object.entries(MATRIX)) {
   test(`Matrix: ${id} erfuellt Sollwerte`, async () => {
     expect(existsSync(`src/models/${id}.js`), 'Modul vorhanden').toBe(true);
     const src = await readFile(`src/models/${id}.js`, 'utf8');
-    const labels = (src.match(/addLabel\s*\(/g) ?? []).length;
-    expect(labels, `addLabel >= ${m.labelsMin}`).toBeGreaterThanOrEqual(m.labelsMin);
-    const measures = (src.match(/addMeasurement\s*\(/g) ?? []).length;
-    expect(measures, 'mindestens 1 Messung').toBeGreaterThanOrEqual(1);
+    if (src.includes("from '2d-svg'") || src.includes('from "2d-svg"')) {
+      // 2D-Route: Labels/Messung als Daten (diagram-Literal), kein three.
+      expect(src, '2D-Datenpfad').toContain("2d-svg");
+      expect(src, 'kein three im 2D-Modul').not.toContain("from 'three'");
+      const kind = /kind\s*:\s*'([a-z-]+)'/.exec(src)?.[1];
+      expect(['er', 'bpmn', 'etl', 'uml', 'bars', 'chain', 'svg', 'generic'], `kind-Whitelist ${kind}`).toContain(kind);
+      const labels = /labels\s*:\s*\[([^\]]*)\]/.exec(src)?.[1] ?? '';
+      const n = (labels.match(/'/g) ?? []).length / 2;
+      expect(n, `diagram.labels >= ${m.labelsMin}`).toBeGreaterThanOrEqual(m.labelsMin);
+      expect(src, 'diagram.measurement').toMatch(/measurement\s*:\s*'[^']{4,}'/);
+    } else {
+      const labels = (src.match(/addLabel\s*\(/g) ?? []).length;
+      expect(labels, `addLabel >= ${m.labelsMin}`).toBeGreaterThanOrEqual(m.labelsMin);
+      const measures = (src.match(/addMeasurement\s*\(/g) ?? []).length;
+      expect(measures, 'mindestens 1 Messung').toBeGreaterThanOrEqual(1);
+    }
     for (const u of m.units) {
       expect(src, `Einheit ${u} im Modul`).toContain(u);
     }

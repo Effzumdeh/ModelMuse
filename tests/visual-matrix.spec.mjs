@@ -6,6 +6,7 @@
  * Bauplan Abschnitt 6 (S3) und Abschnitt 8 (verify:visual). Backlog O-03.
  */
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 
 /** Minimaler PNG-Decoder (8 Bit, RGB/RGBA, non-interlaced) — keine Extra-Dep. */
@@ -115,7 +116,7 @@ async function nonEmptyShot(page, modelId, view) {
     await page.reload();
     await page.waitForSelector('#model-select', { timeout: 30000 });
     await page.selectOption('#model-select', modelId);
-    await page.waitForSelector('#lab-mount iframe', { timeout: 30000 });
+    await page.waitForSelector(mountSelector(modelId), { timeout: 30000 });
     await page.waitForFunction(
       (mid) => document.querySelector('#verify-report strong')?.textContent === mid,
       modelId,
@@ -132,9 +133,18 @@ async function nonEmptyShot(page, modelId, view) {
 }
 
 /** Belegte Modell-IDs (einzige Quelle: Modellmatrix, keine erfundenen IDs). */
-const MODELS = ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'gpu-example'];
+const MODELS = ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'gpu-example', 'free-handbohrmaschine', 'chemie-koffein'];
 const VIEWS = ['overview', 'detail'];
 const SHOT_OPTS = { threshold: 0.2, maxDiffPixelRatio: 0.002, animations: 'disabled', timeout: 30000 };
+
+/** 2D-Route (SVG nativ, hostseitig): kein Guest-iframe, sondern .lab-2d-SVG. */
+function mountSelector(id) {
+  try {
+    const src = readFileSync(`src/models/${id}.js`, 'utf8');
+    if (src.includes("from '2d-svg'") || src.includes('from "2d-svg"')) return '#lab-mount .lab-2d svg';
+  } catch { /* Fallback 3D */ }
+  return '#lab-mount iframe';
+}
 
 for (const id of MODELS) {
   for (const view of VIEWS) {
@@ -142,7 +152,7 @@ for (const id of MODELS) {
       await page.goto('/');
       await page.waitForSelector('#model-select', { timeout: 30000 });
       await page.selectOption('#model-select', id);
-      await page.waitForSelector('#lab-mount iframe', { timeout: 30000 });
+      await page.waitForSelector(mountSelector(id), { timeout: 30000 });
       // Echtes Lade-Signal: player.load() wartet auf model-ready (erster Frame,
       // frame-bootstrap.js) und rendert DANN den Verify-Report (ui-report.js:
       // strongId = report.modelId). Erst wenn der Report DIESES Modell zeigt,

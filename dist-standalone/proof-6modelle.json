@@ -1,0 +1,117 @@
+{
+  "ok": true,
+  "url": "http://127.0.0.1:8131/",
+  "shots": [
+    {
+      "id": "gpu-example",
+      "view": "overview",
+      "nonBgRatio": 0.9857,
+      "mean": 25.2,
+      "sd": 31.9,
+      "bytes": 144211,
+      "shot": "dist-standalone/proof-gpu-example-overview.png"
+    },
+    {
+      "id": "gpu-example",
+      "view": "detail",
+      "nonBgRatio": 0.5019,
+      "mean": 18.4,
+      "sd": 27.5,
+      "bytes": 53555,
+      "shot": "dist-standalone/proof-gpu-example-detail.png"
+    },
+    {
+      "id": "si-1",
+      "view": "overview",
+      "nonBgRatio": 0.983,
+      "mean": 25.2,
+      "sd": 29.1,
+      "bytes": 112000,
+      "shot": "dist-standalone/proof-si-1-overview.png"
+    },
+    {
+      "id": "si-1",
+      "view": "detail",
+      "nonBgRatio": 0.9682,
+      "mean": 40.4,
+      "sd": 42.5,
+      "bytes": 222040,
+      "shot": "dist-standalone/proof-si-1-detail.png"
+    },
+    {
+      "id": "si-2",
+      "view": "overview",
+      "nonBgRatio": 0.9438,
+      "mean": 24.9,
+      "sd": 31.9,
+      "bytes": 142713,
+      "shot": "dist-standalone/proof-si-2-overview.png"
+    },
+    {
+      "id": "si-2",
+      "view": "detail",
+      "nonBgRatio": 0.9286,
+      "mean": 21.9,
+      "sd": 27.9,
+      "bytes": 74780,
+      "shot": "dist-standalone/proof-si-2-detail.png"
+    },
+    {
+      "id": "si-3",
+      "view": "overview",
+      "nonBgRatio": 0.9133,
+      "mean": 28.6,
+      "sd": 35.4,
+      "bytes": 177702,
+      "shot": "dist-standalone/proof-si-3-overview.png"
+    },
+    {
+      "id": "si-3",
+      "view": "detail",
+      "nonBgRatio": 0.9133,
+      "mean": 28.6,
+      "sd": 35.3,
+      "bytes": 177609,
+      "shot": "dist-standalone/proof-si-3-detail.png"
+    },
+    {
+      "id": "free-handbohrmaschine",
+      "view": "overview",
+      "nonBgRatio": 0.9844,
+      "mean": 23.2,
+      "sd": 28.4,
+      "bytes": 90506,
+      "shot": "dist-standalone/proof-free-handbohrmaschine-overview.png"
+    },
+    {
+      "id": "free-handbohrmaschine",
+      "view": "detail",
+      "nonBgRatio": 0.9689,
+      "mean": 27.4,
+      "sd": 33,
+      "bytes": 134135,
+      "shot": "dist-standalone/proof-free-handbohrmaschine-detail.png"
+    },
+    {
+      "id": "chemie-koffein",
+      "view": "overview",
+      "nonBgRatio": 0.9391,
+      "mean": 28.5,
+      "sd": 42,
+      "bytes": 165615,
+      "shot": "dist-standalone/proof-chemie-koffein-overview.png"
+    },
+    {
+      "id": "chemie-koffein",
+      "view": "detail",
+      "nonBgRatio": 0.7215,
+      "mean": 47.8,
+      "sd": 69.2,
+      "bytes": 228518,
+      "shot": "dist-standalone/proof-chemie-koffein-detail.png"
+    }
+  ],
+  "errors": 0,
+  "pageerrors": 0,
+  "createdAt": "2026-10-28T23:04:58.853Z"
+}

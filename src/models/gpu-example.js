@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, CylinderGeometry, PlaneGeometry, CircleGeometry, TorusGeometry, ExtrudeGeometry, Shape, DataTexture, DirectionalLight, HemisphereLight, PointLight, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, Vector3, Matrix4, Quaternion, PMREMGenerator } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, CylinderGeometry, PlaneGeometry, CircleGeometry, TorusGeometry, ExtrudeGeometry, Shape, DataTexture, DirectionalLight, HemisphereLight, PointLight, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping, PCFShadowMap, Vector3, Matrix4, Quaternion, PMREMGenerator } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Graphics Card', category: 'hardware', detailLevel: 2, parts: ['PCB','GPU-Die','VRAM 1','VRAM 2','Luefter 1','Luefter 2','Heatpipe','Backplate','PCIe-x16-Stecker','Stromanschluss','Slotblende'], units: 'm' };
@@ -13,10 +13,10 @@ const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: tru
 renderer.setPixelRatio(dpr);
 renderer.setSize(w, h);
 renderer.toneMapping = ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
+renderer.toneMappingExposure = 1.0;
 renderer.outputColorSpace = SRGBColorSpace;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = PCFSoftShadowMap;
+renderer.shadowMap.type = PCFShadowMap;
 renderer.setClearColor(0x0b0e14, 1);
 container.appendChild(renderer.domElement);
 const scene = new Scene();
@@ -29,9 +29,11 @@ controls.update();
 const pmrem = new PMREMGenerator(renderer);
 const room = new Scene();
 const roomGeo = new BoxGeometry(2, 2, 2);
-const roomMat = new MeshBasicMaterial({ color: 0x11141a, side: 1 });
+const roomMat = new MeshStandardMaterial({ color: 0xcccccc, side: 1 });
 const roomMesh = new Mesh(roomGeo, roomMat);
 room.add(roomMesh);
+const roomLight = new PointLight(0xffffff, 5, 28, 2); // auf 2-m-Raum skaliert (Referenz-Bestrahlungsstaerke wie RoomEnvironment; 900 gilt nur im 30-m-Raum)
+room.add(roomLight);
 const softGeo = new PlaneGeometry(1, 0.5);
 const soft1 = new Mesh(softGeo, new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide }));
 soft1.position.set(0, 0.9, 0.2);
@@ -52,17 +54,18 @@ soft1.material.dispose();
 soft2.material.dispose();
 const hemi = new HemisphereLight(0xdfeaff, 0x1a1410, 0.35);
 scene.add(hemi);
-const key = new DirectionalLight(0xffffff, 3.0);
+const key = new DirectionalLight(0xffffff, 2.5);
 key.position.set(0.5, 0.8, 0.6);
 key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048);
+key.shadow.mapSize.set(1024, 1024);
 const frustumKeys = ['left', 'right', 'top', 'bottom'];
 const frustumVals = [-0.3, 0.3, 0.3, -0.3];
 for (let fi = 0; fi < 4; fi++) { key.shadow.camera[frustumKeys[fi]] = frustumVals[fi]; }
 key.shadow.camera.near = 0.1;
 key.shadow.camera.far = 3;
-key.shadow.bias = -0.0005;
+key.shadow.bias = -0.0001;
 key.shadow.normalBias = 0.002;
+key.shadow.radius = 4;
 key.shadow.camera.updateProjectionMatrix();
 scene.add(key);
 const rim = new DirectionalLight(0xbcd0ff, 0.7);
@@ -111,8 +114,9 @@ const v = y % 4 === 0 ? 185 : 150 + (x + y) % 7;
 return [v, v + 3, v + 6];
 });
 pcbTex.wrapS = RepeatWrapping; pcbTex.wrapT = RepeatWrapping; brushTex.wrapS = RepeatWrapping; brushTex.wrapT = RepeatWrapping;
+brushTex.colorSpace = SRGBColorSpace;
 pcbTex.repeat.set(12, 6); brushTex.repeat.set(10, 10);
-function M(o) { o.envMapIntensity = 0.55; return new MeshStandardMaterial(o); }
+function M(o) { return new MeshStandardMaterial(o); }
 const pcbMat = M({ map: pcbTex, metalness: 0.15, roughness: 0.65 });
 const capMat = M({ color: 0x1a1d22, metalness: 0.5, roughness: 0.4 });
 const coilMat = M({ color: 0x2a2d33, metalness: 0.6, roughness: 0.4 });
@@ -376,6 +380,9 @@ floorM.position.set(0, -0.072, 0);
 floorM.receiveShadow = true;
 scene.add(floorM);
 card.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+// Negativ-Liste (Guide §2): Schatten nur auf Hauptbauteilen — Kleinteile
+// (Pins, Pads, Markierungen, Cavities, Slots, DP-Rahmen, Schrauben) werfen keinen Schatten.
+for (const tiny of [pinInst, padInst, markInst, cavInst, slotInst, dpInst, dpFrame, fanScrew, backScrew, brkScrew, goldF]) { tiny.castShadow = false; }
 const labels = [];
 labels.push(addLabel(scene, 'GPU-Die', [-0.02, -0.01, 0.004], { id: 'l1', level: 'aufbau', sizePx: 16, leader: true }));
 labels.push(addLabel(scene, 'VRAM 1', [-0.032, 0.008, 0.003], { id: 'l2', level: 'aufbau', sizePx: 16, leader: true }));

@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-27T19:29:45.717Z",
+  "createdAt": "2026-10-28T23:05:01.562Z",
   "versions": {
     "three": "0.186.1",
     "esbuild": "0.28.2",
@@ -26,65 +26,87 @@
     "budgetMeshCountGreenBis": 120,
     "budgetMinFps": 30,
     "budgetFirstFrameMs": 8000,
-    "budgetHeapMb": 256
+    "budgetHeapMb": 256,
+    "budgetSvgNodes": 800,
+    "budget2dModuleBytes": 34000
   },
   "measured": {
-    "threeBundle": 607591,
+    "threeBundle": 610955,
     "alpine": 55919,
     "helpers": 7827,
-    "shellJs": 62952,
-    "runtimeJs": 138340,
-    "shellJsTotal": 201292,
-    "css": 6104,
-    "modelsTotal": 136888,
+    "shellJs": 65217,
+    "runtimeJs": 167509,
+    "shellJsTotal": 232726,
+    "css": 6297,
+    "modelsTotal": 89720,
     "modelFiles": [
       {
         "file": "ae-1.js",
-        "bytes": 12041
+        "bytes": 1234
       },
       {
         "file": "ae-2.js",
-        "bytes": 12105
+        "bytes": 1304
       },
       {
         "file": "ae-3.js",
-        "bytes": 14556
+        "bytes": 1187
+      },
+      {
+        "file": "chemie-koffein.js",
+        "bytes": 10258
       },
       {
         "file": "dup-1.js",
-        "bytes": 10702
+        "bytes": 1282
       },
       {
         "file": "dup-2.js",
-        "bytes": 12845
+        "bytes": 1188
       },
       {
         "file": "dup-3.js",
-        "bytes": 14727
+        "bytes": 1169
+      },
+      {
+        "file": "free-handbohrmaschine.js",
+        "bytes": 10155
       },
       {
         "file": "gpu-example.js",
-        "bytes": 20985
+        "bytes": 21964
       },
       {
         "file": "si-1.js",
-        "bytes": 15570
+        "bytes": 15757
       },
       {
         "file": "si-2.js",
-        "bytes": 12996
+        "bytes": 13765
       },
       {
         "file": "si-3.js",
-        "bytes": 10361
+        "bytes": 10457
       }
     ],
-    "manifests": 32618,
-    "schemas": 6380,
-    "manifestsSchemas": 38998
+    "manifests": 39732,
+    "schemas": 6822,
+    "manifestsSchemas": 46554
   },
   "maxViolations": [],
-  "buildHash": "d2ac3451ba94338aa3809ea667aa3d44f970d14dd958f37291dadc3825992543",
-  "artefaktSha256": "d162860fc3db1589d858dcde76227c6a7b9cd9396b29fe49e4e87531a6a3f931",
+  "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+  "artefaktSha256": "9f3d8551980fc601efa5f3cf3a768f29d895a929fc46b9b397d9765f4973e098",
+  "routes": {
+    "p0": true,
+    "p1_2d": true,
+    "models2d": [
+      "ae-1",
+      "ae-2",
+      "ae-3",
+      "dup-1",
+      "dup-2",
+      "dup-3"
+    ]
+  },
   "verdict": "pass"
 }

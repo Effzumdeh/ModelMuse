@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry, ExtrudeGeometry, Shape, DataTexture, DirectionalLight, HemisphereLight, PointLight, Line, LineBasicMaterial, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, Vector3, BufferGeometry, Matrix4, Quaternion, PMREMGenerator } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, MeshStandardMaterial, MeshBasicMaterial, ShadowMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, PlaneGeometry, CircleGeometry, ExtrudeGeometry, Shape, DataTexture, DirectionalLight, HemisphereLight, PointLight, Line, LineBasicMaterial, DoubleSide, LinearFilter, RepeatWrapping, SRGBColorSpace, ACESFilmicToneMapping, PCFShadowMap, Vector3, BufferGeometry, Matrix4, Quaternion, PMREMGenerator } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Netzwerk-Verkabelung (SI-2)', category: 'hardware', detailLevel: 2, parts: ['Switch','Router','Patchfeld','Client'], units: 'm' };
@@ -13,7 +13,7 @@ renderer.toneMapping = ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 renderer.outputColorSpace = SRGBColorSpace;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = PCFSoftShadowMap;
+renderer.shadowMap.type = PCFShadowMap;
 renderer.setClearColor(0x0b0e14, 1);
 const dpr0 = p.dpr || 1;
 const dpr = Math.min(2, Math.max(1, dpr0));
@@ -27,9 +27,11 @@ container.appendChild(renderer.domElement);
 const pmrem = new PMREMGenerator(renderer);
 const room = new Scene();
 const roomGeo = new BoxGeometry(4, 4, 4);
-const roomMat = new MeshBasicMaterial({ color: 0x11141a, side: 1 });
+const roomMat = new MeshStandardMaterial({ color: 0xcccccc, side: 1 });
 const roomMesh = new Mesh(roomGeo, roomMat);
 room.add(roomMesh);
+const roomLight = new PointLight(0xffffff, 5, 28, 2);
+room.add(roomLight);
 const sbGeo = new PlaneGeometry(2, 2);
 const sbMatA = new MeshBasicMaterial({ color: 0xffffff, side: DoubleSide });
 const sbA = new Mesh(sbGeo, sbMatA);
@@ -43,6 +45,7 @@ sbB.rotation.y = Math.PI / 4;
 room.add(sbB);
 const envRT = pmrem.fromScene(room, 0.04);
 scene.environment = envRT.texture;
+scene.environmentIntensity = 0.55;
 pmrem.dispose();
 roomGeo.dispose();
 sbGeo.dispose();
@@ -79,20 +82,12 @@ const matLED = new MeshStandardMaterial({ color: 0x061206, metalness: 0.0, rough
 const matScrew = new MeshStandardMaterial({ color: 0xb8bcc4, metalness: 1.0, roughness: 0.3 });
 const matPlug = new MeshStandardMaterial({ color: 0x2b6cff, metalness: 0.0, roughness: 0.6 });
 const matAntenna = new MeshStandardMaterial({ color: 0x111318, metalness: 0.2, roughness: 0.7 });
-const stdMats = [matSwitch, matRouter, matPatch, matClient, matPort, matLED, matScrew, matPlug, matAntenna];
-if (scene.environmentIntensity !== undefined) {
-scene.environmentIntensity = 0.55;
-} else {
-for (let i = 0; i < stdMats.length; i++) {
-stdMats[i].envMapIntensity = 0.55;
-}
-}
 const hemi = new HemisphereLight(0xdfeaff, 0x1a1410, 0.35);
 scene.add(hemi);
-const key = new DirectionalLight(0xffffff, 2.0);
+const key = new DirectionalLight(0xffffff, 2.5);
 key.position.set(0.9, 1.4, 0.8);
 key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048);
+key.shadow.mapSize.set(1024, 1024);
 const fk = ['left', 'right', 't' + 'op', 'bottom'];
 const fv = [-1, 1, 1, -1];
 for (let i = 0; i < 4; i++) {
@@ -100,18 +95,19 @@ key.shadow.camera[fk[i]] = fv[i];
 }
 key.shadow.camera.near = 0.1;
 key.shadow.camera.far = 4;
-key.shadow.bias = -0.0005;
+key.shadow.bias = -0.0001;
 key.shadow.normalBias = 0.002;
+key.shadow.radius = 4;
 key.shadow.camera.updateProjectionMatrix();
 scene.add(key);
 const rim = new DirectionalLight(0xbcd0ff, 0.7);
 rim.position.set(-0.6, 0.5, -1.0);
 scene.add(rim);
-const acc = new PointLight(0xffd9a0, 3, 1.5, 2);
+const acc = new PointLight(0xffd9a0, 0.12, 1.5, 2);
 acc.position.set(0.3, 0.1, 0.5);
 scene.add(acc);
 const floorGeo = new CircleGeometry(0.55, 48);
-const floorMat = new ShadowMaterial({ opacity: 0.35 });
+const floorMat = new ShadowMaterial({ opacity: 0.55 });
 const floor = new Mesh(floorGeo, floorMat);
 floor.rotation.x = -Math.PI / 2;
 floor.position.y = -0.28;
@@ -242,10 +238,24 @@ const lineGeo2 = new BufferGeometry().setFromPoints([c2a, c2b, c2c]);
 const lineMat2 = new LineBasicMaterial({ color: 0x2b9bff });
 const line2 = new Line(lineGeo2, lineMat2);
 model.add(line2);
+const c3a = new Vector3(0.15, -0.22, 0.065);
+const c3b = new Vector3(0.15, -0.02, 0.16);
+const c3c = new Vector3(0.15, 0.18, 0.125);
+const lineGeo3 = new BufferGeometry().setFromPoints([c3a, c3b, c3c]);
+const lineMat3 = new LineBasicMaterial({ color: 0xffc21a });
+const line3 = new Line(lineGeo3, lineMat3);
+model.add(line3);
+const c4a = new Vector3(0.10, -0.02, 0.10);
+const c4b = new Vector3(0.26, -0.03, 0.16);
+const c4c = new Vector3(0.37, -0.05, 0.20);
+const lineGeo4 = new BufferGeometry().setFromPoints([c4a, c4b, c4c]);
+const lineMat4 = new LineBasicMaterial({ color: 0x2b9bff });
+const line4 = new Line(lineGeo4, lineMat4);
+model.add(line4);
 const gPlug = new BoxGeometry(0.02, 0.015, 0.03);
-const plugs = new InstancedMesh(gPlug, matPlug, 4);
-const plugPos = [[-0.15, -0.22, 0.065], [-0.15, 0.18, 0.125], [0.15, -0.22, 0.065], [0.37, -0.05, 0.20]];
-for (let i = 0; i < 4; i++) {
+const plugs = new InstancedMesh(gPlug, matPlug, 6);
+const plugPos = [[-0.15, -0.22, 0.065], [-0.15, 0.18, 0.125], [0.15, -0.22, 0.065], [0.37, -0.05, 0.20], [0.15, 0.18, 0.125], [0.10, -0.02, 0.10]];
+for (let i = 0; i < 6; i++) {
 vv.set(plugPos[i][0], plugPos[i][1], plugPos[i][2]);
 m4.compose(vv, qt, ss);
 plugs.setMatrixAt(i, m4);
@@ -260,7 +270,7 @@ labels.push(addLabel(scene, 'Switch', [0.0, 0.18, 0.14], { id: 'l1', level: 'auf
 labels.push(addLabel(scene, 'Router', [0.0, -0.02, 0.10], { id: 'l2', level: 'aufbau', sizePx: 16, leader: true }));
 labels.push(addLabel(scene, 'Patchfeld', [0.0, -0.22, 0.08], { id: 'l3', level: 'aufbau', sizePx: 16, leader: true }));
 labels.push(addLabel(scene, 'Client', [0.42, -0.05, 0.40], { id: 'l4', level: 'aufbau', sizePx: 16, leader: true }));
-const meas = addMeasurement(scene, [-0.20, -0.22, 0.02], [0.20, -0.22, 0.02], 'Kabellaenge: 2 m', { id: 'm1', level: 'aufbau', unit: 'm' });
+const meas = addMeasurement(scene, [-1.00, -0.22, 0.02], [1.00, -0.22, 0.02], 'Kabellaenge: 2 m', { id: 'm1', level: 'aufbau', unit: 'm' });
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, -0.02, 0);
 controls.enableDamping = !p.reducedMotion;

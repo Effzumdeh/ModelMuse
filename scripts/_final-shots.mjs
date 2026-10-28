@@ -12,7 +12,7 @@ import { chromium } from 'playwright';
 
 const ROOT = resolve('.');
 const PORT = Number(process.argv[2] ?? 8097);
-const MODELS = ['ae-1', 'ae-2', 'ae-3', 'dup-1', 'dup-2', 'dup-3', 'gpu-example', 'si-1', 'si-2', 'si-3'];
+const MODELS = ['ae-1', 'ae-2', 'ae-3', 'dup-1', 'dup-2', 'dup-3', 'gpu-example', 'si-1', 'si-2', 'si-3', 'free-handbohrmaschine', 'chemie-koffein'];
 const SCRATCH = 'C:/Users/flori/AppData/Local/hermes/cache/scratch';
 
 const TYPES = {

@@ -8,5 +8,7 @@
   "ae-1": { "labelsMin": 4, "units": ["cm"], "tasks": [0, 2, 1] },
   "ae-2": { "labelsMin": 3, "units": ["cm"], "tasks": [0, 2, 1] },
   "ae-3": { "labelsMin": 4, "units": ["m"], "tasks": [0, 2, 1] },
-  "gpu-example": { "labelsMin": 10, "units": ["mm"], "tasks": [0, 2, 1] }
+  "gpu-example": { "labelsMin": 10, "units": ["mm"], "tasks": [0, 2, 1] },
+  "free-handbohrmaschine": { "labelsMin": 6, "units": ["mm"], "tasks": [0, 2, 1] },
+  "chemie-koffein": { "labelsMin": 6, "units": ["mm"], "tasks": [0, 2, 1] }
 }
