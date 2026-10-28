@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-28T23:03:55.383Z",
+  "createdAt": "2026-10-28T23:14:38.296Z",
   "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
   "routes": {
     "p0": true,
@@ -47,7 +47,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -84,7 +84,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -183,7 +183,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.354Z",
+      "createdAt": "2026-10-28T23:14:38.267Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "2d",
@@ -224,7 +224,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
@@ -355,12 +355,12 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         }
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.359Z",
+      "createdAt": "2026-10-28T23:14:38.271Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "2d",
@@ -537,7 +537,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.359Z",
+      "createdAt": "2026-10-28T23:14:38.272Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "2d",
@@ -578,7 +578,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -715,12 +715,12 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         }
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.365Z",
+      "createdAt": "2026-10-28T23:14:38.277Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "3d"
@@ -896,7 +896,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.366Z",
+      "createdAt": "2026-10-28T23:14:38.278Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "2d",
@@ -1073,7 +1073,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.367Z",
+      "createdAt": "2026-10-28T23:14:38.279Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "2d",
@@ -1250,7 +1250,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.368Z",
+      "createdAt": "2026-10-28T23:14:38.279Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "2d",
@@ -1291,7 +1291,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -1433,7 +1433,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.371Z",
+      "createdAt": "2026-10-28T23:14:38.282Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "3d"
@@ -1473,7 +1473,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 2
+          "durationMs": 3
         },
         {
           "layer": "S2",
@@ -1615,7 +1615,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.375Z",
+      "createdAt": "2026-10-28T23:14:38.289Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "3d"
@@ -1797,7 +1797,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.378Z",
+      "createdAt": "2026-10-28T23:14:38.292Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "3d"
@@ -1979,7 +1979,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.381Z",
+      "createdAt": "2026-10-28T23:14:38.294Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "3d"
@@ -2062,7 +2062,7 @@
               "actual": "13 Meshes statisch (Mesh 5 + Instanced 8)"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S3",
@@ -2161,7 +2161,7 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:03:55.383Z",
+      "createdAt": "2026-10-28T23:14:38.296Z",
       "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
       "route": {
         "mode": "3d"

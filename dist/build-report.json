@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-28T23:05:01.562Z",
+  "createdAt": "2026-10-28T23:14:37.817Z",
   "versions": {
     "three": "0.186.1",
     "esbuild": "0.28.2",
@@ -95,7 +95,7 @@
   },
   "maxViolations": [],
   "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
-  "artefaktSha256": "9f3d8551980fc601efa5f3cf3a768f29d895a929fc46b9b397d9765f4973e098",
+  "artefaktSha256": "c5569e18ff79894b97beeab38e2482de1a7f3852adce3d4e2383887fb7bc2f7b",
   "routes": {
     "p0": true,
     "p1_2d": true,
