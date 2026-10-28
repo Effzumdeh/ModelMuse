@@ -115,7 +115,7 @@ try {
   const out = {
     startUtc: new Date(t0).toISOString(), endeUtc: new Date().toISOString(),
     segmente: seg, gesamtS, budgetS: BUDGET_S, budgetGehalten, alleFehlerfrei,
-    bemerkung: 'Demo ohne Generierung: S1 F2-Ersatz (Live 92-401 s ausserhalb Budget), S2 F3-Datei-Beleg, S3 setLevel + F4-Anwesenheit. Keine erfundenen Zeiten/Pfade.'
+    bemerkung: 'Demo ohne Generierung: S1 F2-Ersatz (Live 92-401 s ausserhalb Budget), S2 F3-Datei-Beleg, S3 setLevel + F4-Anwesenheit. Modelle (Meta-Regel): Proxy-Default meta-muse/muse-spark-1.3-contributor; Demo ohne Modell-Call, keine Fremdmodelle. Keine erfundenen Zeiten/Pfade.'
       + (notizen.length > 0 ? ` NOTIZEN: ${notizen.join(' | ')}` : ''),
   };
   await writeFile('dist/demo-timed.json', JSON.stringify(out, null, 2));

@@ -3,7 +3,7 @@ import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
-  PROXY_DEFAULT_PORT, OPENROUTER_BASE,
+  PROXY_DEFAULT_PORT, BASETEN_BASE,
   PROVIDERS, DEFAULT_PROVIDER, mapStatusToCode, parseGenerateBody,
   keyShapeOk, upstreamChatBody, createProxyServer,
 } from '../scripts/proxy.mjs';
@@ -120,24 +120,25 @@ test('Server: /generate ohne Key -> E-GEN-CONFIG (nie Upstream)', async () => {
   }
 });
 
-test('Registry: openrouter-Pfad (byokOnly, NUR Gratis-Slug, localhost-Bindung bleibt)', async () => {
-  assert.equal(OPENROUTER_BASE, 'https://openrouter.ai/api/v1');
-  assert.equal(PROVIDERS.openrouter.base, 'https://openrouter.ai/api/v1');
-  assert.equal(PROVIDERS.openrouter.byokOnly, true);
-  assert.equal(PROVIDERS.openrouter.defaultModel, 'google/gemma-4-26b-a4b-it:free');
-  assert.deepEqual(PROVIDERS.openrouter.models, ['google/gemma-4-26b-a4b-it:free']);
-  assert.ok(!PROVIDERS.openrouter.models.some((m) => /muse/i.test(m)), 'KEIN Spark auf OpenRouter-Pfad');
+test('Registry: baseten-Pfad (byokOnly, NUR Meta-Modell, localhost-Bindung bleibt)', async () => {
+  assert.equal(BASETEN_BASE, 'https://inference.baseten.co/v1');
+  assert.equal(PROVIDERS.baseten.base, 'https://inference.baseten.co/v1');
+  assert.equal(PROVIDERS.baseten.byokOnly, true);
+  assert.equal(PROVIDERS.baseten.defaultModel, 'meta-models/muse-spark-open-1026');
+  assert.deepEqual(PROVIDERS.baseten.models, ['meta-models/muse-spark-open-1026']);
+  assert.ok(PROVIDERS.baseten.models.every((m) => /muse/i.test(m)), 'NUR Meta-Modelle (Meta-Regel)');
   assert.equal(DEFAULT_PROVIDER, 'meta-muse');
-  const okFree = parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'openrouter', model: 'google/gemma-4-26b-a4b-it:free' });
+  const okFree = parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
   assert.equal(okFree.ok, true);
-  assert.equal(okFree.model, 'google/gemma-4-26b-a4b-it:free');
-  assert.equal(parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'openrouter', model: 'erfunden-99' }).code, 'E-GEN-404');
+  assert.equal(okFree.model, 'meta-models/muse-spark-open-1026');
+  assert.equal(parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'baseten', model: 'erfunden-99' }).code, 'E-GEN-404');
+  assert.equal(parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'openrouter', model: 'google/gemma-4-26b-a4b-it:free' }).code, 'E-GEN-404', 'openrouter inaktiv (Baseten-Migration)');
 });
 
-test('Server: openrouter ohne BYOK -> E-GEN-CONFIG (Meta-Server-Key geht NIE an OpenRouter)', async () => {
+test('Server: baseten ohne BYOK -> E-GEN-CONFIG (Meta-Server-Key geht NIE an Baseten)', async () => {
   const keepEnv = { ...process.env };
   process.env.META_API_KEY = 'LLM_12345678_abcdefghijklmnop';
-  delete process.env.OPENROUTER_API_KEY;
+  delete process.env.BASETEN_API_KEY;
   process.env.KEY_FILE = 'C:/nonexistent-definitiv-kein-key.json';
   const server = createProxyServer();
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -146,7 +147,7 @@ test('Server: openrouter ohne BYOK -> E-GEN-CONFIG (Meta-Server-Key geht NIE an 
     const r = await fetch(`http://127.0.0.1:${port}/generate`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ prompt: 'Begriff Windkraftanlage lang genug', provider: 'openrouter', model: 'google/gemma-4-26b-a4b-it:free' }),
+      body: JSON.stringify({ prompt: 'Begriff Windkraftanlage lang genug', provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }),
     });
     assert.equal(r.status, 500);
     const j = await r.json();

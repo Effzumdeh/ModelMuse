@@ -1,0 +1,72 @@
+{
+  "createdAt": "2026-10-28T22:48:34.525Z",
+  "offline": true,
+  "models": [
+    {
+      "id": "dup-1",
+      "kind": "er",
+      "svgBytes": 1554,
+      "shapes": 15,
+      "wellformed": true,
+      "png": "dist-2d/dup-1.png",
+      "pngBytes": 10606,
+      "nonWhitePixels": 33906,
+      "verdict": "pass"
+    },
+    {
+      "id": "dup-2",
+      "kind": "bpmn",
+      "svgBytes": 2012,
+      "shapes": 18,
+      "wellformed": true,
+      "png": "dist-2d/dup-2.png",
+      "pngBytes": 14064,
+      "nonWhitePixels": 26372,
+      "verdict": "pass"
+    },
+    {
+      "id": "dup-3",
+      "kind": "etl",
+      "svgBytes": 1683,
+      "shapes": 15,
+      "wellformed": true,
+      "png": "dist-2d/dup-3.png",
+      "pngBytes": 9087,
+      "nonWhitePixels": 42117,
+      "verdict": "pass"
+    },
+    {
+      "id": "ae-1",
+      "kind": "uml",
+      "svgBytes": 1489,
+      "shapes": 14,
+      "wellformed": true,
+      "png": "dist-2d/ae-1.png",
+      "pngBytes": 10630,
+      "nonWhitePixels": 48486,
+      "verdict": "pass"
+    },
+    {
+      "id": "ae-2",
+      "kind": "bars",
+      "svgBytes": 1790,
+      "shapes": 18,
+      "wellformed": true,
+      "png": "dist-2d/ae-2.png",
+      "pngBytes": 8302,
+      "nonWhitePixels": 30225,
+      "verdict": "pass"
+    },
+    {
+      "id": "ae-3",
+      "kind": "chain",
+      "svgBytes": 1917,
+      "shapes": 19,
+      "wellformed": true,
+      "png": "dist-2d/ae-3.png",
+      "pngBytes": 9910,
+      "nonWhitePixels": 50689,
+      "verdict": "pass"
+    }
+  ]
+}

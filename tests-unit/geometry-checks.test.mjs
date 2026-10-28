@@ -129,12 +129,13 @@ test('countMeshesStatic + scanMaterialFlags auf si-1', async () => {
   assert.equal(flags.transmission + flags.iridescence + flags.sheen, 0);
 });
 
-test('verifyGeometryLayer statisch: alle zehn Modelle pass', async () => {
+test('verifyGeometryLayer statisch: alle kuratierten Modelle pass (3D)', async () => {
   const { readdir } = await import('node:fs/promises');
   const files = (await readdir('src/models')).filter((f) => f.endsWith('.js'));
-  assert.ok(files.length === 10);
+  assert.ok(files.length >= 10);
   for (const f of files) {
     const src = await readFile(`src/models/${f}`, 'utf8');
+    if (src.includes("from '2d-svg'") || src.includes('from "2d-svg"')) continue; // 2D: S2-light statt Geometrie
     const { layer } = verifyGeometryLayer(src, null);
     assert.equal(layer.layer, 'S2');
     assert.equal(layer.verdict, 'pass', `${f}: ${JSON.stringify(layer.criteria.filter((c) => c.verdict !== 'pass'))}`);

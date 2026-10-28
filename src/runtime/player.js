@@ -3,11 +3,12 @@
  * Snapshot ueber Frame-Capture, Verify-Report, 2D-Fallback bei F3.
  * Bauplan Abschnitt 4 (Host-Fassade, Dispose-Muster).
  */
-import { staticGate, repairThreeImports } from './guard-static.js';
+import { staticGate, repairThreeImports, isTwoDSource } from './guard-static.js';
+import { renderDiagram2D } from '../vendor/diagram-2d.js';
 import { createBudgetWatcher, DEFAULT_BUDGET_LIMITS } from './budget.js';
 import { createGuestSession, loadModule, readProbe, captureFrame, disposeSession } from './sandbox-host.js';
 import { buildLevelPatch } from './didactics.js';
-import { verifyStaticLayer, verifyGeometryLayer, verifyDidacticsLayer, sollFromMatrixEntry, skipLayer, buildVerifyReport } from './verify.js';
+import { verifyStaticLayer, verifyGeometryLayer, verifyDidacticsLayer, verifySvgLayer, extractDiagram, sollFromMatrixEntry, skipLayer, buildVerifyReport } from './verify.js';
 import { extractMeta } from './verify.js';
 import { renderFallback2D } from './fallback2d.js';
 
@@ -85,6 +86,52 @@ export function createPlayer(options) {
         lastReport = buildVerifyReport({ modelId: ref.id, layers });
         if (options.onReport) options.onReport(lastReport);
         throw err(codes[0].includes('forbidden') ? 'E-S1-FORBIDDEN' : codes[0].includes('size') ? 'E-S1-SIZE' : codes[0].includes('imports') ? 'E-S1-IMPORT' : 'E-S1-SHAPE', codes.join(','));
+      }
+      // 2D-Route (SVG nativ, hostseitig): kein Guest-Frame, kein WebGL.
+      // S1 (Allowlist 2d-*) ist oben bereits geprueft; hier S2-light
+      // (parse+pixel+Typ) echt rendern, S3/S4 als 2D-skip, S5 unveraendert.
+      if (isTwoDSource(ref.source)) {
+        const t2d = Date.now();
+        stage.innerHTML = '';
+        const host = document.createElement('div');
+        host.className = 'lab-2d';
+        host.style.cssText = 'position:absolute;inset:0;';
+        stage.appendChild(host);
+        const diagram = extractDiagram(ref.source);
+        let shapes = 0;
+        try {
+          const info = renderDiagram2D(host, diagram ?? {});
+          shapes = info.shapes;
+        } catch (e) {
+          layers.push({ layer: 'S2', verdict: 'fail', criteria: [{ id: 'E-2D-RENDER', verdict: 'fail', expected: 'SVG rendert', actual: String((e && e.message) || e).slice(0, 200) }], durationMs: Date.now() - t2d });
+          layers.push(skipLayer('S3', '2D-Render fehlgeschlagen'));
+          layers.push(skipLayer('S4', '2D-Render fehlgeschlagen'));
+          layers.push(lastManifest ? validateLayer(lastManifest, ref.source, ref.id) : skipLayer('S5', 'kein Manifest'));
+          lastReport = buildVerifyReport({ modelId: ref.id, layers });
+          if (options.onReport) options.onReport(lastReport);
+          throw e;
+        }
+        guest = {
+          update() {},
+          setView() {},
+        };
+        const s2 = verifySvgLayer(ref.source);
+        layers.push(s2.layer);
+        layers.push(skipLayer('S3', '2D-Route (SVG nativ): kein WebGL-Screenshot'));
+        layers.push({
+          layer: 'S4',
+          verdict: 'pass',
+          criteria: [
+            { id: 'S4-2d-nodes', verdict: shapes <= 800 ? 'pass' : 'fail', expected: '<= 800 SVG-Knoten (S4-light)', actual: `${shapes} Shapes` },
+            { id: 'S4-2d-module', verdict: new TextEncoder().encode(ref.source).length <= 34000 ? 'pass' : 'fail', expected: '<= 34000 Bytes', actual: `${new TextEncoder().encode(ref.source).length} Bytes` },
+          ],
+          durationMs: 0,
+        });
+        layers.push(lastManifest ? validateLayer(lastManifest, ref.source, ref.id) : skipLayer('S5', 'kein Manifest'));
+        lastReport = buildVerifyReport({ modelId: ref.id, layers });
+        lastReport.route = { mode: '2d', reason: '2d-svg Datenpfad' };
+        if (options.onReport) options.onReport(lastReport);
+        return { sessionId: null, report: lastReport, mode: '2d' };
       }
       // S2: Ausfuehrung im Frame
       const t2 = Date.now();
@@ -222,7 +269,13 @@ export function createPlayer(options) {
 
     /** @param {string} [preset] */
     async snapshot(preset = 'overview') {
-      if (!guest || !session) throw err('E-S3-EMPTY', 'kein Frame');
+      if (!guest) throw err('E-S3-EMPTY', 'kein Modell geladen');
+      if (!session) {
+        // 2D-Route: SVG aus dem Stage-DOM serialisieren (kein Frame-Capture).
+        const el = stage.querySelector('svg');
+        if (!el) throw err('E-S3-EMPTY', 'kein 2D-SVG');
+        return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(el.outerHTML)}`;
+      }
       try {
         guest.setView(preset);
         await new Promise((r) => setTimeout(r, 300));

@@ -76,11 +76,38 @@ Reihenfolge nach Wirkung pro Stunde, Abhaengigkeiten beachtet:
 
 - **E1/M1/W1-Elektro-Labs** (altes Fachkonzept-final): FI-Track gewaehlt, keine
   Doppelspur vor der Abgabe.
-- **OpenRouter-Pfad jenseits Free-Modell**: nur Gratis-Slug, $5-Cap unangetastet
-  ($0 bisher — alle 429er kamen vor Generierung).
+- **OpenRouter-Pfad** (inaktiv seit 28.10.2026, siehe docs/BASETEN-MIGRATION.md):
+  ersetzt durch Baseten-Pfad (`meta-models/muse-spark-open-1026`, BYOK).
 - **Push auf GitHub**: nur lokale Commits (User-Vorgabe); Submit-Abgabe separat.
 - **Live-Generierung im 180-s-Fenster**: physikalisch unmoeglich (92–401 s gemessen);
   Demo faehrt ehrlich den F2-Pfad.
 - **A-03**: Pfad + Skripte verifiziert gruene (Key ok, Modell ok), Generierung steht
   auf 429 des Gratis-Tiers — Retry innerhalb der Key-Stunde, danach als
   „ratenlimitiert, $0 verbraucht" dokumentieren.
+
+## 5. Guide-3D-Umsetzung (28.10.2026, Follow-ups nach M1–M6)
+
+Umgesetzt: F1 (Option B) – F6, P1/P2-Haertung, Harness-Loop
+(`scripts/_harness-loop.mjs`), `verify-all --probe-json/--p2-out`,
+13-Felder-snapshot, Baustein-Katalog minimal, `docs/three-186-api-pin.md`.
+Noch zu tun (ausserhalb der Sandbox / mit Browser):
+
+1. **`npm run build` (Pflicht)**: Vendor-Bundle enthaelt die neuen Exporte
+   (MeshPhysicalMaterial, PCFShadowMap, VSMShadowMap) erst nach Rebuild.
+2. **`npm run baseline:update` + visuelle Re-Abnahme**: `gpu-example.js`
+   rendert heller (IBL-Raum 0xcccccc statt 0x11141a) — Screenshots neu
+   abnehmen, danach `npm test` (Playwright).
+3. **M6-Vektorstufe (optional)**: semantischer Abruf statt Regel-Abruf.
+4. **Guide §6-Uebernahmen** (ausserhalb der Roadmap): NullEngine-Pruefebene,
+   deklarative Bauteil-Semantik, getMetrics-Kanal.
+
+## 6. 2D-Umstellung + P0-Router (28.10.2026, umgesetzt)
+
+Beleg: `docs/2D-UMSTELLUNG-2026-10-28.md`. dup-1..3 + ae-1..3 als 2D-Datenmodule
+(SVG nativ, Vendor-Lib `src/vendor/diagram-2d.js`, Modul liefert nur Daten);
+`routeGeneration()` + `prompts/p0-router.txt` + Verify-2D-Gates
+(parse+pixel+Typ-Whitelist); Standalone ae-1..3 `is3d:false` (Builder R18);
+6 Screenshots `dist-2d/*.png` + Router-Log `dist-2d/router-2d-log.json`.
+`npm run test:unit` gruene (router-2d neu, matrix/labs-matrix route-aware).
+Mermaid/Chart.js/d3-light/KaTeX evaluiert, aber nicht eingebunden (0-KB-Pfad
+genuegt allen 6 Faellen).

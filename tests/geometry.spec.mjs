@@ -4,7 +4,8 @@
  */
 import { test, expect } from '@playwright/test';
 import { readdir, readFile } from 'node:fs/promises';
-import { verifyGeometryLayer } from '../src/runtime/verify.js';
+import { verifyGeometryLayer, verifySvgLayer } from '../src/runtime/verify.js';
+import { isTwoDSource } from '../src/runtime/guard-static.js';
 import { countMeshesStatic, checkFlicker } from '../src/runtime/geometry-checks.js';
 
 async function modelSources() {
@@ -15,10 +16,17 @@ async function modelSources() {
   return out;
 }
 
-test('M1: S2-Geometrie statisch pass ueber alle zehn Modelle', async () => {
+test('M1: S2 statisch pass ueber alle Modelle (3D-Geometrie, 2D-S2-light)', async () => {
   const models = await modelSources();
-  expect(models.length).toBe(10);
+  expect(models.length).toBeGreaterThanOrEqual(10);
   for (const m of models) {
+    if (isTwoDSource(m.source)) {
+      // 2D-Route: S2-light (parse + pixel + Typ) statt 3D-Geometrie.
+      const { layer } = verifySvgLayer(m.source);
+      expect(layer.layer, `${m.id}: S2`).toBe('S2');
+      expect(layer.verdict, `${m.id}: ${JSON.stringify(layer.criteria.filter((c) => c.verdict !== 'pass'))}`).toBe('pass');
+      continue;
+    }
     const { layer } = verifyGeometryLayer(m.source, null);
     expect(layer.layer, `${m.id}: S2`).toBe('S2');
     expect(layer.verdict, `${m.id}: ${JSON.stringify(layer.criteria.filter((c) => c.verdict !== 'pass'))}`).toBe('pass');

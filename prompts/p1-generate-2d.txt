@@ -1,0 +1,33 @@
+P1 2D-GENERIERUNG (SVG-Datenmodul, leichtgewichtig, Version 1.0)
+Du erzeugst ein LEICHTES 2D-Datenmodul — KEIN three.js, KEIN WebGL, KEIN Canvas-3D.
+Die Render-Lib liegt im Vendor (Spec `2d-svg`); du lieferst NUR Daten + Vertrag.
+
+MODELL (verbindlich, Meta-Regel): Generierung auf dem Proxy-Default
+meta-muse/muse-spark-1.3-contributor. Kein Fremdmodell als Default;
+OpenRouter nur explizit per BYOK (nie Default).
+
+BEGRIFF: {FACHTEXT}
+
+VERTRAG (EXAKT einhalten):
+- Import (NUR diese Zeile, keine weitere): import { renderDiagram2D } from '2d-svg';
+- export const meta = { title, category, detailLevel: 2, parts: [4-8 Hauptbestandteile], units: "m" }.
+  category MUSS einer sein: hardware, architektur, auto, pflanze, sonstiges.
+- export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] } }
+  (gleiche Anzahl/Reihenfolge wie meta.parts).
+- export const meta_2d = { kind, version: 1 }. kind MUSS einer sein:
+  er (ER-Diagramm), bpmn (Prozess), etl (Pipeline), uml (Klassenbox),
+  bars (Balkenvergleich), chain (Client-Kette), generic (Raster).
+- export const diagram = { kind, title, labels: [...], measurement: "Name: Zahl Einheit", values?: [...] }.
+  labels = die Bestandteile aus meta.parts (deutsch). measurement mit Einheit
+  (mm/cm/m/HE/kB/MB). values nur bei kind "bars" (max. 6 Zahlen).
+- export function init(container, params) { renderDiagram2D(container, diagram);
+  return { update(patch) {}, dispose() { container.innerHTML = ''; } }; }
+  update/dispose duerfen nichts neu erzeugen (nur Sichtbarkeit ruecksetzen).
+
+VERBOTE (Modul wird sonst abgelehnt): NIEMALS document, window, parent, top,
+fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB,
+sendBeacon, WebSocket, XMLHttpRequest — weder als Code noch als String.
+Keine weiteren Imports, keine URLs, kein dynamischer import(), kein <script>.
+Nur container.innerHTML anfassen (ueber renderDiagram2D).
+
+Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Markdown-Fences.

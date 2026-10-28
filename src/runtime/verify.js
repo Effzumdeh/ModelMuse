@@ -3,8 +3,9 @@
  * S2..S4 laufen im Browser (Playwright-Suiten); hier als skip-Layer mit Grund.
  * Bauplan Abschnitt 4 (verify) und Abschnitt 6 (Gate-Reihenfolge).
  */
-import { staticGate, checkMeta } from './guard-static.js';
+import { staticGate, checkMeta, TWOD_KINDS, isTwoDSource } from './guard-static.js';
 import { validateManifest, checkLevelRules, findPedagogyLeak } from './didactics.js';
+import { buildDiagramSvg, countSvgShapes, isWellformedSvg } from '../vendor/diagram-2d.js';
 import {
   GEO_LIMITS,
   verifyGeometryScene,
@@ -63,7 +64,7 @@ export function verifyStaticLayer(source, meta, limits = {}) {
     crit('S1-size', gate.size.tier !== 'reject' ? 'pass' : 'fail', `<= ${limits.hard ?? 2000000} Bytes`, `${gate.size.bytes} Bytes (${gate.size.tier})`)
   );
   layer.criteria.push(
-    crit('S1-imports', gate.imports.ok ? 'pass' : 'fail', 'nur three + wrapper-helpers', gate.imports.ok ? gate.imports.specifiers.join(',') || 'keine' : `fremd: ${gate.imports.offending.join(',')}`)
+    crit('S1-imports', gate.imports.ok ? 'pass' : 'fail', 'nur three/wrapper-helpers/2d-*', gate.imports.ok ? gate.imports.specifiers.join(',') || 'keine' : `fremd: ${gate.imports.offending.join(',')}`)
   );
   const mv = checkMeta(meta);
   layer.criteria.push(
@@ -298,8 +299,12 @@ export function verifyGeometryLayer(source, sceneStats = null) {
         )
       );
       const flags = scanMaterialFlags(src);
-      // PMREM-Raum (side:1 / BackSide in room-Naehe) ist verworfen und zaehlt nicht.
-      const roomIdx = src.indexOf('room');
+      // PMREM-Raum (side:1 / BackSide in Raum-Naehe) ist verworfen und zaehlt nicht.
+      // Namensunabhaengig: Bezeichner aus fromScene(<szene>, ...) lesen, Fenster um
+      // dessen new-Scene-Deklaration legen; Fallback: erstes 'room' (Bestand).
+      const pmremArg = /\.fromScene\s*\(\s*([A-Za-z_$][\w$]*)/.exec(src)?.[1] ?? null;
+      const declIdx = pmremArg ? src.search(new RegExp(`\\b(?:const|let|var)\\s+${pmremArg}\\s*=\\s*new\\s+Scene\\s*\\(`)) : -1;
+      const roomIdx = declIdx >= 0 ? declIdx : src.indexOf('room');
       let roomBackSide = 0;
       if (roomIdx >= 0) {
         const near = src.slice(Math.max(0, roomIdx - 2000), roomIdx + 2000);
@@ -393,11 +398,120 @@ export function verifyGeometryLayer(source, sceneStats = null) {
 }
 
 /**
+ * Diagramm-Literal hostseitig aus Modulquelle extrahieren (nur Tooling).
+ * @param {string} source
+ * @returns {Record<string, unknown> | null}
+ */
+export function extractDiagram(source) {
+  const m = /export\s+const\s+diagram\s*=\s*\{/.exec(source);
+  if (!m) return null;
+  let depth = 0;
+  let i = m.index + m[0].length - 1;
+  let inStr = null;
+  for (; i < source.length; i += 1) {
+    const c = source[i];
+    if (inStr) {
+      if (c === '\\') {
+        i += 1;
+        continue;
+      }
+      if (c === inStr) inStr = null;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === '`') inStr = c;
+    else if (c === '{') depth += 1;
+    else if (c === '}') {
+      depth -= 1;
+      if (depth === 0) break;
+    }
+  }
+  if (depth !== 0) return null;
+  const literal = source.slice(m.index + m[0].length - 1, i + 1);
+  try {
+    // Hostseitiges Tooling-Parse eines Objektliterals (nie Guest-Code).
+    // eslint-disable-next-line no-new-func
+    const fn = new Function(`return (${literal});`);
+    const v = fn();
+    return v && typeof v === 'object' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 2D-Gates (S2-light, Node-seitig, deterministisch): parse + pixel + Typ-Whitelist.
+ * - parse: 2D-Quelle (Import aus 2d-*) UND diagram-Literal, das der Vendor-
+ *   Renderer wohlgeformt baut (kein <script>, keine Fremd-URL).
+ * - pixel: >= 4 SVG-Formelemente im GERENDERTEN Svg (echter Pixel-Proxy;
+ *   Browser-Visual-Suite zaehlt zusaetzlich nicht-leere Alphapixel).
+ * - typ: diagram.kind in TWOD_KINDS-Whitelist.
+ * @param {string} source Modulquelle
+ */
+export function verifySvgLayer(source) {
+  const t0 = Date.now();
+  const layer = makeLayer('S2');
+  const src = String(source);
+  try {
+    const is2d = isTwoDSource(src);
+    layer.criteria.push(
+      crit('S2-2d-parse', is2d ? 'pass' : 'fail', '2D-Datenpfad (Import aus 2d-*)', is2d ? '2d-Import gefunden (Lib im Vendor, Modul liefert Daten)' : 'kein 2d-Import (3D-Pfad oder Fremd-Import)')
+    );
+    const diagram = extractDiagram(src);
+    if (!diagram) {
+      layer.criteria.push(crit('S2-2d-data', 'fail', 'export const diagram {...}', 'kein Diagramm-Literal extrahierbar'));
+      layer.criteria.push(crit('S2-2d-pixel', 'fail', '>= 4 SVG-Formelemente (gerendert)', 'ohne Daten kein Render'));
+      layer.criteria.push(crit('S2-2d-typ', 'fail', `diagram.kind in [${TWOD_KINDS.join('|')}]`, 'kein kind (keine Daten)'));
+    } else {
+      const kind = typeof diagram.kind === 'string' ? diagram.kind : null;
+      const typOk = kind !== null && TWOD_KINDS.includes(kind);
+      layer.criteria.push(
+        crit('S2-2d-typ', typOk ? 'pass' : 'fail', `diagram.kind in [${TWOD_KINDS.join('|')}]`, kind === null ? 'kein kind gefunden' : `${kind} ${typOk ? 'erlaubt' : 'NICHT erlaubt'}`)
+      );
+      let svg = '';
+      let wellformed = false;
+      try {
+        svg = buildDiagramSvg(/** @type {any} */ (diagram));
+        wellformed = isWellformedSvg(svg);
+      } catch (e) {
+        svg = '';
+        wellformed = false;
+      }
+      layer.criteria.push(
+        crit('S2-2d-parse-svg', wellformed ? 'pass' : 'fail', 'Vendor-Render wohlgeformt', wellformed ? `${svg.length} Zeichen SVG` : 'Render unwohlgeformt/abgebrochen')
+      );
+      const shapes = countSvgShapes(svg);
+      layer.criteria.push(
+        crit('S2-2d-pixel', shapes >= 4 ? 'pass' : 'fail', '>= 4 SVG-Formelemente (gerendert)', `${shapes} Shapes im Vendor-Render`)
+      );
+      const badScript = /<script[\s>]/.test(src);
+      const badUrl = /(https?:|javascript:)/.test(stripSvgCommentsSafe(src));
+      layer.criteria.push(
+        crit('S2-2d-wellformed', !badScript && !badUrl ? 'pass' : 'fail', 'kein <script>, keine Fremd-URL im Modul', badScript ? '<script> gefunden' : badUrl ? 'Fremd-URL gefunden' : 'sauber')
+      );
+    }
+  } catch (e) {
+    layer.criteria.push(
+      crit('S2-2d-intern', 'fail', '2D pruefbar', `Prueffehler: ${String((e && e.message) || e).slice(0, 160)}`)
+    );
+  }
+  layer.verdict = layer.criteria.every((c) => c.verdict === 'pass') ? 'pass' : 'fail';
+  layer.durationMs = Date.now() - t0;
+  return { layer };
+}
+
+/** @param {string} src */
+function stripSvgCommentsSafe(src) {
+  return String(src).replace(/<!--[\s\S]*?-->/g, '');
+}
+
+/**
  * M6: Verify-Report als P2-Fehlerprotokoll (FLARE-Klasse: Zahlen statt Prosa).
  * Format pro Zeile: `[Schicht:Kriterium] VERDIKT | Soll: ... | Ist: ...`
- * Nur fail-Kriterien werden aufgefuehrt, dazu Raehmen (Iteration, Budgets).
+ * Nur fail-Kriterien werden aufgefuehrt, dazu Rahmen (Iteration, Budgets).
+ * Guide-3D Abschnitt 4: optional SZENEN-STATE (Browser-Probe) und BILDER
+ * (max. 3 Views, nur als Zusatz zu Zahlen) anhaengen.
  * @param {Array<{ layer: string, verdict: string, criteria: Array<{ id: string, verdict: string, expected: string, actual: string }> }>} layers
- * @param {{ iteration?: number, budgets?: { triangles?: number, drawCalls?: number, meshCount?: number } }} [opts]
+ * @param {{ iteration?: number, budgets?: { triangles?: number, drawCalls?: number, meshCount?: number }, sceneState?: object, images?: Array<{ view?: string, note?: string }> }} [opts]
  */
 export function formatP2Protocol(layers, opts = {}) {
   const lines = [];
@@ -415,6 +529,26 @@ export function formatP2Protocol(layers, opts = {}) {
   else {
     lines.push(`Hinweis: Repariere genau die ${n} protokollierten Kriterien; bestandene Schichten unveraendert lassen.`);
     lines.push('Vorgaben: keine neuen Bauteile/Imports/Abhaengigkeiten; Budgets einhalten (Dreiecke ≤ 150000, Draw-Calls ≤ 400, Meshes ≤ 250, Modul ≤ 34000 Bytes).');
+  }
+  const st = opts?.sceneState;
+  if (st && typeof st === 'object') {
+    const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 'n.v.');
+    lines.push('');
+    lines.push('SZENEN-STATE (aus der Browser-Probe, nicht aus dem Quelltext):');
+    lines.push(`frames=${num(st.frames)} | firstFrameAt=${num(st.firstFrameAt)} ms | meshes=${num(st.meshes)} | triangles=${num(st.triangles)} | drawCalls=${num(st.drawCalls ?? st.calls)}`);
+    lines.push(`geometries=${num(st.geometries)} | textures=${num(st.textures)} | programs=${num(st.programs)} | boxes=${Array.isArray(st.boxes) ? st.boxes.length : num(st.boxes)} | backfaceHits=${num(st.backfaceHits)}`);
+    for (const b of (Array.isArray(st.boxes) ? st.boxes : []).slice(0, 4)) {
+      if (b && typeof b === 'object') lines.push(`${b.id ?? '?'}: min [${(b.min ?? []).join(',')}] max [${(b.max ?? []).join(',')}]`);
+    }
+    if (typeof st.pixelDiff === 'number') lines.push(`pixelDiff=${String(Math.round(st.pixelDiff * 10000) / 10000).replace('.', ',')} (2 Frames, Schwelle 0,002)`);
+  }
+  const imgs = opts?.images;
+  if (Array.isArray(imgs) && imgs.length > 0) {
+    lines.push('');
+    lines.push(`BILDER (${Math.min(imgs.length, 3)} Views, 1280x720, SwiftShader):`);
+    imgs.slice(0, 3).forEach((im, i) => {
+      lines.push(`[BILD ${i + 1}] ${im?.view ?? 'overview'} -> ${String(im?.note ?? '').slice(0, 200) || '(ohne Befund-Notiz)'}`);
+    });
   }
   return lines.join('\n');
 }

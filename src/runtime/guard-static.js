@@ -10,7 +10,11 @@
 /** @typedef {{ ok: boolean, missing: string[], invalid: string[] }} MetaVerdict */
 /** @typedef {{ ok: boolean, errors: string[], hits: ForbiddenHit[], size: SizeVerdict, imports: ImportVerdict, meta: MetaVerdict }} StaticReport */
 
-export const ALLOW_SPECIFIERS = Object.freeze(['three', 'wrapper-helpers']);
+export const ALLOW_SPECIFIERS = Object.freeze(['three', 'wrapper-helpers', '2d-svg', '2d-mermaid', '2d-chart', '2d-d3', '2d-katex']);
+// 2D-Pfad (docs/2D-STACK-EVAL.md): Lib liegt im Vendor, Module liefern nur
+// Daten. Exakt diese Specifier sind zusaetzlich erlaubt (Importmap-Prinzip);
+// KEINE relativen Pfade, KEINE URLs, KEIN dynamischer import().
+export const ALLOW_2D_SPECIFIERS = Object.freeze(['2d-svg', '2d-mermaid', '2d-chart', '2d-d3', '2d-katex']);
 // Ausnahme: OrbitControls (Bauplan Abschnitt 3, einziger Addon-Import).
 export const ALLOW_ADDON = 'three/addons/controls/OrbitControls.js';
 
@@ -20,18 +24,37 @@ export const ALLOW_ADDON = 'three/addons/controls/OrbitControls.js';
  * ihn zu retten (E-S2-BOOT statt ReferenceError). */
 export const THREE_KNOWN_EXPORTS = Object.freeze([
   'ACESFilmicToneMapping', 'AmbientLight', 'BoxGeometry', 'BufferGeometry',
-  'CanvasTexture', 'CircleGeometry', 'CylinderGeometry', 'DataTexture',
-  'DirectionalLight', 'DoubleSide', 'ExtrudeGeometry', 'Group',
+  'CanvasTexture', 'CircleGeometry', 'Color', 'CylinderGeometry', 'DataTexture',
+  'DirectionalLight', 'DoubleSide', 'EdgesGeometry', 'ExtrudeGeometry', 'Group',
   'HemisphereLight', 'InstancedMesh', 'Line', 'LineBasicMaterial',
   'LinearFilter', 'Matrix4', 'Mesh', 'MeshBasicMaterial',
-  'MeshStandardMaterial', 'PCFSoftShadowMap', 'PerspectiveCamera',
-  'PlaneGeometry', 'PMREMGenerator', 'PointLight', 'Quaternion',
-  'RepeatWrapping', 'Scene', 'ShadowMaterial', 'Shape', 'SphereGeometry',
-  'Sprite', 'SpriteMaterial', 'SRGBColorSpace', 'TorusGeometry', 'Vector3',
-  'WebGLRenderer',
+  'MeshPhysicalMaterial', 'MeshStandardMaterial', 'PCFShadowMap', 'PCFSoftShadowMap',
+  'PerspectiveCamera', 'PlaneGeometry', 'PMREMGenerator', 'PointLight',
+  'Quaternion', 'RepeatWrapping', 'Scene', 'ShadowMaterial', 'Shape',
+  'SphereGeometry', 'Sprite', 'SpriteMaterial', 'SRGBColorSpace',
+  'TorusGeometry', 'VSMShadowMap', 'Vector3', 'WebGLRenderer',
 ]);
 export const ADDON_KNOWN_EXPORTS = Object.freeze(['OrbitControls']);
 export const HELPER_KNOWN_EXPORTS = Object.freeze(['addLabel', 'addMeasurement']);
+/** Benannte Exporte des 2D-Vendor-Bundles (src/vendor/diagram-2d.js). */
+export const TWOD_KNOWN_EXPORTS = Object.freeze(['renderDiagram2D', 'buildDiagramSvg', 'DIAGRAM_KINDS', 'escXml', 'countSvgShapes', 'isWellformedSvg', 'SVG_NODE_BUDGET']);
+/** 2D-Diagramm-Typen (Whitelist): SVG-nativ-Kinds je Lab (siehe vendor/diagram-2d.js). */
+export const TWOD_KINDS = Object.freeze(['er', 'bpmn', 'etl', 'uml', 'bars', 'chain', 'svg', 'generic']);
+
+/**
+ * @param {string} source
+ * @returns {boolean} true, wenn das Modul den 2D-Datenpfad nutzt
+ * (Import aus 2d-* statt three).
+ */
+export function isTwoDSource(source) {
+  const code = stripComments(String(source));
+  const re = /(?:import\s+(?:[^'"]*?\sfrom\s+)?|export\s+[^'"]*?\sfrom\s+)['"]([^'"]+)['"]/g;
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    if (ALLOW_2D_SPECIFIERS.includes(m[1])) return true;
+  }
+  return false;
+}
 
 const FORBIDDEN_TOKENS = Object.freeze([
   'eval',

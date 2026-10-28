@@ -98,9 +98,9 @@ test('provider/model-Optionen landen im Proxy-Body (Defaults bleiben Proxy-Sache
     seen = JSON.parse(opts?.body ?? '{}');
     return sseResponse([MODULE]);
   };
-  await generateLive('Begriff Windkraftanlage lang genug', { seed: 7, provider: 'openrouter', model: 'google/gemma-4-26b-a4b-it:free' });
-  assert.equal(seen.provider, 'openrouter');
-  assert.equal(seen.model, 'google/gemma-4-26b-a4b-it:free');
+  await generateLive('Begriff Windkraftanlage lang genug', { seed: 7, provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
+  assert.equal(seen.provider, 'baseten');
+  assert.equal(seen.model, 'meta-models/muse-spark-open-1026');
   assert.equal(seen.seed, 7);
   await generateLive('Begriff Windkraftanlage lang genug');
   assert.equal(seen.provider, undefined);

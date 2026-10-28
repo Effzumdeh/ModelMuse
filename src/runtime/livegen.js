@@ -3,7 +3,14 @@
  * Ohne Proxy-Konfiguration: sofort E-GEN-OFFLINE, UI schaltet auf Bibliothek.
  * Bauplan Abschnitt 4 (generateLive) und Abschnitt 9 (E-GEN-*).
  */
-import { repairThreeImports } from './guard-static.js';
+import { repairThreeImports, TWOD_KINDS } from './guard-static.js';
+
+/** P0-Router: 2D-Darstellungstypen (Whitelist, vgl. prompts/p0-router.txt). */
+export const ROUTER_2D_TYPES = Object.freeze(['schaltplan', 'flussdiagramm', 'schnitt-ansicht', 'diagramm', 'tabelle']);
+/** P0-Router: 3D-Kurztypen (freie Konvention, Beispiele aus dem Few-shot). */
+export const ROUTER_3D_TYPES = Object.freeze(['baugruppe', 'volumen', 'montage', 'innenleben']);
+/** P0: Fachtext-Kappung (Router-Konzept §2: max. ~4000 Zeichen). */
+export const ROUTER_FACHTEXT_MAX = 4000;
 
 /** @typedef {{ source: string, meta: { title: string, category: string, detailLevel: number, parts: string[], units: string }, raw: string }} GeneratedModule */
 
@@ -139,7 +146,7 @@ export function extractModuleSource(rawText) {
  * @param {string} promptText vollstaendiger P1-Prompt inkl. Thema
  * @param {{ seed?: number, onToken?: (t: string) => void, provider?: string, model?: string }} [opts]
  * provider/model: Optional — Proxy-Defaults (meta-muse/muse-spark-1.3-contributor)
- * greifen, wenn leer. OpenRouter-Pfad nur mit User-BYOK-Key (nie Server-Key).
+ * greifen, wenn leer. Baseten-Pfad nur mit User-BYOK-Key (nie Server-Key).
  * @returns {Promise<GeneratedModule>}
  */
 export async function generateLive(promptText, opts = {}) {
@@ -211,4 +218,139 @@ export async function generateLive(promptText, opts = {}) {
     }
   }
   throw Object.assign(lastError ?? new Error(`${lastCode}: Transportversuche erschoepft`), { code: lastCode });
+}
+
+/** P0-Router: 2D-Modell-Kinds je Router-Typ (Vendor-Kinds aus TWOD_KINDS). */
+export const ROUTER_TYP_TO_KIND = Object.freeze({
+  'schaltplan': 'chain',
+  'flussdiagramm': 'bpmn',
+  'schnitt-ansicht': 'generic',
+  'diagramm': 'bars',
+  'tabelle': 'generic',
+});
+void TWOD_KINDS;
+
+/**
+ * Kappt den Fachtext fuer den P0-Call (Router-Konzept §2: max. 4000 Zeichen).
+ * @param {string} fachtext
+ */
+export function truncateFachtext(fachtext) {
+  return String(fachtext ?? '').slice(0, ROUTER_FACHTEXT_MAX);
+}
+
+/**
+ * Parst eine P0-Router-Antwort (längster {...}-Block, JSON, Schema-Check).
+ * Fail-closed: jede Abweichung -> { mode: '3d', fallback: true }.
+ * @param {string} rawText
+ * @returns {{ mode: '3d' | '2d', typ: string, begruendung: string, fallback: boolean }}
+ */
+export function parseRouterDecision(rawText) {
+  const fallback = (typ = 'baugruppe') => ({ mode: '3d', typ, begruendung: 'Parser-Fallback (Fail-closed 3D)', fallback: true });
+  try {
+    const raw = String(rawText ?? '');
+    const blocks = [];
+    let depth = 0;
+    let start = -1;
+    let inStr = null;
+    for (let i = 0; i < raw.length; i += 1) {
+      const c = raw[i];
+      if (inStr) {
+        if (c === '\\') {
+          i += 1;
+          continue;
+        }
+        if (c === inStr) inStr = null;
+        continue;
+      }
+      if (c === '"' || c === "'") inStr = c;
+      else if (c === '{') {
+        if (depth === 0) start = i;
+        depth += 1;
+      } else if (c === '}') {
+        depth -= 1;
+        if (depth === 0 && start >= 0) {
+          blocks.push(raw.slice(start, i + 1));
+          start = -1;
+        }
+        if (depth < 0) depth = 0;
+      }
+    }
+    if (blocks.length === 0) return fallback();
+    const longest = blocks.sort((a, b) => b.length - a.length)[0];
+    const obj = JSON.parse(longest);
+    if (!obj || typeof obj !== 'object') return fallback();
+    const { mode, typ, begruendung } = /** @type {{ mode?: unknown, typ?: unknown, begruendung?: unknown }} */ (obj);
+    if (mode !== '3d' && mode !== '2d') return fallback();
+    if (typeof typ !== 'string' || typ.length < 1 || typ.length > 32) return fallback();
+    if (typeof begruendung !== 'string' || begruendung.length < 10 || begruendung.length > 140) return fallback();
+    if (mode === '2d' && !ROUTER_2D_TYPES.includes(typ)) return fallback();
+    return { mode, typ, begruendung, fallback: false };
+  } catch {
+    return fallback();
+  }
+}
+
+/**
+ * P0-Router-Call: klassifiziert den Fachtext (2D vs 3D + Typ) VOR der
+ * Generierung. Ein kleiner nicht-streamender Call, Fail-closed auf 3D
+ * (Bestandspfad) bei jedem Fehler — wirft nie in den Generierungspfad.
+ * Meta-Regel: provider/model bleiben Default (Proxy: meta-muse /
+ * muse-spark-1.3-contributor); Fremdmodelle nur explizit per Opts + BYOK.
+ * @param {string} fachtext
+ * @param {{ promptTemplate?: string, timeoutMs?: number, provider?: string, model?: string }} [opts]
+ * @returns {Promise<{ mode: '3d' | '2d', typ: string, begruendung: string, fallback: boolean }>}
+ */
+export async function routeGeneration(fachtext, opts = {}) {
+  if (!proxyUrl) {
+    throw Object.assign(new Error('E-GEN-OFFLINE: kein Proxy konfiguriert'), { code: 'E-GEN-OFFLINE' });
+  }
+  if (typeof fachtext !== 'string' || fachtext.length < 8) {
+    throw Object.assign(new Error('E-GEN-400: Fachtext zu kurz'), { code: 'E-GEN-400' });
+  }
+  const template = typeof opts.promptTemplate === 'string' && opts.promptTemplate.includes('{FACHTEXT}')
+    ? opts.promptTemplate
+    : 'P0 ROUTER-KLASSIFIKATION: <FACHTEXT>\n{FACHTEXT}\n</FACHTEXT>\nAntworte NUR mit {"mode":"3d|2d","typ":"...","begruendung":"..."} (deutsch, max. 140 Zeichen).';
+  const prompt = template.split('{FACHTEXT}').join(truncateFachtext(fachtext));
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 20000);
+  try {
+    const headers = { 'content-type': 'application/json', accept: 'application/json' };
+    if (liveApiKey) headers.authorization = 'Bearer ' + liveApiKey;
+    const res = await fetch(proxyUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        prompt,
+        provider: typeof opts.provider === 'string' && opts.provider ? opts.provider : undefined,
+        model: typeof opts.model === 'string' && opts.model ? opts.model : undefined,
+        stream: false,
+        max_tokens: 300,
+        temperature: 0,
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return { mode: '3d', typ: 'baugruppe', begruendung: `Router-HTTP ${res.status} (Fail-closed 3D)`, fallback: true };
+    let raw = '';
+    try {
+      const data = await res.json();
+      raw = typeof data?.text === 'string' ? data.text
+        : typeof data?.output_text === 'string' ? data.output_text
+        : typeof data?.content === 'string' ? data.content
+        : Array.isArray(data?.choices) && typeof data.choices[0]?.message?.content === 'string' ? data.choices[0].message.content
+        : JSON.stringify(data);
+    } catch {
+      try {
+        raw = await res.text();
+      } catch {
+        return { mode: '3d', typ: 'baugruppe', begruendung: 'Router-Antwort unlesbar (Fail-closed 3D)', fallback: true };
+      }
+    }
+    const parsed = parseRouterDecision(raw);
+    if (parsed.fallback) return { mode: '3d', typ: 'baugruppe', begruendung: 'Router-Parse ungueltig (Fail-closed 3D)', fallback: true };
+    return parsed;
+  } catch {
+    clearTimeout(timer);
+    return { mode: '3d', typ: 'baugruppe', begruendung: 'Router-Fehler/Timeout (Fail-closed 3D)', fallback: true };
+  }
 }

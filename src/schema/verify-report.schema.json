@@ -38,6 +38,18 @@
       }
     },
     "verdict": { "type": "string", "enum": ["gruen", "gelb", "rot"] },
+    "route": {
+      "type": "object",
+      "description": "Generierungs-Route (P0-Router): 2d = SVG-nativ-Datenpfad, 3d = three.js-Bestand.",
+      "properties": {
+        "mode": { "type": "string", "enum": ["2d", "3d"] },
+        "typ": { "type": "string" },
+        "begruendung": { "type": "string" },
+        "reason": { "type": "string" },
+        "fallback": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
     "failed": { "type": "array", "items": { "type": "string" } },
     "createdAt": { "type": "string" },
     "buildHash": { "type": "string" }

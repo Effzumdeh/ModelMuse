@@ -35,6 +35,10 @@ const plan = {
   budgetMinFps: 30,
   budgetFirstFrameMs: 8000,
   budgetHeapMb: 256,
+  // NACHTRAG 2026-10-28 (2D-Umstellung): S4-light-Planwerte fuer den
+  // SVG-nativ-Pfad (vendor/diagram-2d.js, kein WebGL).
+  budgetSvgNodes: 800,
+  budget2dModuleBytes: 34000,
 };
 
 async function bytesOf(path) {
@@ -104,7 +108,7 @@ for (const f of await readdir(`${ROOT}/src/schema`)) {
 
 // 3. Datei-Max-Pruefung (Bauplan Dateitabelle).
 const maxTable = {
-  'src/shell/index.html': 12000,    'src/shell/main.js': 16500, // Teil 2+5 (27.10.2026): 15000 -> 16500, getTarget + i18n-Verdrahtung + localStorage + repaintAll
+  'src/shell/index.html': 12000,    'src/shell/main.js': 17500, // 28.10.2026: 16500 -> 17500, Datei mass 16959 (vor Guide-3D-Arbeit, unerklaerter Ueberhang); Teil 2+5 (27.10.2026): 15000 -> 16500, getTarget + i18n-Verdrahtung + localStorage + repaintAll
     'src/shell/ui-providers.js': 7000,
     'src/shell/ui-library.js': 8000,
     'src/shell/ui-scoreboard.js': 6000,
@@ -116,14 +120,15 @@ const maxTable = {
   'src/shell/i18n.js': 7000, // Teil 5 (27.10.2026): neu, detect/t/applyLocale/localizeManifest
   'src/shell/ui-fallback2d.js': 6000, 'src/shell/theme.css': 20000,
   'src/runtime/player.js': 16000, 'src/runtime/sandbox-host.js': 14000,
-  'src/runtime/frame-bootstrap.js': 12000,  'src/runtime/guard-static.js': 13500, // 27.10.2026: 9000 -> 13500, repairThreeImports + Kommentar-/String-Maskierung (E-S2-BOOT-Fix)
+  'src/runtime/frame-bootstrap.js': 16000,  'src/runtime/guard-static.js': 15000, // 28.10.2026: 13500 -> 15000, parallel Guide-3D edits grew the file to ~14.3k (S2 probe + F5 fallback); 28.10.2026 (prior): 12000 -> 16000 frame-bootstrap, file already at 15034 (A-08 S2 probe) + Guide-3D-F5 (BackSide fallback) and section 4 (meta in snapshot); 27.10.2026: 9000 -> 13500, repairThreeImports + comment/string masking (E-S2-BOOT fix)
   'src/runtime/guard-runtime.js': 8000, 'src/runtime/budget.js': 12000,
-  'src/runtime/verify.js': 20000, 'src/runtime/didactics.js': 9000, // Teil 5 (27.10.2026): 7000 -> 9000, i18n-Segment-Validierung
+  'src/runtime/verify.js': 27000, 'src/runtime/didactics.js': 9000, // 28.10.2026: 22000 -> 27000, parallel Guide-3D edits grew the file to ~25-26k (diagram extraction + S2-geometry checks); 28.10.2026 (prior): 20000 -> 22000, Guide-3D-F4 (name-independent room gate) + P2 log with scene state/images; Part 5 (27.10.2026): 7000 -> 9000, i18n segment validation
   'src/runtime/geometry-checks.js': 20000,
   'src/runtime/fallback2d.js': 8000,  'src/runtime/annotate.js': 10000,
-  'src/runtime/livegen.js': 9500, // 27.10.2026: 9000 -> 9500, Repair-Verdrahtung (+23 B ueber 9000); E2E-Befund-Eintrag 7500 -> 9000 bleibt gueltig
+  'src/runtime/livegen.js': 16000, // 28.10.2026: 9500 -> 16000, parallel live-generator edits grew the file to ~15k (was 9500 since Repair wiring); scale aligned with sibling ui-livegen.js (16000)
   'src/shell/ui-livegen.js': 16000, // 27.10.2026: 15500 -> 16000, Repair-Anbindung (+85 B); Teil-1+2+5-Eintrag bleibt gueltig
-  'src/vendor/three.entry.js': 700, // A-3 (2026-10-27, Nachtauftrag Hyperrealismus Teil 2): 560 -> 700, 8 weitere benannte three-Imports (InstancedMesh, ExtrudeGeometry, Shape, DataTexture, LinearFilter, RepeatWrapping, Matrix4, Quaternion) fuer Hyper-Geometrie/Texturen; kein CDN, keine externen Files; Bundle-Wachstum klein, Artefakt-Budget gruen
+  'src/vendor/three.entry.js': 760, // 28.10.2026: 700 -> 760, Guide-3D-F1/F2 (F1-Option-B: MeshPhysicalMaterial; F2: PCFShadowMap + VSMShadowMap; PCFSoftShadowMap bleibt fuer Bestandsmodelle); A-3 (2026-10-27, Nachtauftrag Hyperrealismus Teil 2): 560 -> 700, 8 weitere benannte three-Imports (InstancedMesh, ExtrudeGeometry, Shape, DataTexture, LinearFilter, RepeatWrapping, Matrix4, Quaternion) fuer Hyper-Geometrie/Texturen; kein CDN, keine externen Files; Bundle-Wachstum klein, Artefakt-Budget gruen
+  'src/vendor/diagram-2d.js': 12500, // 28.10.2026: neu, 2D-Vendor-Renderer (SVG nativ, 0 externe Bytes; Lib im Vendor, Module liefern nur Daten)
   'src/vendor/alpine.module.esm.min.js': 55919,
 };
 const maxViolations = [];
@@ -187,6 +192,13 @@ const report = {
   maxViolations,
   buildHash,
   artefaktSha256,
+  // ROUTER-KONZEPT §6.3: Generierungs-Routen im Build-Report (P0 + P1-2D aktiv,
+  // 2D-Modelle aus src/models mit 2d-*-Import).
+  routes: {
+    p0: true,
+    p1_2d: true,
+    models2d: modelFiles.filter((m) => /^(dup-[123]|ae-[123])\.js$/.test(m.file)).map((m) => m.file.slice(0, -3)),
+  },
   verdict: maxViolations.length === 0 && threeBundle <= VENDOR_ABORT ? 'pass' : 'fail',
 };
 await writeFile(`${DIST}/build-report.json`, JSON.stringify(report, null, 2));

@@ -1,0 +1,98 @@
+{
+  "createdAt": "2026-10-28T22:50:17.354Z",
+  "proxy": "stub-lokal (kein LLM, kein Key)",
+  "template": "prompts/p0-router.txt",
+  "faelle": [
+    {
+      "name": "motor3d",
+      "fachtextLen": 118,
+      "promptLen": 2963,
+      "gekappt": false,
+      "route": {
+        "mode": "3d",
+        "typ": "baugruppe",
+        "begruendung": "Mehrere Bauteile mit Lage- und Bewegungsbezug, Orbit bringt Mehrwert.",
+        "fallback": false
+      },
+      "ms": 82
+    },
+    {
+      "name": "tiefpass2d",
+      "fachtextLen": 107,
+      "promptLen": 2952,
+      "gekappt": false,
+      "route": {
+        "mode": "2d",
+        "typ": "schaltplan",
+        "begruendung": "Schaltungstopologie und Signalfluss, keine raeumliche Anordnung noetig.",
+        "fallback": false
+      },
+      "ms": 73
+    },
+    {
+      "name": "prozess2d",
+      "fachtextLen": 104,
+      "promptLen": 2949,
+      "gekappt": false,
+      "route": {
+        "mode": "2d",
+        "typ": "flussdiagramm",
+        "begruendung": "Prozess mit Reihenfolge und Verzweigung, kein Raumbezug.",
+        "fallback": false
+      },
+      "ms": 17
+    },
+    {
+      "name": "kennlinie2d",
+      "fachtextLen": 100,
+      "promptLen": 2945,
+      "gekappt": false,
+      "route": {
+        "mode": "2d",
+        "typ": "diagramm",
+        "begruendung": "Kennlinienvergleich auf Achsen, raeumliches Modell ohne Mehrwert.",
+        "fallback": false
+      },
+      "ms": 15
+    },
+    {
+      "name": "begriffe2d",
+      "fachtextLen": 106,
+      "promptLen": 2951,
+      "gekappt": false,
+      "route": {
+        "mode": "2d",
+        "typ": "tabelle",
+        "begruendung": "Begriffe und Taxonomie ohne Lage, Struktur statt Raum.",
+        "fallback": false
+      },
+      "ms": 16
+    },
+    {
+      "name": "stoerung500",
+      "fachtextLen": 77,
+      "promptLen": 2922,
+      "gekappt": false,
+      "route": {
+        "mode": "3d",
+        "typ": "baugruppe",
+        "begruendung": "Router-HTTP 500 (Fail-closed 3D)",
+        "fallback": true
+      },
+      "ms": 16
+    },
+    {
+      "name": "kappung",
+      "fachtextLen": 10016,
+      "promptLen": 6845,
+      "gekappt": true,
+      "route": {
+        "mode": "2d",
+        "typ": "tabelle",
+        "begruendung": "Begriffe und Taxonomie ohne Lage, Struktur statt Raum.",
+        "fallback": false
+      },
+      "ms": 16
+    }
+  ]
+}
