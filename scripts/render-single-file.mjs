@@ -101,7 +101,19 @@ html = html.replace(
   '<script id="lab-models" type="application/json">[]</script>',
   () => `<script>window.__PROVIDERS__=${providersJson};</script>\n<script>window.__MODELLMATRIX__=${matrixJson};</script>\n<script id="lab-models" type="application/json">[]</script>`
 );
-// Modelle + Manifeste einsammeln.
+// P2-Vorlage fuer Modify (Single Source prompts/): Inline-Build bettet ein,
+// Dev nutzt Fetch (main.js loadP2Template).
+const p2Template = await readFile(`${ROOT}/prompts/p2-repair.v6-harness.txt`, 'utf8');
+const p2Json = p2Template.replace(/</g, '\\u003c');
+if (/<\/script/i.test(p2Json)) {
+  console.error('render: ABBRUCH unescaptes </script in p2-repair');
+  await fallbackRot('unescaptes </script in p2-repair');
+  process.exit(1);
+}
+html = html.replace(
+  '<script id="lab-models" type="application/json">[]</script>',
+  () => `<script>window.__P2_TEMPLATE__=${JSON.stringify(p2Json)};</script>\n<script id="lab-models" type="application/json">[]</script>`
+);
 const models = [];
 if (existsSync(`${ROOT}/src/models`)) {
   for (const f of await readdir(`${ROOT}/src/models`)) {

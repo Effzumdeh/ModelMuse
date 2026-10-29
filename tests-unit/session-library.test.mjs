@@ -16,7 +16,7 @@ function lib1() {
 
 test('add/get/list: kuratierte Referenz + Sitzungseintrag', () => {
   const lib = lib1();
-  addEntry(lib, { id: 'frei-wind', title: 'Wind', source: SRC, providerId: 'openrouter', modelId: 'gemma-4-26b-it-free', parentId: 'si-1' });
+  addEntry(lib, { id: 'frei-wind', title: 'Wind', source: SRC, providerId: 'baseten', modelId: 'muse-spark-open-1026', parentId: 'si-1' });
   assert.equal(listEntries(lib).length, 2);
   assert.equal(getEntry(lib, 'frei-wind').rev, 1);
   assert.equal(getEntry(lib, 'frei-wind').parentId, 'si-1');

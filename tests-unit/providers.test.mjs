@@ -28,20 +28,25 @@ test('Meta: beide Muse-Varianten mit Datenschutz-Hinweis', () => {
   assert.ok((s.tags ?? []).includes('Standard'));
 });
 
-test('OpenRouter: NUR verifiziertes Gratis-Modell (keine erfundenen Slugs)', () => {
-  const ids = (getProvider(reg, 'openrouter')?.models ?? []).map((m) => m.id);
-  assert.deepEqual(ids, ['gemma-4-26b-it-free']);
-  // Verifizierter Slug (offizielle OpenRouter-Modellliste GET /api/v1/models,
-  // Stand 27.10.2026 live geprueft, kein Raten).
-  assert.equal(getModel(reg, 'openrouter', 'gemma-4-26b-it-free')?.providerModellId, 'google/gemma-4-26b-a4b-it:free');
+test('Baseten: NUR verifizierter Meta-Modell-Slug (keine erfundenen Slugs)', () => {
+  const ids = (getProvider(reg, 'baseten')?.models ?? []).map((m) => m.id);
+  assert.deepEqual(ids, ['muse-spark-open-1026']);
+  // Verifizierter Slug (Session-Vorgabe 28.10.2026, Baseten Model APIs,
+  // Basis https://inference.baseten.co/v1, Meta-Regel: Laufzeit nur Meta-Modelle).
+  assert.equal(getModel(reg, 'baseten', 'muse-spark-open-1026')?.providerModellId, 'meta-models/muse-spark-open-1026');
   for (const id of ids) {
-    const m = getModel(reg, 'openrouter', id);
+    const m = getModel(reg, 'baseten', id);
     assert.ok((m.badges ?? []).length >= 1, `${id}: Badge fehlt`);
     const doc = JSON.stringify(m);
     const belegt = /3JSBench|threejseval|benchmark\.ai|AA-3D/.test(doc);
-    const gratis = m.empfehlung === 'gratis-test' && /openrouter\.ai\/google\/gemma-4-26b-a4b-it:free/.test(doc);
-    assert.ok(belegt || gratis, `${id}: weder Benchmark-Beleg noch Gratis-Doku`);
+    const baseten = m.empfehlung === 'baseten-default' && /meta-models\/muse-spark-open-1026/.test(doc);
+    assert.ok(belegt || baseten, `${id}: weder Benchmark-Beleg noch Baseten-Doku`);
   }
+});
+
+test('OpenRouter-Pfad ist inaktiv/entfernt (seit 28.10.2026)', () => {
+  assert.equal(getProvider(reg, 'openrouter'), null);
+  assert.equal(getModel(reg, 'openrouter', 'gemma-4-26b-it-free'), null);
 });
 
 test('Empfehlungen: Geometrie/Aesthetik/Praeferenz=Fallback Standard, Allround=Contributor, Datenschutz=Standard', () => {
@@ -57,15 +62,15 @@ test('Empfehlungen: Geometrie/Aesthetik/Praeferenz=Fallback Standard, Allround=C
   }
 });
 
-test('Generierungspfade: Muse-CLI echt, OpenRouter ehrlich deaktiviert (kein Key)', () => {
+test('Generierungspfade: Muse-CLI echt, Baseten braucht BYOK (kein Key)', () => {
   const cli = generationTarget(reg, 'meta-muse', 'muse-spark-1.3-contributor', 'p1-test.txt');
   assert.equal(cli.ready, true);
   assert.ok(cli.text.includes('muse.exe exec --model muse-spark-1.3-contributor'));
   assert.ok(cli.text.includes('--api-key-stdin'), 'Key nur per stdin (Flag-Name, kein Key-Wert)');
   assert.ok(!cli.text.includes('Key_muse'), 'kein Key-Dateiname mit Inhalt');
-  const proxy = generationTarget(reg, 'openrouter', 'gemma-4-26b-it-free');
+  const proxy = generationTarget(reg, 'baseten', 'muse-spark-open-1026');
   assert.equal(proxy.ready, false);
-  assert.match(proxy.text, /Deaktiviert/);
+  assert.match(proxy.text, /BYOK/);
 });
 
 test('Didaktik-Hinweis: kein Benchmark misst Didaktik', () => {
@@ -74,6 +79,6 @@ test('Didaktik-Hinweis: kein Benchmark misst Didaktik', () => {
 
 test('Keine Halluzination: keine erfundenen API-Endpunkte im Repo', async () => {
   const txt = await readFile('src/data/providers.json', 'utf8');
-  assert.ok(!/api\.openrouter\.ai\/v1|openai\.com\/v1/i.test(txt), 'keine Provider-API-URLs hart kodiert');
+  assert.ok(!/api\.openrouter\.ai\/v1|openai\.com\/v1/i.test(txt), 'keine OpenRouter/OpenAI-URLs mehr');
   assert.ok(!/sk-[A-Za-z0-9]/.test(txt), 'kein Key-Muster');
 });

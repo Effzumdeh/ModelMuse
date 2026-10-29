@@ -1,6 +1,6 @@
 /**
  * Teil 1 — Anbieter-/Modellauswahl-UI (DOM-Bindung, Logik in runtime/providers.js).
- * Keys: Meta-Pfad braucht kein Key-Feld (muse.exe); OpenRouter-Pfad nimmt
+ * Keys: Meta-Pfad braucht kein Key-Feld (muse.exe); Baseten-Pfad nimmt
  * Proxy-URL + Key NUR laufzeitsseitig (Speicher, Session-Storage mit
  * Zustimmung). Nie Logs, nie Dateien.
  */

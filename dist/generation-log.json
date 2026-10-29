@@ -383,6 +383,25 @@
       "screenshotSha256": "9c8e8cb053dada95d32b6771392c4bad29bd94eea73bb2f683b5de3b8ebb7e18",
       "screenshotBytes": 106393,
       "keyKontakt": "BYOK nur Sitzungsspeicher (Feld), nie localStorage, nie Logs"
+    },
+    {
+      "zweck": "Browser-E2E Freimodus (Baseten-Pfad, Proxy localhost:8787)",
+      "quelle": "browser-e2e-baseten",
+      "modell": "meta-models/muse-spark-open-1026",
+      "provider": "baseten",
+      "transport": "Browser -> http://127.0.0.1:8787/generate (BYOK User-Sitzung) -> https://inference.baseten.co/v1/chat/completions (SSE)",
+      "begriff": "Buecherregal",
+      "promptBytes": 3062,
+      "startUtc": "2026-10-28T23:28:48.365Z",
+      "endeUtc": "2026-10-28T23:30:07.882Z",
+      "dauerS": 80,
+      "status": "„Bücherregal“ geladen: 6 Labels, 1 Messungen, 3 Aufgaben.",
+      "verify": "S5-segment-vorhanden=true, kein-rot=true",
+      "providerLabel": "Muse Spark Open 10-26 [Baseten/Meta-Modell]",
+      "screenshot": "dist/baseten-migration/proxy-e2e-baseten.png",
+      "screenshotSha256": "b0f6b245cc4311ac7b9e552ac0a11b6cc1edd3e6db625808eaf6c0a148563dea",
+      "screenshotBytes": 84814,
+      "keyKontakt": "BYOK nur User-Sitzung (Env BASETEN_API_KEY -> Feld, sessionStorage mit Zustimmung), nie localStorage, nie Logs"
     }
   ],
   "infrastrukturFix": "src/vendor/three.entry.js um 9 benannte three-Imports erweitert (PBR/Env/Shadows); scripts/build.mjs maxTable 400->560 mit A-1-Kommentar (Bauplan-Abweichung, dokumentiert). Bundle 570817->574043 Bytes.",

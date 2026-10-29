@@ -193,8 +193,11 @@ function probeBackfaces() {
         var m = meshes[i];
         var mats = Array.isArray(m.material) ? m.material : [m.material];
         var backMat = false;
+        // F5: BackSide ist nicht im Vendor-Bundle (NSref.BackSide undefined) —
+        // numerisch vergleichen (BackSide = 1 in r186, P1 schreibt side: 1 vor).
+        var backConst = (NSref.BackSide !== undefined && NSref.BackSide !== null) ? NSref.BackSide : 1;
         for (var k = 0; k < mats.length; k += 1) {
-          if (mats[k] && mats[k].side === NSref.BackSide) { backMat = true; break; }
+          if (mats[k] && mats[k].side === backConst) { backMat = true; break; }
         }
         if (backMat) { hits += 1; continue; }
         var bc = new NSref.Box3().setFromObject(m);
@@ -215,6 +218,18 @@ function probeBackfaces() {
     return { hits: hits, note: '' };
   } catch (e3) { return { hits: 0, note: 'Raycast-Fehler' }; }
 }
+function probeMeta() {
+  // Abschnitt-4-Feld 12: Manifest-Anbindung (Titel, Teile, Einheiten) aus Modul-meta.
+  try {
+    var m = window.__labmodule && window.__labmodule.meta;
+    if (!m || typeof m !== 'object') return null;
+    return {
+      title: typeof m.title === 'string' ? m.title.slice(0, 80) : '',
+      parts: Array.isArray(m.parts) ? m.parts.length : 0,
+      units: m.units === 'm' ? 'm' : String(m.units || '').slice(0, 8)
+    };
+  } catch (e) { return null; }
+}
 function snapshot() {
   var p = window.__labprobe;
   var last = rendererSeen[rendererSeen.length - 1];
@@ -233,7 +248,9 @@ function snapshot() {
     firstFrameAt: p.firstFrameAt,
     boxes: bx.boxes,
     backfaceHits: bf.hits,
-    geoNote: note ? String(note).slice(0, 160) : ''
+    geoNote: note ? String(note).slice(0, 160) : '',
+    meta: probeMeta(),
+    pixelDiff: null // Feld 13: hostseitig (2-Frame-Diff aus lab-capture-Paaren, Page-Kontext)
   };
 }
 var rafTimes = [];

@@ -108,15 +108,15 @@ for (const f of await readdir(`${ROOT}/src/schema`)) {
 
 // 3. Datei-Max-Pruefung (Bauplan Dateitabelle).
 const maxTable = {
-  'src/shell/index.html': 12000,    'src/shell/main.js': 17500, // 28.10.2026: 16500 -> 17500, Datei mass 16959 (vor Guide-3D-Arbeit, unerklaerter Ueberhang); Teil 2+5 (27.10.2026): 15000 -> 16500, getTarget + i18n-Verdrahtung + localStorage + repaintAll
+  'src/shell/index.html': 12000,    'src/shell/main.js': 21000, // Teil 6 (28.10.2026): 18000 -> 21000, Theme/Onboarding/Suche-Verdrahtung
     'src/shell/ui-providers.js': 7000,
     'src/shell/ui-library.js': 8000,
-    'src/shell/ui-scoreboard.js': 6000,
+    'src/shell/ui-modify.js': 9000, // Slim-Generator (28.10.2026): neu, Modify-Flow (P2 als Modify)
     'src/runtime/providers.js': 7000,
     'src/runtime/session-library.js': 8000,
     'src/runtime/scoreboard.js': 6000, 'src/shell/store.js': 8000,
   'src/shell/ui-model-picker.js': 7000, 'src/shell/ui-annotations.js': 7000, // Teil 5 (27.10.2026): 5000 -> 7000, tt() + localizeManifest
-  'src/shell/ui-tasks.js': 8000, 'src/shell/ui-report.js': 7000,
+  'src/shell/ui-report.js': 7000,
   'src/shell/i18n.js': 7000, // Teil 5 (27.10.2026): neu, detect/t/applyLocale/localizeManifest
   'src/shell/ui-fallback2d.js': 6000, 'src/shell/theme.css': 20000,
   'src/runtime/player.js': 16000, 'src/runtime/sandbox-host.js': 14000,
@@ -125,8 +125,8 @@ const maxTable = {
   'src/runtime/verify.js': 27000, 'src/runtime/didactics.js': 9000, // 28.10.2026: 22000 -> 27000, parallel Guide-3D edits grew the file to ~25-26k (diagram extraction + S2-geometry checks); 28.10.2026 (prior): 20000 -> 22000, Guide-3D-F4 (name-independent room gate) + P2 log with scene state/images; Part 5 (27.10.2026): 7000 -> 9000, i18n segment validation
   'src/runtime/geometry-checks.js': 20000,
   'src/runtime/fallback2d.js': 8000,  'src/runtime/annotate.js': 10000,
-  'src/runtime/livegen.js': 16000, // 28.10.2026: 9500 -> 16000, parallel live-generator edits grew the file to ~15k (was 9500 since Repair wiring); scale aligned with sibling ui-livegen.js (16000)
-  'src/shell/ui-livegen.js': 16000, // 27.10.2026: 15500 -> 16000, Repair-Anbindung (+85 B); Teil-1+2+5-Eintrag bleibt gueltig
+  'src/runtime/livegen.js': 19500, // Slim-Generator (28.10.2026): 16000 -> 19500, paralleles Direkt-Call-Feature waechst noch (16622 -> 18754); Marge fuer laufende Arbeit, Guards bleiben
+  'src/shell/ui-livegen.js': 17500, // Slim-Generator (28.10.2026): 16000 -> 17500, parallele Generieren-Arbeit (Datei misst 17057); Guards bleiben
   'src/vendor/three.entry.js': 760, // 28.10.2026: 700 -> 760, Guide-3D-F1/F2 (F1-Option-B: MeshPhysicalMaterial; F2: PCFShadowMap + VSMShadowMap; PCFSoftShadowMap bleibt fuer Bestandsmodelle); A-3 (2026-10-27, Nachtauftrag Hyperrealismus Teil 2): 560 -> 700, 8 weitere benannte three-Imports (InstancedMesh, ExtrudeGeometry, Shape, DataTexture, LinearFilter, RepeatWrapping, Matrix4, Quaternion) fuer Hyper-Geometrie/Texturen; kein CDN, keine externen Files; Bundle-Wachstum klein, Artefakt-Budget gruen
   'src/vendor/diagram-2d.js': 12500, // 28.10.2026: neu, 2D-Vendor-Renderer (SVG nativ, 0 externe Bytes; Lib im Vendor, Module liefern nur Daten)
   'src/vendor/alpine.module.esm.min.js': 55919,

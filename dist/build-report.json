@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-28T23:14:37.817Z",
+  "createdAt": "2026-10-29T00:17:59.716Z",
   "versions": {
     "three": "0.186.1",
     "esbuild": "0.28.2",
@@ -34,10 +34,10 @@
     "threeBundle": 610955,
     "alpine": 55919,
     "helpers": 7827,
-    "shellJs": 65217,
-    "runtimeJs": 167509,
-    "shellJsTotal": 232726,
-    "css": 6297,
+    "shellJs": 68126,
+    "runtimeJs": 171381,
+    "shellJsTotal": 239507,
+    "css": 8914,
     "modelsTotal": 89720,
     "modelFiles": [
       {
@@ -94,8 +94,8 @@
     "manifestsSchemas": 46554
   },
   "maxViolations": [],
-  "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
-  "artefaktSha256": "c5569e18ff79894b97beeab38e2482de1a7f3852adce3d4e2383887fb7bc2f7b",
+  "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+  "artefaktSha256": "097d04741adc88259aff9f8a610313145c7c6ebfe54c28b101e909b826d64d74",
   "routes": {
     "p0": true,
     "p1_2d": true,

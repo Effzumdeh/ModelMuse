@@ -243,6 +243,27 @@ s = expectCount(replaceCount(s, /(\{id:"ae-1",track:"AE",)is3d:true/g, '$1is3d:f
 s = expectCount(replaceCount(s, /(\{id:"ae-2",track:"AE",)is3d:true/g, '$1is3d:false', 'R18b ae-2 2D'), 1);
 s = expectCount(replaceCount(s, /(\{id:"ae-3",track:"AE",)is3d:true/g, '$1is3d:false', 'R18c ae-3 2D'), 1);
 
+// R19: Attributions-Footer (Lizenz-Audit 29.10.2026, docs/LIZENZEN.md).
+// Das Standalone BUENDELT keine Fremd-Bibliothek, REFERENZIERT aber vier per
+// CDN: three.js 0.186.1 (MIT), Vue 3 (MIT), Tailwind CSS (MIT), Inter (OFL-1.1).
+// Beleg der Abgrenzung: kein Alpine-Code (grep -c -i alpine = 0) und kein
+// inline three.js-Bibliothekskoerper (kein "REVISION = '...'") im Artefakt.
+// Drei Schritte: (1) I18N-Key footerAttrib in de/en/es, (2) sichtbare
+// Footer-Zeile mit Versions- und Lizenzangabe, (3) Provenienz-Verweis.
+// Anker je 1x vorhanden -> expectCount bricht bei Fremdbasis ab.
+const ATTRIB_DE = 'Attribution: three.js 0.186.1 (MIT) \\u00b7 Vue 3 (MIT) \\u00b7 Tailwind CSS (MIT) \\u00b7 Inter Font (SIL OFL 1.1). Vollst\\u00e4ndige Lizenztexte und Herkunftsnachweis: docs/LIZENZEN.md';
+const ATTRIB_EN = 'Attribution: three.js 0.186.1 (MIT) \\u00b7 Vue 3 (MIT) \\u00b7 Tailwind CSS (MIT) \\u00b7 Inter Font (SIL OFL 1.1). Full license texts and provenance: docs/LIZENZEN.md';
+const ATTRIB_ES = 'Atribuci\\u00f3n: three.js 0.186.1 (MIT) \\u00b7 Vue 3 (MIT) \\u00b7 Tailwind CSS (MIT) \\u00b7 Inter Font (SIL OFL 1.1). Textos de licencia completos y procedencia: docs/LIZENZEN.md';
+s = expectCount(replaceCount(s, /(\(LocalStorage\) gespeichert\.",)/, (m, p1) => `${p1}footerAttrib:"${ATTRIB_DE}",`, 'R19a footerAttrib de'), 1);
+s = expectCount(replaceCount(s, /(your browser \(LocalStorage\)\.",)/, (m, p1) => `${p1}footerAttrib:"${ATTRIB_EN}",`, 'R19b footerAttrib en'), 1);
+s = expectCount(replaceCount(s, /(en tu navegador \(LocalStorage\)\.",)/, (m, p1) => `${p1}footerAttrib:"${ATTRIB_ES}",`, 'R19c footerAttrib es'), 1);
+s = expectCount(replaceCount(
+  s,
+  /(\{\{t\('resetProgress'\)\}\}<\/button>\n<\/div>\n)<\/footer>/,
+  (m, p1) => `${p1}<p class="max-w-[1920px] mx-auto px-4 pb-4 text-xs text-slate-500 dark:text-slate-400">{{t('footerAttrib')}}</p>\n</footer>`,
+  'R19d Attributions-Footer',
+), 1);
+
 await writeFile(FILE, s);
 console.log(`build-standalone: geschrieben (${s.length} Zeichen)`);
 const report = {
@@ -250,13 +271,14 @@ const report = {
   basis: 'v11 (assemble-v11, Titel v10)',
   standalone: 'v12-guide',
   guide: 'docs/implementation-guide-3d-qualitaet.md Abschnitte 2-3',
-  fixes: ['R1-R4 PCFShadowMap', 'R5 mapSize 1024', 'R6/R7 bias/radius', 'R8/R9 4-Lichter', 'R10/R11 IBL-Raum', 'R12 si-3 DPR', 'R13/R14 free-Modell', 'R15 Prompt', 'R16 F3 envMapIntensity', 'R17 Titel', 'R18 ae-1..3 is3d:false (2D-Portfolio)'],
+  fixes: ['R1-R4 PCFShadowMap', 'R5 mapSize 1024', 'R6/R7 bias/radius', 'R8/R9 4-Lichter', 'R10/R11 IBL-Raum', 'R12 si-3 DPR', 'R13/R14 free-Modell', 'R15 Prompt', 'R16 F3 envMapIntensity', 'R17 Titel', 'R18 ae-1..3 is3d:false (2D-Portfolio)', 'R19 Attributions-Footer (docs/LIZENZEN.md)'],
   counts: {
     PCFSoftShadowMap: cnt('PCFSoftShadowMap'), PCFShadowMap: cnt('PCFShadowMap'),
     envMapIntensity: 0, dunkelRaum: 0, helleWaende: 9, raumlicht: 9,
     shadowRadius: cnt('shadow.radius'), map2048: 0, biasAlt: 0,
+    footerAttrib: cnt('footerAttrib'), attributionZeile: cnt("{{t('footerAttrib')}}</p>"),
   },
-  notes: 'Free-Modell (Nutzer-Artefakt): Lichter/DPR/Schatten guide-konform gepatcht, keine IBL-Nachruestung (Optik-Identitaet).',
+  notes: 'Free-Modell (Nutzer-Artefakt): Lichter/DPR/Schatten guide-konform gepatcht, keine IBL-Nachruestung (Optik-Identitaet). R19 ergaenzt die Attributions-Zeile im Footer (de/en/es) mit den vier CDN-Referenzen des Standalone (three.js, Vue 3, Tailwind CSS, Inter) — das Standalone BUENDELT keine Fremd-Bibliothek.',
 };
 if (REPORT) {
   await writeFile(REPORT, JSON.stringify(report, null, 2));

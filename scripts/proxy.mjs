@@ -2,17 +2,24 @@
  * SkillSpark Generierungs-Proxy (localhost only, keine neuen Dependencies).
  * Bindet NUR 127.0.0.1, liest den Server-Key zur Laufzeit aus Env/Key-Datei
  * (niemals ins Repo, nie an den Browser, nie in Logs), reicht Generierungs-
- * anfragen als SSE-Stream an https://api.meta.ai/v1 weiter (DONE-Terminator,
- * finish_reason-Check auf Empfaengerseite) und meldet Fehler als E-GEN-*.
- * Offene Bauweise: weitere Anbieter/Modelle per PROVIDERS-Registry ergaenzbar.
+ * anfragen als SSE-Stream weiter (DONE-Terminator, finish_reason-Check auf
+ * Empfaengerseite) und meldet Fehler als E-GEN-*.
+ * Upstream-Standard (28.10.2026): Baseten Model APIs (OpenAI-kompatibel,
+ * POST /v1/chat/completions, Bearer $BASETEN_API_KEY, Doku siehe
+ * https://docs.baseten.co/inference/model-apis/overview) plus Meta Model API
+ * (muse-cli-Pfad). Offene Bauweise: weitere Anbieter/Modelle per
+ * PROVIDERS-Registry ergaenzbar.
  *
  * Endpunkte:
  *   GET  /health    -> { ok, service, providers, defaultModel, time } (ohne Key)
  *   POST /generate  -> { prompt, provider?, model?, seed?, stream? }
- *                      + optional Authorization: Bearer <BYOK-Key>
+ *                      + optional Authorization: Bearer ***
  *                      Antwort: SSE-Stream (Upstream, 1:1) oder JSON {code,message}
  * Aufruf: node scripts/proxy.mjs [port]  (Default 8787)
  * Env: META_API_KEY | MODEL_API_KEY | MUSE_API_KEY | KEY_FILE (Default s.u.)
+ *   Baseten-Key AUSSCHLIESSLICH laufzeitsseitig per BYOK-Header (User-Eingabe
+ *   im Browser, nur Sitzung/sessionStorage mit Zustimmung) — nie Server-Key-
+ *   Fallback fuer Baseten, nie in Code/Logs/Dateien.
  */
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -20,10 +27,17 @@ import { existsSync } from 'node:fs';
 
 export const PROXY_DEFAULT_PORT = 8787;
 export const META_BASE = 'https://api.meta.ai/v1';
-// Offizielle OpenRouter-Doku (Stand 27.10.2026): Basis https://openrouter.ai/api/v1,
-// OpenAI-kompatibel (POST /chat/completions, Authorization Bearer). Modell-Slugs
-// aus https://openrouter.ai/models verifiziert; Keys NUR laufzeitsseitig (BYOK).
-export const OPENROUTER_BASE = 'https://openrouter.ai/api/v1';
+// Baseten Model APIs (Stand 28.10.2026, Doku: https://docs.baseten.co/inference/model-apis/overview
+// + https://docs.baseten.co/reference/inference-api/chat-completions):
+// Basis https://inference.baseten.co/v1, OpenAI-kompatibel
+// (POST /chat/completions, Authorization Bearer $BASETEN_API_KEY, SSE moeglich).
+// Modell meta-models/muse-spark-open-1026 (Meta-Regel: Laufzeit nur Meta-Modelle).
+// Keys NUR laufzeitsseitig per BYOK-Header (User-Eingabe, nur Sitzung), nie in Code/Logs/Dateien.
+// INAKTIV seit 28.10.2026: OpenRouter-Pfad (zuvor https://openrouter.ai/api/v1,
+// Modell google/gemma-4-26b-a4b-it:free) — entfernt, siehe docs/BASETEN-MIGRATION.md.
+// Der Providername 'openrouter' wird in parseGenerateBody mit E-GEN-404 + Migrationshinweis
+// abgewiesen (kein Upstream-Call).
+export const BASETEN_BASE = 'https://inference.baseten.co/v1';
 const KEY_FILE_DEFAULT = 'C:/Users/flori/OneDrive/Key_muse.md';
 
 /**
@@ -37,21 +51,17 @@ export const PROVIDERS = {
     models: ['muse-spark-1.3-contributor', 'muse-spark-1.3', 'muse-wonder-1.0'],
     defaultModel: 'muse-spark-1.3-contributor',
   },
-  // OpenRouter-Pfad: Slugs am 27.10.2026 per offizieller OpenRouter-Modellliste
-  // (GET https://openrouter.ai/api/v1/models, 463 Eintraege, 16 :free) live
-  // verifiziert. Vorgaenger-Slug openai/gpt-oss-20b:free existiert dort NICHT
-  // mehr (nur noch kostenpflichtiges openai/gpt-oss-20b) -> ersetzt durch das
-  // gratis google/gemma-4-26b-a4b-it:free (pricing 0/0, ctx 262144).
-  // KEIN Spark auf diesem Pfad (Kosten-Disziplin: OpenRouter AUSSCHLIESSLICH
-  // gratis). byokOnly: KEIN Server-Key-Fallback — der Meta-Server-Key darf NIE
-  // an OpenRouter gehen; Keys nur laufzeitsseitig per BYOK-Header, nie in Code/Logs.
-  openrouter: {
-    base: OPENROUTER_BASE,
+  // Baseten-Pfad (Standard seit 28.10.2026, Meta-Modell via Baseten Model APIs,
+  // Doku: https://docs.baseten.co/inference/model-apis/overview).
+  // byokOnly: KEIN Server-Key-Fallback — der Meta-Server-Key darf NIE an
+  // Baseten gehen; Keys nur laufzeitsseitig per BYOK-Header, nie in Code/Logs.
+  baseten: {
+    base: BASETEN_BASE,
     chatPath: '/chat/completions',
     models: [
-      'google/gemma-4-26b-a4b-it:free',
+      'meta-models/muse-spark-open-1026',
     ],
-    defaultModel: 'google/gemma-4-26b-a4b-it:free',
+    defaultModel: 'meta-models/muse-spark-open-1026',
     byokOnly: true,
   },
 };
@@ -88,6 +98,11 @@ export function parseGenerateBody(body) {
     return { ok: false, code: 'E-GEN-413', message: 'E-GEN-413: Prompt zu gross (max. 60000 Zeichen)' };
   }
   const provider = typeof body.provider === 'string' && body.provider ? body.provider : DEFAULT_PROVIDER;
+  // INAKTIV seit 28.10.2026: OpenRouter-Pfad entfernt (siehe docs/BASETEN-MIGRATION.md).
+  // Ehrliche Abweisung mit Migrationshinweis, kein Upstream-Call.
+  if (provider === 'openrouter') {
+    return { ok: false, code: 'E-GEN-404', message: 'E-GEN-404: Anbieter openrouter ist inaktiv (seit 28.10.2026) — nutze provider baseten, Modell meta-models/muse-spark-open-1026 (Key laufzeitsseitig per BYOK)' };
+  }
   const reg = PROVIDERS[provider];
   if (!reg) {
     return { ok: false, code: 'E-GEN-404', message: `E-GEN-404: Unbekannter Anbieter ${provider}` };
@@ -212,11 +227,11 @@ export function createProxyServer() {
         : '';
       const reg = PROVIDERS[parsed.provider];
       const byokOk = keyShapeOk(byok);
-      // OpenRouter (byokOnly): Meta-Server-Key darf NIE an OpenRouter gehen.
-      // Key AUSSCHLIESSLICH laufzeitsseitig per BYOK-Header (User-Eingabe).
+      // Baseten (byokOnly): Meta-Server-Key darf NIE an Baseten gehen.
+      // Key AUSSCHLIESSLICH laufzeitsseitig per BYOK-Header (User-Eingabe, nur Sitzung).
       if (reg.byokOnly && !byokOk) {
         console.log(`POST /generate -> 500 E-GEN-CONFIG (provider=${parsed.provider}, kein BYOK-Key)`);
-        sendJson(res, 500, 'E-GEN-CONFIG', 'E-GEN-CONFIG: OpenRouter-Key als BYOK-Header eintragen (nur Sitzung, nie Logs/Dateien)');
+        sendJson(res, 500, 'E-GEN-CONFIG', 'E-GEN-CONFIG: Baseten-Key als BYOK-Header eintragen (nur Sitzung, nie Logs/Dateien)');
         return;
       }
       const key = byokOk ? byok : await loadServerKey();
@@ -228,17 +243,13 @@ export function createProxyServer() {
       const keySource = byokOk ? 'byok' : 'server';
       let upstream;
       try {
-        // OpenRouter-Attribution (offizielle Doku, optional, kein Key-Material).
-        const extraHeaders = parsed.provider === 'openrouter'
-          ? { 'HTTP-Referer': 'http://127.0.0.1/', 'X-Title': 'SkillSpark Lab-Player' }
-          : {};
+        // Baseten Model APIs: OpenAI-kompatibel, nur Bearer-Key (keine Zusatz-Header).
         upstream = await fetch(reg.base + reg.chatPath, {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
             authorization: 'Bearer ' + key,
             accept: 'text/event-stream',
-            ...extraHeaders,
           },
           body: JSON.stringify(upstreamChatBody(parsed.model, parsed.prompt)),
         });
@@ -297,6 +308,6 @@ if (isMain) {
   }
   const server = createProxyServer();
   server.listen(port, '127.0.0.1', () => {
-    console.log(`skillspark-proxy: http://127.0.0.1:${port}/ (nur localhost, upstream ${META_BASE})`);
+    console.log(`skillspark-proxy: http://127.0.0.1:${port}/ (nur localhost, upstream Meta ${META_BASE} + Baseten ${BASETEN_BASE})`);
   });
 }

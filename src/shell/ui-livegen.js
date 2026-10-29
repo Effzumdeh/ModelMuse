@@ -1,7 +1,9 @@
 /**
- * Freimodus-UI: eigener Muse-API-Key der Lehrkraft plus freier Begriff.
- * Key-Haltung: nur im Speicher (livegen-Modul); Session-Storage NUR mit
- * ausdruecklicher Zustimmung per Checkbox, nie localStorage, nie Logs/Dateien.
+ * Freimodus-UI: eigener API-Key der Lehrkraft plus freier Begriff.
+ * Ablauf: Direkt-Call zuerst (Browser -> Upstream, BYOK); lokaler Proxy nur
+ * als Fallback (CORS/Netz). Key-Haltung: nur im Speicher (livegen-Modul);
+ * Session-Storage NUR mit ausdruecklicher Zustimmung per Checkbox, nie
+ * localStorage, nie Logs/Dateien (Standalone-Muster skillspark-proxy-key).
  * Nach der Generierung: Labels kommen aus dem Modell (P1: addLabel je
  * Hauptbauteil), Manifest mit Aufgaben je Niveau wird automatisch gebaut.
  * Bauplan Abschnitt 4 (generateLive) und 9 (E-GEN-*).
@@ -24,8 +26,10 @@ export function germanMessage(e) {
   return msg === key ? tt('fehler.E-GEN-5XX') : msg;
 }
 
-/** Lokaler Generierungs-Proxy (scripts/proxy.mjs): vorbelegt, BYOK optional. */
+/** Lokaler Generierungs-Proxy als FALLBACK (scripts/proxy.mjs). Direkt-Call braucht ihn nicht. */
 export const PROXY_DEFAULT = 'http://127.0.0.1:8787/generate';
+/** Session-Key-Ablage (nur mit Zustimmung, Standalone-Muster). */
+export const LIVE_KEY_SESSION = 'skillspark-live-key';
 
 function slug(term) {
   const s = String(term).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -195,26 +199,48 @@ export function extractMetaI18n(source) {
   }
 }
 
-/** Teil 5 (User-Entscheidung): Keys AUSSCHLIESSLICH Sitzungseingabe im Browser.
- * Keine Persistenz mehr (weder sessionStorage noch localStorage), nie Logs.
- * Speicherhaltung laeuft ueber das livegen-Modul (nur Speicher). */
+/** Teil 5 (User-Entscheidung) + Direkt-Call (28.10.2026): Keys AUSSCHLIESSLICH
+ * Sitzungseingabe im Browser. Speicherhaltung im livegen-Modul (nur Speicher);
+ * Session-Storage NUR mit Zustimmung (Checkbox), nie Logs.
+ * @param {string} key Speicher-Key (roh, wird validiert)
+ */
+function rememberKey(key) {
+  setLiveApiKey(key);
+  try {
+    const box = /** @type {HTMLInputElement | null} */ (document.getElementById('live-consent'));
+    if (box?.checked) sessionStorage.setItem(LIVE_KEY_SESSION, key);
+    else sessionStorage.removeItem(LIVE_KEY_SESSION);
+  } catch { /* Speicher blockiert */ }
+}
 
-/** Aus Kompatibilitaet erhalten: liefert immer null (kein gespeicherter Key). */
+/** Vergisst den Sitzungs-Key (Speicher + Session-Storage). */
+export function forgetStoredKey() {
+  clearLiveApiKey();
+  try {
+    sessionStorage.removeItem(LIVE_KEY_SESSION);
+  } catch { /* Speicher blockiert */ }
+}
+
+/** Aus Kompatibilitaet: gespeicherter Session-Key (oder null). */
 export function loadStoredKey() {
-  return null;
+  try {
+    const v = sessionStorage.getItem(LIVE_KEY_SESSION);
+    return typeof v === 'string' && v.length >= 8 ? v : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Aus Kompatibilitaet erhalten: No-Op (Key bleibt nur im Speicher).
+ * Aus Kompatibilitaet: Key merken (Speicher + Session nur mit Zustimmung).
  * @param {string} _key @param {boolean} _consent
  */
 export function storeKey(_key, _consent) {
-  /* Teil 5: keine Key-Persistenz — nur Sitzungs-Speicher via livegen-Modul */
-}
-
-/** Vergisst den Sitzungs-Key (nur Speicher). */
-export function forgetStoredKey() {
-  clearLiveApiKey();
+  try {
+    setLiveApiKey(_key);
+    if (_consent) sessionStorage.setItem(LIVE_KEY_SESSION, _key);
+    else sessionStorage.removeItem(LIVE_KEY_SESSION);
+  } catch { /* ungueltiger Key oder Speicher blockiert */ }
 }
 
 /**
@@ -223,10 +249,22 @@ export function forgetStoredKey() {
  */
 export function mountLivegen(els) {
   if (!els.proxyInput.value) els.proxyInput.value = PROXY_DEFAULT;
-  // Teil 5: kein gespeicherter Key (nur Sitzungseingabe, nie Storage).
+  // Session-Key wiederherstellen (nur Sitzung, nie localStorage/Logs).
   if (els.consentInput) {
-    els.consentInput.disabled = true;
-    els.consentInput.title = 'Entfernt (Teil 5): Keys nur Sitzungseingabe, keine Speicherung.';
+    els.consentInput.disabled = false;
+    els.consentInput.removeAttribute('title');
+    try {
+      const saved = sessionStorage.getItem(LIVE_KEY_SESSION);
+      if (saved && !els.keyInput.value) {
+        els.keyInput.value = saved;
+        els.consentInput.checked = true;
+        try {
+          setLiveApiKey(saved);
+        } catch {
+          /* ungueltig: Feld bleibt, Generierung meldet E-GEN-CONFIG */
+        }
+      }
+    } catch { /* Speicher blockiert */ }
   }
   /** @param {string} msg @param {boolean} [bad] */
   const say = (msg, bad) => {
@@ -240,31 +278,32 @@ export function mountLivegen(els) {
       return;
     }
     const proxyUrl = els.proxyInput.value.trim();
-    if (!proxyUrl) {
-      say(germanMessage({ code: 'E-GEN-OFFLINE' }));
-      return;
-    }
-    // Key optional (BYOK, nur Sitzung): leer = Server-Key des lokalen Proxys.
+    // Key optional: leer = Server-Key des lokalen Proxy-Fallbacks; mit Key
+    // zuerst Direkt-Call (Browser -> Upstream), Proxy nur bei Netz/CORS-Fehler.
     const key = els.keyInput.value.trim();
     delete els.keyInput.dataset.hasStored;
     if (key) {
       try {
-        setLiveApiKey(key);
+        rememberKey(key);
       } catch {
         say(germanMessage({ code: 'E-GEN-CONFIG' }), true);
         return;
       }
     } else {
-      clearLiveApiKey();
+      forgetStoredKey();
+    }
+    if (!proxyUrl && !key) {
+      say(germanMessage({ code: 'E-GEN-OFFLINE' }));
+      return;
     }
     try {
-      configureLiveGen({ proxyUrl, timeoutMs: 300000 }); // E2E-Befund 2026-10-27: Streams > 90 s
+      configureLiveGen({ proxyUrl: proxyUrl || null, timeoutMs: 300000 }); // E2E-Befund 2026-10-27: Streams > 90 s
     } catch {
       say(germanMessage({ code: 'E-GEN-CONFIG' }), true);
       return;
     }
     els.goButton.disabled = true;
-    // Zielpfad: Anbieter-/Modellauswahl (M3) oder Meta-Default. OpenRouter-Pfad
+    // Zielpfad: Anbieter-/Modellauswahl (M3) oder Meta-Default. Baseten-Pfad
     // braucht den User-Key (BYOK, nur Sitzung) — ohne Key: E-GEN-CONFIG.
     const target = typeof els.getTarget === 'function' ? els.getTarget() : null;
     const provider = target?.providerId ?? undefined;
@@ -278,7 +317,8 @@ export function mountLivegen(els) {
       const id = freeModelId(term);
       els.onRegistry({ id, title: manifest.title, source: gen.source, manifest });
       await els.player.load({ id, kind: 'free', source: gen.source, manifest });
-      say(tt('freimodus.geladen', { titel: manifest.title, labels: manifest.labels.length, messungen: manifest.measurements.length, aufgaben: manifest.tasks.length }));
+      const via = gen.via === 'direct' ? tt('freimodus.viaDirekt') : tt('freimodus.viaProxy');
+      say(tt('freimodus.geladen', { titel: manifest.title, labels: manifest.labels.length, messungen: manifest.measurements.length, aufgaben: manifest.tasks.length }) + via);
     } catch (e) {
       // E-GEN-*: gemappte UI-Meldung; Harness-Fehler (E-S1-*, E-S2-*, rot-Bericht)
       // zeigen die echte Ursache statt generischem 5XX-Text (E2E-Befund 27.10.2026).

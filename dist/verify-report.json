@@ -1,6 +1,6 @@
 {
-  "createdAt": "2026-10-28T23:14:38.296Z",
-  "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+  "createdAt": "2026-10-29T00:18:01.843Z",
+  "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
   "routes": {
     "p0": true,
     "p1_2d": true,
@@ -183,8 +183,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.267Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.818Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -224,7 +224,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -360,8 +360,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.271Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.821Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -537,8 +537,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.272Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.822Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -578,7 +578,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "layer": "S2",
@@ -621,7 +621,7 @@
               "actual": "6 Meshes statisch (Mesh 4 + Instanced 2)"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S3",
@@ -715,13 +715,13 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         }
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.277Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.826Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "3d"
       },
@@ -896,8 +896,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.278Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.828Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -1073,8 +1073,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.279Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.829Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -1250,8 +1250,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.279Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.829Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -1334,7 +1334,7 @@
               "actual": "5 Meshes statisch (Mesh 5 + Instanced 0)"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -1433,8 +1433,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.282Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.833Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "3d"
       },
@@ -1473,7 +1473,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 3
+          "durationMs": 2
         },
         {
           "layer": "S2",
@@ -1615,8 +1615,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.289Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.837Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "3d"
       },
@@ -1797,8 +1797,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.292Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.840Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "3d"
       },
@@ -1979,8 +1979,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.294Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.842Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "3d"
       },
@@ -2161,8 +2161,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-28T23:14:38.296Z",
-      "buildHash": "f04e83d8b4423e806aeb1652738bd8d48c2e16e0b4b694dcf350b9bd85b845f9",
+      "createdAt": "2026-10-29T00:18:01.843Z",
+      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
       "route": {
         "mode": "3d"
       },

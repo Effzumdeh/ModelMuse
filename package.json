@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "description": "SkillSpark Code-Gen-Kern: Single-Page-Wrapper fuer generierte Three.js-Modelle",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "build:standalone": "node scripts/build-standalone.mjs",
@@ -21,7 +23,7 @@
     "serve": "node scripts/serve.mjs",
     "test": "playwright test",
     "proxy": "node scripts/proxy.mjs 8787",
-    "test:unit": "node --test tests-unit/guard-static.test.mjs tests-unit/budget.test.mjs tests-unit/didactics.test.mjs tests-unit/livegen.test.mjs tests-unit/matrix.test.mjs tests-unit/geometry-checks.test.mjs tests-unit/prompts-eval.test.mjs tests-unit/providers.test.mjs tests-unit/session-library.test.mjs tests-unit/scoreboard.test.mjs tests-unit/proxy.test.mjs tests-unit/parts.test.mjs tests-unit/i18n.test.mjs tests-unit/guide-3d-qualitaet.test.mjs tests-unit/router-2d.test.mjs",
+    "test:unit": "node --test tests-unit/guard-static.test.mjs tests-unit/budget.test.mjs tests-unit/didactics.test.mjs tests-unit/livegen.test.mjs tests-unit/matrix.test.mjs tests-unit/geometry-checks.test.mjs tests-unit/prompts-eval.test.mjs tests-unit/providers.test.mjs tests-unit/session-library.test.mjs tests-unit/scoreboard.test.mjs tests-unit/proxy.test.mjs tests-unit/parts.test.mjs tests-unit/i18n.test.mjs tests-unit/modify.test.mjs tests-unit/guide-3d-qualitaet.test.mjs tests-unit/router-2d.test.mjs",
     "usage:tagesstand": "node scripts/usage-tagesstand.mjs"
   },
   "devDependencies": {

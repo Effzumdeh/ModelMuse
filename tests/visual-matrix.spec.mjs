@@ -114,8 +114,8 @@ async function nonEmptyShot(page, modelId, view) {
     // State nach Reload neu aufbauen (bestehende Selektoren), Lade-Signal erneut
     // abwarten, neu screenshotten. Danach gilt das Ergebnis (kein zweiter Retry).
     await page.reload();
-    await page.waitForSelector('#model-select', { timeout: 30000 });
-    await page.selectOption('#model-select', modelId);
+    await page.waitForSelector('#labs-list [data-lab]', { timeout: 30000 });
+    await page.click(`[data-lab="${modelId}"]`);
     await page.waitForSelector(mountSelector(modelId), { timeout: 30000 });
     await page.waitForFunction(
       (mid) => document.querySelector('#verify-report strong')?.textContent === mid,
@@ -150,8 +150,8 @@ for (const id of MODELS) {
   for (const view of VIEWS) {
     test(`S3-Matrix: ${id} ${view} nicht-leer + Baseline`, async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('#model-select', { timeout: 30000 });
-      await page.selectOption('#model-select', id);
+      await page.waitForSelector('#labs-list [data-lab]', { timeout: 30000 });
+      await page.click(`[data-lab="${id}"]`);
       await page.waitForSelector(mountSelector(id), { timeout: 30000 });
       // Echtes Lade-Signal: player.load() wartet auf model-ready (erster Frame,
       // frame-bootstrap.js) und rendert DANN den Verify-Report (ui-report.js:

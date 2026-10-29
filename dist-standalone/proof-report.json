@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "url": "http://127.0.0.1:8123/dist-standalone/skillspark-standalone.html",
+  "boot": {
+    "banner": false,
+    "viewer": true,
+    "inits": 10,
+    "initFns": 10
+  },
+  "shots": [
+    {
+      "lab": "si-1",
+      "mode": "3d",
+      "viewerMode": "3d",
+      "canvas": true,
+      "w": 884,
+      "h": 558,
+      "urlLen": 150502,
+      "svg": false,
+      "shot": "dist-standalone/proof-si-1-v12.png"
+    },
+    {
+      "lab": "ae-2",
+      "mode": "3d",
+      "viewerMode": "3d",
+      "canvas": true,
+      "w": 884,
+      "h": 558,
+      "urlLen": 84934,
+      "svg": false,
+      "shot": "dist-standalone/proof-ae-2-v12.png"
+    },
+    {
+      "lab": "free-handbohrmaschine",
+      "mode": "3d",
+      "viewerMode": "3d",
+      "canvas": true,
+      "w": 884,
+      "h": 558,
+      "urlLen": 164630,
+      "svg": false,
+      "shot": "dist-standalone/proof-free-handbohrmaschine-v12.png"
+    },
+    {
+      "lab": "dup-1",
+      "mode": "2d",
+      "viewerMode": "2d",
+      "canvas": false,
+      "w": 0,
+      "h": 0,
+      "urlLen": 0,
+      "svg": true,
+      "shot": "dist-standalone/proof-dup-1-v12.png"
+    }
+  ],
+  "errors": 0,
+  "pageerrors": 0,
+  "warnings": 0,
+  "createdAt": "2026-10-28T23:34:47.711Z"
+}

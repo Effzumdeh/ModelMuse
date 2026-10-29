@@ -15,3 +15,20 @@ HARNESS-FEEDBACK (maschinenverwertbar — die sechs Fehlerklassen):
 [S4:S4-meshcount] FAIL | Soll: <erwarteter Wert> | Ist: <Mesh-Anzahl statisch>
 FEHLERPROTOKOLL:
 [Schicht:Kriterium] [Meldung] [Messwerte]
+GEOMETRIE-MESSDATEN (aus dem Browser, nicht aus dem Quelltext):
+[S2:S2-intersect] FAIL | Soll: <0 Ueberschneidungen, Toleranz 2,0 mm> | Ist: <Paarzahl, max Tiefe mm, betroffene IDs>
+[S2:S2-backface] FAIL | Soll: <0 sichtbare Innenseiten> | Ist: <BackSide-Anzahl, inkonsistente Normalen, IDs>
+[S2:S2-flicker] FAIL | Soll: <Pixel-Diff <= 0,002, Abstand >= 0,5 mm> | Ist: <Pixel-Diff, Paare>
+[S2:S2-orient] FAIL | Soll: <Zentrum ±0,50 m, Ausdehnung <= 1,50 m> | Ist: <Zentrum, Spanne>
+[S2:S2-connect] FAIL | Soll: <Label-Abstand >= 5,0 mm, Spanne <= 1,50 m> | Ist: <min Abstand, Spanne>
+[S4-Budgets] FAIL | Soll: <Meshes <= 250 (gruen bis 120, Ziel ~45), Tris <= 150000, Draw-Calls <= 400, Modul <= 34000 Bytes> | Ist: <Messwerte renderer.info + Bytes>
+Repariere genau die protokollierten Kriterien; bestandene Schichten unveraendert lassen.
+NEGATIV-MUSTER (6 Fehlerklassen, je 1 Negativ + 1 Positiv):
+[S2-intersect] NEGATIV: Luefter-Rad ragt 4,7 mm ins Gehaeuse. POSITIV: Baugruppen beruehren sich hoechstens (Toleranz 2,0 mm).
+[S2-backface] NEGATIV: Gehaeusewand mit side: 1 ausserhalb des PMREM-Raums. POSITIV: geschlossene Volumen, Standard-Seite; side: 1 nur im PMREM-Raum.
+[S2-flicker] NEGATIV: Deckblech koplanar zum Luefterblatt (0,1 mm Abstand, Pixel-Diff 0,0114). POSITIV: Ebenenabstand >= 0,5 mm, keine Doppel-Flaechen.
+[S2-orient] NEGATIV: Bauteil-Zentrum bei [0,31, -0,18, 0,04], Spanne 1,94 m. POSITIV: Zentrum ±0,50 m, Ausdehnung <= 1,50 m.
+[S2-connect] NEGATIV: Label-Abstand 1,2 mm, Baugruppe isoliert. POSITIV: Label-Mindestabstand >= 5,0 mm, alle Baugruppen verbunden.
+[S4-meshcount] NEGATIV: 312 Meshes als Einzelteile (Mesh 280 + Instanced 32). POSITIV: maximal 250 Meshes, Ziel ~45, Wiederholteile als InstancedMesh je Teilefamilie.
+AUSDRUECKLICH NICHT (identisch zu P1): transmission, iridescence, sheen. KEIN AmbientLight. KEIN CanvasTexture/document/canvas.
+KEIN fetch/TextureLoader/CDN. KEIN mapSize 2048 als Default. KEIN PointLight mit Schatten. KEIN Schatten auf allen Meshes.

@@ -1,0 +1,55 @@
+{
+  "standard": "baustein-katalog-v1",
+  "hinweis": "M6-minimal (Guide-3D Abschnitt 5/7): kuratierte Repair-Muster, regelbasiert per Fehlerklasse abgerufen. Semantischer Vektor-Abruf ist als naechste Stufe dokumentiert, nicht implementiert.",
+  "muster": [
+    {
+      "id": "intersect-separation",
+      "fails": ["S2:S2-intersect"],
+      "titel": "Baugruppen trennen (Toleranz 2,0 mm)",
+      "hinweis": "Verschiebe genau eine der beiden Baugruppen entlang der kuerzesten Austrittsachse, bis die AABB-Durchdringung unter 2,0 mm liegt. Baugruppen duerfen sich beruehren, nicht durchdringen.",
+      "code": "// Ueberlappungstiefe t (mm) entlang Achse ax ausgleichen:\n// gruppeB.position[ax] += (t / 1000) + 0.0005; // +0,5 mm Sicherheit"
+    },
+    {
+      "id": "backface-sides",
+      "fails": ["S2:S2-backface"],
+      "titel": "Seiten nur im PMREM-Raum invertieren",
+      "hinweis": "side: 1 (BackSide) ist nur fuer die Waende der PMREM-Raumszene zulaessig. Alle sichtbaren Bauteile sind geschlossene Volumen mit Standard-Seite; duenne Teile (Blaetter, Lamellen) duerfen DoubleSide tragen.",
+      "code": "// PMREM-Raum (einzige Ausnahme):\nconst room = new Scene();\nconst w = new Mesh(new BoxGeometry(2, 2, 2),\n  new MeshStandardMaterial({ color: 0xcccccc, side: 1 }));"
+    },
+    {
+      "id": "flicker-offset",
+      "fails": ["S2:S2-flicker", "S2:S2-flicker-render"],
+      "titel": "Koplanare Flaechen versetzen (mindestens 0,5 mm)",
+      "hinweis": "Z-Fighting entsteht bei parallelen Flaechen unter 0,5 mm Abstand. Versetze eine der beiden Flaechen entlang ihrer Normale um mindestens 0,5 mm oder entferne die verdeckte Doppel-Flaeche.",
+      "code": "// Ebene entlang Normale n um 0,6 mm anheben:\n// deckblech.position.addScaledVector(n, 0.0006);"
+    },
+    {
+      "id": "orient-center",
+      "fails": ["S2:S2-orient"],
+      "titel": "Baugruppe zentrieren (Spannweite bis 1,50 m)",
+      "hinweis": "Verschiebe die Baugruppe so, dass das Label-Zentrum innerhalb ±0,50 m je Achse liegt und die Gesamt-Spannweite 1,50 m nicht ueberschreitet. Skaliere nicht — nur translation.",
+      "code": "// Zentrum c auf Ursprung schieben:\n// gruppe.position.sub(new Vector3(c[0], c[1], c[2]));"
+    },
+    {
+      "id": "connect-cohesion",
+      "fails": ["S2:S2-connect"],
+      "titel": "Isolierte Baugruppe anbinden",
+      "hinweis": "Jede Baugruppe braucht einen Nachbarn in Reichweite (Label-Mindestabstand 5,0 mm einhalten, Huellen-Spalt klein halten). Ruecke die isolierte Gruppe an die naechste Baugruppe heran oder ergaenze ein Verbindungsteil ohne neue Imports.",
+      "code": "// Isolierte Gruppe an naechsten Nachbarn heranfuehren:\n// gruppe.position.lerp(nachbar.position, 0.25); // in 25-%-Schritten"
+    },
+    {
+      "id": "meshcount-instancing",
+      "fails": ["S4:S4-meshcount", "S4:S4-triangles", "S4:S4-drawcalls"],
+      "titel": "Wiederholteile instanziieren",
+      "hinweis": "Jede Teilefamilie (Schrauben, Ports, Pins, Pads, Lamellen) wird EIN InstancedMesh mit setMatrixAt-Platzierung. Danach instanceMatrix.needsUpdate = true und computeBoundingSphere().",
+      "code": "const im = new InstancedMesh(geo, mat, n);\nconst m4 = new Matrix4(), q = new Quaternion(), v = new Vector3(), s = new Vector3(1, 1, 1);\nm4.compose(v.set(x, y, z), q, s); im.setMatrixAt(i, m4);\nim.instanceMatrix.needsUpdate = true; im.computeBoundingSphere();"
+    },
+    {
+      "id": "budget-segments",
+      "fails": ["S4:S4-triangles", "S4:S4-drawcalls"],
+      "titel": "Segmente und Bevels zurueckfahren",
+      "hinweis": "ExtrudeGeometry mit curveSegments 4, bevelSegments 1, steps 1. Segmente: Sphere 16x12, Cylinder 12, Torus 8x32, Circle 24-32. Keine dekorativen Einzel-Meshes.",
+      "code": "new ExtrudeGeometry(shape, { depth: d, bevelEnabled: true,\n  bevelThickness: t, bevelSize: s, bevelSegments: 1, curveSegments: 4 });"
+    }
+  ]
+}

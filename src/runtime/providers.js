@@ -2,8 +2,9 @@
  * Teil 1 — Multi-Provider-Registry (reine Funktionen, kein DOM, kein Key).
  * Quelle: src/data/providers.json. Alle Benchmark-Aussagen stammen aus
  * docs/ki-modellqualitaet-recherche.md (M1, Stand 27.10.2026); Provider-APIs
- * werden NICHT halluziniert — OpenRouter-Pfad bleibt ehrlich deaktiviert,
- * bis der User laufzeitsseitig einen Proxy eintraegt.
+ * werden NICHT halluziniert — Proxy-Pfade (Baseten) brauchen laufzeitsseitig
+ * einen User-Key (BYOK, nur Sitzung, nie Logs/Dateien). OpenRouter-Pfad seit
+ * 28.10.2026 inaktiv/entfernt (docs/BASETEN-MIGRATION.md).
  */
 
 /** @typedef {{ id: string, label: string, tags?: string[], privacy?: string, badges?: Array<{ achse: string, text: string }>, empfehlung?: string }} ProviderModel */
@@ -69,9 +70,9 @@ export function listModels(reg) {
  */
 export function recommendModel(reg, domain) {
   const table = {
-    geometrie: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Geometrie: kein OpenRouter-Slug verifiziert (Beleg: nur :free-Slugs, kein paid-Geometrie-Modell) — Fallback Standard mit reasoning_effort max (M3)' },
-    aesthetik: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Aesthetik: threejseval/benchmark.ai-Top-Modelle nicht auf OpenRouter verifiziert — Fallback Standard mit max-Reasoning (M3)' },
-    praeferenz: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Praeferenz: kein OpenRouter-Slug verifiziert — Fallback Standard mit max-Reasoning (M3)' },
+    geometrie: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Geometrie: kein Baseten-Zweitmodell verifiziert — Fallback Standard mit reasoning_effort max (M3)' },
+    aesthetik: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Aesthetik: threejseval/benchmark.ai-Top-Modelle nicht auf Baseten verifiziert — Fallback Standard mit max-Reasoning (M3)' },
+    praeferenz: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Praeferenz: kein Baseten-Zweitmodell verifiziert — Fallback Standard mit max-Reasoning (M3)' },
     allround: { providerId: 'meta-muse', modelId: 'muse-spark-1.3-contributor', grund: 'Allround/Preis: Hackathon-Tarif, kuratierte Bibliothek damit erzeugt' },
     datenschutz: { providerId: 'meta-muse', modelId: 'muse-spark-1.3', grund: 'Standard-Vertrag ohne Trainingsnutzung + reasoning_effort max' },
   };
@@ -94,7 +95,9 @@ export function privacyNotice(reg, providerId, modelId) {
 
 /**
  * Generierungsbefehl je Pfad. muse-cli = echte, belegte Kommandozeile
- * (scripts/_gen-one.mjs); proxy = ehrlich deaktiviert bis User-Proxy.
+ * (scripts/_gen-one.mjs); proxy/direkt = braucht laufzeitsseitig einen User-Key
+ * (BYOK, nur Sitzung): Direkt-Call im Browser zuerst, lokaler Proxy nur als
+ * Fallback bei Netz/CORS-Problemen.
  * @param {{ providers?: Provider[] }} reg
  * @param {string} providerId
  * @param {string} modelId
@@ -113,7 +116,7 @@ export function generationTarget(reg, providerId, modelId, promptFile = '<PROMPT
   return {
     kind: 'proxy',
     ready: false,
-    text: `Deaktiviert ohne Laufzeit-Key: lokalen Proxy starten (scripts/proxy.mjs, leitet an die offizielle OpenRouter-API weiter) + OpenRouter-Key per BYOK eintragen (Modell ${modelId}, Keys nie in Logs/Dateien).`,
+    text: `BYOK noetig: Direkt-Call im Browser (Modell ${modelId}, Key nur Sitzung, nie Logs/Dateien) — lokaler Proxy (scripts/proxy.mjs, leitet an die Baseten Model APIs weiter) nur als Fallback bei Netz/CORS-Problemen.`,
   };
 }
 

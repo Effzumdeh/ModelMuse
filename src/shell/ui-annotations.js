@@ -1,6 +1,6 @@
 /**
- * Label- und Messungsliste, Beschriftungs-Checkboxen (ein-/ausblenden)
- * + Harness-Test pro Teil. Callbacks aus main.js, Logik in runtime/parts.js.
+ * Label- und Messungsliste, Beschriftungs-Checkboxen (ein-/ausblenden).
+ * Callbacks aus main.js.
  */
 import { labelsForLevel, measurementsForLevel } from './store.js';
 import { partEntries } from '../runtime/parts.js';
@@ -11,7 +11,7 @@ import { tt, getLocale, localizeManifest } from './i18n.js';
  * @param {{ labels?: string[], measurements?: Array<{ text?: string }> }} manifest
  * @param {string} level
  * @param {{ labels: boolean, measurements: boolean }} cfg
- * @param {{ hidden?: number[], results?: Record<string, string>, onToggle?: (i: number) => void, onTest?: (i: number) => void, onTestAll?: () => void }} [parts]
+ * @param {{ hidden?: number[], onToggle?: (i: number) => void }} [parts]
  */
 export function renderAnnotations(el, manifest, level, cfg, parts = {}) {
   const view = localizeManifest(manifest, getLocale());
@@ -23,14 +23,6 @@ export function renderAnnotations(el, manifest, level, cfg, parts = {}) {
     const title = document.createElement('strong');
     title.textContent = tt('bauteile.kopf', { n: entries.length });
     head.appendChild(title);
-    if (typeof parts.onTestAll === 'function') {
-      const all = document.createElement('button');
-      all.type = 'button';
-      all.className = 'lab-btn lib-btn part-btn';
-      all.textContent = tt('bauteile.allePruefen');
-      all.addEventListener('click', parts.onTestAll);
-      head.appendChild(all);
-    }
     el.appendChild(head);
     const hidden = Array.isArray(parts.hidden) ? parts.hidden : [];
     for (const e of entries) {
@@ -46,21 +38,6 @@ export function renderAnnotations(el, manifest, level, cfg, parts = {}) {
       const name = document.createElement('span');
       name.textContent = e.name;
       li.appendChild(name);
-      if (typeof parts.onTest === 'function') {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'lab-btn lib-btn part-btn';
-        btn.textContent = tt('bauteile.pruefen');
-        btn.addEventListener('click', () => parts.onTest?.(e.index));
-        li.appendChild(btn);
-      }
-      const res = parts.results?.[String(e.index)];
-      if (res) {
-        const badge = document.createElement('span');
-        badge.className = res === 'pass' ? 'crit-pass' : 'crit-fail';
-        badge.textContent = res === 'pass' ? '✓' : '✗';
-        li.appendChild(badge);
-      }
       el.appendChild(li);
     }
   }

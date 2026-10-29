@@ -25,7 +25,7 @@ test('Determinismus: zweimaliges load liefert gleiche Ampel', async ({ page }) =
     { timeout: 30000 }
   );
   const first = await page.textContent('#verify-report');
-  await page.selectOption('#model-select', await page.inputValue('#model-select'));
+  await page.click('#labs-list [aria-current="true"]');
   await page.waitForTimeout(2000);
   const second = await page.textContent('#verify-report');
   expect(second?.length, 'zweiter Lauf berichtet').toBeGreaterThan(20);
@@ -41,12 +41,12 @@ test('Levelwechsel ohne Neuladen: Session + Mesh-Anzahl stabil, nur Annotationen
     { timeout: 30000 }
   );
   // Echten Modellwechsel erzwingen (si-1 -> gpu-example), damit beide gpu-Laeufe laden.
-  await page.selectOption('#model-select', 'si-1');
+  await page.click('[data-lab="si-1"]');
   await page.waitForFunction(
     () => document.querySelector('#verify-report')?.textContent?.includes('si-1'),
     { timeout: 30000 }
   );
-  await page.selectOption('#model-select', 'gpu-example');
+  await page.click('[data-lab="gpu-example"]');
   await page.waitForFunction(
     () => document.querySelector('#verify-report')?.textContent?.includes('gpu-example'),
     { timeout: 30000 }
@@ -73,9 +73,9 @@ test('Levelwechsel ohne Neuladen: Session + Mesh-Anzahl stabil, nur Annotationen
   expect(seen.basis.labels, 'Basis blendet Labels/Messungen aus').not.toBe(seen.aufbau.labels);
   // Zweites load desselben Modells: Berichtstext identisch (ms-Laufzeiten normiert;
   // Pixelgleichheit ist durch S3-Matrix 20/20 abgedeckt, darum kein Image-Diff hier).
-  await page.selectOption('#model-select', 'si-1');
+  await page.click('[data-lab="si-1"]');
   await page.waitForTimeout(2000);
-  await page.selectOption('#model-select', 'gpu-example');
+  await page.click('[data-lab="gpu-example"]');
   await page.waitForFunction(
     () => document.querySelector('#verify-report')?.textContent?.includes('gpu-example'),
     { timeout: 30000 }

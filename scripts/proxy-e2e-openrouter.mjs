@@ -1,16 +1,10 @@
 /**
- * OpenRouter-Browser-E2E: EIN echter Auftrag aus dem Player ueber den
- * OpenRouter-Pfad (Proxy localhost:8787 -> https://openrouter.ai/api/v1).
- * Modell AUSSCHLIESSLICH gratis (Stand 27.10.2026, offizielle OpenRouter-
- * Modellliste GET /api/v1/models, live verifiziert):
- * google/gemma-4-26b-a4b-it:free. KEIN Spark auf OpenRouter (Teil-5-Vorgabe).
- * Key: User-Key aus Key_openrouter.md (SIS-Sitzung, nur Browser-Speicher,
- * nie in Logs/Chat/Dateien). Fehlt die Datei -> ehrlicher Abbruch
- * ("OpenRouter-Pfad nicht testbar"), kein Fake-Beleg.
- * Bei HTTP 429: 60 s warten, EINMAL einzeln wiederholen.
- * Beleg: dist/proxy-e2e-openrouter.png + generation-log-Eintrag
- * Quelle "browser-e2e-openrouter".
- * Aufruf: node.exe scripts/proxy-e2e-openrouter.mjs [begriff]
+ * INAKTIV seit 28.10.2026 (Baseten-Migration, siehe docs/BASETEN-MIGRATION.md):
+ * OpenRouter-Pfad entfernt (Proxy kennt 'openrouter' nicht mehr, Registry ohne
+ * OpenRouter-Eintrag). Dieses Skript wird NICHT mehr ausgefuehrt — Ersatz:
+ * scripts/proxy-e2e-baseten.mjs (Baseten Model APIs, Modell
+ * meta-models/muse-spark-open-1026, Key laufzeitsseitig per BYOK).
+ * Datei bleibt als Historie erhalten; Aufruf bricht ehrlich ab.
  */
 import { spawn } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -18,6 +12,9 @@ import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { chromium } from 'playwright';
 import { buildFreePrompt } from '../src/shell/ui-livegen.js';
+
+console.error('proxy-e2e-openrouter: INAKTIV seit 28.10.2026 (Baseten-Migration) — Ersatz: scripts/proxy-e2e-baseten.mjs');
+process.exit(3);
 
 const TERM = process.argv[2] ?? 'Handbohrmaschine';
 const PROXY_PORT = 8787;

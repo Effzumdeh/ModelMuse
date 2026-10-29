@@ -1,11 +1,8 @@
 /**
  * Teil 2 — Modellbibliothek-UI (DOM-Bindung, Logik in runtime/session-library.js).
- * Aktionen: Ansehen, Ueberarbeiten (P2-Lauf mit Messwert-Feedback),
- * Loeschen, Export/Import als .js. P2-Notfallpfad: formatP2Protocol erzeugt
- * das Fehlerprotokoll; der muse.exe-Befehl wird angezeigt (Generierung
- * laeuft ausserhalb des Browsers, Key nie in der UI).
+ * Aktionen: Ansehen, Ueberarbeiten (laedt ins Modify-Panel: Modell waehlen ->
+ * Prompt -> P2 -> Verify -> Reload), Loeschen, Export/Import als .js.
  */
-import { formatP2Protocol } from '../runtime/verify.js';
 import {
   addEntry, getEntry, listEntries, removeEntry, touchEntryStatus,
   exportEntry, parseImportedSource,
@@ -27,7 +24,7 @@ function downloadFile(filename, text) {
 }
 
 /**
- * @param {{ lib: { entries: Array<Record<string, unknown>>, consent?: boolean }, listBox: HTMLElement, detailBox: HTMLElement, statusBox: HTMLElement, onView: (entry: Record<string, unknown>) => Promise<unknown>, onScores: (id: string) => unknown, onChange?: () => void }} els
+ * @param {{ lib: { entries: Array<Record<string, unknown>>, consent?: boolean }, listBox: HTMLElement, statusBox: HTMLElement, onView: (entry: Record<string, unknown>) => Promise<unknown>, onModify: (entry: Record<string, unknown>) => Promise<unknown>, onChange?: () => void }} els
  */
 export function mountLibrary(els) {
   const say = (msg, bad) => {
@@ -68,29 +65,12 @@ export function mountLibrary(els) {
           say(tt('bibliothek.ladefehler', { detail: String((err && err.message) || err).slice(0, 160) }), true);
         }
       });
-      mk(tt('bibliothek.ueberarbeiten'), (entry) => {
-        const next = Number(entry.rev) + 1;
-        const rep = els.onScores(String(entry.id));
-        const proto = formatP2Protocol(rep?.layers ?? [], { iteration: (rep?.iteration ?? 1) + 1 });
-        const cmd = `muse.exe exec --model ${entry.modelId} --api-key-stdin --prompt-file p2-${entry.id}-r${next}.txt`;
-        els.detailBox.textContent =
-          tt('bibliothek.p2Titel', { id: entry.id, rev: entry.rev, next }) + `\n${proto}\n\n` +
-          tt('bibliothek.p2Schritt', { id: entry.id, next, cmd });
-        if (next > 2) {
-          say(tt('bibliothek.p2Reserve', { id: entry.id }), true);
-          return;
+      mk(tt('bibliothek.ueberarbeiten'), async (entry) => {
+        try {
+          await els.onModify(entry);
+        } catch (err) {
+          say(tt('bibliothek.ladefehler', { detail: String((err && err.message) || err).slice(0, 160) }), true);
         }
-        const dl = document.createElement('button');
-        dl.type = 'button';
-        dl.className = 'lab-btn lib-btn';
-        dl.textContent = tt('bibliothek.p2Datei');
-        dl.addEventListener('click', () => {
-          downloadFile(`p2-${entry.id}-r${next}.txt`, `${proto}\n\n${cmd}\n`);
-          say(tt('bibliothek.exportiert', { datei: `p2-${entry.id}-r${next}.txt` }));
-        });
-        els.detailBox.appendChild(document.createElement('br'));
-        els.detailBox.appendChild(dl);
-        say(tt('bibliothek.p2Bereit', { id: entry.id }));
       });
       mk(tt('bibliothek.export'), (entry) => {
         const { filename, text } = exportEntry(els.lib, String(entry.id));

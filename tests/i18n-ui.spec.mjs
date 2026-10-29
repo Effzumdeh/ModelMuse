@@ -22,19 +22,20 @@ test('Sprachumschalter: de/en/es aendert alle sichtbaren Shell-Strings', async (
   await expect(page.locator('#live-go')).not.toHaveText(before ?? '');
   await expect(page.locator('#live-go')).toHaveText('Generate model');
   await expect(page.locator('label[for="live-term"]')).toHaveText('Free term');
-  await expect(page.locator('#harness-one')).toHaveText('Harness: check current model');
+  await expect(page.locator('#modify-go')).toHaveText('Revise model');
   await expect(page.locator('#lib-adopt')).toHaveText('Adopt current model');
-  // Bauteil-Kopf + Aufgaben-Rahmen auf Englisch.
-  await expect(page.locator('.part-head strong').first()).toContainText('Parts (');
+  // Bauteil-Kopf auf Englisch.
+  await expect(page.locator('.part-head strong').first()).toContainText('Labels (');
   // Umschalten auf es.
   await page.selectOption('#lang-select', 'es');
   await expect(page.locator('#live-go')).toHaveText('Generar modelo');
+  await expect(page.locator('#modify-go')).toHaveText('Revisar modelo');
   await expect(page.locator('label[for="live-term"]')).toHaveText('Término libre');
-  await expect(page.locator('.part-head strong').first()).toContainText('Componentes (');
+  await expect(page.locator('.part-head strong').first()).toContainText('Etiquetas (');
   // Zurueck auf de.
   await page.selectOption('#lang-select', 'de');
   await expect(page.locator('#live-go')).toHaveText('Modell generieren');
-  await expect(page.locator('#harness-one')).toHaveText('Harness: aktuelles Modell prüfen');
+  await expect(page.locator('#modify-go')).toHaveText('Modell überarbeiten');
 });
 
 test('Bauteil-Checkboxen: Toggle blendet Bauteil aus/ein', async ({ page }) => {
@@ -59,11 +60,11 @@ test('Overlay-Menues: Ansicht-Presets + 2D-Modus schalten ohne Fehler', async ({
   await expect(page.locator('#fallback-text')).not.toBeEmpty();
 });
 
-test('Anbieterwahl: OpenRouter zeigt Proxy-Hinweis + Gratis-Modell zuerst', async ({ page }) => {
+test('Anbieterwahl: Baseten zeigt Proxy-Hinweis + Muse-Spark-Open-Modell zuerst', async ({ page }) => {
   await gotoPlayer(page);
-  await page.selectOption('#prov-provider', 'openrouter');
+  await page.selectOption('#prov-provider', 'baseten');
   await expect(page.locator('#prov-proxy-wrap')).toBeVisible();
   const firstModel = await page.$eval('#prov-model', (el) => el.options[0]?.value ?? '');
-  expect(firstModel).toBe('gemma-4-26b-it-free');
+  expect(firstModel).toBe('muse-spark-open-1026');
   await expect(page.locator('#prov-status')).toContainText('Geometrie');
 });

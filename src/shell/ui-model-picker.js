@@ -1,5 +1,5 @@
 /**
- * Lab-Liste, Freimodus-Eingabe, Ladezustand.
+ * Lab-Auswahl (Labs-Nav + Registry), Ladezustand.
  * Bauplan Abschnitt 3 (ui-model-picker.js).
  */
 
@@ -10,23 +10,9 @@
 export function setModels(store, models) {
   store.models = models.map((m) => ({ id: m.id, title: m.title }));
   if (!store.modelId && store.models.length > 0) {
-    store.modelId = store.models[0].id;
+    // Deterministischer Start: gpu-example (3D) wenn vorhanden, sonst erstes
+    // Modell. Dev-Registry (MODEL_IDS-Reihenfolge) und Build-Artefakt
+    // (sortiert) starten sonst unterschiedlich (2D-Route ohne iframe).
+    store.modelId = store.models.some((m) => m.id === 'gpu-example') ? 'gpu-example' : store.models[0].id;
   }
-}
-
-/**
- * @param {{ models: Array<{ id: string, title: string }>, modelId: string }} store
- */
-export function getSelected(store) {
-  return store.models.find((m) => m.id === store.modelId) ?? null;
-}
-
-/**
- * @param {HTMLButtonElement | null} btn
- * @param {boolean} busy
- */
-export function setBusy(btn, busy) {
-  if (!btn) return;
-  btn.disabled = busy;
-  btn.textContent = busy ? 'Lädt …' : 'Laden';
 }

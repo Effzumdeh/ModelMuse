@@ -38,8 +38,12 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
   grid-template-columns: 1fr;
 }
 @media (min-width: 1024px) {
-  .lab-layout { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+  .lab-layout { grid-template-columns: minmax(190px, 230px) minmax(0, 2fr) minmax(300px, 1fr); }
 }
+.lab-labs { min-width: 0; }
+.lab-labs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lab-lab-btn { width: 100%; text-align: left; }
+.lab-lab-btn[aria-current="true"] { border-color: var(--accent); font-weight: 700; }
 .lab-view { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .lab-mount {
   width: 100%; aspect-ratio: 16/9; background: #05070b;
@@ -54,10 +58,11 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 }
 .lab-field { display: flex; flex-direction: column; gap: 4px; }
 .lab-field label { font-size: 13px; color: var(--muted); }
-.lab-field select, .lab-btn {
+.lab-field select, .lab-field textarea, .lab-btn {
   background: #0d141d; color: var(--text);
   border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px;
 }
+.lab-field textarea { resize: vertical; min-height: 64px; font: inherit; }
 .lab-check { flex-direction: row; gap: 12px; align-items: center; }
 .lab-check label { color: var(--text); font-size: 15px; }
 .lab-btn { cursor: pointer; }
@@ -68,9 +73,8 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
   border-radius: var(--radius); padding: 12px 14px;
 }
 .lab-panel h2 { margin: 0 0 8px; font-size: 17px; }
-.lab-level { color: var(--accent); font-size: 14px; }
-.lab-tasks, .lab-annotations { margin: 0; padding-left: 20px; }
-.lab-tasks li, .lab-annotations li { margin: 6px 0; }
+.lab-annotations { margin: 0; padding-left: 20px; }
+.lab-annotations li { margin: 6px 0; }
 .lab-report { font-size: 14px; }
 .lab-report .crit-pass { color: var(--ok); }
 .lab-report .crit-fail { color: var(--bad); font-weight: 700; }
@@ -90,23 +94,16 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .lib-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--line); padding: 6px 0; font-size: 14px; }
 .lib-btn { font-size: 13px; padding: 5px 8px; }
 .lab-detail { white-space: pre-wrap; font-size: 12px; max-height: 260px; overflow: auto; background: #0d141d; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
-.harness-table { border-collapse: collapse; width: 100%; font-size: 13px; }
-.harness-table td, .harness-table th { border: 1px solid var(--line); padding: 4px 6px; text-align: left; }
-.harness-compare { font-size: 13px; }
-.crit-pass { color: var(--ok); }
-.crit-fail { color: var(--bad); font-weight: 700; }
-.crit-offen { color: var(--muted); }
-.lab-soll table { border-collapse: collapse; font-size: 13px; }
-.lab-soll td { border: 1px solid var(--line); padding: 3px 8px; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
 }
 /* Teil 3 — UI-Modernisierung: Viewer dominant, Overlay-Toolbar, statischer Inspector. */
 /* .lab-side ist bewusst sticky (kein Drawer) — Entscheidung 27.10.2026, Option (b). */
-/* 1024px: grid 2fr/1fr; 1280px verfeinert nur (3fr/1fr). Belegt in tests/layout.spec.mjs. */
+/* Slim-Generator (28.10.2026): 3-spaltig mit Labs-Nav links (190-260px). */
+/* 1024px: labs/view/side; 1280px verfeinert nur (view 3fr). Belegt in tests/layout.spec.mjs. */
 @media (min-width: 1280px) {
-  .lab-layout { grid-template-columns: minmax(0, 3fr) minmax(320px, 1fr); }
+  .lab-layout { grid-template-columns: minmax(200px, 260px) minmax(0, 3fr) minmax(320px, 1fr); }
 }
 .lab-view { position: sticky; top: 12px; align-self: start; }
 .lab-mount { position: relative; aspect-ratio: 16/10; min-height: 420px; box-shadow: 0 12px 40px rgba(0,0,0,.45); }
@@ -120,4 +117,56 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .part-head { display: flex; align-items: center; gap: 8px; list-style: none; margin: 4px 0; }
 .part-row { display: flex; align-items: center; gap: 8px; list-style: none; margin: 4px 0; }
 .part-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
-.part-btn { padding: 3px 8px; font-size: 12px; }
+.part-btn { padding: 3px 8px; font-size: 12px; min-height: 32px; }
+/* Teil 6 (28.10.2026, Standalone-Maßstab): moderne UI — Onboarding-Banner,
+   Labs-Suche, Hell/Dunkel-Theme, Footer, 44px-Touch-Ziele, Karten-Polish.
+   Kein Framework, keine CDN-Abhängigkeit (Single-File/CSP-sicher). */
+.lab-onboard {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  margin: 12px 16px 0; padding: 12px 16px;
+  background: var(--panel); border: 1px solid var(--accent); border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.35);
+}
+.lab-onboard[hidden] { display: none; }
+.lab-onboard p { margin: 0; flex: 1 1 240px; font-size: 14px; }
+.lab-search input, .lab-field input[type="search"], .lab-field input[type="text"],
+.lab-field input[type="url"], .lab-field input[type="password"] {
+  background: #0d141d; color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 12px; font-size: 15px; min-height: 44px; width: 100%;
+}
+.lab-search { margin: 4px 0 10px; }
+.lab-count { color: var(--muted); font-weight: 400; font-size: 13px; }
+.lab-foot {
+  padding: 14px 20px 20px; color: var(--muted); font-size: 13px;
+  border-top: 1px solid var(--line); margin-top: 8px;
+}
+/* 44px-Touch-Ziele (Schul-UX-Baseline, Standalone-Maßstab). */
+.lab-btn, .lab-lab-btn, .lab-theme-btn, select#level-select, select#view-select,
+select#lang-select, select#prov-provider, select#prov-model {
+  min-height: 44px;
+}
+.lab-theme { flex-direction: row; align-items: center; }
+.lab-theme-btn { white-space: nowrap; }
+/* Karten-Polish: etwas größere Radien, konsistente Schatten. */
+.lab-panel { border-radius: 14px; }
+.lab-toolbar { border-radius: 14px; }
+.lab-mount { border-radius: 14px; }
+/* Hell-Theme (Standalone-Maßstab, Default bleibt dunkel). */
+html[data-theme="light"] {
+  --bg: #f1f4f9; --bg2: #e4e9f1; --panel: #ffffff; --line: #c9d3e0;
+  --text: #16202e; --muted: #4c5f78; --accent: #4f46e5; --accent2: #0284c7;
+  --ok: #15803d; --warn: #b45309; --bad: #b91c1c; --focus: #1d4ed8;
+}
+html[data-theme="light"] body { background: var(--bg); color: var(--text); }
+html[data-theme="light"] .lab-field select, html[data-theme="light"] .lab-field textarea,
+html[data-theme="light"] .lab-btn,
+html[data-theme="light"] .lab-search input, html[data-theme="light"] .lab-field input[type="search"],
+html[data-theme="light"] .lab-field input[type="text"],
+html[data-theme="light"] .lab-field input[type="url"],
+html[data-theme="light"] .lab-field input[type="password"] {
+  background: #ffffff; color: var(--text);
+}
+html[data-theme="light"] .lab-toolbar { background: rgba(255,255,255,.92); }
+html[data-theme="light"] .lab-mount { background: #0b0f16; }
+html[data-theme="light"] .lab-detail { background: #f1f4f9; }

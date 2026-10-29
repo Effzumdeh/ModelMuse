@@ -1,5 +1,9 @@
 {
-  "_meta": { "locale": "es", "name": "Español", "quelle": "Traduccion tecnica desde el aleman (27.10.2026), sin regeneracion" },
+  "_meta": {
+    "locale": "es",
+    "name": "Español",
+    "quelle": "Traduccion tecnica desde el aleman (27.10.2026), sin regeneracion"
+  },
   "app": {
     "title": "SkillSpark Lab-Player",
     "brandSub": "Lab-Player",
@@ -23,22 +27,28 @@
     "top": "Superior",
     "modus2d": "Modo 2D"
   },
-  "aufgaben": { "titel": "Tareas" },
   "bauteile": {
     "titel": "Etiquetas y medidas",
     "kopf": "Etiquetas ({n})",
-    "allePruefen": "Verificar todo",
-    "pruefen": "Verificar",
     "keineAnnotationen": "Sin anotaciones en este nivel.",
     "etikett": "Etiqueta: {label}",
     "mass": "Medida: {text}",
     "bauteilAnzeigen": "Mostrar etiqueta {name}"
   },
-  "bericht": { "titel": "Informe de verificación S1–S5", "leer": "Sin ejecución.", "modell": "Modelo", "iteration": "Iteración", "ampel": "Estado", "fehler": "Errores:" },
-  "hinweis": { "titel": "Aviso" },
+  "bericht": {
+    "titel": "Informe de verificación S1–S5",
+    "leer": "Sin ejecución.",
+    "modell": "Modelo",
+    "iteration": "Iteración",
+    "ampel": "Estado",
+    "fehler": "Errores:"
+  },
+  "hinweis": {
+    "titel": "Aviso"
+  },
   "freimodus": {
     "titel": "Modo libre (clave propia)",
-    "notiz": "Generación mediante proxy local (scripts/proxy.mjs, solo localhost). Clave opcional: vacío = clave del servidor del proxy, entrada propia = BYOK solo para esta sesión.",
+    "notiz": "Llamada directa primero: la generación se ejecuta en el navegador contra la API del proveedor (clave propia, solo esta sesión). Proxy local (scripts/proxy.mjs, solo localhost) solo como reserva ante problemas de red/CORS — sin clave usa su clave de servidor.",
     "proxyUrl": "URL del proxy",
     "eigenerKey": "Clave API propia de Muse",
     "keyPlatzhalter": "Solo esta sesión",
@@ -50,7 +60,10 @@
     "begriffZuKurz": "Introduzca un término libre (mínimo 2 caracteres).",
     "generiere": "Generando «{term}» … (modelo {modell}, stream)",
     "geladen": "«{titel}» cargado: {labels} etiquetas, {messungen} mediciones, {aufgaben} tareas.",
-    "pruefungRot": "Verificación del modelo: {detail}"
+    "pruefungRot": "Verificación del modelo: {detail}",
+    "proxyUrlFallback": "URL del proxy (solo reserva)",
+    "viaDirekt": " (directa)",
+    "viaProxy": " (proxy)"
   },
   "anbieter": {
     "titel": "Proveedor y modelo (M3)",
@@ -60,7 +73,7 @@
     "generierung": "Generación: {detail}",
     "proxyNoetig": " (requiere proxy)",
     "offline": "Registro de proveedores sin conexión: valor Meta por defecto (muse-spark-1.3-contributor). {detail}",
-    "proxyUrl": "URL del proxy OpenRouter (en tiempo de ejecución)"
+    "proxyUrl": "URL del proxy Baseten (en tiempo de ejecución)"
   },
   "bibliothek": {
     "titel": "Biblioteca de modelos (sesión)",
@@ -76,11 +89,6 @@
     "bereit": "Biblioteca lista.",
     "geladen": "«{titel}» cargado.",
     "ladefehler": "Error de carga: {detail}",
-    "p2Titel": "RUTA DE EMERGENCIA P2 para {id} (rev {rev} → {next}, máx. iteración 2; iteración 3 solo manual):",
-    "p2Schritt": "Siguiente paso fuera del navegador:\n1. Coloque el registro de errores + fuente del módulo en p2-{id}-r{next}.txt (observe la ruta de emergencia P2 prompts/p2-repair.v6-harness.txt).\n2. {cmd}\n3. Importe el resultado como .js (será una nueva revisión).",
-    "p2Bereit": "Registro P2 creado para {id} — comando mostrado, sin clave en la UI.",
-    "p2Datei": "Cargar archivo P2",
-    "p2Reserve": "Iteración 3 solo manual — sin revisión automática ({id}).",
     "exportiert": "{datei} exportado (procedencia en el encabezado, sin clave).",
     "geloescht": "{id} eliminado (sesión).",
     "uebernommen": "{id} adoptado en la biblioteca (rev 1).",
@@ -90,28 +98,8 @@
     "importFehler": "Error de importación: {detail}",
     "sitzungMerkt": "La sesión se recordará en esta pestaña.",
     "nurSpeicher": "Solo memoria — sin session storage.",
-    "keinModell": "ningún modelo cargado"
-  },
-  "harness": {
-    "titel": "Panel del harness (M1–M8)",
-    "pruefenEins": "Harness: verificar modelo actual",
-    "pruefenAlle": "Harness: verificar todos los curados",
-    "bereit": "Harness listo.",
-    "leer": "Sin ejecución del harness — inicie «verificar».",
-    "geprueft": "Harness: {id} verificado ({ampel}).",
-    "alleGeprueft": "Harness: {n}/{gesamt} modelos curados verificados.",
-    "fehler": "Error del harness: {detail}",
-    "fehlerKeinPlayer": "Error del harness: reproductor no listo",
-    "abgebrochen": "Harness interrumpido en {id}: {detail}",
-    "spalteModell": "Modelo",
-    "spalteAmpel": "Estado",
-    "spaltePunkte": "Puntos",
-    "vergleich": "Comparación de proveedores ({n} modelos): mejor geometría {geo}; mejor didáctica {did}.",
-    "vergleichLeer": "–",
-    "m7Lauf": "Conjunto mínimo M7: {n} tareas, todas S5-pass (eval-harness.json, {datum}).",
-    "m7KeinLauf": "Conjunto mínimo M7: sin ejecución (node scripts/eval-harness.mjs).",
-    "sollOk": "Objetivo S5 cumplido.",
-    "sollFail": "Objetivo S5 NO cumplido."
+    "keinModell": "ningún modelo cargado",
+    "inModify": "«{id}» cargado en el panel de revisión — describa el cambio e inicie."
   },
   "player": {
     "registryFehler": "Error de registro: {detail}",
@@ -121,16 +109,6 @@
   "fallback": {
     "keinWebgl2": "F3: falta WebGL2. Vista 2D de reemplazo con lista de componentes y medidas. Estado: verificado automáticamente con limitaciones.",
     "darstellung": "F3 ({level}): error de representación. Vista 2D de reemplazo activa. Estado: verificado automáticamente con limitaciones."
-  },
-  "aufgabenFramework": {
-    "basisLeer": "Básico: observe los componentes principales. Sin tareas en este nivel.",
-    "keineAufgaben": "Sin tareas registradas.",
-    "antwortLabel": "Respuesta para {id}",
-    "pruefen": "Verificar",
-    "richtig": "Correcto.",
-    "nochNicht": "Todavía no — esperado: {erwartet}",
-    "alsErledigt": "Marcar como hecho",
-    "erledigt": "Hecho ✓"
   },
   "fehler": {
     "E-GEN-400": "La solicitud no era válida. Revise el término e inténtelo de nuevo.",
@@ -144,7 +122,42 @@
     "E-GEN-504": "Tiempo de generación agotado (504). Acorte el término e inténtelo de nuevo.",
     "E-GEN-PARSE": "La respuesta no contenía un modelo válido. Inténtelo de nuevo o use la biblioteca.",
     "E-GEN-CONFIG": "Introduzca la URL del proxy y una clave válida.",
-    "E-GEN-OFFLINE": "Sin proxy de generación configurado. La biblioteca preparada está disponible."
+    "E-GEN-OFFLINE": "Sin proxy de generación configurado. La biblioteca preparada está disponible.",
+    "E-GEN-DIREKT": "Llamada directa bloqueada (red/CORS) y sin proxy de reserva. Introduzca la URL del proxy o use la biblioteca."
   },
-  "sprache": { "titel": "Idioma", "name": "Español" }
+  "sprache": {
+    "titel": "Idioma",
+    "name": "Español"
+  },
+  "labs": {
+    "titel": "Laboratorios",
+    "suche": "Buscar laboratorios",
+    "suchePlatzhalter": "Buscar …"
+  },
+  "modify": {
+    "titel": "Revisar modelo",
+    "notiz": "Modifique el modelo actual mediante LLM: describa el cambio, se verificará y el resultado se recargará automáticamente.",
+    "keinModell": "Ningún modelo cargado",
+    "prompt": "Cambio deseado",
+    "promptPlatzhalter": "p. ej. carcasa roja, el doble de grande",
+    "ueberarbeiten": "Revisar modelo",
+    "statusLeer": "Sin revisión.",
+    "promptZuKurz": "Introduzca un cambio deseado (mínimo 2 caracteres).",
+    "generiere": "Revisando «{id}» …",
+    "geladen": "«{titel}» cargado ({id}).",
+    "fehler": "Error de revisión: {detail}",
+    "pruefungRot": "Verificación del modelo: {detail}",
+    "reserve": "Iteración 3 solo manual — sin reparación automática ({id})."
+  },
+  "onboarding": {
+    "text": "¡Bienvenido! Elija un laboratorio a la izquierda; en modo libre genere directamente con su clave (solo sesión), sin proxy.",
+    "verstanden": "Entendido"
+  },
+  "theme": {
+    "dunkel": "Oscuro",
+    "hell": "Claro"
+  },
+  "fuss": {
+    "notiz": "Reproductor · generación directa en el navegador (clave solo de sesión) o vía proxy local · historial local."
+  }
 }

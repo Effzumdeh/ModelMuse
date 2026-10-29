@@ -3,11 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://localhost:* http://127.0.0.1:*; frame-src 'self' blob:; child-src blob:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://api.meta.ai https://inference.baseten.co; frame-src 'self' blob:; child-src blob:; base-uri 'none'; form-action 'none'">
 <title data-i18n="app.title">SkillSpark Lab-Player</title>
 <link rel="stylesheet" href="./src/shell/theme.css">
 </head>
 <body x-data="labShell" :data-ampel="$store.lab.ampel">
+<!--
+  ATTRIBUTION / THIRD-PARTY NOTICES — dist/lab-player.html
+  Dieses Artefakt bettet Fremd-Bibliotheken ein (alle MIT):
+    three.js 0.186.1            - Copyright 2010-2026 three.js authors
+    Alpine.js 3.17.5            - Copyright 2019-2025 Caleb Porzio and contributors
+      @vue/shared 3.5.41        - Copyright 2018-present Yuxi (Evan) You and Vue contributors
+      @vue/reactivity 3.5.41    - Copyright 2018-present Yuxi (Evan) You and Vue contributors
+
+  The MIT License (MIT), applies to all components listed above:
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  Vollstaendiger Lizenz-Audit, Provenienznachweis und offene Punkte:
+  docs/LIZENZEN.md
+-->
 <header class="lab-top">
   <div class="lab-brand">SkillSpark <span class="lab-sub">Lab-Player</span></div>
   <div class="lab-field lab-lang">
@@ -18,23 +49,32 @@
       <option value="es">Español</option>
     </select>
   </div>
+  <div class="lab-field lab-theme">
+    <button type="button" class="lab-btn lab-theme-btn" id="theme-toggle" data-i18n="theme.dunkel">Dunkel</button>
+  </div>
   <div class="lab-ampel" role="status" data-i18n-aria="app.freigabestatus" aria-label="Freigabestatus">
     <span class="ampel-dot" aria-hidden="true"></span>
     <span x-text="$store.lab.ampelLabel">gelb</span>
   </div>
 </header>
+<section class="lab-onboard" id="onboard" hidden>
+  <p data-i18n="onboarding.text">Willkommen! Links ein Lab wählen, im Freimodus mit eigenem Key (nur Sitzung) direkt generieren — ganz ohne Proxy.</p>
+  <button type="button" class="lab-btn" id="onboard-ok" data-i18n="onboarding.verstanden">Verstanden</button>
+</section>
 <main class="lab-layout">
+  <nav class="lab-labs" aria-label="Labs">
+    <section class="lab-panel">
+      <h2><span data-i18n="labs.titel">Labs</span> <span class="lab-count" id="labs-count"></span></h2>
+      <div class="lab-field lab-search">
+        <label class="sr-only" for="labs-search" data-i18n="labs.suche">Labs suchen</label>
+        <input id="labs-search" type="search" autocomplete="off" data-i18n-ph="labs.suchePlatzhalter" placeholder="Suchen …">
+      </div>
+      <ul id="labs-list" class="lab-labs-list"></ul>
+    </section>
+  </nav>
   <section class="lab-view">
     <div id="lab-mount" class="lab-mount" aria-label="3D-Ansicht"></div>
     <div class="lab-toolbar" role="toolbar" aria-label="Ansicht">
-      <div class="lab-field">
-        <label for="model-select" data-i18n="toolbar.modell">Modell</label>
-        <select id="model-select" x-model="$store.lab.modelId" @change="loadModel()">
-          <template x-for="m in $store.lab.models" :key="m.id">
-            <option :value="m.id" x-text="m.title"></option>
-          </template>
-        </select>
-      </div>
       <div class="lab-field">
         <label for="level-select" data-i18n="toolbar.niveau">Niveau</label>
         <select id="level-select" x-model="$store.lab.level" @change="setLevel()">
@@ -58,10 +98,6 @@
       </div>
       <button type="button" class="lab-btn" @click="useFallback2D()" data-i18n="toolbar.modus2d">2D-Modus</button>
     </div>
-    <section class="lab-panel" aria-label="Aufgaben">
-      <h2><span data-i18n="aufgaben.titel">Aufgaben</span> <span class="lab-level" x-text="$store.lab.level"></span></h2>
-      <ul id="task-list" class="lab-tasks"></ul>
-    </section>
   </section>
   <aside class="lab-side" aria-label="Bericht">
     <section class="lab-panel">
@@ -80,8 +116,8 @@
       <h2 data-i18n="freimodus.titel">Freimodus (eigener Key)</h2>
       <p class="lab-note" data-i18n="freimodus.notiz">Generierung über den lokalen Proxy (scripts/proxy.mjs, nur localhost). Key optional: leer lassen = Server-Key des Proxys, eigene Eingabe = BYOK nur für diese Sitzung.</p>
       <div class="lab-field">
-        <label for="live-proxy" data-i18n="freimodus.proxyUrl">Proxy-URL</label>
-        <input id="live-proxy" type="url" inputmode="url" value="http://127.0.0.1:8787/generate" placeholder="http://127.0.0.1:8787/generate" autocomplete="off">
+        <label for="live-proxy" data-i18n="freimodus.proxyUrlFallback">Proxy-URL (nur Fallback)</label>
+        <input id="live-proxy" type="url" inputmode="url" value="http://127.0.0.1:8787/generate" placeholder="leer lassen = nur Direkt-Call" autocomplete="off">
       </div>
       <div class="lab-field">
         <label for="live-key" data-i18n="freimodus.eigenerKey">Eigener Muse-API-Key</label>
@@ -129,22 +165,26 @@
         <label class="lab-btn" for="lib-import" data-i18n="bibliothek.importieren">.js importieren</label>
         <input id="lib-import" type="file" accept=".js,text/javascript" hidden>
       </div>
-      <pre id="lib-detail" class="lab-detail" aria-label="Überarbeitungs-Protokoll"></pre>
       <p id="lib-status" role="status" data-i18n="bibliothek.bereit">Bibliothek bereit.</p>
     </section>
-    <section class="lab-panel lab-harness" aria-label="Harness-Scoreboard">
-      <h2 data-i18n="harness.titel">Harness-Scoreboard (M1–M8)</h2>
-      <div class="lab-row">
-        <button type="button" class="lab-btn" id="harness-one" data-i18n="harness.pruefenEins">Harness: aktuelles Modell prüfen</button>
-        <button type="button" class="lab-btn" id="harness-all" data-i18n="harness.pruefenAlle">Harness: alle kuratierten prüfen</button>
+    <section class="lab-panel lab-modify" aria-label="Modell überarbeiten">
+      <h2 data-i18n="modify.titel">Modell überarbeiten</h2>
+      <p class="lab-note" data-i18n="modify.notiz">Bestehendes Modell per LLM ändern: Änderung beschreiben, prüfen lassen, Ergebnis lädt automatisch neu.</p>
+      <p class="lab-note" id="modify-model" role="status"></p>
+      <div class="lab-field">
+        <label for="modify-prompt" data-i18n="modify.prompt">Änderungswunsch</label>
+        <textarea id="modify-prompt" rows="3" maxlength="500" data-i18n-ph="modify.promptPlatzhalter" placeholder="z. B. Gehäuse rot, doppelt so groß"></textarea>
       </div>
-      <div id="harness-soll" class="lab-soll" aria-label="S5-Soll-Werte"></div>
-      <div id="harness-board" class="lab-board" aria-label="Qualitäts-Scoreboard"></div>
-      <p id="harness-m7" class="lab-note" role="status"></p>
-      <p id="harness-status" role="status" data-i18n="harness.bereit">Harness bereit.</p>
+      <div class="lab-row">
+        <button type="button" class="lab-btn" id="modify-go" data-i18n="modify.ueberarbeiten">Modell überarbeiten</button>
+      </div>
+      <p id="modify-status" role="status" data-i18n="modify.statusLeer">Noch keine Überarbeitung.</p>
     </section>
   </aside>
 </main>
+<footer class="lab-foot">
+  <span data-i18n="fuss.notiz">Lab-Player · Generierung direkt im Browser (Key nur Sitzung) oder via lokalem Proxy-Fallback · Verlauf lokal im Browser.</span>
+</footer>
 <script id="lab-models" type="application/json">[]</script>
 <script type="module" src="./src/shell/main.js"></script>
 </body>

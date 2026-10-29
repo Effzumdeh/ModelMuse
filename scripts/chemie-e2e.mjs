@@ -3,12 +3,14 @@
  * Begriffe (messbare Specs statt Freitext):
  *   h2o  "Wassermolekuel H2O ..."  (Bindungswinkel 104,5 Grad, O-H 96 pm)
  *   nacl "Natriumchlorid-Kristallgitter NaCl ..." (Gitterkonstante 564 pm)
- * Ablauf = Player-Freimodus ueber Proxy (Meta- oder OpenRouter-Pfad).
+ * Ablauf = Player-Freimodus ueber Proxy (Meta- oder Baseten-Pfad).
  * Belege: dist/chemie-{id}-{pfad}.png + dist/chemie-{id}-{pfad}.json
  * (Labels/Atome, Messwerte, Spec-Abgleich). NICHT in kuratierte Bibliothek.
  * Ehrlichkeit: Spec-Abgleich prueft ModellANGABEN (Texte); ob Winkel/Masse
  * physikalisch stimmen oder geraten sind, steht im Report-Absatz.
- * Aufruf: node.exe scripts/chemie-e2e.mjs h2o|nacl meta|openrouter
+ * Aufruf: node.exe scripts/chemie-e2e.mjs h2o|nacl meta|baseten
+ * (INAKTIV seit 28.10.2026: Pfadname 'openrouter' — ersetzt durch 'baseten',
+ * siehe docs/BASETEN-MIGRATION.md.)
  */
 import { spawn } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -38,7 +40,21 @@ const spec = SPECS[ID];
 if (!spec) { console.error(`unbekannte Chemie-ID: ${ID} (h2o|nacl)`); process.exit(2); }
 const META = PFAD === 'meta'
   ? { provider: 'meta-muse', model: 'muse-spark-1.3-contributor', provId: 'meta-muse', regModel: 'muse-spark-1.3-contributor', keyFile: 'C:/Users/flori/OneDrive/Key_muse.md', webPort: 8097, quelle: 'chemie-meta' }
-  : { provider: 'openrouter', model: 'google/gemma-4-26b-a4b-it:free', provId: 'openrouter', regModel: 'gemma-4-26b-it-free', keyFile: 'C:/Users/flori/OneDrive/Key_openrouter.md', webPort: 8098, quelle: 'chemie-openrouter' };
+  : { provider: 'baseten', model: 'meta-models/muse-spark-open-1026', provId: 'baseten', regModel: 'muse-spark-open-1026', keyFile: null, webPort: 8098, quelle: 'chemie-baseten' };
+if (PFAD === 'openrouter') {
+  console.error('CHEMIE: ABBRUCH — Pfadname openrouter ist inaktiv (seit 28.10.2026); nutze meta|baseten (docs/BASETEN-MIGRATION.md).');
+  process.exit(3);
+}
+function stripChemieQuotes(s) {
+  let r = String(s);
+  const first = r.charCodeAt(0);
+  if (first === 34 || first === 39 || first === 96) r = r.slice(1);
+  if (r.length > 0) {
+    const last = r.charCodeAt(r.length - 1);
+    if (last === 34 || last === 39 || last === 96) r = r.slice(0, -1);
+  }
+  return r;
+}
 const PROXY_PORT = 8787;
 const t0 = Date.now();
 
@@ -52,11 +68,18 @@ function waitFor(proc, needle, timeoutMs, label) {
   });
 }
 
-if (!existsSync(META.keyFile)) {
-  console.error(`CHEMIE: ABBRUCH — Key-Datei fehlt (${META.keyFile}). Pfad ehrlich als "nicht testbar" dokumentieren.`);
+if (META.keyFile) {
+  if (!existsSync(META.keyFile)) {
+    console.error(`CHEMIE: ABBRUCH — Key-Datei fehlt (${META.keyFile}). Pfad ehrlich als "nicht testbar" dokumentieren.`);
+    process.exit(3);
+  }
+} else if (!(process.env.BASETEN_API_KEY ?? '').trim()) {
+  // Baseten-Pfad: Key AUSSCHLIESSLICH laufzeitsseitig per BYOK-Env (nie Datei/Repo).
+  console.error('CHEMIE: ABBRUCH — Env BASETEN_API_KEY fehlt. Pfad ehrlich als "nicht testbar" dokumentieren.');
   process.exit(3);
 }
-const keyRaw = (await readFile(META.keyFile, 'utf8')).trim().replace(/^["'`]|["'`]$/g, '');
+const fileRaw = META.keyFile ? stripChemieQuotes((await readFile(META.keyFile)).toString().trim()) : '';
+const keyRaw = META.keyFile ? fileRaw : (process.env.BASETEN_API_KEY ?? '').trim();
 if (keyRaw.length < 8 || /\s/.test(keyRaw)) { console.error('CHEMIE: Key-Format ungueltig'); process.exit(2); }
 process.env.CHEMIE_BYOK = keyRaw;
 console.log(`CHEMIE ${ID}/${PFAD}: key-len=${keyRaw.length}, modell=${META.model}`);

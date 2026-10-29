@@ -1,6 +1,7 @@
 /**
- * Freimodus-Generierung NUR ueber den serverseitigen Proxy, niemals api.meta.ai direkt.
- * Ohne Proxy-Konfiguration: sofort E-GEN-OFFLINE, UI schaltet auf Bibliothek.
+ * Freimodus-Generierung: Direkt-Call zuerst (Browser -> Upstream, BYOK),
+ * lokaler Proxy nur als Fallback (CORS/Netz). Niemals api.meta.ai-Key im
+ * Code — Keys nur laufzeitsseitig (Speicher/sessionStorage mit Zustimmung).
  * Bauplan Abschnitt 4 (generateLive) und Abschnitt 9 (E-GEN-*).
  */
 import { repairThreeImports, TWOD_KINDS } from './guard-static.js';
@@ -19,13 +20,38 @@ let timeoutMs = 300000; // E2E-Befund 2026-10-27: Upstream-SSE-Streams brauchen 
 /** Eigener Muse-API-Key der Lehrkraft: nur im Speicher, nie persistiert ohne
  * Zustimmung (Session-Storage nur per Checkbox in der UI), nie in Logs. */
 let liveApiKey = null;
+/** Direkt-Call zuerst (Browser -> Upstream, BYOK); false = nur Proxy. */
+let directFirst = true;
 
 /**
- * @param {{ proxyUrl?: string, timeoutMs?: number }} cfg
+ * Direkt-Endpunkte (OpenAI-kompatibel, POST /chat/completions, SSE).
+ * Browser-faehig mit User-Key (BYOK); CORS-Fehler -> Proxy-Fallback.
+ * @type {Record<string, string>}
+ */
+export const DIRECT_BASES = Object.freeze({
+  'meta-muse': 'https://api.meta.ai/v1',
+  baseten: 'https://inference.baseten.co/v1',
+});
+
+/** Upstream-Default-Modelle je Anbieter (stimmen mit scripts/proxy.mjs ueberein). */
+export const DIRECT_DEFAULT_MODEL = Object.freeze({
+  'meta-muse': 'muse-spark-1.3-contributor',
+  baseten: 'meta-models/muse-spark-open-1026',
+});
+
+/** @param {string} provider */
+export function directChatUrl(provider) {
+  const base = DIRECT_BASES[provider];
+  return typeof base === 'string' ? `${base}/chat/completions` : null;
+}
+
+/**
+ * @param {{ proxyUrl?: string, timeoutMs?: number, direct?: boolean }} cfg
  */
 export function configureLiveGen(cfg = {}) {
   if (cfg.proxyUrl !== undefined) proxyUrl = cfg.proxyUrl || null;
   if (cfg.timeoutMs !== undefined) timeoutMs = cfg.timeoutMs;
+  if (cfg.direct !== undefined) directFirst = cfg.direct !== false;
   if (proxyUrl !== null && typeof proxyUrl !== 'string') {
     proxyUrl = null;
     throw Object.assign(new Error('E-GEN-CONFIG: proxyUrl fehlt'), { code: 'E-GEN-CONFIG' });
@@ -49,7 +75,18 @@ export function hasLiveApiKey() {
 }
 
 export function liveGenStatus() {
-  return { configured: proxyUrl !== null, proxyUrl: proxyUrl ? '(gesetzt)' : null, timeoutMs, hasKey: liveApiKey !== null };
+  return { configured: proxyUrl !== null || (directFirst && liveApiKey !== null), proxyUrl: proxyUrl ? '(gesetzt)' : null, timeoutMs, hasKey: liveApiKey !== null, direct: directFirst };
+}
+
+/** Transport-Fehler (Netz/CORS/Abort, keine HTTP-Antwort) vs. definitive E-GEN-Antwort.
+ * E-GEN-DIREKT ist das Fallback-Signal (Direktversuch gescheitert -> Proxy). */
+function isTransportFailure(e) {
+  if (!e) return false;
+  if (e.code === 'E-GEN-DIREKT') return true;
+  if (e.code && String(e.code).startsWith('E-GEN-')) return false;
+  const msg = String((e && e.message) || e);
+  return /fetch failed|failed to fetch|ECONNREFUSED|connection refused|ENOTFOUND|ERR_CONNECTION|TypeError|abort|AbortError/i.test(msg)
+    || e?.name === 'AbortError' || e?.cause?.code === 'ECONNREFUSED' || e instanceof TypeError;
 }
 
 /**
@@ -143,21 +180,83 @@ export function extractModuleSource(rawText) {
 }
 
 /**
+ * Modul aus SSE-Volltext bauen (Direkt- und Proxy-Pfad teilen sich das).
+ * @param {string} full
+ * @param {string | null} finishReason
+ * @param {'direct' | 'proxy'} via
+ */
+function finishModule(full, finishReason, via) {
+  // E-S2-BOOT-Repair: fehlende benannte Imports (z.B. Scene) ergaenzen,
+  // bevor Quelle gespeichert/gebootet wird (E2E-Befund 2026-10-27).
+  const source = repairThreeImports(extractModuleSource(full));
+  if (!source.includes('export const meta') || !source.includes('export function init')) {
+    throw Object.assign(new Error('E-GEN-PARSE: kein Modul extrahierbar'), { code: 'E-GEN-PARSE' });
+  }
+  if (finishReason && finishReason !== 'stop') {
+    throw Object.assign(new Error(`E-GEN-PARSE: finish_reason=${finishReason}`), { code: 'E-GEN-PARSE' });
+  }
+  return { source, meta: { title: '', category: '', detailLevel: 1, parts: [], units: 'm' }, raw: full, via };
+}
+
+/**
+ * Direkt-Call: Browser -> Upstream (OpenAI-kompatibel, SSE), Key per BYOK.
+ * Ein Versuch, keine Wiederholung: definitive HTTP-Fehler werfen E-GEN-*,
+ * Transport-Fehler (Netz/CORS/Timeout) werfen E-GEN-DIREKT (Fallback-Signal).
+ */
+async function generateDirect(url, model, promptText, opts, key) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key, accept: 'text/event-stream' },
+      body: JSON.stringify({ model, stream: true, messages: [{ role: 'user', content: promptText }] }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      const code = classify(res.status);
+      throw Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
+    }
+    const { full, finishReason } = await readSseModule(res, opts.onToken);
+    return finishModule(full, finishReason, 'direct');
+  } catch (e) {
+    clearTimeout(timer);
+    if (e && typeof e.code === 'string' && e.code.startsWith('E-GEN-')) throw e;
+    throw Object.assign(new Error('E-GEN-DIREKT: Direkt-Call nicht moeglich (Netz/CORS/Timeout)'), { code: 'E-GEN-DIREKT' });
+  }
+}
+
+/**
  * @param {string} promptText vollstaendiger P1-Prompt inkl. Thema
  * @param {{ seed?: number, onToken?: (t: string) => void, provider?: string, model?: string }} [opts]
- * provider/model: Optional — Proxy-Defaults (meta-muse/muse-spark-1.3-contributor)
- * greifen, wenn leer. Baseten-Pfad nur mit User-BYOK-Key (nie Server-Key).
- * @returns {Promise<GeneratedModule>}
+ * provider/model: Optional — Defaults (meta-muse/muse-spark-1.3-contributor).
+ * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser), Proxy nur als Fallback
+ * bei Transport-Fehler; ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
+ * @returns {Promise<GeneratedModule & { via: 'direct' | 'proxy' }>}
  */
 export async function generateLive(promptText, opts = {}) {
-  if (!proxyUrl) {
-    throw Object.assign(new Error('E-GEN-OFFLINE: kein Proxy konfiguriert'), { code: 'E-GEN-OFFLINE' });
-  }
   if (typeof promptText !== 'string' || promptText.length < 16) {
     throw Object.assign(new Error('E-GEN-400: Prompt zu kurz'), { code: 'E-GEN-400' });
   }
-  const provider = typeof opts.provider === 'string' && opts.provider ? opts.provider : undefined;
-  const model = typeof opts.model === 'string' && opts.model ? opts.model : undefined;
+  const provider = typeof opts.provider === 'string' && opts.provider ? opts.provider : 'meta-muse';
+  const model = typeof opts.model === 'string' && opts.model
+    ? opts.model
+    : (DIRECT_DEFAULT_MODEL[provider] ?? undefined);
+  const key = liveApiKey;
+  const directUrl = directFirst && key && model ? directChatUrl(provider) : null;
+  if (directUrl) {
+    try {
+      return await generateDirect(directUrl, model, promptText, opts, key);
+    } catch (e) {
+      // Definitive Antwort (Key/Modell/Parse) sofort melden; nur bei
+      // Transport-Fehler UND konfiguriertem Proxy als Fallback weiter.
+      if (!isTransportFailure(e) || !proxyUrl) throw e;
+    }
+  }
+  if (!proxyUrl) {
+    throw Object.assign(new Error('E-GEN-OFFLINE: kein Generierungs-Proxy konfiguriert'), { code: 'E-GEN-OFFLINE' });
+  }
   let lastCode = 'E-GEN-5XX';
   let lastError = null;
   let sawHttp = false;
@@ -189,16 +288,7 @@ export async function generateLive(promptText, opts = {}) {
       }
       const { full, finishReason } = await readSseModule(res, opts.onToken);
       sawHttp = true;
-      // E-S2-BOOT-Repair: fehlende benannte Imports (z.B. Scene) ergaenzen,
-      // bevor Quelle gespeichert/gebootet wird (E2E-Befund 2026-10-27).
-      const source = repairThreeImports(extractModuleSource(full));
-      if (!source.includes('export const meta') || !source.includes('export function init')) {
-        throw Object.assign(new Error('E-GEN-PARSE: kein Modul extrahierbar'), { code: 'E-GEN-PARSE' });
-      }
-      if (finishReason && finishReason !== 'stop') {
-        throw Object.assign(new Error(`E-GEN-PARSE: finish_reason=${finishReason}`), { code: 'E-GEN-PARSE' });
-      }
-      return { source, meta: { title: '', category: '', detailLevel: 1, parts: [], units: 'm' }, raw: full };
+      return finishModule(full, finishReason, 'proxy');
     } catch (e) {
       clearTimeout(timer);
       if (e && (e.code === 'E-GEN-PARSE' || e.code === 'E-GEN-400' || e.code === 'E-GEN-401' || e.code === 'E-GEN-402' || e.code === 'E-GEN-403' || e.code === 'E-GEN-404' || e.code === 'E-GEN-413')) {

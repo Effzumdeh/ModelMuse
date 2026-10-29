@@ -1,5 +1,5 @@
 /**
- * Alpine.store lab: Auswahl, Niveau, Ampel, Aufgabenstand.
+ * Alpine.store lab: Auswahl, Niveau, Ampel, Bauteil-Toggles.
  * Bauplan Abschnitt 3 (store.js) und Abschnitt 7 (Niveaustufen).
  * Ampel-Labels aus der Sprachdatei (Teil 5).
  */
@@ -17,9 +17,7 @@ export function createLabStore(Alpine) {
     measurements: true,
     maxLabels: 64,
     ampel: 'gelb',
-    tasksDone: {},
     partsHidden: [],
-    partResults: {},
   });
 }
 
@@ -28,18 +26,6 @@ export function ampelLabel(ampel) {
   if (ampel === 'gruen') return tt('app.ampelGruen');
   if (ampel === 'rot') return tt('app.ampelRot');
   return tt('app.ampelGelb');
-}
-
-/**
- * Sichtbare Aufgaben je Niveau (rein deklarativ aus dem Manifest).
- * @param {{ tasks?: Array<{ id: string, level: string }> }} manifest
- * @param {string} level
- */
-export function tasksForLevel(manifest, level) {
-  const tasks = Array.isArray(manifest?.tasks) ? manifest.tasks : [];
-  if (level === 'basis') return [];
-  if (level === 'aufbau') return tasks.filter((t) => t.level === 'aufbau');
-  return tasks;
 }
 
 /**

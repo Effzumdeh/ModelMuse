@@ -3,6 +3,7 @@ import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, hasLiveApiKey, liveGenStatus, extractModuleSource,
+  directChatUrl, DIRECT_BASES, DIRECT_DEFAULT_MODEL,
 } from '../src/runtime/livegen.js';
 import {
   E_GEN_DE, germanMessage, buildFreePrompt, freeModelId, extractMeasureHints, buildFreeManifest, extractMetaI18n,
@@ -14,7 +15,7 @@ const REAL_FETCH = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = REAL_FETCH;
   clearLiveApiKey();
-  configureLiveGen({ proxyUrl: null });
+  configureLiveGen({ proxyUrl: null, direct: true });
 });
 
 function sseResponse(chunks, finish = 'stop') {
@@ -53,9 +54,84 @@ test('E-GEN-CONFIG bei ungueltiger Proxy-URL und ungueltigem Key', () => {
   assert.equal(liveGenStatus().hasKey, true);
 });
 
-test('E-GEN-OFFLINE ohne Proxy (UI schaltet auf Bibliothek)', async () => {
+test('E-GEN-OFFLINE ohne Key und ohne Proxy (UI schaltet auf Bibliothek)', async () => {
   configureLiveGen({ proxyUrl: null });
   await assert.rejects(generateLive('Begriff Windkraftanlage lang genug'), /E-GEN-OFFLINE/);
+});
+
+test('Direkt-Mapping: Upstream-URLs + Defaults, unbekannt -> null', () => {
+  assert.equal(directChatUrl('baseten'), `${DIRECT_BASES.baseten}/chat/completions`);
+  assert.equal(directChatUrl('meta-muse'), 'https://api.meta.ai/v1/chat/completions');
+  assert.equal(directChatUrl('openrouter'), null);
+  assert.equal(DIRECT_DEFAULT_MODEL.baseten, 'meta-models/muse-spark-open-1026');
+  assert.equal(DIRECT_DEFAULT_MODEL['meta-muse'], 'muse-spark-1.3-contributor');
+});
+
+test('Direkt zuerst: Key + kein Proxy -> via direct an Upstream-URL', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let seenUrl = null;
+  let seenBody = null;
+  let seenAuth = null;
+  globalThis.fetch = async (url, opts) => {
+    seenUrl = String(url);
+    seenBody = JSON.parse(opts?.body ?? '{}');
+    seenAuth = opts?.headers?.authorization ?? null;
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
+  assert.equal(seenUrl, 'https://inference.baseten.co/v1/chat/completions');
+  assert.equal(seenBody.model, 'meta-models/muse-spark-open-1026');
+  assert.ok(Array.isArray(seenBody.messages) && seenBody.messages[0]?.role === 'user');
+  assert.ok(String(seenAuth).startsWith('Bearer '), 'BYOK-Header gesetzt');
+  assert.ok(!String(seenAuth).includes('http'), 'kein URL-Leak');
+  assert.equal(gen.via, 'direct');
+  assert.ok(gen.source.includes('export function init'));
+});
+
+test('Direkt-Transportfehler + Proxy -> Fallback via proxy', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  const calls = [];
+  globalThis.fetch = async (url, opts) => {
+    calls.push(String(url));
+    if (calls.length === 1) throw new TypeError('fetch failed');
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
+  assert.equal(calls.length, 2, 'direkt + proxy-fallback');
+  assert.equal(calls[0], 'https://inference.baseten.co/v1/chat/completions');
+  assert.equal(calls[1], 'http://127.0.0.1:9/mock');
+  assert.equal(gen.via, 'proxy');
+});
+
+test('Direkt-Transportfehler ohne Proxy -> E-GEN-DIREKT (kein 5XX-Leak)', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  globalThis.fetch = async () => { throw new TypeError('fetch failed'); };
+  await assert.rejects(generateLive('Begriff Windkraftanlage lang genug'), /E-GEN-DIREKT/);
+});
+
+test('Direkt-401 definitiv: kein Proxy-Fallback (genau ein Call)', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let n = 0;
+  globalThis.fetch = async () => { n += 1; return { ok: false, status: 401 }; };
+  await assert.rejects(generateLive('Begriff Windkraftanlage lang genug'), /E-GEN-401/);
+  assert.equal(n, 1, 'kein Fallback bei definitiver Antwort');
+});
+
+test('Ohne Key + Proxy -> nur Proxy (Server-Key), via proxy', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  let seenUrl = null;
+  globalThis.fetch = async (url, opts) => {
+    seenUrl = String(url);
+    assert.ok(!opts?.headers?.authorization, 'kein BYOK ohne Key');
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug');
+  assert.equal(seenUrl, 'http://127.0.0.1:9/mock');
+  assert.equal(gen.via, 'proxy');
 });
 
 test('E-GEN-401 ohne Retry, Key als Bearer-Header (redaktiert geprüft)', async () => {
@@ -91,8 +167,8 @@ test('Erfolgspfad: Modul extrahiert, finish_reason stop', async () => {
   assert.ok(gen.raw.includes('Vorlauf'));
 });
 
-test('provider/model-Optionen landen im Proxy-Body (Defaults bleiben Proxy-Sache)', async () => {
-  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+test('Proxy-Body: Provider/Modell immer aufgeloest (Defaults meta-muse)', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000, direct: false });
   let seen = null;
   globalThis.fetch = async (_url, opts) => {
     seen = JSON.parse(opts?.body ?? '{}');
@@ -103,12 +179,12 @@ test('provider/model-Optionen landen im Proxy-Body (Defaults bleiben Proxy-Sache
   assert.equal(seen.model, 'meta-models/muse-spark-open-1026');
   assert.equal(seen.seed, 7);
   await generateLive('Begriff Windkraftanlage lang genug');
-  assert.equal(seen.provider, undefined);
-  assert.equal(seen.model, undefined);
+  assert.equal(seen.provider, 'meta-muse');
+  assert.equal(seen.model, 'muse-spark-1.3-contributor');
 });
 
 test('deutsche UI-Meldungen fuer alle Codes vorhanden', () => {
-  for (const code of ['E-GEN-400', 'E-GEN-401', 'E-GEN-402', 'E-GEN-403', 'E-GEN-404', 'E-GEN-413', 'E-GEN-429', 'E-GEN-5XX', 'E-GEN-504', 'E-GEN-PARSE', 'E-GEN-CONFIG', 'E-GEN-OFFLINE']) {
+  for (const code of ['E-GEN-400', 'E-GEN-401', 'E-GEN-402', 'E-GEN-403', 'E-GEN-404', 'E-GEN-413', 'E-GEN-429', 'E-GEN-5XX', 'E-GEN-504', 'E-GEN-PARSE', 'E-GEN-CONFIG', 'E-GEN-OFFLINE', 'E-GEN-DIREKT']) {
     assert.ok(typeof E_GEN_DE[code] === 'string' && E_GEN_DE[code].length > 10, code);
     assert.ok(!E_GEN_DE[code].includes('LLM_'), `${code} ohne Key-Spuren`);
   }
@@ -185,10 +261,11 @@ test('extractMetaI18n + buildFreeManifest: Hints erzeugen en/es-Segment, valide'
   assert.ok(!('i18n' in bad));
 });
 
-test('Key-Policy Teil 5: nur Speicher, nie Storage', () => {
+test('Key-Policy: Speicher + Session-Storage nur mit Zustimmung (nie Logs)', () => {
   assert.equal(loadStoredKey(), null);
-  storeKey('LLM_12345678_abcdefghijklmnop', true);
-  assert.equal(loadStoredKey(), null);
+  assert.equal(hasLiveApiKey(), false);
+  storeKey('LLM_12345678_abcdefghijklmnop', false);
+  assert.equal(hasLiveApiKey(), true, 'Speicher gesetzt');
   forgetStoredKey();
   assert.equal(hasLiveApiKey(), false);
 });
