@@ -21,7 +21,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { twoDVariantOf, extractTwoDLiteral, TWOD_VARIANT_LITERAL } from '../src/runtime/verify-2d.js';
 
-const FILE = process.argv[2] ?? 'dist-standalone/skillspark-standalone.html';
+const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const REPORT = process.argv[2] ? null : 'dist-standalone/build-standalone-v14-report.json';
 const DEMOS = ['demo-2d-svg', 'demo-2d-mermaid', 'demo-2d-chart', 'demo-2d-d3', 'demo-2d-katex'];
 

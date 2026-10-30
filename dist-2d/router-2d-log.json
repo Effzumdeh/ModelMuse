@@ -1,12 +1,12 @@
 {
-  "createdAt": "2026-10-28T22:50:17.354Z",
+  "createdAt": "2026-10-29T07:39:49.767Z",
   "proxy": "stub-lokal (kein LLM, kein Key)",
   "template": "prompts/p0-router.txt",
   "faelle": [
     {
       "name": "motor3d",
       "fachtextLen": 118,
-      "promptLen": 2963,
+      "promptLen": 3157,
       "gekappt": false,
       "route": {
         "mode": "3d",
@@ -14,12 +14,12 @@
         "begruendung": "Mehrere Bauteile mit Lage- und Bewegungsbezug, Orbit bringt Mehrwert.",
         "fallback": false
       },
-      "ms": 82
+      "ms": 89
     },
     {
       "name": "tiefpass2d",
       "fachtextLen": 107,
-      "promptLen": 2952,
+      "promptLen": 3146,
       "gekappt": false,
       "route": {
         "mode": "2d",
@@ -27,12 +27,12 @@
         "begruendung": "Schaltungstopologie und Signalfluss, keine raeumliche Anordnung noetig.",
         "fallback": false
       },
-      "ms": 73
+      "ms": 72
     },
     {
       "name": "prozess2d",
       "fachtextLen": 104,
-      "promptLen": 2949,
+      "promptLen": 3143,
       "gekappt": false,
       "route": {
         "mode": "2d",
@@ -45,7 +45,7 @@
     {
       "name": "kennlinie2d",
       "fachtextLen": 100,
-      "promptLen": 2945,
+      "promptLen": 3139,
       "gekappt": false,
       "route": {
         "mode": "2d",
@@ -53,12 +53,12 @@
         "begruendung": "Kennlinienvergleich auf Achsen, raeumliches Modell ohne Mehrwert.",
         "fallback": false
       },
-      "ms": 15
+      "ms": 16
     },
     {
       "name": "begriffe2d",
       "fachtextLen": 106,
-      "promptLen": 2951,
+      "promptLen": 3145,
       "gekappt": false,
       "route": {
         "mode": "2d",
@@ -71,7 +71,7 @@
     {
       "name": "stoerung500",
       "fachtextLen": 77,
-      "promptLen": 2922,
+      "promptLen": 3116,
       "gekappt": false,
       "route": {
         "mode": "3d",
@@ -79,12 +79,12 @@
         "begruendung": "Router-HTTP 500 (Fail-closed 3D)",
         "fallback": true
       },
-      "ms": 16
+      "ms": 15
     },
     {
       "name": "kappung",
       "fachtextLen": 10016,
-      "promptLen": 6845,
+      "promptLen": 7039,
       "gekappt": true,
       "route": {
         "mode": "2d",
@@ -92,7 +92,7 @@
         "begruendung": "Begriffe und Taxonomie ohne Lage, Struktur statt Raum.",
         "fallback": false
       },
-      "ms": 16
+      "ms": 15
     }
   ]
 }

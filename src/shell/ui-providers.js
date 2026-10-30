@@ -111,8 +111,8 @@ export function mountProviders(els) {
       configureLiveGen({ proxyUrl: url, timeoutMs: 300000 }); // E2E-Befund 2026-10-27: Streams > 90 s
       setLiveApiKey(key);
       try {
-        if (els.consentInput?.checked) sessionStorage.setItem('skillspark-proxy', url);
-        else sessionStorage.removeItem('skillspark-proxy');
+        if (els.consentInput?.checked) sessionStorage.setItem('modelmuse-proxy', url);
+        else sessionStorage.removeItem('modelmuse-proxy');
       } catch { /* Speicher blockiert */ }
       return true;
     },

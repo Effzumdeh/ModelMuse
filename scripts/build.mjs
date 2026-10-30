@@ -120,15 +120,21 @@ const maxTable = {
   'src/shell/i18n.js': 7000, // Teil 5 (27.10.2026): neu, detect/t/applyLocale/localizeManifest
   'src/shell/ui-fallback2d.js': 6000, 'src/shell/theme.css': 20000,
   'src/runtime/player.js': 16000, 'src/runtime/sandbox-host.js': 14000,
-  'src/runtime/frame-bootstrap.js': 16000,  'src/runtime/guard-static.js': 15000, // 28.10.2026: 13500 -> 15000, parallel Guide-3D edits grew the file to ~14.3k (S2 probe + F5 fallback); 28.10.2026 (prior): 12000 -> 16000 frame-bootstrap, file already at 15034 (A-08 S2 probe) + Guide-3D-F5 (BackSide fallback) and section 4 (meta in snapshot); 27.10.2026: 9000 -> 13500, repairThreeImports + comment/string masking (E-S2-BOOT fix)
+  'src/runtime/frame-bootstrap.js': 16000,  'src/runtime/guard-static.js': 16500, // 29.10.2026: 15000 -> 16500, 2D-Alle-Varianten (MERMAID/CHART/D3/KATEX-Kinds + Exportnamen je Vendor-Datei); Allowlist 2d-* unveraendert
   'src/runtime/guard-runtime.js': 8000, 'src/runtime/budget.js': 12000,
   'src/runtime/verify.js': 27000, 'src/runtime/didactics.js': 9000, // 28.10.2026: 22000 -> 27000, parallel Guide-3D edits grew the file to ~25-26k (diagram extraction + S2-geometry checks); 28.10.2026 (prior): 20000 -> 22000, Guide-3D-F4 (name-independent room gate) + P2 log with scene state/images; Part 5 (27.10.2026): 7000 -> 9000, i18n segment validation
   'src/runtime/geometry-checks.js': 20000,
   'src/runtime/fallback2d.js': 8000,  'src/runtime/annotate.js': 10000,
-  'src/runtime/livegen.js': 19500, // Slim-Generator (28.10.2026): 16000 -> 19500, paralleles Direkt-Call-Feature waechst noch (16622 -> 18754); Marge fuer laufende Arbeit, Guards bleiben
+  'src/runtime/livegen.js': 20000, // 29.10.2026: 19500 -> 20000, 2D-Alle-Varianten (ROUTER_TYP_TO_VARIANT + TOPOLOGY_VARIANTE; P0→Variante als P1-Checklist)
   'src/shell/ui-livegen.js': 17500, // Slim-Generator (28.10.2026): 16000 -> 17500, parallele Generieren-Arbeit (Datei misst 17057); Guards bleiben
   'src/vendor/three.entry.js': 760, // 28.10.2026: 700 -> 760, Guide-3D-F1/F2 (F1-Option-B: MeshPhysicalMaterial; F2: PCFShadowMap + VSMShadowMap; PCFSoftShadowMap bleibt fuer Bestandsmodelle); A-3 (2026-10-27, Nachtauftrag Hyperrealismus Teil 2): 560 -> 700, 8 weitere benannte three-Imports (InstancedMesh, ExtrudeGeometry, Shape, DataTexture, LinearFilter, RepeatWrapping, Matrix4, Quaternion) fuer Hyper-Geometrie/Texturen; kein CDN, keine externen Files; Bundle-Wachstum klein, Artefakt-Budget gruen
   'src/vendor/diagram-2d.js': 12500, // 28.10.2026: neu, 2D-Vendor-Renderer (SVG nativ, 0 externe Bytes; Lib im Vendor, Module liefern nur Daten)
+  'src/vendor/mermaid-2d.js': 15000, // 29.10.2026: neu, Mermaid-Chunk-Selektion (flow/sequenz/er/gantt als Text-DSL, SVG-Render, Gate parseMermaid)
+  'src/vendor/chart-2d.js': 12500, // 29.10.2026: 10500 -> 12500, Achsen mit niceCeil-Skala + Einheit + Peak-Highlight (Canvas + SVG-Vorschau)
+  'src/vendor/d3-2d.js': 8000, // 29.10.2026: neu, d3-light (netz/baum, deterministisches Radial-Layout, Gate node-not-found)
+  'src/vendor/katex-2d.js': 11000, // 29.10.2026: 7500 -> 11000, rekursiver LaTeX-Renderer (geschachtelte frac, left/right-Klammern, echte Symbole, Inline-CSS)
+  'src/runtime/verify-2d.js': 32000, // 29.10.2026: 14000 -> 32000, 2D-Haertung (S2-2d-semantik: Achsen/Labels/Einheiten/Legende je Typ + S2-2d-layout: Ueberlappung/Mindestschrift/Kanten, Node-seitig deterministisch)
+  'src/runtime/render-2d.js': 2500, // 29.10.2026: neu, Render-Dispatcher je 2d-*-Import (Player/Standalone/Shots)
   'src/vendor/alpine.module.esm.min.js': 55919,
 };
 const maxViolations = [];
@@ -197,7 +203,7 @@ const report = {
   routes: {
     p0: true,
     p1_2d: true,
-    models2d: modelFiles.filter((m) => /^(dup-[123]|ae-[123])\.js$/.test(m.file)).map((m) => m.file.slice(0, -3)),
+    models2d: modelFiles.filter((m) => /^(dup-[123]|ae-[123]|demo-2d-(svg|mermaid|chart|d3|katex))\.js$/.test(m.file)).map((m) => m.file.slice(0, -3)),
   },
   verdict: maxViolations.length === 0 && threeBundle <= VENDOR_ABORT ? 'pass' : 'fail',
 };

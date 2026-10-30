@@ -15,7 +15,7 @@
  */
 import { readFile, writeFile } from 'node:fs/promises';
 
-const FILE = process.argv[2] ?? 'dist-standalone/skillspark-standalone.html';
+const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const REPORT = process.argv[2] ? null : 'dist-standalone/build-standalone-v15a-report.json';
 
 function must(cond, msg) {

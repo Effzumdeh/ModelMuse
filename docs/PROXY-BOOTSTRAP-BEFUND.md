@@ -14,7 +14,7 @@
   automatische Proxy-Fallback (nur bei Transport-Fehler; definitive Antworten
   wie 401/404 fallen **nicht** zurück).
 - **Key-Schutz**: Key nie in Code/Logs/Dateien/Repo. Speicher (livegen-Modul) +
-  `sessionStorage` **nur mit Zustimmung** (Checkbox, Muster `skillspark-live-key`
+  `sessionStorage` **nur mit Zustimmung** (Checkbox, Muster `modelmuse-live-key`
   aus Standalone). `localStorage` nie für Keys. Server-Key (`Key_muse.md`/Env)
   erreicht nur den Proxy-Prozess, nie den Browser.
 - **CSP**: `connect-src` in `src/shell/index.html` (→ `dist/lab-player.html`)
@@ -28,7 +28,7 @@
 
 - „Bootstrap“ = **kein Bootstrap-CSS-Framework** im Repo (nie vorhanden; `grep`
   findet nur `frame-bootstrap`/`sandbox-host`-Bezeichner). Gemeint ist die
-  **moderne Single-Page-UI aus `dist-standalone/skillspark-standalone.html`**
+  **moderne Single-Page-UI aus `dist-standalone/modelmuse-standalone.html`**
   (Vue 3 + Tailwind via CDN, Generator mit **direktem** OpenRouter-Browser-Call,
   `sessionStorage`-Key mit Zustimmung, Onboarding, Suche, Fortschritt,
   Hell/Dunkel-Theme, Footer, 44px-Touch-Ziele).

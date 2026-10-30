@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://skillspark.local/schema/model-meta.schema.json",
+  "$id": "https://modelmuse.local/schema/model-meta.schema.json",
   "title": "ModelMeta",
   "type": "object",
   "additionalProperties": false,

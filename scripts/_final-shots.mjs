@@ -1,7 +1,7 @@
 /**
  * FINALS: je Lab ein PNG (dist/final-<id>.png) plus echte Budgets
  * (triangles/drawCalls via Direkt-Render-Probe) nach dist/final-budgets.json.
- * Kopie eines Repraesentanten nach scratch/skillspark-final.png.
+ * Kopie eines Repraesentanten nach scratch/modelmuse-final.png.
  * Kein Key-Kontakt, keine Modellveraenderung.
  */
 import { createServer } from 'node:http';
@@ -174,7 +174,7 @@ try {
 }
 await mkdir(SCRATCH, { recursive: true });
 await writeFile('dist/final-budgets.json', JSON.stringify({ at: new Date().toISOString(), budgets }, null, 2));
-await copyFile(resolve('dist/final-gpu-example.png'), `${SCRATCH}/skillspark-final.png`);
+await copyFile(resolve('dist/final-gpu-example.png'), `${SCRATCH}/modelmuse-final.png`);
 console.log('final-budgets.json geschrieben, scratch-Kopie angelegt');
 const bad = budgets.filter((b) => !b.nonEmpty || !b.budgetOk);
 if (bad.length > 0) {

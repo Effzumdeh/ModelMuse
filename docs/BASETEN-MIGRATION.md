@@ -28,7 +28,7 @@ Meta-Regel eingehalten: Laufzeit nur Meta-Modelle (`meta-models/muse-spark-open-
 | `scripts/proxy-e2e-baseten.mjs` | NEU: echter Browser-Generierungsbeleg via Baseten (Quelle `browser-e2e-baseten`) |
 | `scripts/proxy-e2e-openrouter.mjs` | INAKTIV (Header + `process.exit(3)`, Historie bleibt) |
 | `scripts/chemie-e2e.mjs` | Zweitpfad `openrouter` → `baseten` (Key per `BASETEN_API_KEY`-Env); Pfadname `openrouter` → ehrlicher Abbruch |
-| `README.md`, `docs/NEXT-STEPS.md`, `docs/skillspark-v8-spec.md` | Pfad-Erwahnungen auf Baseten umgestellt / als inaktiv markiert |
+| `README.md`, `docs/NEXT-STEPS.md`, `docs/modelmuse-v8-spec.md` | Pfad-Erwahnungen auf Baseten umgestellt / als inaktiv markiert |
 
 ## 3. OpenRouter-Inaktiv-Doku
 

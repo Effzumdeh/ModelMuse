@@ -1,4 +1,4 @@
-# SkillSpark Erst-Commit 2026-10-27 — Versionsverwaltung ab Restposten-Auftrag
+# ModelMuse Erst-Commit 2026-10-27 — Versionsverwaltung ab Restposten-Auftrag
 # Dependencies
 node_modules/
 # Keys — nie versionieren (Key_muse.md, Key_openrouter.md, .env)
@@ -43,4 +43,20 @@ dist-standalone/STANDALONE-REPORT-*.md
 dist-standalone/build-showcase-report.json
 dist-standalone/proof-aktuell-*.png
 dist-2d/demo-*
+dist-2d/vorher/
+dist-2d/*-report.json
+dist-2d/smoke-*.json
 docs/routing-shots/
+# Publish-Hygiene 2026-10-30: Proof-PNGs/JSONs + lokaler API-Ledger bleiben lokal
+# (nur dist-standalone/modelmuse-standalone.html wird versioniert)
+dist-standalone/proof-*
+dist-standalone/ledger-*.md
+docs/source-de/STANDALONE-REPORT-*.md
+docs/source-de/SHOWCASE-REPORT-*.md
+# Publish-Hygiene 2026-10-30 (erster GitHub-Publish): Playwright-Report + IDE-Muell
+playwright-report/
+.vscode/
+.idea/
+# Release-Artefakt bewusst versioniert — trotz benachbarter dist-standalone-Ignores nie ignorieren
+!dist-standalone/modelmuse-standalone.html
+# Hinweis: README-verlinkte STANDALONE-REPORT-*.md / SHOWCASE-REPORT-*.md und docs/routing-shots/ bleiben bewusst lokal/regenerierbar (Regeln oben), kein Negation-Tracking

@@ -35,7 +35,7 @@ test('Kaltstart offline: Start-Fehlerpfad greift, kein Hang', async ({ page, con
 test('Kaltstart file://: dist/lab-player.html startet oder zeigt Fehlerpfad, kein Hang', async ({ page }) => {
   test.skip(!existsSync(resolve('dist/lab-player.html')), 'Artefakt fehlt — zuerst npm run render');
   await page.goto(pathToFileURL(resolve('dist/lab-player.html')).href, { timeout: 30000, waitUntil: 'domcontentloaded' });
-  await expect(page).toHaveTitle(/SkillSpark Lab-Player/, { timeout: 30000 });
+  await expect(page).toHaveTitle(/ModelMuse Lab-Player/, { timeout: 30000 });
   const gesund = await page.locator('#lab-mount iframe').waitFor({ timeout: 30000 }).then(() => true, () => false);
   const report = (await page.textContent('#verify-report').catch(() => '')) ?? '';
   const fallback = await page.locator('#fallback-panel').isVisible().catch(() => false);

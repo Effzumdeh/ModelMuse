@@ -1,17 +1,15 @@
 /**
- * npm run verify:* — S1+S5 in Node, S2 als skip (Browser-Suite misst),
- * S3/S4 aus dist/final-budgets.json gespiegelt (nur bei frischem Beleg).
- * Schreibt dist/verify-report.json + dist/attestation.json.
- * Exit 0 nur wenn kein Modell rot ist und das Artefakt unter Komfort liegt.
- * Bauplan Abschnitt 8 (Testbefehle, verify:all).
+ * npm run verify:* — run S1 and S5 in Node; skip S2 (measured by the browser suite),
+ * and mirror S3/S4 from dist/final-budgets.json only when the evidence is current.
+ * Writes dist/verify-report.json and dist/attestation.json.
+ * Exits 0 only when no model fails and the artifact is within the comfort limit.
+ * See the build plan's verification command reference.
  */
 import { readdir, readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { verifyStaticLayer, verifyDidacticsLayer, verifyGeometryLayer, verifySvgLayer, skipLayer, buildVerifyReport, sollFromMatrixEntry, formatP2Protocol } from '../src/runtime/verify.js';
 import { isTwoDSource } from '../src/runtime/guard-static.js';
-import { countSvgShapes } from '../src/vendor/diagram-2d.js';
-import { buildDiagramSvg } from '../src/vendor/diagram-2d.js';
-import { extractDiagram } from '../src/runtime/verify.js';
+import { twoDVariantOf, extractTwoDLiteral, countTwoDShapes, TWOD_VARIANT_LITERAL } from '../src/runtime/verify-2d.js';
 import { extractMeta } from '../src/runtime/verify.js';
 import { countMeshesStatic } from '../src/runtime/geometry-checks.js';
 import { DEFAULT_BUDGET_LIMITS } from '../src/runtime/budget.js';
@@ -19,10 +17,10 @@ import { DEFAULT_BUDGET_LIMITS } from '../src/runtime/budget.js';
 const ROOT = process.cwd();
 const DIST = `${ROOT}/dist`;
 const only = (process.argv.find((a) => a.startsWith('--only=')) ?? '--only=S1,S2,S3,S4,S5').slice(7).split(',').map((s) => s.trim().toUpperCase());
-// M2 (Guide-3D Abschnitt 3): Browser-Probe je Modell einspeisen
+// M2 (3D guide, section 3): supply a browser probe for each model
 // (--probe-json={id: {boxes,faces,polys,parts,groups,pixelDiff,snapshot,images}})
-// und P2-Fehlerprotokolle schreiben (--p2-out=<dir>/p2-<id>.txt). Ohne Flags:
-// Verhalten unveraendert (statischer S2-Pfad, Belege aus final-budgets.json).
+// and write P2 failure reports (--p2-out=<dir>/p2-<id>.txt). Without flags,
+// behavior is unchanged (static S2 path; evidence from final-budgets.json).
 const probeJsonArg = process.argv.find((a) => a.startsWith('--probe-json='));
 const p2OutArg = process.argv.find((a) => a.startsWith('--p2-out='));
 await mkdir(DIST, { recursive: true });
@@ -52,37 +50,55 @@ if (existsSync(`${ROOT}/src/models`)) {
   }
 }
 if (models.length === 0) {
-  console.error('verify: keine Modelle in src/models — Abbruch');
-  process.exit(2);
+  // Empty-stand state: zero models is valid; users can generate new models via
+  // the frontend (P0/P1 harness and Baseten BYOK).
+  // Write empty reports (yellow/no failures) and verify the standalone artifact.
+  console.log('verify: EMPTY-STAND (0 Modelle in src/models — Neugenerierung per Frontend offen)');
+  let artifactBytes = 0;
+  try {
+    artifactBytes = (await stat(`${ROOT}/dist-standalone/modelmuse-standalone.html`)).size;
+  } catch {
+    console.error('verify: Artefakt dist-standalone/modelmuse-standalone.html fehlt — Abbruch');
+    process.exit(1);
+  }
+  console.log(`artefakt: ${artifactBytes} bytes (Komfort 1500000)`);
+  if (artifactBytes > 1500000) {
+    console.error('verify: ABBRUCH Artefakt ueber Komfortgrenze');
+    process.exit(1);
+  }
+  await writeFile(`${DIST}/verify-report.json`, JSON.stringify({ createdAt: new Date().toISOString(), buildHash: 'empty-stand', emptyStand: true, models: [] }, null, 2));
+  await writeFile(`${DIST}/attestation.json`, JSON.stringify([], null, 2));
+  console.log('verify: OK (EMPTY-STAND, 0 Modelle, Artefakt ok)');
+  process.exit(0);
 }
 
 let buildHash = 'dev';
 try {
   buildHash = JSON.parse(await readFile(`${DIST}/build-report.json`, 'utf8')).buildHash ?? 'dev';
 } catch {
-  /* Build-Report fehlt: Hash dev */
+  /* No build report: development hash. */
 }
 
-/** Messwerte aus dist/final-budgets.json (O-08) — nur frische Belege zaehlen. */
+/** Read dist/final-budgets.json measurements (O-08); accept only current evidence. */
 let budgets = null;
 try {
   budgets = JSON.parse(await readFile(`${DIST}/final-budgets.json`, 'utf8'));
 } catch {
-  /* keine Messwerte: S3/S4 ehrlich skip */
+  /* No measurements: explicitly skip S3/S4. */
 }
 const budgetById = new Map((budgets?.budgets ?? []).map((b) => [b.id, b]));
 
-/** O-10: Modellmatrix als einzige Quelle (src/data/modellmatrix.json). */
+/** O-10: Use the model matrix as the single source of truth. */
 let modellmatrix = {};
 try {
   modellmatrix = JSON.parse(await readFile(`${ROOT}/src/data/modellmatrix.json`, 'utf8'));
 } catch {
-  /* ohne Matrix: S5-soll graceful (free-Pfad) */
+  /* Without a matrix, handle S5 gracefully on the free path. */
 }
 
 /**
- * Passt der Budget-Beleg noch zur aktuellen Modellquelle?
- * Vergleich: Quell-Bytes vs. S1-size im reportHead + Screenshot-Groesse.
+ * Check whether the budget evidence still matches the current model source.
+ * Compare source bytes with S1 size in reportHead and the screenshot size.
  * @param {string} id
  * @param {string} source
  */
@@ -121,7 +137,7 @@ for (const m of models.sort((a, b) => (a.id < b.id ? -1 : 1))) {
   }
   if (want('S2')) {
     if (isTwoDSource(m.source)) {
-      // 2D-Route: S2-light (parse + pixel + Typ-Whitelist), kein WebGL.
+      // 2D route: S2-light (parse, pixel, and type allowlist); no WebGL.
       const { layer } = verifySvgLayer(m.source);
       layers.push(layer);
     } else {
@@ -132,7 +148,7 @@ for (const m of models.sort((a, b) => (a.id < b.id ? -1 : 1))) {
   }
   if (want('S3')) {
     if (isTwoDSource(m.source)) {
-      // 2D-Route: Beleg aus scripts/shot-2d.mjs (dist-2d/<id>.png, Pixel-Gate).
+      // 2D route: use evidence from scripts/shot-2d.mjs (dist-2d/<id>.png pixel gate).
       const png2d = `dist-2d/${m.id}.png`;
       let bytes2d = 0;
       try {
@@ -184,11 +200,12 @@ for (const m of models.sort((a, b) => (a.id < b.id ? -1 : 1))) {
   }
   if (want('S4')) {
     if (isTwoDSource(m.source)) {
-      // 2D-Route: S4-light — SVG-Knoten + Modulbytes statt WebGL-Budgets.
-      const diagram = extractDiagram(m.source);
+      // 2D route: S4-light uses node/shape counts and module bytes (je Variante).
+      const variant = twoDVariantOf(m.source) ?? 'svg';
+      const data = extractTwoDLiteral(m.source, TWOD_VARIANT_LITERAL[variant]);
       let shapes = 0;
       try {
-        shapes = countSvgShapes(buildDiagramSvg(diagram ?? {}));
+        shapes = countTwoDShapes(variant, data ?? {});
       } catch {
         shapes = -1;
       }
@@ -249,7 +266,7 @@ for (const m of models.sort((a, b) => (a.id < b.id ? -1 : 1))) {
   const order = ['S1', 'S2', 'S3', 'S4', 'S5'];
   layers.sort((a, b) => order.indexOf(a.layer) - order.indexOf(b.layer));
   const r = buildVerifyReport({ modelId: m.id, iteration: 1, layers, buildHash });
-  r.route = isTwoDSource(m.source) ? { mode: '2d', reason: '2d-svg Datenpfad' } : { mode: '3d' };
+  r.route = isTwoDSource(m.source) ? { mode: '2d', reason: `2d-${twoDVariantOf(m.source) ?? 'svg'} Datenpfad` } : { mode: '3d' };
   r.screenshot = fresh.entry?.png ?? null;
   reports.push(r);
   console.log(`${m.id}: ${r.verdict} [${r.failed.join(', ') || 'keine Fehler'}]`);
@@ -276,12 +293,13 @@ const attestation = reports.map((r) => ({
 }));
 await writeFile(`${DIST}/attestation.json`, JSON.stringify(attestation, null, 2));
 
-// Artefakt-Gate: vorhanden und unter Komfort?
+// Artifact gate (29 October 2026): the standalone file is the only release artifact
+// (GitHub Pages, no backend). The former dist/lab-player.html artifact is retired.
 let artifactBytes = 0;
 try {
-  artifactBytes = (await stat(`${DIST}/lab-player.html`)).size;
+  artifactBytes = (await stat(`${ROOT}/dist-standalone/modelmuse-standalone.html`)).size;
 } catch {
-  console.error('verify: Artefakt dist/lab-player.html fehlt — Abbruch');
+  console.error('verify: Artefakt dist-standalone/modelmuse-standalone.html fehlt — Abbruch');
   process.exit(1);
 }
 console.log(`artefakt: ${artifactBytes} bytes (Komfort 1500000)`);

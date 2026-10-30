@@ -17,7 +17,7 @@
 
 ## Standalone-Build (dist-standalone/, Stand v12-guide ab 28.10.2026)
 - Builder (einziger Schreibweg): `node scripts/build-standalone.mjs` (versioniert).
-  Hebt `dist-standalone/skillspark-standalone.html` deterministisch auf Guide-Stand
+  Hebt `dist-standalone/modelmuse-standalone.html` deterministisch auf Guide-Stand
   (`docs/implementation-guide-3d-qualitaet.md` Abschnitte 2-3: PCFShadowMap, IBL-Raum,
   4-Lichter, DPR-Cap, Negativ-Liste, F3). Guards sichern die v11-Basis
   (Titel v10 + v11-Framing); Zweitlauf bricht ab. Report:

@@ -6,9 +6,9 @@ Du findest hier alle Konzept- und Nachweisdokumente. Beginne im Abschnitt „Akt
 
 | Datei | Wozu du sie liest |
 |---|---|
-| `INVENTUR-2026-10-30.md` | Bestandsaufnahme vom 30.10.2026 — **historischer Snapshot vor der Bereinigung** (siehe Hinweis im Dateikopf). |
+| `INVENTUR-2026-10-30.md` | Bestandsaufnahme vom 30.10.2026 — **historische Momentaufnahme vor der Bereinigung** (siehe Hinweis im Dateikopf). |
 | `INVENTUR-ANHANG-FILELISTE.md` | Dateiliste zur Inventur (Anhang, maschinell erzeugt). |
-| `LIZENZEN.md` | Lizenz- und Quellenangaben-Audit (Stand v13, historisch — siehe Hinweis im Dateikopf). |
+| `LIZENZEN.md` | Lizenz- und Quellenprüfung (Stand v13; historisch — siehe Hinweis im Dateikopf). |
 | `FINAL-NACHWEISE.md` | Finale Nachweise zum Release-Stand. |
 | `AKTUELL-SCREENSHOTS.md` | Aktuelle Screenshots und ihr Stand. |
 | `LIVE-SHOTS.md` | Live-Aufnahmen aus dem laufenden Betrieb. |
@@ -32,7 +32,7 @@ Du findest hier alle Konzept- und Nachweisdokumente. Beginne im Abschnitt „Akt
 | `three-186-api-pin.md` | Pin auf die Three.js-r186-API. |
 | `ABLAGEKONVENTION.md` | Ablagekonventionen im Repo. |
 | `ABWEICHUNGSBLATT-2026-10-27.md` | Abweichungen vom Plan (Blatt vom 27.10.2026). |
-| `skillspark-v8-spec.md` | Spezifikation (v8-Stand). |
+| `modelmuse-v8-spec.md` | Spezifikation (v8-Stand). |
 | `INSTALLATION-MUSE.md` | Installation und Einrichtung für Muse. |
 | `MANUELLER-EDITOR-MACHBARKEIT.md` | Machbarkeit eines manuellen Editors. |
 | `NEUBAU-UI-CHECK.md` | Prüfung eines UI-Neubaus. |

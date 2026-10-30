@@ -1,103 +1,100 @@
-# SkillSpark — Standalone-Release
+# ModelMuse
 
-SkillSpark ist eine statische Single-Page-Anwendung zum Betrachten und Erzeugen von 3D- und 2D-Lehrmodellen im Browser. Du brauchst dafür weder ein Backend noch einen Build: Das einzige Release-Artefakt ist
-[`dist-standalone/skillspark-standalone.html`](dist-standalone/skillspark-standalone.html).
-Lege diese Datei auf GitHub Pages oder einen anderen statischen Host, öffne sie im Browser — fertig. Die Anwendung braucht eine Netzverbindung
-für ihre fünf CDN-Bibliotheken: Three.js 0.186.1, Vue 3, OrbitControls (Three.js-Beispielmodul), Tailwind CSS Play CDN und
-Inter. Siehe den [Lizenz- und Quellenangaben-Audit](docs/LIZENZEN.md).
+<!-- Badges (placeholder): add project badges here once the repository is public. -->
+<!-- Example: CI status, GitHub Pages status, license badge. No badge URLs yet. -->
 
-Die Erzeugung und Überarbeitung zur Laufzeit nutzt einen direkten Browser-Aufruf an
-`https://inference.baseten.co/v1/chat/completions` mit dem Modell
-`meta-models/muse-spark-open-1026`. Du lieferst deinen eigenen API-Schlüssel (BYOK); der
-Schlüssel liegt nur in `sessionStorage`. Es ist kein lokaler Proxy-Port nötig, und es
-startet kein Proxy automatisch.
+## Overview
 
-## Status (30.10.2026, v15a)
+ModelMuse is a static single-page application for viewing and creating 3D and 2D educational models directly in the browser. It needs no backend and no build step to run: the only release artifact is a single self-contained HTML file:
 
-| Feld | Stand |
-|---|---|
-| **Release** | `dist-standalone/skillspark-standalone.html`, 378 KB, Single-File, 0 lokale Referenzen. Gebaut mit `npm run build:standalone` → `scripts/build-standalone-v15a.mjs` (idempotent). |
-| **Inhalt** | 10 Modelle: 5× 3D (`si-1`, `gpu-example`, `free-handbohrmaschine`, `chemie-koffein`, `arch-brandenburger-tor`) + 5× 2D-Vendor-Engines (`demo-2d-svg/mermaid/chart/d3/katex`). |
-| **Netz** | Die Datei ist Single-File, aber **nicht offline-fähig**: Sie lädt beim Start 5 CDN-Bibliotheken — Vue 3, Three.js 0.186.1, OrbitControls (Three.js-Beispielmodul), Tailwind CSS Play CDN und Inter (Google Fonts). Ohne Netz startet die App nicht. Zur Laufzeit ruft sie zusätzlich `https://inference.baseten.co/v1/chat/completions` direkt im Browser auf. |
-| **Build** | Der Build ist **inkrementell**: `build-standalone-v15a.mjs` patcht die vorhandene v15-Datei. Lösche `dist-standalone/skillspark-standalone.html` nicht — ohne diese v15-Baseline lässt sich der Build nicht erneut ausführen. Vor jeder Änderung am Artefakt lege eine Kopie an (z. B. Git-Tag `standalone-v15a-basis`). |
+- `dist-standalone/modelmuse-standalone.html` (approx. 370 KB, single file, zero local references)
 
-Aktuelle Inventur: [`docs/INVENTUR-2026-10-30.md`](docs/INVENTUR-2026-10-30.md) (historische Momentaufnahme vor der Bereinigung vom 30.10.2026 — Details siehe Hinweis dort).
-Bereinigt am 30.10.2026 (Tag `v15a-basis-vor-bereinigung`): 30 2D-Quellen versioniert, `node_modules/`, `dist/manual-tests/`, `cache/`, Legacy-Tarballs, alte Proxy-E2E-Skripte und Root-Backups entfernt (~105 MB frei, 140 MB → 35 MB). Build danach verifiziert.
+Publish this file via GitHub Pages or any other static web server, open it in a browser, and you are ready. The application requires an internet connection at startup: it loads five CDN libraries (Three.js 0.186.1 pinned, Vue 3 unpinned via `vue@3`, OrbitControls from the Three.js 0.186.1 package, Tailwind CSS Play CDN unpinned, and Inter from Google Fonts). It is therefore a single file, but not offline-capable.
 
-> Die frühere 12-Modell-v13-Baseline ist im deutschen Quellarchiv unter [`docs/source-de/STANDALONE-REPORT-2026-10-29.md`](docs/source-de/STANDALONE-REPORT-2026-10-29.md) erhalten. Nutze diesen historischen Bericht nicht als Beleg dafür,
-> dass das aktuelle Artefakt 12 Modelle enthält. Maßgeblich ist der aktuelle
-> [Standalone-Report](dist-standalone/STANDALONE-REPORT-2026-10-29.md).
->
-> Das frühere `dist/lab-player.html`-Artefakt ist stillgelegt und gelöscht.
-> `src/` und `scripts/` bleiben Entwicklungs- und Prüfwerkzeuge. Der Freigabe-Befehl
-> ist `npm run verify:all`, der das Standalone-Artefakt mit prüft.
->
-> **Publikationssperre aufgehoben am 29.10.2026:** `npm run test:unit` besteht 148/148
-> (13 Modellquellen wiederhergestellt + neues `arch-brandenburger-tor`, Matrix synchron). Die Browser-
-> Suite deckt die 5 Vorzeigemodelle ab; siehe den aktuellen
-> [Showcase-Report](dist-standalone/SHOWCASE-REPORT-2026-10-29.md).
+Runtime generation and editing call `https://inference.baseten.co/v1/chat/completions` directly from the browser. You provide your own API key (bring your own key); the key is kept only in `sessionStorage` and is never written to the repository. No local proxy port is required, and no proxy starts automatically.
 
-## Schnellstart
+## Features
 
-Voraussetzung: **Node.js ≥ 20** (`node --version` prüfen).
+- **Single-file release:** one HTML file (`dist-standalone/modelmuse-standalone.html`), no backend, no local references.
+- **10 built-in models:** 5 x 3D (`si-1`, `gpu-example`, `free-handbohrmaschine`, `chemie-koffein`, `arch-brandenburger-tor`) plus 5 x 2D demo engines (`demo-2d-svg`, `demo-2d-mermaid`, `demo-2d-chart`, `demo-2d-d3`, `demo-2d-katex`).
+- **Interactive 3D viewer:** Three.js-based rendering with orbit controls.
+- **2D diagram engines:** SVG, Mermaid-style, chart, D3-style, and KaTeX-style renderers for teaching content.
+- **Runtime generation:** create and revise models in the browser via a direct Baseten inference call with your own API key.
+- **Privacy-friendly key handling:** the API key lives only in `sessionStorage` and never enters version control.
+- **Verified quality gates:** unit tests plus Playwright browser tests cover the standalone artifact.
+
+## Hackathon
+
+ModelMuse is built for the Meta Global AI Developer Hackathon (virtual, 26 Oct – 4 Nov 2026) in the Indie Developer Track under the theme "Build for Your World".
+
+The challenge entry is a browser-only tutor that turns an IT-vocational topic into a verified interactive 3D/2D model: a Muse Spark agent emits a declarative spec, a deterministic library renders it, and a build-verify loop checks by measurement and iterates.
+
+This approach is timely because agentic self-verifying generation was not practical a year ago.
+
+It is submitted in the Indie Developer Track by a FernUniversitaet Hagen student as a single file that runs on any school PC or tablet without installation.
+
+## Live Demo
+
+> TODO: publish `dist-standalone/modelmuse-standalone.html` via GitHub Pages.
+> Planned URL: `https://<user>.github.io/ModelMuse/` (placeholder — replace `<user>` with the actual GitHub username once the repository is public).
+
+Until then, run the app locally (see Quickstart below) or open the release file through any static web server.
+
+## Quickstart
+
+Prerequisites: **Node.js >= 20** (check with `node --version`; required by the `engines` field in `package.json`) and npm. `package-lock.json` is versioned, so `npm ci` installs the locked dependency tree reproducibly.
 
 ```sh
-npm ci                    # Abhängigkeiten aus package-lock.json installieren
-npm run build:standalone  # baut das v15a-Release-Artefakt (braucht die v15-Baseline, siehe Status-Tabelle)
-npm run verify:standalone # prüft die Release-Invarianten des Artefakts
-npm run serve              # lokaler HTTP-Server zum Ausprobieren
-npx playwright test tests/standalone.spec.mjs  # Browser-Suite für das Standalone
-npm run test:unit          # Node.js-Unit-Tests
-npm run verify:all         # Modellprüf-Gates + Standalone-Artefakt (Freigabe-Befehl)
+npm ci                    # install dependencies from package-lock.json
+npm run build:standalone  # build the release artifact (requires the v15 baseline, see Build Notes)
+npm run verify:standalone # check the release invariants of the artifact
+npm run serve              # local development server (default port 8080)
+npm run test:unit          # Node.js unit tests
+npm run verify:all         # model check gates plus the standalone artifact (release approval command)
+npx playwright test tests/standalone.spec.mjs  # browser suite for the standalone file (starts the server itself if needed)
 ```
 
-Hinweis: Die älteren Skripte `build`, `render` und `verify:dist` bleiben als Entwicklungswerkzeuge erhalten; sie erzeugen **nicht** das Release-Artefakt.
+Note: the older `build`, `render`, and `verify:dist` scripts remain as development tools; they do **not** produce the release artifact.
 
-## Verzeichnisübersicht (Root)
+## Tech Stack
 
-| Pfad | Rolle |
+Exact versions are taken from `package.json` (devDependencies):
+
+| Component | Version | Source |
+|---|---|---|
+| Node.js | >= 20 | `engines` field |
+| Three.js (`three`) | 0.186.1 | npm devDependency, also pinned via CDN |
+| Playwright (`@playwright/test`) | 1.64.1 | npm devDependency |
+| esbuild | 0.28.2 | npm devDependency |
+| Alpine.js (`alpinejs`) | 3.17.5 | npm devDependency |
+| Vue 3 | unpinned (`vue@3`) | runtime CDN load, not from npm |
+| Tailwind CSS Play CDN | unpinned | runtime CDN load, not from npm |
+| OrbitControls | 0.186.1 | example module from the Three.js package |
+| Inter font | unpinned | Google Fonts CDN load |
+
+## Project Structure
+
+| Path | Role |
 |---|---|
-| `dist-standalone/` | **Release-Ziel.** Enthält `skillspark-standalone.html` (einziges Auslieferungsartefakt) plus Reports und Nachweisbilder. |
-| `src/` | Quelle aller Artefakte (Modelle, Vendor-Engines, Runtime, Shell). Entwicklungswerkzeug, kein Release. |
-| `scripts/` | Build- und Verify-Kette (`build-standalone-v15a.mjs`, `verify-standalone.mjs` u. a.). Entwicklungswerkzeug, kein Release. |
-| `dist/`, `dist-2d/` | Ältere bzw. Prototyp-Ausgaben und Diagnose-Artefakte. Kein Release-Ziel. |
-| `docs/` | Konzept- und Nachweisdokumentation. Einstieg: [`docs/README.md`](docs/README.md). |
-| `tests/`, `tests-unit/` | Playwright-Specs und Node-Unit-Tests. |
-| `prompts/`, `eval/` | Prompt-Versionen und 3jsbench-Benchmark. |
+| `dist-standalone/` | **Release target.** Contains `modelmuse-standalone.html`, the only shipping file. Build reports (`*-report.json`, `STANDALONE-REPORT-*.md`, `SHOWCASE-REPORT-*.md`) are generated locally only and excluded via `.gitignore`. |
+| `src/` | Sources of all artifacts (models, vendor engines, runtime, shell). Development tooling, not a release. |
+| `scripts/` | Build and verify chain (`build-standalone-v15a.mjs`, `verify-standalone.mjs`, and others). Development tooling, not a release. |
+| `dist/`, `dist-2d/` | Older or prototype outputs and diagnostic artifacts. Not a release target. |
+| `docs/` | Concept and verification documentation. Start at `docs/README.md`. |
+| `tests/`, `tests-unit/` | Playwright specs and Node unit tests. |
+| `prompts/`, `eval/` | Prompt versions and the 3jsbench benchmark. |
 
-## Lizenz und Quellenangaben
+## Build Notes
 
-Die vollständige Komponenten-Inventur, Lizenznachweise, Quellenangaben und offene Punkte stehen in [`docs/LIZENZEN.md`](docs/LIZENZEN.md). Die ausgewerteten
-Komponenten nutzen MIT-, Apache-2.0-, ISC- oder SIL-Open-Font-License-1.1-Bedingungen. Das
-Standalone-Artefakt **referenziert** seine 5 CDN-Bibliotheken (Vue 3, Three.js, OrbitControls, Tailwind CSS, Inter); es bündelt deren Bibliotheken nicht.
-Diese Aussage legt die Lizenz für SkillSparks eigenen Code nicht fest:
-Für das Repository steht die Projektlizenz-Entscheidung der Eigentümer noch aus.
+- The build is **incremental**: `scripts/build-standalone-v15a.mjs` patches the existing v15 file. Do **not** delete `dist-standalone/modelmuse-standalone.html` — without this v15 baseline, the build cannot be re-run.
+- Before changing the artifact, keep a copy, e.g. a Git tag such as `standalone-v15a-basis`.
+- The release approval command is `npm run verify:all`, which also covers the standalone artifact.
+- `src/` and `scripts/` remain development and verification tools; only `dist-standalone/modelmuse-standalone.html` ships.
 
-## Modell- und Anbieter-Regel
+## Contributing
 
-- Das Standard-Muse-Modell für die Entwicklungserzeugung ist
-  `muse-spark-1.3-contributor`. Anfragen lassen Anbieter und Modell offen, außer
-  du wählst ausdrücklich eine Alternative und lieferst deinen eigenen Schlüssel.
-- Das Standalone-Release nutzt den oben beschriebenen direkten Baseten-Pfad. Es
-  nutzt standardmäßig keinen lokalen Proxy.
-- Die historischen 2D-Quellmodule nutzen statische SVG-Daten aus
-  `src/vendor/diagram-2d.js`; sie brauchen zur Laufzeit keinen Modellaufruf. Sie sind
-  nicht im aktuellen EMPTY-STAND-Artefakt gebündelt.
+Contributions are welcome. Please keep pull requests focused, run `npm run verify:all` before submitting, and do not commit generated reports, `node_modules/`, or API keys. For larger changes, open an issue first to discuss scope and direction.
 
-## Historische 2D-Modellquellen
+## License
 
-- Die frühere 12-Modell-Baseline enthielt `dup-1`–`dup-3` und `ae-1`–`ae-3` als
-  SVG-Datenmodule. Das v15a-Artefakt bündelt 5 2D-Demo-Modelle
-  (`demo-2d-svg/mermaid/chart/d3/katex`); `dup-*`/`ae-*`/`si-2`/`si-3` liegen nur in `src/`.
-- Die Quellimplementierung nutzt die `2d-svg`-Vendor-Spezifikation. Die SVG-
-  Prüfung kontrolliert Parsing, Pixel und die Typ-Allowlist, sofern Modelle vorhanden sind.
-- Siehe [`docs/ROUTER-KONZEPT.md`](docs/ROUTER-KONZEPT.md) für das Routing-Design
-  und [`docs/2D-UMSTELLUNG-2026-10-28.md`](docs/2D-UMSTELLUNG-2026-10-28.md)
-  als historischen Implementierungsbeleg.
-
-## 3D-Implementierungsleitfaden
-
-Die Implementierungshilfe für Modellquellen und ihre Nachweise pflegst du in
-[`docs/implementation-guide-3d-qualitaet.md`](docs/implementation-guide-3d-qualitaet.md).
-Der Leitfaden legt den r186-API-Pin, bildbasierte Beleuchtung, Schattenkonfiguration,
-Texturkonventionen, Geometrie-Budgets und den Prüfablauf fest.
+This project is released under the MIT License. See [`LICENSE`](LICENSE) for details.

@@ -1,6 +1,6 @@
-# Lizenz- und Quellenprüfung — SkillSpark (v13, historisch)
+# Lizenz- und Quellenprüfung — ModelMuse (v13, historisch)
 
-> **Einordnung zum aktuellen Stand (v15a, 30.10.2026, redaktionell — keine neue Rechtsprüfung):** Dieser Audit beschreibt den **v13-Stand** vom 29.10.2026 und bleibt als historischer Beleg erhalten. Für das aktuelle Release-Artefakt `dist-standalone/skillspark-standalone.html` (v15a, 378.519 Bytes, 10 Modelle) gilt abweichend: Es referenziert **5** CDN-Bibliotheken — Vue 3, Three.js 0.186.1, OrbitControls (Three.js-Beispielmodul), Tailwind CSS Play CDN und Inter — statt der unten für v13 genannten vier. Die unten dokumentierten Vorbehalte (kein Offline-Betrieb, Versionsdrift bei ungepinnten Referenzen, Tailwind Play CDN nur für Entwicklung, Projektlizenz offen) gelten für v15a unverändert fort. Eine vollständige v15a-Neuprüfung steht aus.
+> **Einordnung zum aktuellen Stand (v15a, 30.10.2026, redaktionell — keine neue Rechtsprüfung):** Dieser Audit beschreibt den **v13-Stand** vom 29.10.2026 und bleibt als historischer Beleg erhalten. Für das aktuelle Release-Artefakt `dist-standalone/modelmuse-standalone.html` (v15a, 378.519 Bytes, 10 Modelle) gilt abweichend: Es referenziert **5** CDN-Bibliotheken — Vue 3, Three.js 0.186.1, OrbitControls (Three.js-Beispielmodul), Tailwind CSS Play CDN und Inter — statt der unten für v13 genannten vier. Die unten dokumentierten Vorbehalte (kein Offline-Betrieb, Versionsdrift bei ungepinnten Referenzen, Tailwind Play CDN nur für Entwicklung, Projektlizenz offen) gelten für v15a unverändert fort. Eine vollständige v15a-Neuprüfung steht aus.
 
 **Audit date:** 29 October 2026  
 **Scope:** Repository dependencies, vendor files, model data, evaluated content,
@@ -25,7 +25,7 @@ marked uncertain or an owner decision is pending.
   must not be mistaken for a description of the current standalone artifact.
 - The 3JSBench evaluation briefings are MIT-licensed and remain in the
   repository, not in the release HTML.
-- The repository has no license for SkillSpark's own code. A repository owner
+- The repository has no license for ModelMuse's own code. A repository owner
   must decide whether and how to license it before redistribution.
 
 ## 2. Component inventory
@@ -58,7 +58,7 @@ marked uncertain or an owner decision is pending.
 - **Baseten model endpoint — `meta-models/muse-spark-open-1026`.** No model
   weights are included and no model-weight license is present in the repository.
   Provider terms are not evidenced here and must be checked by the owner.
-- **SkillSpark source, prompts, and data — license unspecified.** No repository
+- **ModelMuse source, prompts, and data — license unspecified.** No repository
   `LICENSE` file is present. Redistribution rights for project-owned material
   remain unresolved.
 
@@ -85,7 +85,7 @@ The following summary attribution is suitable for repository documentation. It
 lists project dependencies and referenced assets; it is not a replacement for
 license texts where those must accompany a redistributed copy.
 
-> **Attribution.** SkillSpark uses or references the following open-source
+> **Attribution.** ModelMuse uses or references the following open-source
 > components: **three.js 0.186.1** (MIT, © 2010–2026 three.js authors),
 > **Vue 3** (MIT, © 2018–present Yuxi (Evan) You and Vue contributors),
 > **Tailwind CSS** (MIT, © Tailwind Labs, Inc.), **Inter** (SIL Open Font License
@@ -139,7 +139,7 @@ license obligations for the copy being distributed.
 
 ## 6. Open items
 
-- **O-1 — Project license:** No license is declared for SkillSpark's own code.
+- **O-1 — Project license:** No license is declared for ModelMuse's own code.
   The repository owner must choose and add a project license before
   redistribution.
 - **O-2 — 3JSBench source:** A source reference in

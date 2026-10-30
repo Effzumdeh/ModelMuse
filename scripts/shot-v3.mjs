@@ -1,7 +1,7 @@
 /**
  * Screenshot-Kontrolle v3: dist/lab-player.html ueber lokalen HTTP-Server,
  * Chromium 1280x720 mit SwiftShader-Flags aus dem Bauplan.
- * Schreibt PNG nach scratch/skillspark-v3.png + dist/preview-v3.png
+ * Schreibt PNG nach scratch/modelmuse-v3.png + dist/preview-v3.png
  * und misst zusaetzlich echte Budgets (triangles/drawCalls) ueber eine
  * Probe-Seite, die das Modell direkt (ohne Sandbox) rendert.
  * Kein Key-Kontakt, keine Modellveraenderung.
@@ -16,7 +16,7 @@ const ROOT = resolve('.');
 const PORT = Number(process.argv[2] ?? 8093);
 const MODEL = process.env.MODEL || 'gpu-example';
 const TAG = MODEL === 'gpu-example' ? 'v3' : 'si1-v3';
-const OUT1 = `C:/Users/flori/AppData/Local/hermes/cache/scratch/skillspark-${TAG}.png`;
+const OUT1 = `C:/Users/flori/AppData/Local/hermes/cache/scratch/modelmuse-${TAG}.png`;
 const OUT2 = resolve(`dist/preview-${TAG}.png`);
 
 const TYPES = {
@@ -208,7 +208,7 @@ try {
     };
   });
   console.log(`BUDGET-PROBE: ${JSON.stringify(budget)}`);
-  const OUT1C = `C:/Users/flori/AppData/Local/hermes/cache/scratch/skillspark-${TAG}-canvas.png`;
+  const OUT1C = `C:/Users/flori/AppData/Local/hermes/cache/scratch/modelmuse-${TAG}-canvas.png`;
   const OUT2C = resolve(`dist/preview-${TAG}-canvas.png`);
   const cel = await p2.$('#c canvas');
   if (cel) {

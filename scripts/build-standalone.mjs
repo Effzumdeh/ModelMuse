@@ -1,10 +1,10 @@
 /**
- * Standalone-Builder (versioniert): dist-standalone/skillspark-standalone.html
+ * Standalone-Builder (versioniert): dist-standalone/modelmuse-standalone.html
  * auf Guide-Stand (docs/implementation-guide-3d-qualitaet.md Abschnitt 2-3) heben.
  *
  * Builder-Weg (Abgrenzung zu scripts/build.mjs):
  * - scripts/build.mjs baut dist/lab-player.html aus src/ (Shell/Runtime/Models/Vendor).
- * - DIESES Skript patcht dist-standalone/skillspark-standalone.html deterministisch
+ * - DIESES Skript patcht dist-standalone/modelmuse-standalone.html deterministisch
  *   (muse-generierte Single-Page, Builder-Kette designer-scratch/assemble-v4..v11,
  *   Stand v11, Titel v10). designer-scratch/ ist unversioniert und wurde am
  *   28.10.2026 (Parallel-Cleanup) entfernt; dieses Skript ersetzt die Kette als
@@ -28,7 +28,7 @@
  */
 import { readFile, writeFile } from 'node:fs/promises';
 
-const FILE = process.argv[2] ?? 'dist-standalone/skillspark-standalone.html';
+const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const REPORT = process.argv[2] ? null : 'dist-standalone/build-standalone-report.json';
 const EXPECT_BASIS_BYTES = 281090;
 
@@ -71,7 +71,7 @@ function matchBrace(src, openIdx) {
 let s = await readFile(FILE, 'utf8');
 console.log(`build-standalone: Basis ${s.length} Zeichen`);
 // Basis-Guards (laufen NUR auf v11-Stand; Zweitlauf bricht hier ab).
-must(s.includes('<title>SkillSpark Generator 3D-Viewer v10</title>'), 'Basis-Titel v10 fehlt (bereits gebaut oder fremde Basis)');
+must(s.includes('<title>ModelMuse Generator 3D-Viewer v10</title>'), 'Basis-Titel v10 fehlt (bereits gebaut oder fremde Basis)');
 must(s.includes('__frameScene'), 'v11-Framing fehlt (falsche Basis)');
 must(!s.includes('standalone-build v12-guide'), 'v12-guide bereits appliziert (Zweitlauf) — Abbruch');
 must(s.split('PCFSoftShadowMap').length - 1 === 15, 'PCFSoft-Basiszaehlung != 15');
@@ -207,7 +207,7 @@ s = expectCount(replaceCount(
 }
 
 // R17: Titel/Badges + Build-Stempel.
-s = expectCount(replaceCount(s, /<title>SkillSpark Generator 3D-Viewer v10<\/title>/g, '<title>SkillSpark Generator 3D-Viewer v12-guide</title>', 'R17a Titel'), 1);
+s = expectCount(replaceCount(s, /<title>ModelMuse Generator 3D-Viewer v10<\/title>/g, '<title>ModelMuse Generator 3D-Viewer v12-guide</title>', 'R17a Titel'), 1);
 s = expectCount(replaceCount(s, /viewerBadge:"3D-Viewer v10"/g, 'viewerBadge:"3D-Viewer v12-guide"', 'R17b Badge DE'), 1);
 s = expectCount(replaceCount(s, /viewerBadge:"3D Viewer v10"/g, 'viewerBadge:"3D Viewer v12-guide"', 'R17c Badge EN'), 1);
 s = expectCount(replaceCount(s, /viewerBadge:"Visor 3D v10"/g, 'viewerBadge:"Visor 3D v12-guide"', 'R17d Badge ES'), 1);

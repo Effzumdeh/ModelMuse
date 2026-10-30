@@ -19,3 +19,22 @@ Entscheidung: Abweichung ist Architektur, kein Mangel. Kein Umbau.
 - `muse-spark-1.3-contributor`: Hackathon-Tarif, Trainingsnutzung (Default).
 - `muse-spark-1.3`: Standard, datenschutzfreundlich, reasoning max.
 - Nur diese zwei IDs sind belegt (`src/data/providers.json`); Default unveraendert.
+
+## Auslieferung (Stand 29.10.2026, v13)
+- **Einzige Auslieferung:** `dist-standalone/modelmuse-standalone.html`
+  (GitHub-Pages-faehig, kein Backend, keine Build-Pflicht). Builder
+  `scripts/build-standalone-v13.mjs` (idempotent), Verify
+  `scripts/verify-standalone.mjs`, Browser-Suite
+  `tests/standalone.spec.mjs`.
+- **Stillgelegt:** `dist/lab-player.html` (996 KB Alt-Build, geloescht).
+  `scripts/build.mjs`, `scripts/render-single-file.mjs`,
+  `scripts/double-build.mjs`, `scripts/verify-dist.mjs` bleiben als
+  Dev-Werkzeuge lauffaehig, sind aber kein Auslieferungspfad mehr
+  (kein toter Code: Aufrufbarkeit erhalten, Referenzen in README/Verify
+  auf das Standalone umgestellt; `verify-all` gate-t neu auf das
+  Standalone-Artefakt).
+- **Laufzeit-Generierung/Modify im Standalone:** direkter Browser-fetch an
+  `https://inference.baseten.co/v1/chat/completions`
+  (`meta-models/muse-spark-open-1026`, BYOK/sessionStorage). Kein
+  Proxy-Port (optionaler Fallback `scripts/proxy.mjs` wird nie
+  automatisch gestartet).

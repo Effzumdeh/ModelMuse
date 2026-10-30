@@ -124,7 +124,7 @@ export function mountModify(els) {
         setLiveApiKey(key);
         try {
           const box = /** @type {HTMLInputElement | null} */ (document.getElementById('live-consent'));
-          if (box?.checked) sessionStorage.setItem('skillspark-live-key', key);
+          if (box?.checked) sessionStorage.setItem('modelmuse-live-key', key);
         } catch { /* Speicher blockiert */ }
       } catch {
         say(tt('fehler.E-GEN-CONFIG'), true);

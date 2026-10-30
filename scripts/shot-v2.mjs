@@ -1,7 +1,7 @@
 /**
  * Screenshot-Kontrolle v2: dist/lab-player.html ueber lokalen HTTP-Server,
  * Chromium 1280x720 mit SwiftShader-Flags aus dem Bauplan.
- * Schreibt PNG nach scratch/skillspark-v2.png + dist/preview-v2.png
+ * Schreibt PNG nach scratch/modelmuse-v2.png + dist/preview-v2.png
  * und druckt S3-Nicht-Leere-Statistik + Konsolen-/Report-Befund.
  */
 import { createServer } from 'node:http';
@@ -13,7 +13,7 @@ import { chromium } from 'playwright';
 
 const ROOT = resolve('.');
 const PORT = Number(process.argv[2] ?? 8091);
-const OUT1 = 'C:/Users/flori/AppData/Local/hermes/cache/scratch/skillspark-v2.png';
+const OUT1 = 'C:/Users/flori/AppData/Local/hermes/cache/scratch/modelmuse-v2.png';
 const OUT2 = resolve('dist/preview-v2.png');
 
 const TYPES = {

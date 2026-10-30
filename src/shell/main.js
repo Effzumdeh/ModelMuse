@@ -117,14 +117,14 @@ async function boot() {
     themeBtn.textContent = light ? tt('theme.dunkel') : tt('theme.hell');
   };
   try {
-    applyTheme(localStorage.getItem('skillspark-theme') === 'light' ? 'light' : 'dark');
+    applyTheme(localStorage.getItem('modelmuse-theme') === 'light' ? 'light' : 'dark');
   } catch {
     applyTheme('dark');
   }
   themeBtn?.addEventListener('click', () => {
     const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
     try {
-      localStorage.setItem('skillspark-theme', next);
+      localStorage.setItem('modelmuse-theme', next);
     } catch { /* Speicher blockiert */ }
     applyTheme(next);
     paintThemeBtn();
@@ -135,12 +135,12 @@ async function boot() {
   const onboard = document.getElementById('onboard');
   let onboardSeen = false;
   try {
-    onboardSeen = localStorage.getItem('skillspark.onboarded') === 'ja';
+    onboardSeen = localStorage.getItem('modelmuse.onboarded') === 'ja';
   } catch { /* Speicher blockiert: Banner zeigen */ }
   if (onboard && !onboardSeen) onboard.hidden = false;
   document.getElementById('onboard-ok')?.addEventListener('click', () => {
     try {
-      localStorage.setItem('skillspark.onboarded', 'ja');
+      localStorage.setItem('modelmuse.onboarded', 'ja');
     } catch { /* Speicher blockiert */ }
     if (onboard) onboard.hidden = true;
   });
@@ -203,8 +203,8 @@ async function boot() {
   const lib = createLibrary();
   // Teil 5 (User-Vorgabe): Bibliothek DAUERHAFT im Browser (localStorage,
   // Consent-gated). Keys dagegen NIE persistiert (nur Sitzungseingabe).
-  const LIB_KEY = 'skillspark-lib';
-  const LIB_CONSENT = 'skillspark-lib-consent';
+  const LIB_KEY = 'modelmuse-lib';
+  const LIB_CONSENT = 'modelmuse-lib-consent';
   const storage = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* blockiert */ } },

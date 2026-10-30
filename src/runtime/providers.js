@@ -124,6 +124,6 @@ export function generationTarget(reg, providerId, modelId, promptFile = '<PROMPT
 export function didaktikHinweis(reg) {
   return (
     reg?.didaktikHinweis ??
-    'Kein Benchmark misst Didaktik — S5 misst nur der SkillSpark-Harness.'
+    'Kein Benchmark misst Didaktik — S5 misst nur der ModelMuse-Harness.'
   );
 }

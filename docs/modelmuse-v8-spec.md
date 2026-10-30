@@ -1,6 +1,6 @@
-﻿# SkillSpark v8 — Design-Spezifikation (Designer-Profil, Stand 28.10.2026)
+﻿# ModelMuse v8 — Design-Spezifikation (Designer-Profil, Stand 28.10.2026)
 
-Basis: `dist-standalone/skillspark-standalone.html` (Stand v7, 238.408 Bytes, Titel v7).
+Basis: `dist-standalone/modelmuse-standalone.html` (Stand v7, 238.408 Bytes, Titel v7).
 Befunde (belegt): `renderFallback2D` = Canvas-Text/Kaestchen (Titel, Bauteilliste,
 Platzhalter-Kaestchen); `force2D` Einweg (kein Rueck-Button); kein `is3d`-Flag
 (Grep negativ). ER/BPMN/ETL als 3D-Szene sinnlos.
@@ -103,7 +103,7 @@ META-Eintrag (Bestand + 1 Feld): `{ title, category, detailLevel, parts, units,
 is3d }`. Mapping v8: `dup-1, dup-2, dup-3 → is3d:false`, Rest
 (`si-1..3, ae-1..3, free-*`) → `is3d:true`. Free-Default true.
 
-State-Migration: alte localStorage-Eintraege (`skillspark.free.*`) ohne `is3d`
+State-Migration: alte localStorage-Eintraege (`modelmuse.free.*`) ohne `is3d`
 → beim `restoreFree` Default true setzen (kein Crash, keine Migration-UI).
 
 ## 4. API-Konventionen (kein neues Netz, nur Bestand)
@@ -140,7 +140,7 @@ Paritaet: beide Sprachen je Key vorhanden, `t()`-Fallback DE bleibt.
 
 ## 7. Assembly-Vertrag (fuer Coder, deterministisch per Skript)
 
-- Backup VORHER: `designer-scratch/skillspark-v7-backup.html`
+- Backup VORHER: `designer-scratch/modelmuse-v7-backup.html`
   (Kopie der v7-Datei, Byte-Zahl loggen).
 - Muse-Output: `designer-scratch/muse-v8-gen-out.txt` mit Markern
   `===SKILLSARK-V8-SNIP:<NAME>===` + `===SKILLSARK-V8-END===`.

@@ -161,7 +161,7 @@ test('Verify-2D-Gates: 6 Datenmodule pass, 3D-Modul faellt parse', async () => {
     assert.ok(diagram && TWOD_KINDS.includes(diagram.kind), `${id}: kind`);
     const { layer } = verifySvgLayer(src);
     assert.equal(layer.verdict, 'pass', `${id}: ${JSON.stringify(layer.criteria)}`);
-    for (const cid of ['S2-2d-parse', 'S2-2d-typ', 'S2-2d-parse-svg', 'S2-2d-pixel', 'S2-2d-wellformed']) {
+    for (const cid of ['S2-2d-parse', 'S2-2d-typ', 'S2-2d-semantik', 'S2-2d-parse-svg', 'S2-2d-pixel', 'S2-2d-layout', 'S2-2d-wellformed']) {
       assert.ok(layer.criteria.some((c) => c.id === cid && c.verdict === 'pass'), `${id}: ${cid}`);
     }
   }

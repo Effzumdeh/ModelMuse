@@ -3,7 +3,7 @@
  * Ablauf: Direkt-Call zuerst (Browser -> Upstream, BYOK); lokaler Proxy nur
  * als Fallback (CORS/Netz). Key-Haltung: nur im Speicher (livegen-Modul);
  * Session-Storage NUR mit ausdruecklicher Zustimmung per Checkbox, nie
- * localStorage, nie Logs/Dateien (Standalone-Muster skillspark-proxy-key).
+ * localStorage, nie Logs/Dateien (Standalone-Muster modelmuse-proxy-key).
  * Nach der Generierung: Labels kommen aus dem Modell (P1: addLabel je
  * Hauptbauteil), Manifest mit Aufgaben je Niveau wird automatisch gebaut.
  * Bauplan Abschnitt 4 (generateLive) und 9 (E-GEN-*).
@@ -29,7 +29,7 @@ export function germanMessage(e) {
 /** Lokaler Generierungs-Proxy als FALLBACK (scripts/proxy.mjs). Direkt-Call braucht ihn nicht. */
 export const PROXY_DEFAULT = 'http://127.0.0.1:8787/generate';
 /** Session-Key-Ablage (nur mit Zustimmung, Standalone-Muster). */
-export const LIVE_KEY_SESSION = 'skillspark-live-key';
+export const LIVE_KEY_SESSION = 'modelmuse-live-key';
 
 function slug(term) {
   const s = String(term).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');

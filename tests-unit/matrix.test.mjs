@@ -21,15 +21,21 @@ test('alle Modellmodule vorhanden und im Byte-Budget (<=34000)', async () => {
 test('Matrix: Labels min, Messung mit Einheit, Aufgaben B/A/P je Modell', async () => {
   for (const [id, want] of Object.entries(MATRIX)) {
     const src = await readFile(`src/models/${id}.js`, 'utf8');
-    if (src.includes("from '2d-svg'") || src.includes('from "2d-svg"')) {
-      // 2D-Route: Labels/Messung als Daten (diagram), nicht als Helper-Calls.
-      const { extractDiagram } = await import('../src/runtime/verify.js');
-      const diagram = extractDiagram(src);
-      assert.ok(diagram && typeof diagram === 'object', `${id}: diagram fehlt`);
-      const labels = Array.isArray(diagram.labels) ? diagram.labels : [];
-      assert.ok(labels.length >= want.labelsMin, `${id}: diagram.labels ${labels.length} < ${want.labelsMin}`);
-      assert.ok(typeof diagram.measurement === 'string' && diagram.measurement.length > 3, `${id}: diagram.measurement fehlt`);
-      assert.ok(src.includes("from '2d-svg'") || src.includes('from "2d-svg"'), `${id}: 2d-svg-Import fehlt`);
+    if (/from '2d-(svg|mermaid|chart|d3|katex)'/.test(src) || /from "2d-(svg|mermaid|chart|d3|katex)"/.test(src)) {
+      // 2D-Route (alle Varianten): Labels/Messung als Daten (diagram/mermaid/
+      // chart/graph/formula), nicht als Helper-Calls.
+      const { twoDVariantOf, extractTwoDLiteral, TWOD_VARIANT_LITERAL } = await import('../src/runtime/verify-2d.js');
+      const { MERMAID_DIAGRAMS, CHART_KINDS, D3_KINDS, KATEX_KINDS, TWOD_KINDS } = await import('../src/runtime/guard-static.js');
+      const variant = twoDVariantOf(src);
+      assert.ok(variant, `${id}: 2d-Variante unerkannt`);
+      const data = extractTwoDLiteral(src, TWOD_VARIANT_LITERAL[variant]);
+      assert.ok(data && typeof data === 'object', `${id}: Daten-Literal fehlt`);
+      const labels = Array.isArray(data.labels) ? data.labels : [];
+      assert.ok(labels.length >= want.labelsMin, `${id}: labels ${labels.length} < ${want.labelsMin}`);
+      assert.ok(typeof data.measurement === 'string' && data.measurement.length > 3, `${id}: measurement fehlt`);
+      const kindKey = variant === 'mermaid' ? 'diagram' : 'kind';
+      const kindWhitelist = variant === 'svg' ? TWOD_KINDS : variant === 'mermaid' ? MERMAID_DIAGRAMS : variant === 'chart' ? CHART_KINDS : variant === 'd3' ? D3_KINDS : KATEX_KINDS;
+      assert.ok(kindWhitelist.includes(data[kindKey]), `${id}: kind ${data[kindKey]} nicht in Whitelist`);
       assert.ok(!src.includes("from 'three'"), `${id}: 2D-Modul darf kein three importieren`);
     } else {
       const labels = (src.match(/addLabel\s*\(/g) ?? []).length;

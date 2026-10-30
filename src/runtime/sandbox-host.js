@@ -28,7 +28,7 @@ export function createGuestSession(container, assets) {
   const sessionId = `s${Date.now().toString(36)}-${sessionCounter}`;
   const frame = document.createElement('iframe');
   frame.setAttribute('sandbox', 'allow-scripts');
-  frame.setAttribute('title', 'SkillSpark 3D-Modell');
+  frame.setAttribute('title', 'ModelMuse 3D-Modell');
   frame.style.cssText = 'border:0;width:100%;height:100%;display:block;';
   container.appendChild(frame);
   /** @type {GuestSession} */

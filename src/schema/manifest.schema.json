@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://skillspark.local/schema/manifest.schema.json",
+  "$id": "https://modelmuse.local/schema/manifest.schema.json",
   "title": "Manifest",
   "type": "object",
   "additionalProperties": false,

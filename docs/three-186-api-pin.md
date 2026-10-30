@@ -1,4 +1,4 @@
-# three.js r186 API-Pin (skillSpark)
+# three.js r186 API-Pin (modelMuse)
 
 Stand: 28.10.2026. Quelle: `docs/implementation-guide-3d-qualitaet.md` (F6).
 Ziel-API: three.js r186 (npm `three@0.186.1`).

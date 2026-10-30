@@ -64,7 +64,7 @@ Fonts/Symbole/CDN), Schul-iGPU-unkritisch.
 
 - `scripts/build-standalone.mjs`: **R18** (`ae-1..3 is3d:true → false`,
   je 1 Treffer erwartet) + Report-`fixes`-Eintrag. Direktbeleg im Artefakt:
-  `dist-standalone/skillspark-standalone.html` → 6× `is3d:false`
+  `dist-standalone/modelmuse-standalone.html` → 6× `is3d:false`
   (dup-1..3, ae-1..3), 4× `is3d:true` (si-1..3, free-handbohrmaschine) —
   exakt Portfolio §3.2 („Diagramme/Tabellen/Prozesse → 2D, sonst 3D“).
   Standalone bleibt autark (eigener `renderDiagram2D`-Zweig, kein Netz).

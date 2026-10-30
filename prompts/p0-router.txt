@@ -49,3 +49,7 @@ Fachtext "Photosynthese-Ablauf: Lichtreaktion, Calvin-Zyklus, Entscheidungspunkt
 -> {"mode":"2d","typ":"flussdiagramm","begruendung":"Prozess mit Reihenfolge und Verzweigung, kein Raumbezug."}
 Fachtext "Messreihe Wirkungsgrad ueber Drehzahl, drei Motorvarianten im Vergleich..."
 -> {"mode":"2d","typ":"diagramm","begruendung":"Kennlinienvergleich auf Achsen, raeumliches Modell ohne Mehrwert."}
+Fachtext "Handbohrmaschine Seitenansicht: Gehaeuse, Motor, Getriebe, Bohrfutter in einer Schnittebene, nur 1 Ansicht ohne Orbit..."
+-> {"mode":"2d","typ":"schnitt-ansicht","begruendung":"Eine Ansicht genuegt, Aufbau in einer Ebene, kein Orbit-Mehrwert."}
+Fachtext "Datenbanken-Grundbegriffe: Tabelle, Schluessel, Index, Transaktion als Definitionen ohne Bauteile..."
+-> {"mode":"2d","typ":"tabelle","begruendung":"Begriffe und Taxonomie ohne Lage, Struktur statt Raumbezug."}

@@ -1,4 +1,4 @@
-# Abweichungsblatt SkillSpark — 2026-10-27
+# Abweichungsblatt ModelMuse — 2026-10-27
 
 Aenderungen der Bauplan-Originalwerte mit datierter Begruendung.
 Verweis: `dist/BUDGET-NACHTRAG-2026-10-27.md` (Draw-Call-Erweiterung 120 → 400).

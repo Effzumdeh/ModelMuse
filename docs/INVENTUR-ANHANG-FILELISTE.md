@@ -1,8 +1,8 @@
-## Anhang A — Vollständige Dateiliste `skillSpark/`
+## Anhang A — Vollständige Dateiliste `modelMuse/`
 
 Stand: 2026-10-30 18:30 · 821 Dateien (ohne `.git/`, `node_modules/`) · Spalte `Git` = versioniert
 
-| Pfad (relativ zu `skillSpark/`) | Typ | Größe | Geändert | Git | SHA-256 (12) |
+| Pfad (relativ zu `modelMuse/`) | Typ | Größe | Geändert | Git | SHA-256 (12) |
 |---|---|---|---|---|---|
 | `.claude/skills/threejs-animation/SKILL.md` | MD | 21.4 KB | 2026-10-26 23:35 | Ja | `0817b21856f0` |
 | `.claude/skills/threejs-asset-pipeline/SKILL.md` | MD | 17.8 KB | 2026-10-26 23:35 | Ja | `8051bc065735` |
@@ -73,7 +73,7 @@ Stand: 2026-10-30 18:30 · 821 Dateien (ohne `.git/`, `node_modules/`) · Spalte
 | `cache/scratch/models-wipe-20261029-082023/src-models/si-2.js` | JS | 13.4 KB | 2026-10-29 08:20 | nein | `2abcab06684e` |
 | `cache/scratch/models-wipe-20261029-082023/src-models/si-3.js` | JS | 10.2 KB | 2026-10-29 08:20 | nein | `1b4c1cea81ec` |
 | `cache/scratch/models-wipe-20261029-082023/standalone/build-standalone-v13-report.json` | JSON | 1.7 KB | 2026-10-29 08:20 | nein | `c074cfcc3b64` |
-| `cache/scratch/models-wipe-20261029-082023/standalone/skillspark-standalone.html` | HTML | 328.6 KB | 2026-10-29 08:20 | nein | `ca38cb568fe6` |
+| `cache/scratch/models-wipe-20261029-082023/standalone/modelmuse-standalone.html` | HTML | 328.6 KB | 2026-10-29 08:20 | nein | `ca38cb568fe6` |
 | `cache/scratch/models-wipe-20261029-082023/wipe-evidence.txt` | TXT | 1.3 KB | 2026-10-29 08:30 | nein | `9406a31cf531` |
 | `dist/AUFTRAG-REPORT-2026-10-27.md` | MD | 8.3 KB | 2026-10-27 09:23 | nein | `97fee6fb8565` |
 | `dist/BUDGET-NACHTRAG-2026-10-27.md` | MD | 5.0 KB | 2026-10-27 09:22 | nein | `d5722b49ec68` |
@@ -201,13 +201,13 @@ Stand: 2026-10-30 18:30 · 821 Dateien (ohne `.git/`, `node_modules/`) · Spalte
 | `dist/screenshots/labs.png` | PNG | 104.7 KB | 2026-10-29 01:08 | nein | `3cd57ef64068` |
 | `dist/screenshots/modify.png` | PNG | 125.4 KB | 2026-10-29 01:08 | nein | `ea2f04ba4dbf` |
 | `dist/screenshots/sprache.png` | PNG | 121.0 KB | 2026-10-29 01:08 | nein | `e649ba4bd137` |
-| `dist/skillspark-bibliothek.png` | PNG | 51.4 KB | 2026-10-27 11:24 | nein | `390ed6e0795d` |
-| `dist/skillspark-budget400-proof.png` | PNG | 111.1 KB | 2026-10-27 07:53 | nein | `1d3c03412412` |
-| `dist/skillspark-harness.png` | PNG | 32.2 KB | 2026-10-27 11:24 | nein | `1c199e4c1bbe` |
-| `dist/skillspark-hyper-v3-canvas.png` | PNG | 125.9 KB | 2026-10-26 23:57 | nein | `a08f0ea83320` |
-| `dist/skillspark-hyper-v3.png` | PNG | 111.1 KB | 2026-10-26 23:57 | nein | `1d3c03412412` |
-| `dist/skillspark-ohr-canvas.png` | PNG | 87.8 KB | 2026-10-27 09:38 | nein | `1a898a6b10e8` |
-| `dist/skillspark-ohr.png` | PNG | 92.5 KB | 2026-10-27 09:38 | nein | `78a3b5518783` |
+| `dist/modelmuse-bibliothek.png` | PNG | 51.4 KB | 2026-10-27 11:24 | nein | `390ed6e0795d` |
+| `dist/modelmuse-budget400-proof.png` | PNG | 111.1 KB | 2026-10-27 07:53 | nein | `1d3c03412412` |
+| `dist/modelmuse-harness.png` | PNG | 32.2 KB | 2026-10-27 11:24 | nein | `1c199e4c1bbe` |
+| `dist/modelmuse-hyper-v3-canvas.png` | PNG | 125.9 KB | 2026-10-26 23:57 | nein | `a08f0ea83320` |
+| `dist/modelmuse-hyper-v3.png` | PNG | 111.1 KB | 2026-10-26 23:57 | nein | `1d3c03412412` |
+| `dist/modelmuse-ohr-canvas.png` | PNG | 87.8 KB | 2026-10-27 09:38 | nein | `1a898a6b10e8` |
+| `dist/modelmuse-ohr.png` | PNG | 92.5 KB | 2026-10-27 09:38 | nein | `78a3b5518783` |
 | `dist/vendor-three.bundle.js` | JS | 596.6 KB | 2026-10-29 15:09 | nein | `831fe7f8a781` |
 | `dist/verify-report.json` | JSON | 106.3 KB | 2026-10-29 15:09 | Ja | `86094bdf7676` |
 | `dist/worker-call01.out.txt` | TXT | 121 B | 2026-10-27 17:10 | nein | `1d2d0df4d9cd` |
@@ -336,7 +336,7 @@ Stand: 2026-10-30 18:30 · 821 Dateien (ohne `.git/`, `node_modules/`) · Spalte
 | `dist-standalone/showcase-harness/free-handbohrmaschine.jsonl` | JSONL | 1.9 KB | 2026-10-29 10:23 | nein | `d80dc6cab77f` |
 | `dist-standalone/showcase-harness/gpu-example.jsonl` | JSONL | 2.1 KB | 2026-10-29 10:23 | nein | `49d209438aa1` |
 | `dist-standalone/showcase-harness/si-1.jsonl` | JSONL | 1.9 KB | 2026-10-29 10:23 | nein | `8ce96cff501e` |
-| `dist-standalone/skillspark-standalone.html` | HTML | 369.6 KB | 2026-10-29 22:14 | Ja | `0928d4080718` |
+| `dist-standalone/modelmuse-standalone.html` | HTML | 369.6 KB | 2026-10-29 22:14 | Ja | `0928d4080718` |
 | `docs/2D-ALLE-VARIANTEN.md` | MD | 9.6 KB | 2026-10-29 12:20 | nein | `2260070309ab` |
 | `docs/2D-HAERTUNG.md` | MD | 12.0 KB | 2026-10-29 15:10 | nein | `c7cb8d53272d` |
 | `docs/2D-STACK-EVAL.md` | MD | 23.0 KB | 2026-10-28 23:18 | Ja | `393bb6d07804` |
@@ -372,7 +372,7 @@ Stand: 2026-10-30 18:30 · 821 Dateien (ohne `.git/`, `node_modules/`) · Spalte
 | `docs/routing-shots/photosynthese-fluss.png` | PNG | 12.4 KB | 2026-10-29 08:43 | nein | `45f664399b06` |
 | `docs/routing-shots/tiefpass-schaltplan.png` | PNG | 10.3 KB | 2026-10-29 08:43 | nein | `ee6873fc458d` |
 | `docs/routing-shots/wirkungsgrad-diagramm.png` | PNG | 9.5 KB | 2026-10-29 08:43 | nein | `076c0d22b081` |
-| `docs/skillspark-v8-spec.md` | MD | 9.7 KB | 2026-10-29 00:02 | Ja | `5701f1babf63` |
+| `docs/modelmuse-v8-spec.md` | MD | 9.7 KB | 2026-10-29 00:02 | Ja | `5701f1babf63` |
 | `docs/source-de/FINAL-NACHWEISE.md` | MD | 3.8 KB | 2026-10-29 08:18 | nein | `8e8bbf873196` |
 | `docs/source-de/LIZENZEN.md` | MD | 25.2 KB | 2026-10-29 08:18 | nein | `21c1c2773972` |
 | `docs/source-de/ROUTER-KONZEPT.md` | MD | 14.9 KB | 2026-10-29 08:18 | nein | `d81422890553` |
@@ -839,9 +839,8 @@ Stand: 2026-10-30 18:30 · 821 Dateien (ohne `.git/`, `node_modules/`) · Spalte
 | `meta-hackathon-FACHKONZEPT-v3-codegen.md` | 19.4 KB | 2026-10-26 20:00 | `a025997e1bb1` |
 | `meta-hackathon-FI-Labspecs.md` | 362.0 KB | 2026-10-23 12:14 | `856b23099a68` |
 | `meta-hackathon-gesamt-v2.md` | 581.2 KB | 2026-10-22 23:44 | `1e1adfb1af0a` |
-| `skillSpark-BAUPLAN-v1.md` | 56.2 KB | 2026-10-26 20:12 | `0c1e3e7058cf` |
+| `modelMuse-BAUPLAN-v1.md` | 56.2 KB | 2026-10-26 20:12 | `0c1e3e7058cf` |
 
 **Weitere `.md` im OneDrive-Root (Kontext, kein Fachkonzept-Muster):**
 
-| `Key_muse.md` | 48 B | 2026-10-26 20:17 | `79780d8351bd` |
-| `Key_openrouter.md` | 74 B | 2026-10-28 00:47 | `e2bcdf97fc10` |
+*Zwei Schlüsseldateien ausgelassen; Dateinamen und Prüfsummen sind redigiert.*

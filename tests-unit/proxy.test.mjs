@@ -77,7 +77,7 @@ test('Server: /health ok, unbekannter Pfad 404, /generate kurz 400', async () =>
   try {
     const h = await fetch(`http://127.0.0.1:${port}/health`).then((r) => r.json());
     assert.equal(h.ok, true);
-    assert.equal(h.service, 'skillspark-proxy');
+    assert.equal(h.service, 'modelmuse-proxy');
     assert.ok(h.providers.includes('meta-muse'));
     assert.ok(!JSON.stringify(h).includes('LLM_'), 'kein Key im Health');
     const nf = await fetch(`http://127.0.0.1:${port}/irgendwo`);

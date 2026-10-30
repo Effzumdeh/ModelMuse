@@ -92,3 +92,19 @@ test('Teil 5: P1-Standardprompt mit locale-Parameter + meta_i18n-Vertrag', async
   assert.ok(p.includes('meta_i18n'), 'meta_i18n-Vertrag');
   assert.ok(p.includes('KEINE Sprachlogik'), 'Module bleiben sprachneutral');
 });
+
+test('Bestandteil-Erklaerungen: P1-2D/P1-v6/P2-Harness liefern Format, Verify-Regel', async () => {
+  for (const f of ['p1-generate.v6-standard.txt', 'p1-generate-2d.txt', 'p1-generate-2d-varianten.txt']) {
+    const p = await readFile(`prompts/${f}`, 'utf8');
+    assert.ok(p.includes('explanations'), `${f}: explanations-Feld`);
+    assert.ok(p.includes('meta_i18n'), `${f}: meta_i18n`);
+    assert.ok(p.includes('gleiche Anzahl'), `${f}: Laengen-Deckung`);
+    assert.ok(p.includes('Verify'), `${f}: Verify-Regel`);
+  }
+  const p2 = await readFile('prompts/p2-repair.v6-harness.txt', 'utf8');
+  assert.ok(p2.includes('meta.explanations'), 'P2: meta.explanations erhalten');
+  assert.ok(p2.includes('meta_i18n'), 'P2: meta_i18n erhalten');
+  assert.ok(p2.includes('niemals entfernen'), 'P2: nie entfernen');
+  const free = (await import('../src/shell/ui-livegen.js')).buildFreePrompt('Windrad', 'de');
+  assert.ok(free.includes('explanations'), 'Freimodus-Prompt: explanations-Vertrag');
+});

@@ -1,12 +1,12 @@
 # Modellportfolio-Vorschlag (3D-/2D-Trennung)
 
-- Stand: 28.10.2026. Repo: `C:/Users/flori/OneDrive/skillSpark`, Branch `main` (e06adfe).
+- Stand: 28.10.2026. Repo: `C:/Users/flori/OneDrive/modelMuse`, Branch `main` (e06adfe).
 - Auftrag: Inventur des Standarddatensatzes, fachliche Bewertung „3D sinnvoll?“, Vorschlag
   Behalten-als-3D / Umstellen-auf-2D, konkretes Ersatzmolekül mit three.js-Budget-Nachweis.
 - **Kein Code geändert.** Dieses Dokument ist ein Vorschlag; Umsetzung wäre Folgeauftraege.
 - Belege: `src/models/`, `src/models/manifests/`, `src/data/modellmatrix.json`,
   `dist/baselines/`, `dist/final-budgets.json`, `dist/verify-report.json`,
-  `dist-standalone/skillspark-standalone.html`, `dist-standalone/proof-report.json`,
+  `dist-standalone/modelmuse-standalone.html`, `dist-standalone/proof-report.json`,
   `scripts/build-standalone.mjs`, `scripts/chemie-e2e.mjs`, `src/runtime/didactics.js`,
   `src/schema/manifest.schema.json`, `src/shell/ui-livegen.js`, `docs/implementation-guide-3d-qualitaet.md`.
 
@@ -22,7 +22,7 @@
 
 Drei Befunde, die den Vorschlag tragen:
 
-1. **Die 2D-Schaltfläche existiert nur im Standalone-Artefakt.** `dist-standalone/skillspark-standalone.html`
+1. **Die 2D-Schaltfläche existiert nur im Standalone-Artefakt.** `dist-standalone/modelmuse-standalone.html`
    hat `renderDiagram2D` mit fertigen SVG-Zweigen für **alle 9 kuratierten Labs** und ein
    `META[id].is3d`-Flag pro Lab. `src/` (Haupt-Build) hat **kein** `is3d`, **kein**
    `renderDiagram2D` — dort ist „2D“ nur der Notfallpfad F3 (`src/runtime/fallback2d.js`:
@@ -131,7 +131,7 @@ löst das nicht; es braucht eine LOD-Regel (Basis ≤ 5 Labels ist bereits im Pa
 
 | ID | Zielzustand | Wo | Konkrete Umsetzung | Aufwand |
 |---|---|---|---|---|
-| `gpu-example` | 3D, **im Standalone ergänzen** | Haupt-Build ja / Standalone nein | Lab in `dist-standalone/skillspark-standalone.html` nachtragen (`INIT['gpu-example']`, `META['gpu-example'].is3d = true`, LABS-Eintrag mit `curriculum_ref`/Quiz) + Builder-Guards nachziehen (s. §5) | M |
+| `gpu-example` | 3D, **im Standalone ergänzen** | Haupt-Build ja / Standalone nein | Lab in `dist-standalone/modelmuse-standalone.html` nachtragen (`INIT['gpu-example']`, `META['gpu-example'].is3d = true`, LABS-Eintrag mit `curriculum_ref`/Quiz) + Builder-Guards nachziehen (s. §5) | M |
 | `si-1` | 3D unverändert | beide | keine Änderung; Baseline nach F3-Umzug neu abnehmen | S |
 | `si-2` | 3D + Render-Fix | beide | Licht/Port-LED-Detail, **alle vier** Verbindungen Switch↔Patchfeld↔Router↔Client zeichnen, Client sichtbar platzieren; zusätzlich Messwert-Fix 0,400 m → 2,000 m (Text „Kabellänge: 2 m“) | M |
 | `si-3` | 3D unverändert | beide | keine Änderung | S |
@@ -276,11 +276,11 @@ Messhinweis „…: 96 pm“ wird beim Extrahieren **verworfen** — genau der G
 | B3 | **Unit-Test fixiert die Modellanzahl auf 10.** | `tests-unit/matrix.test.mjs` Z. 42: `assert.ok(mods.length === 10, …)` | Ein 11. Modul in `src/models/` (Koffein) bricht `npm run test:unit` → Test mitziehen (Assertion auf „≥ 10“ plus Matrix-Vollständigkeit). |
 | B4 | **`src/models/`-Budget im Build-Plan.** | `scripts/build.mjs` Z. 21: `models: 304000` (Plan) vs. aktuell 139.779 B | Ein neues Modul passt bequem; die Planzahl bleibt gültig. |
 | B5 | **Modul-Byte-Grenze 34.000 B je Modell.** | `scripts/build.mjs` Z. 140 (`maxViolations`) | Koffein-Modul mit 24 Koordinaten + 25 Bindungspaaren muss kompakt kodiert sein (Arrays statt Objektliteral pro Atom) — der `gpu-example` mit 10 Labels belegt bereits 21.604 B. |
-| B6 | **3D-Pfade im Standalone bleiben auch bei `is3d:false` im File** (Byte-Kosten, kein Laufzeitkosten-Nutzen, weil `loadLab` bei `is3d === false` gar nicht erst das 3D-Modul lädt). | `dist-standalone/skillspark-standalone.html`: `INIT['dup-1']` … vorhanden **und** `META['dup-1'].is3d = false` | Kein Handlungsbedarf; relevant nur für die Dateigröße (281.629 B). |
+| B6 | **3D-Pfade im Standalone bleiben auch bei `is3d:false` im File** (Byte-Kosten, kein Laufzeitkosten-Nutzen, weil `loadLab` bei `is3d === false` gar nicht erst das 3D-Modul lädt). | `dist-standalone/modelmuse-standalone.html`: `INIT['dup-1']` … vorhanden **und** `META['dup-1'].is3d = false` | Kein Handlungsbedarf; relevant nur für die Dateigröße (281.629 B). |
 | B7 | **Kein 2D-Pfad im Haupt-Build.** | `src/` und `dist/lab-player.html`: 0 Treffer für `is3d` / `renderDiagram2D` | Umsetzung „Rest auf 2D“ im Haupt-Build erfordert Querschnittsaufgabe 3.3 (M). |
 | B8 | **`si-2`-Messwert inkonsistent.** | Manifest `from [-0.20,-0.22,0.02]` → `to [0.20,-0.22,0.02]` = 0,400 m; Text „Kabellaenge: 2 m“ | Unabhängig von 2D/3D zu korrigieren (sonst ist der Messwert im Modell falsch abgebildet). |
 | B9 | **Screenshot-Belege veraltet.** | `dist/verify-report.json`: S3/S4 `skip` mit „Beleg aelter als Modellquelle“ für alle 10 Labs | Vor einer Portfolio-Freigabe Baseline neu abnehmen (`npm run baseline:update`), sonst prüft das Portfolio gegen alte Bilder. |
-| B10 | **`chemie-koffein` braucht einen eigenen 2D-Zweig**, falls es im Standalone auch 2D schaltbar sein soll; der generische V9-Overlay-Zweig (`renderDiagram2D` `else`) zeichnet nur leere Kästchen. | `dist-standalone/skillspark-standalone.html`, `renderDiagram2D` letzter Zweig | Für die 3D-Variante irrelevant; für 2D-Tauglichkeit ein M-Aufwand. |
+| B10 | **`chemie-koffein` braucht einen eigenen 2D-Zweig**, falls es im Standalone auch 2D schaltbar sein soll; der generische V9-Overlay-Zweig (`renderDiagram2D` `else`) zeichnet nur leere Kästchen. | `dist-standalone/modelmuse-standalone.html`, `renderDiagram2D` letzter Zweig | Für die 3D-Variante irrelevant; für 2D-Tauglichkeit ein M-Aufwand. |
 
 ---
 

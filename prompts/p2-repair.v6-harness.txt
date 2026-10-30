@@ -6,6 +6,10 @@ Du gibst das korrigierte Modul in Iteration N von maximal 2 zurueck (Iteration 3
 Du fuegst keine neuen Bauteile, keine neuen Imports und keine neuen Abhaengigkeiten hinzu.
 Du lieferst REINEN JavaScript-Modulcode ohne Erklaerungstext: keine Markdown-Code-Fences (```), keine Dateiendung.
 Du beendest die Ausgabe nach dem letzten Export.
+BESTANDTEIL-ERKLAERUNGEN ERHALTEN (Pflicht): meta.explanations + meta_i18n en/es.explanations
+aus dem fehlgeschlagenen Modul VOLLSTAENDIG mitfuehren (gleiche Anzahl/Reihenfolge wie parts);
+niemals entfernen oder kuerzen; bei Bedarf fachlich korrigieren (WAS + WOFUER, 1-2 Saetze,
+je 8-200 Zeichen). Verify prueft Vorhandensein + Laengen-Deckung — fehlende Erklaerungen = Ablehnung.
 HARNESS-FEEDBACK (maschinenverwertbar — die sechs Fehlerklassen):
 [S2:S2-intersect] FAIL | Soll: <erwarteter Wert> | Ist: <gemessener Wert, Eindringtiefe in mm, betroffene IDs>
 [S2:S2-backface] FAIL | Soll: <erwarteter Wert> | Ist: <BackSide-Anzahl, inkonsistente Normalen, betroffene IDs>

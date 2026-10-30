@@ -1,10 +1,10 @@
 # Qualität KI-generierter Three.js-3D-Modelle maximieren
 
-**Recherchebriefing für SkillSpark** · Stand: 27.10.2026 · Abrufdatum aller Web-Quellen: 27.10.2026.[20][34][Projektquelle: `C:/Users/flori/OneDrive/skillSpark/docs/ki-modellqualitaet-recherche.md`]
+**Recherchebriefing für ModelMuse** · Stand: 27.10.2026 · Abrufdatum aller Web-Quellen: 27.10.2026.[20][34][Projektquelle: `C:/Users/flori/OneDrive/modelMuse/docs/ki-modellqualitaet-recherche.md`]
 **Untersuchtes Setup:** Three.js r186, Single-File-ESM (Budget 34 KB Modul, 150 k Dreiecke, 400 Draw-Calls, Schul-iGPUs), P1-Generierungsprompt / P2-Reparaturschleife (max. 3 Iterationen), Verify-Loop S1–S5, Modell `muse-spark-1.3-contributor` über `muse.exe`.[Projektquelle: `prompts/p1-generate.v5-budget400.txt`, `prompts/p2-repair.txt`, `src/runtime/verify.js`, `src/runtime/budget.js`, `scripts/_gen-one.mjs`]
 
 > **Methodik:** Alle Aussagen sind mit Quell-URL und Datum belegt.[Projektquelle: Ledger `cache/citations/ledger.json`] Nicht belegbare Aussagen sind explizit als **[unbelegt]** markiert.
-> Aussagen über das *eigene* Projekt stammen aus dem lokalen Repository (`C:/Users/flori/OneDrive/skillSpark`), nicht aus Web-Quellen, und sind als solche gekennzeichnet.[Projektquelle: `C:/Users/flori/OneDrive/skillSpark`]
+> Aussagen über das *eigene* Projekt stammen aus dem lokalen Repository (`C:/Users/flori/OneDrive/modelMuse`), nicht aus Web-Quellen, und sind als solche gekennzeichnet.[Projektquelle: `C:/Users/flori/OneDrive/modelMuse`]
 > Es wurden keine Generierungsaufrufe ausgeführt und keine Keys verwendet.[Projektquelle: `scripts/_gen-one.mjs`]
 
 ---
@@ -22,7 +22,7 @@
 **Die wichtigste Erkenntnis:** Die **sechs** 3D-spezifischen Benchmarks messen **unterschiedliche Fähigkeiten** — geometrische Korrektheit (3JSBench), menschliche Ästhetik (threejseval, 3JSBench-Preference, benchmark.ai), agentisches 3D-Erlebnis (AA-3D) und Verhaltens-/Physikkorrektheit (WorldBench).[20][21]
 Die Ranglisten **widersprechen einander**: Astra #1 in 3JSBench (Passrate) und benchmark.ai, Opus 5.5 #1 bei der 3JSBench-Human-Preference, Sonnet 5.5 #1 in AA-3D.[20][21][39]
 In WorldBench und beim generischen LLM-to-3D-Code-Leaderboard liegen Fable 5.1 bzw. Gemini 4 Argon vorn.[7][8]
-Für SkillSpark heißt das: Es gibt **kein** „bestes Modell" — es gibt nur Modelle, die **verschiedene Achsen** abdecken.[20][21]
+Für ModelMuse heißt das: Es gibt **kein** „bestes Modell" — es gibt nur Modelle, die **verschiedene Achsen** abdecken.[20][21]
 Die eigene Verify-Schleife muss entscheiden, welche Achse zählt.
 
 ---
@@ -188,7 +188,7 @@ Bemerkenswert: Meta hat mit **Muse Wonder** in benchmark.ai [8] und in 3JSBench 
 
 **Fazit These 1: teilweise belegt, pauschal widerlegt.** Die korrekte Formulierung lautet: *„GPT-6 Astra ist das leistungsfähigste Modell bei deterministisch geprüfter Geometrie-Korrektheit in Three.js (3JSBench).[20] Bei menschlicher Ästhetik-Bewertung und bei Verhaltens-/Physikkorrektheit führen andere Modelle."*
 
-**Für SkillSpark ist das keine Detailfrage, sondern die zentrale Designentscheidung:** Der Verify-Loop S1–S5 misst aktuell **Codeform, Verbote, Budgets und Didaktik** — also **nichts** von dem, was 3JSBench oder threejseval messen.[Projektquelle: `src/runtime/verify.js`, `src/runtime/guard-static.js`, `src/runtime/didactics.js`] Soll SkillSpark geometrisch korrekte Modelle liefern, muss der Loop um **deterministische Szenen-Checks** erweitert werden (Abschnitt 6, Maßnahme M1).[20]
+**Für ModelMuse ist das keine Detailfrage, sondern die zentrale Designentscheidung:** Der Verify-Loop S1–S5 misst aktuell **Codeform, Verbote, Budgets und Didaktik** — also **nichts** von dem, was 3JSBench oder threejseval messen.[Projektquelle: `src/runtime/verify.js`, `src/runtime/guard-static.js`, `src/runtime/didactics.js`] Soll ModelMuse geometrisch korrekte Modelle liefern, muss der Loop um **deterministische Szenen-Checks** erweitert werden (Abschnitt 6, Maßnahme M1).[20]
 
 ### 1.4 Der Befund, der unser Modell direkt betrifft
 
@@ -199,12 +199,12 @@ Bemerkenswert: Meta hat mit **Muse Wonder** in benchmark.ai [8] und in 3JSBench 
 
 Über alle 3 000 Versuche sind die häufigsten Fehler: **schneidende Objekte (20 % der Versuche)**, **durchsichtige Flächen (19 %)**, **flackernde Flächen (17 %)**, **falsch orientierte Bauteile (16 %)**, **getrennte Bauteile (16 %)**.[20]
 
-Für SkillSpark heißt das konkret: [20]
+Für ModelMuse heißt das konkret: [20]
 - **995 Meshes im Median** liegt ~19× über der S1-Obergrenze im Prompt (34 KB) und ist Hauptursache der Draw-Call-Problematik.[20] Astra erzeugt mit 45 Meshes ein **strukturell** vergleichbares Ergebnis.[20] Das ist die stärkste Einzel-Evidenz für Maßnahme M2 (Abschnitt 6).[20]
 - **33 % Flackern** ist ein **deterministisch prüfbarer** Fehlermodus (Z-Fighting / koplanare Flächen / falsche Normalen).[20] Er ist mit einem eigenen S-Layer testbar — siehe M1.[20]
 - **Durchsichtige Flächen** (19 %) entstehen durch **Innenseiten-Sichtbarkeit** (fehlende `side: FrontSide` / inkonsistente Normalen).[20][Projektquelle: `prompts/gen-si-1-v6hyper400.txt`] Ebenfalls deterministisch prüfbar.[20]
 
-Alle drei Fehlermuster fallen in **unsere** Domäne: SkillSpark-Budgets sind genau an den Schwellen, an denen unser Modell scheitert (Meshes, Draw-Calls, Flacker).[20]
+Alle drei Fehlermuster fallen in **unsere** Domäne: ModelMuse-Budgets sind genau an den Schwellen, an denen unser Modell scheitert (Meshes, Draw-Calls, Flacker).[20]
 
 ---
 
@@ -221,7 +221,7 @@ Kurzurteil: **Ja — aber die Wirkung ist stark kontextabhängig, und drei verbr
 | Signatur oder Few-Shot senken **TypeErrors, AttributeErrors, ImportErrors** signifikant.[14] Aber: dieselben Techniken erzeugen **mehr Code-Smells und höhere Komplexität**. Persona, CoT und Paketliste führen zu **weniger** korrekten Lösungen. „Most combinations do not lead to statistically significant improvements." | CodePromptEval, 7 072 Prompts, GPT-4o/Llama3/Mistral.[14] | **Peer-reviewed, publizierte Studie** |
 | Retrieval-basierte (semantisch ähnliche) Beispiele schlagen statische Fixed-Shots, weil statische „misleading priors" injizieren, die persistieren, „unless prompts strongly reassert constraints". | arXiv 2602.15228.[12] | Kontrollierte Studie |
 
-**Bewertung für SkillSpark:** Few-Shot ist **nicht pauschal empfehlenswert**.[12][13]
+**Bewertung für ModelMuse:** Few-Shot ist **nicht pauschal empfehlenswert**.[12][13]
 Der CodePromptEval-Befund ist direkt relevant: Unsere Import-Allowlist (`three` + `wrapper-helpers`) ist genau der Bereich, in dem **ImportErrors** entstehen — Few-Shot könnte hier helfen, erhöht aber die Code-Komplexität.[14]
 **Empfehlung:** Retrieval-basiert, nicht statisch: pro Labor ein **ähnliches bestehendes Modul aus `src/models/`** als Stilanker wählen (nicht alle neun).[12][Projektquelle: `src/runtime/guard-static.js`]
 Auf keinen Fall 5–25 starre Exemplare — das Budget ist 34 KB pro Modul, der Prompt selbst ist bereits ~9 KB.[13][Projektquelle: `prompts/p1-generate.txt`]
@@ -237,7 +237,7 @@ Hier ist die Evidenz **am differenziertesten** — und unsere aktuelle Architekt
 | **Strukturierte Prompts reduzieren Verweigerungen massiv** (GPT-4o: 338 von 424 invaliden Outputs → 37–52) durch „explicit output constraints, formatting requirements, and layered instructions". Aber: **Sicherheitsschwächen sinken dadurch nicht** konsistent. | arXiv 2608.24857, 424 sicherheitskritische Python-Tasks.[37] | Kontrollierte Studie |
 | **Einfluss-Taktiken schaden:** Prompt-Frames, die **Dringlichkeit** betonen, waren mit **reduzierter Korrektheit und reduzierter Sicherheit** assoziiert (LiveCodeBench, SWE-bench Verified, 5 Open-Weight-Modelle). | EMSE Springer, DOI 10.1007/s10664-026-10934-z. | Peer-reviewed |
 
-**Bewertung für SkillSpark — dies ist die wichtigste Erkenntnis aus These 2:** [12]
+**Bewertung für ModelMuse — dies ist die wichtigste Erkenntnis aus These 2:** [12]
 
 Unser P1-Prompt ist **9 KB** und enthält ~25 harte, teils redundante Constraints (Zeilen 11 und 12 wiederholen „Du beendest die Ausgabe nach dem letzten Export" wörtlich; das Budget steht doppelt in P1 und im Modul-Prompt).[Projektquelle: `prompts/p1-generate.txt`] Nach arXiv 2602.15228 ist das **kein** Garant für bessere Ergebnisse, sondern ein **Risiko**: Bei einem bereits langen, constraint-dichten Prompt gewinnt das Modell Signalrauschen, und der Effekt ist modell- und aufgabenabhängig.[Projektquelle: `prompts/p1-generate.txt`]
 
@@ -271,7 +271,7 @@ Unser Bestands-Approach — die v6-Hyper-Prompts enthalten bereits **vollständi
 | **Entfernen des Ausführungs-Feedbacks** senkt die Self-Refinement-Leistung deutlich (HumanEval, MBPP, APPS); Baselines nehmen die Ausführungsergebnisse als „redundant information or even noise" wahr. | CYCLE, arXiv 2403.18746.[unbelegt — nur Sekundärfund] | Vorsichtig |
 | **Selbstkritik** (Self-Refine, ursprüngliche Arbeit) verbessert über 7 Tasks um **~20 % absolut** — aber überwiegend für **Dialog und Mathematik**, nicht für Code. | ACM/ACL, Self-Refine.[unbelegt — nur Sekundärfund] | Vorsichtig |
 
-**Bewertung für SkillSpark — hier ist die größte Lücke:** [15][17]
+**Bewertung für ModelMuse — hier ist die größte Lücke:** [15][17]
 
 Unser P2-Reparaturschleife hat zwei Defekte gegenüber der Evidenz: [15][17]
 
@@ -295,7 +295,7 @@ Nach Evidenzlage ist **2** die bessere Voreinstellung (Iteration 3 als Reserve).
 | **Gegeng-evidence zur Zerlegung allgemein:** LLMs überschätzen Modularität — 4× Codegröße ohne Zusatzfunktion. | Harvard SEAS.[unbelegt] | Vorsichtig |
 | **Zerlegung kostet:** Task-Decomposition bringt zusätzlichen Reasoning- und Generierungs-Overhead mit. | arXiv 2402.02716 (Planning-Survey).[unbelegt — nur Sekundärfund] | Vorsichtig |
 
-**Bewertung für SkillSpark:** Zerlegung ist **kontextabhängig** und für unsere Aufgabe **wahrscheinlich kontraproduktiv**, aus zwei gemessenen Gründen: [30][31]
+**Bewertung für ModelMuse:** Zerlegung ist **kontextabhängig** und für unsere Aufgabe **wahrscheinlich kontraproduktiv**, aus zwei gemessenen Gründen: [30][31]
 
 1. **Zerlegung erzeugt Zwischenzustände, die wir nicht verifizieren können.**[30][31]
 Unsere Einheitsprüfung ist ein **statischer Parse + Browser-Start** (`guard-static.js`, `livegen.js`).[Projektquelle: `src/runtime/guard-static.js`, `src/runtime/livegen.js`] Eine mehrstufige Generierung (erst Form → dann Material → dann Licht) erzeugt Zwischenmodule, die entweder unvollständig sind (S1-Parse schlägt fehl) oder deren Fehler sich in einem späteren Schritt auflösen. Wir haben **keine** Teilschritt-Verifikation.[20][31][Projektquelle: `src/runtime/verify.js`]
@@ -315,7 +315,7 @@ Das entspricht auch unserem Hyper-Prompt-Muster, das bereits funktioniert.
 | **Aufgabenspezifische Checks sind entscheidend:** 3JSBench prüft 696 deterministische Checks in sechs Familien; allein die Checks verhindern, dass der Judge nur „sieht aus wie ein Schatz".[20] | 3JSBench.[20] | Benchmark-Methodik |
 | **Fehler-Taxonomie:** Semantische Fehler dominieren; die equality/inequality-Subklasse ist der Haupt-Engpass, „even with deliberate reasoning". | ACM, Cross-Benchmark Error Taxonomy.[19] | Peer-reviewed |
 
-**Bewertung:** Checklisten im Prompt sind **stark gestützt** — und SkillSpark hat sie bereits, aber an der **falschen Stelle**.[20][unbelegt — nur Sekundärfund Findings of ACL 2026] Aktuell enthält der Prompt „Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement" — **Mindestanforderungen**.[Projektquelle: `prompts/p1-generate.txt`] Nach der 3JSBench-Evidenz sind **Mindestanforderungen** die Ursache der Fehlerquote: jedes Bauteil, jede Position, jede Norm muss **explizit und messbar** benannt sein, damit S5 überhaupt etwas prüfen kann.[Projektquelle: `prompts/p1-generate.txt`]
+**Bewertung:** Checklisten im Prompt sind **stark gestützt** — und ModelMuse hat sie bereits, aber an der **falschen Stelle**.[20][unbelegt — nur Sekundärfund Findings of ACL 2026] Aktuell enthält der Prompt „Du beschriftest jedes Hauptbauteil mit addLabel, und du setzt mindestens eine Messung mit addMeasurement" — **Mindestanforderungen**.[Projektquelle: `prompts/p1-generate.txt`] Nach der 3JSBench-Evidenz sind **Mindestanforderungen** die Ursache der Fehlerquote: jedes Bauteil, jede Position, jede Norm muss **explizit und messbar** benannt sein, damit S5 überhaupt etwas prüfen kann.[Projektquelle: `prompts/p1-generate.txt`]
 
 Unser S5 verlangt „≥ 2 Ziele, ≥ 3 Labels, ≥ 1 Messung", B/A/P = Aufbau ≥ 2, Profi ≥ 1.[Projektquelle: `src/runtime/verify.js`] Die Hyper-Prompts schreiben bereits **exakt 5 Labels mit exakten Positionen und 1 Messung mit exakten Endpunkten** vor — und genau diese Labs sind 9/9 grün.[Projektquelle: `dist/AUFTRAG-REPORT-2026-10-27.md`] Das ist der Beleg, dass **explizite Checkliste funktioniert**, nicht die Mindestzahl.[Projektquelle: `src/runtime/didactics.js`]
 
@@ -328,7 +328,7 @@ Unser S5 verlangt „≥ 2 Ziele, ≥ 3 Labels, ≥ 1 Messung", B/A/P = Aufbau �
 | **Terminal-Bench-Effort-Ladder:** GPT-6 Astra: 50,6 % bei `low` → 58,2 % bei `max` (+7,6 pp). | developertoolkit.ai, Auswertung offizieller Board-Daten.[unbelegt — Sekundärauswertung] | Vorsichtig |
 | 3JSBench testet **alle Modelle bei `high`**: „Each model makes three one-shot attempts at every task **at high reasoning**" — die Rangliste ist also **effort-normalisiert**.[20] | 3JSBench-Methodik.[20] | Benchmark-Methodik |
 
-**Bewertung für SkillSpark — hier ist die wichtigste operative Erkenntnis des ganzen Berichts:**[34]
+**Bewertung für ModelMuse — hier ist die wichtigste operative Erkenntnis des ganzen Berichts:**[34]
 
 **Unser Modell läuft aktuell in der Contributor-Variante, die kein `"max"` unterstützt.** Meta dokumentiert explizit:[34]
 
@@ -344,7 +344,7 @@ Zusätzlich: `muse.exe` wird in unserem Setup über `--model` aufgerufen — ob 
 
 ### 2.8 Zusammenfassung These 2
 
-| Technik | Evidenzlage | Empfehlung für SkillSpark |
+| Technik | Evidenzlage | Empfehlung für ModelMuse |
 |---|---|---|
 | **Ausführungsfeedback mit Messwerten** | **Stärkste Evidenz** (+3,4–38,8 pp; FLARE +4,6 pp ggü. exec-only)[15][17] | **Ja**, aber erst nach M1 (S2–S4-Feedback in P2 speisen) |
 | **Explizite, messbare Checkliste im Prompt** | Stark (Checklist-Rewards +3,4–6,5 %; deterministische Checks)[20][unbelegt] | **Ja** — von Mindestzahlen auf **exakte** Bauteilliste |
@@ -437,9 +437,9 @@ Die eigentliche Frage ist nicht „Code oder Mesh", sondern „wo liegt die Gren
 
 ## 5. Synthese: Wo die Qualität tatsächlich verloren geht
 
-Für `Muse Spark 1.3` bei SkillSpark-ähnlichen Aufgaben ergibt sich aus 3JSBench eine Fehlerverteilung, die sich **direkt** auf unseren Verify-Loop abbilden lässt:[20]
+Für `Muse Spark 1.3` bei ModelMuse-ähnlichen Aufgaben ergibt sich aus 3JSBench eine Fehlerverteilung, die sich **direkt** auf unseren Verify-Loop abbilden lässt:[20]
 
-| Fehlermodus | Häufigkeit | Im SkillSpark-Loop prüfbar? | Massnahme |
+| Fehlermodus | Häufigkeit | Im ModelMuse-Loop prüfbar? | Massnahme |
 |---|---|---|---|
 | Schneidende Objekte | 20 % der Versuche | **Nein** — S2/S3 sind skip-Layer | M1: Intersektions-Check (AABB/OBB-Penetration) in S2 |
 | Durchsichtige Flächen | 19 % | **Nein** | M1: Backface-/Normalen-Check (sichtbare Innenseiten) |
@@ -463,7 +463,7 @@ Effekt: quantifiziert, wo belegt; sonst qualifiziert.[20][Projektquelle: `src/ru
 
 3JSBench zeigt, dass die Top-Fehlerklassen (schneidende Objekte 20 %, durchsichtige Flächen 19 %, Flackern 17 %)[20] **deterministisch messbar** sind, und beschreibt das Verfahren: Szene im Headless-Browser starten, Szene erfassen, neun feste Ansichten rendern, Checks auf der erfassten Szene messen — das Urteil trifft **kein Modell**.[20]
 
-**Für SkillSpark konkret:** S2 (Sandbox) und S3 (Visual) sind derzeit Node-seitige `skip`-Layer („Messung im Browser").[Projektquelle: `src/runtime/verify.js`] Stattdessen in der vorhandenen Playwright-Infrastruktur (28/28 Tests grün, Chromium + SwiftShader, 1280×720)[Projektquelle: `dist/AUFTRAG-REPORT-2026-10-27.md`] vier Checks ergänzen:
+**Für ModelMuse konkret:** S2 (Sandbox) und S3 (Visual) sind derzeit Node-seitige `skip`-Layer („Messung im Browser").[Projektquelle: `src/runtime/verify.js`] Stattdessen in der vorhandenen Playwright-Infrastruktur (28/28 Tests grün, Chromium + SwiftShader, 1280×720)[Projektquelle: `dist/AUFTRAG-REPORT-2026-10-27.md`] vier Checks ergänzen:
 1. **Intersektion:** paarweise AABB-/OBB-Überlappung zwischen Meshes verschiedener Baugruppen → unter Toleranz, sonst fail.[20]
 2. **Sichtbare Innenseiten:** Raycast von 9 fixen Blickrichtungen, Treffer auf `side: BackSide`-Flächen zählen → fail.[20]
 3. **Flacker:** identische Szene in 2 Frames mit leicht variierter Kamera rendern, Pixel-Diff in konstanten Flächen messen (unser S3 hat bereits einen Baseline-Diff-Mechanismus mit `maxDiff 0,002`).[20][Projektquelle: `tests/visual.spec.mjs`]
@@ -551,7 +551,7 @@ Astra-Preise sind 10/50 USD je Mio. Token[1]; Meta nennt für Muse Spark 1.3
 - (c) **Modellvergleich intern laufen lassen:** `muse-spark-1.3` (contributor vs. Standard, `high` vs. `max`) über dieselben 100 Briefings → eigene Zahlen statt Marketplace-Ranglisten.[34][20]
 - (d) **Prompt-Versionen A/B testen:** mit demselben Set messen, ob M4/M5/M6 etwas bewirken.[12][20] Ohne diese Messung bleiben alle Prompt-Maßnahmen **Anekdoten** — und These 2 verlangt genau diese Trennung.[12]
 
-**Vorbehalt:** Die 3JSBench-Tasks sind **statische Objekt-Szenen** ohne Animation, Physik oder Interaktionslogik[unbelegt — nur Sekundärbefund] und messen **nicht** unsere didaktischen Anforderungen (Labels, Messungen, Niveaus). Sie sind ein **Geometrie-Benchmark**, kein SkillSpark-Benchmark.[20][unbelegt — nur Sekundärbefund] Ein eigener, didaktischer Benchmark-Satz ist zusätzlich nötig.[Projektquelle: `src/runtime/didactics.js`]
+**Vorbehalt:** Die 3JSBench-Tasks sind **statische Objekt-Szenen** ohne Animation, Physik oder Interaktionslogik[unbelegt — nur Sekundärbefund] und messen **nicht** unsere didaktischen Anforderungen (Labels, Messungen, Niveaus). Sie sind ein **Geometrie-Benchmark**, kein ModelMuse-Benchmark.[20][unbelegt — nur Sekundärbefund] Ein eigener, didaktischer Benchmark-Satz ist zusätzlich nötig.[Projektquelle: `src/runtime/didactics.js`]
 
 ### M8 — Materialqualität: `MeshPhysicalMaterial` (clearcoat/anisotropy) **und** DataTexture-Mikrostruktur gezielt einsetzen
 **Priorität 8 · Aufwand M · Effekt: mittel (Realismus), begrenzt durch iGPU-Budget**[26][29]
@@ -591,7 +591,7 @@ Astra-Preise sind 10/50 USD je Mio. Token[1]; Meta nennt für Muse Spark 1.3
 
 Ehrliche Kennzeichnung dessen, was **nicht** belegt oder **nicht** verifiziert wurde:[Projektquelle: `docs/ki-modellqualitaet-recherche.md`]
 
-1. **Kein Benchmark misst SkillSpark didaktische Qualität.** Alle sechs Benchmarks messen Geometrie, Ästhetik, Verhalten oder agentisches 3D-Erlebnis[20][21][39] — **keine** misst Label-Qualität, Messungs-Korrektheit, Niveautrennung (basis/aufbau/profi) oder Einheitenprüfung im generierten Code. **M7 + ein eigener didaktischer Benchmark-Satz sind zwingend.** Ohne das ist „Modellqualität" für unseren Zweck undefiniert.[20][39][Projektquelle: `src/runtime/didactics.js`]
+1. **Kein Benchmark misst ModelMuse didaktische Qualität.** Alle sechs Benchmarks messen Geometrie, Ästhetik, Verhalten oder agentisches 3D-Erlebnis[20][21][39] — **keine** misst Label-Qualität, Messungs-Korrektheit, Niveautrennung (basis/aufbau/profi) oder Einheitenprüfung im generierten Code. **M7 + ein eigener didaktischer Benchmark-Satz sind zwingend.** Ohne das ist „Modellqualität" für unseren Zweck undefiniert.[20][39][Projektquelle: `src/runtime/didactics.js`]
 2. **M7 ist nicht 1:1 anwendbar.** Der 3JSBench-Grader-Code ist nicht veröffentlicht[GH-README → [35]]; die 100 Briefings aber schon (MIT). Unsere Labs sind außerdem deutlich komplexer (Bauteillisten, Maße, Labels, 5 Niveaus) als 3JSBench-Tasks (Einzeiler-Briefings).[20][Projektquelle: `prompts/gen-si-1-v6hyper400.txt`]
 3. **Die genaue Höhe des `max`-Reasoning-Effekts für `muse-spark-1.3` auf 3D-Code ist unbekannt.** Die belegten Zahlen (+7,6 pp Terminal-Bench low→max, +2–3 pp Durchschnitt) stammen aus **anderen Aufgaben und anderen Modellen**[18][19][unbelegt]. M3 ist deshalb ein **billiger Test**, keine validierte Optimierung.[34][18]
 4. **Ob `muse.exe` ein Reasoning-Effort-Flag durchreicht, ist ungeprüft.**[34] Bei reinem `muse exec --model … --prompt-file …` gibt es keine Stelle, an der `reasoning_effort` gesetzt würde.[Projektquelle: `scripts/_gen-one.mjs`] Falls das CLI es nicht anbietet, ist ein Wechsel auf den direkten Meta-API-Weg nötig (mit Key-Handling-Anpassung in `scripts/_gen-one.mjs`).[Projektquelle: `scripts/_gen-one.mjs`]
@@ -650,7 +650,7 @@ Alle Quellen am **27.10.2026** abgerufen. Nummerierung entspricht den Zitaten im
 | 38 | arXiv:2604.00824 — „Yet Even Less Is Even Better For Agentic, Reasoning, and Coding LLMs" | 2026 | https://arxiv.org/html/2604.00824 |
 | 39 | Artificial Analysis — „AA-3D: Interactive 3D Experience Benchmark" (55 Tasks, Stirrup) | Abruf 27.10.2026 | https://artificialanalysis.ai/evaluations/aa-3d |
 
-### Lokale Projektquellen (nicht Web, aus `C:/Users/flori/OneDrive/skillSpark`)
+### Lokale Projektquellen (nicht Web, aus `C:/Users/flori/OneDrive/modelMuse`)
 - `prompts/p1-generate.txt`, `prompts/p1-generate.v5-budget400.txt`, `prompts/p2-repair.txt`, `prompts/gen-*-v6hyper400.txt`
 - `src/runtime/verify.js` (S1–S5-Orchestrierung, `skipLayer()`), `src/runtime/guard-static.js` (Import-Allowlist, Verbotsliste, Größenprüfung), `src/runtime/budget.js` (`DEFAULT_BUDGET_LIMITS`, `TRAFFIC`), `src/runtime/didactics.js` (Manifest/Niveaus), `src/runtime/livegen.js` (SSE-Parsing, `E-GEN-PARSE`)
 - `dist/AUFTRAG-REPORT-2026-10-27.md` (10/10 Labs grün, 0 P2-Repairs, 36/36 Unittests, 28/28 Playwright), `dist/BUDGET-NACHTRAG-2026-10-27.md` (Draw-Call-Limit 120→400)

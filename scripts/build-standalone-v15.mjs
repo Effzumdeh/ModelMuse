@@ -25,7 +25,7 @@
  */
 import { readFile, writeFile } from 'node:fs/promises';
 
-const FILE = process.argv[2] ?? 'dist-standalone/skillspark-standalone.html';
+const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const REPORT = process.argv[2] ? null : 'dist-standalone/build-standalone-v15-report.json';
 const IDS = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example',
   'demo-2d-svg', 'demo-2d-mermaid', 'demo-2d-chart', 'demo-2d-d3', 'demo-2d-katex'];

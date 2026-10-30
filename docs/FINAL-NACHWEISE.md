@@ -1,64 +1,52 @@
-# FINALE NACHWEISE — SkillSpark (nur lokal, kein Push)
+# Final Evidence — Current ModelMuse Checkout
 
-Stand: 2026-10-29 nachts (MEZ). Branch: `main`. Tag: `nachts-final`.
-Verifikation: `git log --oneline -5`, `git show --stat HEAD`, `git tag --list`.
+**Date:** 29 October 2026. This is a local working-copy report; it does not
+claim that changes were pushed. The historical German record, including its
+screenshots and staged-file inventory, is preserved at
+[`docs/source-de/FINAL-NACHWEISE.md`](source-de/FINAL-NACHWEISE.md).
 
-## 1) Final grün (29.10.2026, Workdir-Stand)
+## Current standalone state
 
-| Schritt | Befehl | Ergebnis |
-|---|---|---|
-| Build | `npm run build` | OK — `hash=69155f1d78755733`, three-bundle 610955 B, shell-js 68126, runtime-js 171381, css 8914, modelle 89720 |
-| Verify | `npm run verify:all` | OK — 12 Modelle, alle **gelb** (keine Fehler): ae-1..3, chemie-koffein, dup-1..3, free-handbohrmaschine, gpu-example, si-1..3; Artefakt 996825 B (Komfort 1500000) |
-| Unit | `npm run test:unit` | **148/148 pass, 0 fail** (inkl. modify, guide-3d-qualitaet, router-2d, livegen, providers, session-library, scoreboard) |
+The only release artifact is `dist-standalone/modelmuse-standalone.html`. It
+is stamped v13 but is currently an EMPTY-STAND variant with zero bundled model
+entries and an empty source registry. Its current verification is summarized in
+the [standalone report](../dist-standalone/STANDALONE-REPORT-2026-10-29.md).
+The prior 12-model report is historical and must not be used to describe the
+current artifact.
 
-Reports: `dist/build-report.json`, `dist/verify-report.json` (createdAt 2026-10-29T00:17–00:18Z),
-`dist/generation-log.json`, `dist/attestation.json` — alle versioniert.
+## Checks run in this checkout
 
-## 2) MEDIA-Liste (Screenshots)
+- `npm run build:standalone` — **passed**; the builder found the existing v13
+  stamp and exited idempotently without writing.
+- `npm run verify:standalone` — **passed**; the EMPTY-STAND checks confirmed
+  zero models and a 117,574-byte artifact.
+- `node --check scripts/build-standalone-v13.mjs` — **passed**.
+- `node --check scripts/verify-standalone.mjs` — **passed**.
+- `node --check scripts/verify-all.mjs` — **passed**.
+- `npm run test:unit` — **failed: 140/148 passed, 8 failed**. Failures are
+  caused by tests expecting removed model files/manifests: `si-1.js`,
+  `gpu-example.js`, and `dup-1.js` are missing; some tests expect at least seven
+  manifests, a 12-model matrix, or all model modules to exist.
+- The standalone browser suite was not run against the empty artifact. The
+  checked-in suite still expects a 12-model catalogue.
 
-Lokale Pfade (relativ zum Repo-Root). Dateien unter `dist/screenshots/` und
-`dist/baseten-migration/` sind per `.gitignore` (`dist/*`) bewusst **nicht versioniert**
-und liegen nur lokal; `dist-standalone/proof-*.png` sind versioniert.
+The detailed current build and verification record is in the
+[standalone report](../dist-standalone/STANDALONE-REPORT-2026-10-29.md).
 
-### dist/screenshots/ (Slim-Generator-Suite `tests/slim.spec.mjs`, 29.10. 01:08)
-- MEDIA: `dist/screenshots/labs.png` (107195 B) — Labs-Nav links, 12 kuratierte Modelle
-- MEDIA: `dist/screenshots/generieren.png` (128461 B) — Generieren-Panel (Validierungspfad)
-- MEDIA: `dist/screenshots/modify.png` (128442 B) — Modify-Flow
-- MEDIA: `dist/screenshots/sprache.png` (123860 B) — Sprache (i18n de/en/es)
+## Publication gate
 
-### dist-standalone/proof-*.png (versioniert)
-- MEDIA: `dist-standalone/proof-si-1-v12.png` (150573 B)
-- MEDIA: `dist-standalone/proof-ae-2-v12.png` (124440 B)
-- MEDIA: `dist-standalone/proof-free-handbohrmaschine-v12.png` (152537 B)
-- MEDIA: `dist-standalone/proof-dup-1-v12.png` (109814 B) — 2D-Lab (SVG, kein Canvas)
-- MEDIA: `dist-standalone/proof-slim-modify.png` (122619 B) — Slim-Modify-Beleg
-- Begleit-Reports: `dist-standalone/proof-report.json` (ok:true, 0 errors/pageerrors/warnings,
-  10 Inits, si-1/ae-2/free-handbohrmaschine 3D + dup-1 2D),
-  `dist-standalone/proof-6modelle.json` (6-Modelle-Matrix),
-  `dist-standalone/build-standalone-report.json`, `dist-standalone/ledger-muse-calls.md`
+The standalone build and empty-state verifier are green, but the unit suite is
+red and the artifact no longer contains the 12-model catalogue documented in
+the earlier v13 report. Do not publish this empty-state artifact as the populated
+teaching release. Before release, either restore the model sources and manifests
+or formally redefine the release as EMPTY-STAND, update the unit and browser
+suites to match, and rerun all checks.
 
-### dist/baseten-migration/*.png (lokal, nicht versioniert)
-- MEDIA: `dist/baseten-migration/proxy-e2e-baseten.png` (84814 B, sha256 `b0f6b245…`) — Baseten-E2E ok
-- MEDIA: `dist/baseten-migration/step1-anbieter-baseten.png` (147749 B) — Anbieter-Dialog Baseten
-- Logs lokal: `dist/baseten-migration/e2e-run.log`, `e2e-run2.log`
-- Doku (versioniert): `docs/BASETEN-MIGRATION.md`
-
-## 3) Commit-Umfang (geprüft gestagt, NICHT `git add -A`)
-
-- Enthalten: alle getrackten Änderungen (3D-Sanierung, 2D+Router, Baseten-Proxy, Lizenz, Slim-Generator
-  `src/shell/ui-modify.js` + `tests/slim.spec.mjs` + `tests-unit/modify.test.mjs`, Direkt-Call+UI,
-  i18n, Baselines inkl. neu `chemie-koffein-*`/`free-handbohrmaschine-*`, Docs, Prompts, Skripte),
-  Löschungen `src/shell/ui-scoreboard.js`, `src/shell/ui-tasks.js`, `tests/harness.spec.mjs` (Slim),
-  neue Proof-Helfer `scripts/_tmp/audit-standalone.mjs`, `scripts/_tmp/proof-standalone-guide.mjs`.
-- Bewusst NICHT enthalten: `cache/` (Scratch/Tarballs/Logs), `scripts/_tmp/standalone-v11-basis.html`
-  (temporäre v11-Basis-Kopie), `*.log` (per `.gitignore` ignoriert), `dist/screenshots/`,
-  `dist/baseten-migration/*.png` (per `.gitignore` lokal).
-
-## 4) Belege einholen
+## Repository evidence commands
 
 ```sh
-git -C "C:/Users/flori/OneDrive/skillSpark" log --oneline -5
-git -C "C:/Users/flori/OneDrive/skillSpark" show --stat HEAD
-git -C "C:/Users/flori/OneDrive/skillSpark" tag --list | tail -5
-git -C "C:/Users/flori/OneDrive/skillSpark" status --porcelain=v1 -b
+git log --oneline -5
+git show --stat HEAD
+git tag --list
+git status --porcelain=v1 -b
 ```

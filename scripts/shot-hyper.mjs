@@ -2,8 +2,8 @@
  * Screenshot-Kontrolle HYPER (Teil 2): dist/lab-player.html ueber lokalen HTTP-Server,
  * Chromium 1280x720 mit SwiftShader-Flags aus dem Bauplan.
  * Aufruf: MODEL=<id> TAG=<tag> PORT=<port> node scripts/shot-hyper.mjs
- * Schreibt C:/Users/flori/AppData/Local/hermes/cache/scratch/skillspark-<tag>.png
- *   + dist/skillspark-<tag>.png + dist/preview-<tag>.png
+ * Schreibt C:/Users/flori/AppData/Local/hermes/cache/scratch/modelmuse-<tag>.png
+ *   + dist/modelmuse-<tag>.png + dist/preview-<tag>.png
  * und misst echte Budgets (triangles/drawCalls) ueber eine Probe-Seite.
  * Kein Key-Kontakt, keine Modellveraenderung.
  */
@@ -17,8 +17,8 @@ const ROOT = resolve('.');
 const PORT = Number(process.argv[2] ?? process.env.PORT ?? 8094);
 const MODEL = process.env.MODEL || 'gpu-example';
 const TAG = process.env.TAG || 'hyper-v3';
-const OUT1 = `C:/Users/flori/AppData/Local/hermes/cache/scratch/skillspark-${TAG}.png`;
-const OUT2 = resolve(`dist/skillspark-${TAG}.png`);
+const OUT1 = `C:/Users/flori/AppData/Local/hermes/cache/scratch/modelmuse-${TAG}.png`;
+const OUT2 = resolve(`dist/modelmuse-${TAG}.png`);
 const OUT3 = resolve(`dist/preview-${TAG}.png`);
 
 const TYPES = {
@@ -208,8 +208,8 @@ try {
     };
   });
   console.log(`BUDGET-PROBE: ${JSON.stringify(budget)}`);
-  const OUT1C = `C:/Users/flori/AppData/Local/hermes/cache/scratch/skillspark-${TAG}-canvas.png`;
-  const OUT2C = resolve(`dist/skillspark-${TAG}-canvas.png`);
+  const OUT1C = `C:/Users/flori/AppData/Local/hermes/cache/scratch/modelmuse-${TAG}-canvas.png`;
+  const OUT2C = resolve(`dist/modelmuse-${TAG}-canvas.png`);
   const cel = await p2.$('#c canvas');
   if (cel) {
     await cel.screenshot({ path: OUT1C, animations: 'disabled' });

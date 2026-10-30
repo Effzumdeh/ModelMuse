@@ -1,4 +1,4 @@
-# 2D-Stack-Evaluierung (skillSpark)
+# 2D-Stack-Evaluierung (modelMuse)
 
 Stand: 28.10.2026. Auswertungsbasis: `docs/implementation-guide-3d-qualitaet.md` Abschnitte 1–5,
 M1–M6. Zweck: Top-1-Bibliothek je 2D-Typ festlegen, ohne den 3D-Stack (three.js r186) anzutasten.
@@ -320,4 +320,4 @@ Ergebnisse unter `dist/logs/`-Äquivalent im Scratch, nicht im Repo).
 | D17 | repo-intern: `src/runtime/guard-static.js` | `ALLOW_SPECIFIERS`, `FORBIDDEN_TOKENS` (document/window/fetch), `import(`-Verbot |
 | D18 | repo-intern: `src/runtime/budget.js`, `prompts/p1-generate.v6-standard.txt` | Modul-Budget < 34 000 Bytes hart je Lab; Komfort 1,5 MB / hart 2,0 MB |
 | D19 | repo-intern: `docs/implementation-guide-3d-qualitaet.md` Abschnitte 1–5, M1–M6 | Rahmen, three.js r186 bleibt, Loop verdrahten, Negativmuster |
-| D20 | repo-intern: `dist-standalone/skillspark-standalone.html` | Importmap-Muster (`unpkg.com/three@0.186.1`) — Beleg fuer das CDN-Argument |
+| D20 | repo-intern: `dist-standalone/modelmuse-standalone.html` | Importmap-Muster (`unpkg.com/three@0.186.1`) — Beleg fuer das CDN-Argument |

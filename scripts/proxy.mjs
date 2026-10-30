@@ -1,5 +1,5 @@
 /**
- * SkillSpark Generierungs-Proxy (localhost only, keine neuen Dependencies).
+ * ModelMuse Generierungs-Proxy (localhost only, keine neuen Dependencies).
  * Bindet NUR 127.0.0.1, liest den Server-Key zur Laufzeit aus Env/Key-Datei
  * (niemals ins Repo, nie an den Browser, nie in Logs), reicht Generierungs-
  * anfragen als SSE-Stream weiter (DONE-Terminator, finish_reason-Check auf
@@ -193,7 +193,7 @@ export function createProxyServer() {
     if (req.method === 'GET' && url.pathname === '/health') {
       const payload = JSON.stringify({
         ok: true,
-        service: 'skillspark-proxy',
+        service: 'modelmuse-proxy',
         providers: Object.keys(PROVIDERS),
         defaultModel: PROVIDERS[DEFAULT_PROVIDER].defaultModel,
         time: new Date().toISOString(),
@@ -308,6 +308,6 @@ if (isMain) {
   }
   const server = createProxyServer();
   server.listen(port, '127.0.0.1', () => {
-    console.log(`skillspark-proxy: http://127.0.0.1:${port}/ (nur localhost, upstream Meta ${META_BASE} + Baseten ${BASETEN_BASE})`);
+    console.log(`modelmuse-proxy: http://127.0.0.1:${port}/ (nur localhost, upstream Meta ${META_BASE} + Baseten ${BASETEN_BASE})`);
   });
 }

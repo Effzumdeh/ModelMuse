@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-29T00:17:59.716Z",
+  "createdAt": "2026-10-29T14:09:29.098Z",
   "versions": {
     "three": "0.186.1",
     "esbuild": "0.28.2",
@@ -35,67 +35,91 @@
     "alpine": 55919,
     "helpers": 7827,
     "shellJs": 68126,
-    "runtimeJs": 171381,
-    "shellJsTotal": 239507,
+    "runtimeJs": 203585,
+    "shellJsTotal": 271711,
     "css": 8914,
-    "modelsTotal": 89720,
+    "modelsTotal": 107622,
     "modelFiles": [
       {
         "file": "ae-1.js",
-        "bytes": 1234
+        "bytes": 1253
       },
       {
         "file": "ae-2.js",
-        "bytes": 1304
+        "bytes": 1324
       },
       {
         "file": "ae-3.js",
-        "bytes": 1187
+        "bytes": 1206
+      },
+      {
+        "file": "arch-brandenburger-tor.js",
+        "bytes": 9630
       },
       {
         "file": "chemie-koffein.js",
-        "bytes": 10258
+        "bytes": 10489
+      },
+      {
+        "file": "demo-2d-chart.js",
+        "bytes": 1176
+      },
+      {
+        "file": "demo-2d-d3.js",
+        "bytes": 1465
+      },
+      {
+        "file": "demo-2d-katex.js",
+        "bytes": 1184
+      },
+      {
+        "file": "demo-2d-mermaid.js",
+        "bytes": 1316
+      },
+      {
+        "file": "demo-2d-svg.js",
+        "bytes": 1002
       },
       {
         "file": "dup-1.js",
-        "bytes": 1282
+        "bytes": 1301
       },
       {
         "file": "dup-2.js",
-        "bytes": 1188
+        "bytes": 1207
       },
       {
         "file": "dup-3.js",
-        "bytes": 1169
+        "bytes": 1188
       },
       {
         "file": "free-handbohrmaschine.js",
-        "bytes": 10155
+        "bytes": 10386
       },
       {
         "file": "gpu-example.js",
-        "bytes": 21964
+        "bytes": 22428
       },
       {
         "file": "si-1.js",
-        "bytes": 15757
+        "bytes": 16183
       },
       {
         "file": "si-2.js",
-        "bytes": 13765
+        "bytes": 14125
       },
       {
         "file": "si-3.js",
-        "bytes": 10457
+        "bytes": 10759
       }
     ],
-    "manifests": 39732,
-    "schemas": 6822,
-    "manifestsSchemas": 46554
+    "manifests": 58387,
+    "schemas": 7523,
+    "manifestsSchemas": 65910
   },
   "maxViolations": [],
-  "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
-  "artefaktSha256": "097d04741adc88259aff9f8a610313145c7c6ebfe54c28b101e909b826d64d74",
+  "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+  "artefaktSha256": null,
   "routes": {
     "p0": true,
     "p1_2d": true,
@@ -103,6 +127,11 @@
       "ae-1",
       "ae-2",
       "ae-3",
+      "demo-2d-chart",
+      "demo-2d-d3",
+      "demo-2d-katex",
+      "demo-2d-mermaid",
+      "demo-2d-svg",
       "dup-1",
       "dup-2",
       "dup-3"

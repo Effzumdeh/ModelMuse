@@ -48,7 +48,7 @@ console.log('status=' + (status ?? '').slice(0, 160));
 await page.screenshot({ path: 'dist/byok-03-status.png', animations: 'disabled' });
 console.log('byok-03-status.png');
 // 4. Session-Storage prüfen (Consent ja -> Key + Consent in sessionStorage, nie localStorage)
-const stores = await page.evaluate(() => ({ sessionKeys: Object.keys(sessionStorage), hasLive: !!sessionStorage.getItem('skillspark-livekey'), hasConsent: sessionStorage.getItem('skillspark-livekey-consent'), localKeys: Object.keys(localStorage) }));
+const stores = await page.evaluate(() => ({ sessionKeys: Object.keys(sessionStorage), hasLive: !!sessionStorage.getItem('modelmuse-livekey'), hasConsent: sessionStorage.getItem('modelmuse-livekey-consent'), localKeys: Object.keys(localStorage) }));
 console.log('stores=' + JSON.stringify(stores));
 await browser.close();
 server.close();

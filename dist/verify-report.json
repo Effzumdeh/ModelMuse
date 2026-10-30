@@ -1,6 +1,6 @@
 {
-  "createdAt": "2026-10-29T00:18:01.843Z",
-  "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+  "createdAt": "2026-10-30T19:28:07.755Z",
+  "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
   "routes": {
     "p0": true,
     "p1_2d": true,
@@ -8,6 +8,16 @@
       "ae-1",
       "ae-2",
       "ae-3",
+      "demo-2d-chart",
+      "demo-2d-chart-v2",
+      "demo-2d-d3",
+      "demo-2d-d3-v2",
+      "demo-2d-katex",
+      "demo-2d-katex-v2",
+      "demo-2d-mermaid",
+      "demo-2d-mermaid-v2",
+      "demo-2d-svg",
+      "demo-2d-svg-v2",
       "dup-1",
       "dup-2",
       "dup-3"
@@ -32,7 +42,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "1234 Bytes (green)"
+              "actual": "1253 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -57,13 +67,19 @@
               "id": "S2-2d-parse",
               "verdict": "pass",
               "expected": "2D-Datenpfad (Import aus 2d-*)",
-              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
             },
             {
               "id": "S2-2d-typ",
               "verdict": "pass",
               "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
               "actual": "uml erlaubt"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Labels == parts, Einheit ok"
             },
             {
               "id": "S2-2d-parse-svg",
@@ -74,8 +90,14 @@
             {
               "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": ">= 4 SVG-Formelemente (gerendert)",
-              "actual": "14 Shapes im Vendor-Render"
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "14 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 1 knotenabstand ok, kanten ok"
             },
             {
               "id": "S2-2d-wellformed",
@@ -84,7 +106,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 1
+          "durationMs": 4
         },
         {
           "layer": "S3",
@@ -120,7 +142,7 @@
               "id": "S4-2d-module",
               "verdict": "pass",
               "expected": "<= 34000 Bytes",
-              "actual": "1234 Bytes"
+              "actual": "1253 Bytes"
             }
           ],
           "durationMs": 0
@@ -183,8 +205,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.818Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.710Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -209,7 +231,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "1304 Bytes (green)"
+              "actual": "1324 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -234,7 +256,7 @@
               "id": "S2-2d-parse",
               "verdict": "pass",
               "expected": "2D-Datenpfad (Import aus 2d-*)",
-              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
             },
             {
               "id": "S2-2d-typ",
@@ -243,16 +265,28 @@
               "actual": "bars erlaubt"
             },
             {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "3 Labels == parts, Einheit ok"
+            },
+            {
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1790 Zeichen SVG"
+              "actual": "2077 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": ">= 4 SVG-Formelemente (gerendert)",
-              "actual": "18 Shapes im Vendor-Render"
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "21 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 3 knotenabstand ok, kanten ok"
             },
             {
               "id": "S2-2d-wellformed",
@@ -272,13 +306,13 @@
               "id": "S3-screenshot",
               "verdict": "pass",
               "expected": "Screenshot > 0 Bytes",
-              "actual": "dist-2d/ae-2.png: 8302 Bytes"
+              "actual": "dist-2d/ae-2.png: 10065 Bytes"
             },
             {
               "id": "S3-nonempty",
               "verdict": "pass",
               "expected": "nonEmpty=true (2D-Pixel-Gate)",
-              "actual": "2D-Screenshot vorhanden, 8302 Bytes"
+              "actual": "2D-Screenshot vorhanden, 10065 Bytes"
             }
           ],
           "durationMs": 0
@@ -291,13 +325,13 @@
               "id": "S4-2d-nodes",
               "verdict": "pass",
               "expected": "<= 800 SVG-Knoten (S4-light)",
-              "actual": "18 Shapes (Vendor-Render)"
+              "actual": "21 Shapes (Vendor-Render)"
             },
             {
               "id": "S4-2d-module",
               "verdict": "pass",
               "expected": "<= 34000 Bytes",
-              "actual": "1304 Bytes"
+              "actual": "1324 Bytes"
             }
           ],
           "durationMs": 0
@@ -355,13 +389,13 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         }
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.821Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.715Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -386,7 +420,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "1187 Bytes (green)"
+              "actual": "1206 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -411,13 +445,19 @@
               "id": "S2-2d-parse",
               "verdict": "pass",
               "expected": "2D-Datenpfad (Import aus 2d-*)",
-              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
             },
             {
               "id": "S2-2d-typ",
               "verdict": "pass",
               "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
               "actual": "chain erlaubt"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Labels == parts, Einheit ok"
             },
             {
               "id": "S2-2d-parse-svg",
@@ -428,8 +468,14 @@
             {
               "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": ">= 4 SVG-Formelemente (gerendert)",
-              "actual": "19 Shapes im Vendor-Render"
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "19 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 knotenabstand ok, kanten ok"
             },
             {
               "id": "S2-2d-wellformed",
@@ -474,7 +520,7 @@
               "id": "S4-2d-module",
               "verdict": "pass",
               "expected": "<= 34000 Bytes",
-              "actual": "1187 Bytes"
+              "actual": "1206 Bytes"
             }
           ],
           "durationMs": 0
@@ -537,13 +583,195 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.822Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.716Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
       },
       "screenshot": "dist/final-ae-3.png"
+    },
+    {
+      "modelId": "arch-brandenburger-tor",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "9630 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "three,three/addons/controls/OrbitControls.js,wrapper-helpers"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-intersect",
+              "verdict": "pass",
+              "expected": "0 Ueberschneidungen zwischen Baugruppen (Toleranz 2,0 mm)",
+              "actual": "statisch: 6 Mesh-Neuerstellungen, keine Boxen vermessen (Browser-Probe ausstehend) — 0 Hinweise"
+            },
+            {
+              "id": "S2-backface",
+              "verdict": "pass",
+              "expected": "0 sichtbare Innenseiten (kein BackSide ausser PMREM-Raum)",
+              "actual": "0 BackSide ausserhalb PMREM-Raum, 1 DoubleSide (duenne Teile, zulaessig)"
+            },
+            {
+              "id": "S2-flicker",
+              "verdict": "pass",
+              "expected": "keine koplanaren Ueberlappungen (Mindestabstand 0,5 mm, Pixel-Diff-Schwelle 0,002)",
+              "actual": "statisch: keine Koplanar-Hinweise (Ebenenvermessung in Visual-Suite)"
+            },
+            {
+              "id": "S2-orient",
+              "verdict": "pass",
+              "expected": "Bauteile zentriert (±0,50 m), Ausdehnung ≤ 1,50 m",
+              "actual": "Zentrum [0,11, 0,07, 0,13], Spanne 1,30 m (6 Labels)"
+            },
+            {
+              "id": "S2-connect",
+              "verdict": "pass",
+              "expected": "Baugruppen koharent (Label-Mindestabstand ≥ 5,0 mm, Spanne ≤ 1,50 m)",
+              "actual": "min Label-Abstand 176,1 mm, Spanne 1,30 m (6 Labels)"
+            },
+            {
+              "id": "S2-meshcount-statisch",
+              "verdict": "pass",
+              "expected": "Mesh-Budget ≤ 250 (gruen bis 120, Ziel ~45)",
+              "actual": "6 Meshes statisch (Mesh 5 + Instanced 1)"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "skip",
+          "screenshot": null,
+          "criteria": [
+            {
+              "id": "S3-skip",
+              "verdict": "skip",
+              "expected": "Messung mit passendem Beleg",
+              "actual": "kein Messwert in dist/final-budgets.json"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "skip",
+          "criteria": [
+            {
+              "id": "S4-meshcount",
+              "verdict": "pass",
+              "expected": "<= 250 (gruen bis 120, Ziel ~45)",
+              "actual": "6 Meshes statisch (Mesh 5 + Instanced 1)"
+            },
+            {
+              "id": "S4-triangles",
+              "verdict": "skip",
+              "expected": "<= 150000 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: kein Messwert in dist/final-budgets.json"
+            },
+            {
+              "id": "S4-drawcalls",
+              "verdict": "skip",
+              "expected": "<= 400 (renderer.info)",
+              "actual": "kein gueltiger Beleg, nicht uebernommen: kein Messwert in dist/final-budgets.json"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=6 mess=2"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 6 Labels, 2 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==6, B/A/P=0/2/1",
+              "actual": "Labels=6, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.718Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "3d"
+      },
+      "screenshot": null
     },
     {
       "modelId": "chemie-koffein",
@@ -563,7 +791,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "10258 Bytes (green)"
+              "actual": "10489 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -578,7 +806,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -720,15 +948,15 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.826Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.722Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "3d"
       },
       "screenshot": null
     },
     {
-      "modelId": "dup-1",
+      "modelId": "demo-2d-chart",
       "iteration": 1,
       "layers": [
         {
@@ -745,13 +973,13 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "1282 Bytes (green)"
+              "actual": "1176 Bytes (green)"
             },
             {
               "id": "S1-imports",
               "verdict": "pass",
               "expected": "nur three/wrapper-helpers/2d-*",
-              "actual": "2d-svg"
+              "actual": "2d-chart"
             },
             {
               "id": "S1-shape",
@@ -770,25 +998,37 @@
               "id": "S2-2d-parse",
               "verdict": "pass",
               "expected": "2D-Datenpfad (Import aus 2d-*)",
-              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
+              "actual": "2d-Import gefunden (chart, Lib im Vendor, Modul liefert Daten)"
             },
             {
               "id": "S2-2d-typ",
               "verdict": "pass",
-              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
-              "actual": "er erlaubt"
+              "expected": "chart.kind in [balken|linie|kreis]",
+              "actual": "balken erlaubt (Canvas-Typ bar, 4 Werte)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Kategorien, 4 Werte, Einheit \"%\""
             },
             {
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1554 Zeichen SVG"
+              "actual": "2697 Zeichen SVG-Vorschau"
             },
             {
               "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": ">= 4 SVG-Formelemente (gerendert)",
-              "actual": "15 Shapes im Vendor-Render"
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "28 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 knotenabstand ok, achsen ok"
             },
             {
               "id": "S2-2d-wellformed",
@@ -797,24 +1037,24 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 2
         },
         {
           "layer": "S3",
           "verdict": "pass",
-          "screenshot": "dist-2d/dup-1.png",
+          "screenshot": "dist-2d/demo-2d-chart.png",
           "criteria": [
             {
               "id": "S3-screenshot",
               "verdict": "pass",
               "expected": "Screenshot > 0 Bytes",
-              "actual": "dist-2d/dup-1.png: 10606 Bytes"
+              "actual": "dist-2d/demo-2d-chart.png: 11265 Bytes"
             },
             {
               "id": "S3-nonempty",
               "verdict": "pass",
               "expected": "nonEmpty=true (2D-Pixel-Gate)",
-              "actual": "2D-Screenshot vorhanden, 10606 Bytes"
+              "actual": "2D-Screenshot vorhanden, 11265 Bytes"
             }
           ],
           "durationMs": 0
@@ -827,13 +1067,13 @@
               "id": "S4-2d-nodes",
               "verdict": "pass",
               "expected": "<= 800 SVG-Knoten (S4-light)",
-              "actual": "15 Shapes (Vendor-Render)"
+              "actual": "28 Shapes (Vendor-Render)"
             },
             {
               "id": "S4-2d-module",
               "verdict": "pass",
               "expected": "<= 34000 Bytes",
-              "actual": "1282 Bytes"
+              "actual": "1176 Bytes"
             }
           ],
           "durationMs": 0
@@ -896,16 +1136,16 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.828Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.725Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "2d",
-        "reason": "2d-svg Datenpfad"
+        "reason": "2d-chart Datenpfad"
       },
-      "screenshot": "dist/final-dup-1.png"
+      "screenshot": null
     },
     {
-      "modelId": "dup-2",
+      "modelId": "demo-2d-chart-v2",
       "iteration": 1,
       "layers": [
         {
@@ -922,7 +1162,1330 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "1188 Bytes (green)"
+              "actual": "1234 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-chart"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (chart, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "chart.kind in [balken|linie|kreis]",
+              "actual": "linie erlaubt (Canvas-Typ line, 4 Werte)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Kategorien, 4 Werte, Einheit \"°C\""
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "2696 Zeichen SVG-Vorschau"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "29 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 0 knotenabstand ok, achsen ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-chart-v2.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-chart-v2.png: 15607 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 15607 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "29 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1234 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.726Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-chart Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-d3",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1465 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-d3"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (d3, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "graph.kind in [netz|baum]",
+              "actual": "netz erlaubt (5 Knoten, 4 Kanten)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "5 Knoten, 4 Kanten, zusammenhaengend"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "2373 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "22 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 5 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-d3.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-d3.png: 26089 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 26089 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "22 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1465 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=5 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 5 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==5, B/A/P=0/2/1",
+              "actual": "Labels=5, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.728Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-d3 Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-d3-v2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1333 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-d3"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (d3, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "graph.kind in [netz|baum]",
+              "actual": "baum erlaubt (4 Knoten, 3 Kanten)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Knoten, 3 Kanten, zusammenhaengend"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1837 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "17 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-d3-v2.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-d3-v2.png: 24840 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 24840 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "17 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1333 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.729Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-d3 Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-katex",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1184 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-katex"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (katex, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "formula.kind in [formel]",
+              "actual": "formel erlaubt (throwOnError:true)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "Formel 64 Zeichen, 4 Labels, Einheit ok"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "2029 Zeichen HTML"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "24 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 Legenden-Chips, kein katex-error"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-katex.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-katex.png: 15673 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 15673 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "24 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1184 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.731Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-katex Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-katex-v2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1166 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-katex"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (katex, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "formula.kind in [formel]",
+              "actual": "formel erlaubt (throwOnError:true)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "Formel 31 Zeichen, 4 Labels, Einheit ok"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1792 Zeichen HTML"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "15 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 Legenden-Chips, kein katex-error"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-katex-v2.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-katex-v2.png: 12159 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 12159 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "15 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1166 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.732Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-katex Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-mermaid",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1316 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-mermaid"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (mermaid, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "mermaid.diagram in [fluss|sequenz|er|gantt]",
+              "actual": "fluss erlaubt (5 Knoten, 4 Kanten)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "5 Knoten, 4 Kanten, 5 Labels abgedeckt"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "2408 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "21 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 5 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 2
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-mermaid.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-mermaid.png: 17669 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 17669 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "21 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1316 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=5 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 5 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==5, B/A/P=0/2/1",
+              "actual": "Labels=5, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.736Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-mermaid Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-mermaid-v2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1417 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-mermaid"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (mermaid, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "mermaid.diagram in [fluss|sequenz|er|gantt]",
+              "actual": "sequenz erlaubt (4 Knoten, 4 Kanten)"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Knoten, 4 Kanten, 4 Labels abgedeckt"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "2705 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "25 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-mermaid-v2.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-mermaid-v2.png: 12142 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 12142 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "25 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1417 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.737Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-mermaid Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-svg",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1002 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -947,13 +2510,586 @@
               "id": "S2-2d-parse",
               "verdict": "pass",
               "expected": "2D-Datenpfad (Import aus 2d-*)",
-              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "generic erlaubt"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Labels == parts, Einheit ok"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1574 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "14 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-svg.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-svg.png: 9438 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 9438 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "14 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1002 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.738Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "demo-2d-svg-v2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1134 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "chain erlaubt"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Labels == parts, Einheit ok"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1919 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "19 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/demo-2d-svg-v2.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/demo-2d-svg-v2.png: 9509 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 9509 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "19 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1134 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.739Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
+      "screenshot": null
+    },
+    {
+      "modelId": "dup-1",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1301 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "er erlaubt"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Labels == parts, Einheit ok"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1554 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "15 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 3 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/dup-1.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/dup-1.png: 10606 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 10606 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "15 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1301 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.739Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
+      "screenshot": "dist/final-dup-1.png"
+    },
+    {
+      "modelId": "dup-2",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1207 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
             },
             {
               "id": "S2-2d-typ",
               "verdict": "pass",
               "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
               "actual": "bpmn erlaubt"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Labels == parts, Einheit ok"
             },
             {
               "id": "S2-2d-parse-svg",
@@ -964,8 +3100,14 @@
             {
               "id": "S2-2d-pixel",
               "verdict": "pass",
-              "expected": ">= 4 SVG-Formelemente (gerendert)",
-              "actual": "18 Shapes im Vendor-Render"
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "18 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 4 knotenabstand ok, kanten ok"
             },
             {
               "id": "S2-2d-wellformed",
@@ -1005,6 +3147,195 @@
               "verdict": "pass",
               "expected": "<= 800 SVG-Knoten (S4-light)",
               "actual": "18 Shapes (Vendor-Render)"
+            },
+            {
+              "id": "S4-2d-module",
+              "verdict": "pass",
+              "expected": "<= 34000 Bytes",
+              "actual": "1207 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S5",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S5-manifest",
+              "verdict": "pass",
+              "expected": "Manifest ok",
+              "actual": "labels=4 mess=1"
+            },
+            {
+              "id": "S5-pflicht",
+              "verdict": "pass",
+              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
+              "actual": "2 Ziele, 4 Labels, 1 Messungen"
+            },
+            {
+              "id": "S5-basis-labels-max5",
+              "verdict": "pass",
+              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
+              "actual": "max=5 mess=false"
+            },
+            {
+              "id": "S5-aufbau-aufgaben-min2",
+              "verdict": "pass",
+              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
+              "actual": "2 Aufgaben"
+            },
+            {
+              "id": "S5-profi-transfer-min1",
+              "verdict": "pass",
+              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
+              "actual": "1 Aufgaben"
+            },
+            {
+              "id": "S5-tasks-verteilung",
+              "verdict": "pass",
+              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
+              "actual": "B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-soll",
+              "verdict": "pass",
+              "expected": "Labels==4, B/A/P=0/2/1",
+              "actual": "Labels=4, B/A/P=0/2/1"
+            },
+            {
+              "id": "S5-deklarativ",
+              "verdict": "pass",
+              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        }
+      ],
+      "verdict": "gelb",
+      "failed": [],
+      "createdAt": "2026-10-30T19:28:07.740Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "route": {
+        "mode": "2d",
+        "reason": "2d-svg Datenpfad"
+      },
+      "screenshot": "dist/final-dup-2.png"
+    },
+    {
+      "modelId": "dup-3",
+      "iteration": 1,
+      "layers": [
+        {
+          "layer": "S1",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S1-forbidden",
+              "verdict": "pass",
+              "expected": "0 Verbots-Treffer",
+              "actual": "0 Treffer"
+            },
+            {
+              "id": "S1-size",
+              "verdict": "pass",
+              "expected": "<= 2000000 Bytes",
+              "actual": "1188 Bytes (green)"
+            },
+            {
+              "id": "S1-imports",
+              "verdict": "pass",
+              "expected": "nur three/wrapper-helpers/2d-*",
+              "actual": "2d-svg"
+            },
+            {
+              "id": "S1-shape",
+              "verdict": "pass",
+              "expected": "meta vollständig",
+              "actual": "ok"
+            }
+          ],
+          "durationMs": 1
+        },
+        {
+          "layer": "S2",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S2-2d-parse",
+              "verdict": "pass",
+              "expected": "2D-Datenpfad (Import aus 2d-*)",
+              "actual": "2d-Import gefunden (svg, Lib im Vendor, Modul liefert Daten)"
+            },
+            {
+              "id": "S2-2d-typ",
+              "verdict": "pass",
+              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
+              "actual": "etl erlaubt"
+            },
+            {
+              "id": "S2-2d-semantik",
+              "verdict": "pass",
+              "expected": "Achsen/Labels/Einheiten/Legende vollstaendig, meta konsistent",
+              "actual": "4 Labels == parts, Einheit ok"
+            },
+            {
+              "id": "S2-2d-parse-svg",
+              "verdict": "pass",
+              "expected": "Vendor-Render wohlgeformt",
+              "actual": "1683 Zeichen SVG"
+            },
+            {
+              "id": "S2-2d-pixel",
+              "verdict": "pass",
+              "expected": ">= 4 Formen (gerendert)",
+              "actual": "15 Formen im Vendor-Render"
+            },
+            {
+              "id": "S2-2d-layout",
+              "verdict": "pass",
+              "expected": "schrift>=10px, knotenabstand>=8px, kanten an knoten",
+              "actual": "schrift ok, 3 knotenabstand ok, kanten ok"
+            },
+            {
+              "id": "S2-2d-wellformed",
+              "verdict": "pass",
+              "expected": "kein <script>, keine Fremd-URL im Modul",
+              "actual": "sauber"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S3",
+          "verdict": "pass",
+          "screenshot": "dist-2d/dup-3.png",
+          "criteria": [
+            {
+              "id": "S3-screenshot",
+              "verdict": "pass",
+              "expected": "Screenshot > 0 Bytes",
+              "actual": "dist-2d/dup-3.png: 9087 Bytes"
+            },
+            {
+              "id": "S3-nonempty",
+              "verdict": "pass",
+              "expected": "nonEmpty=true (2D-Pixel-Gate)",
+              "actual": "2D-Screenshot vorhanden, 9087 Bytes"
+            }
+          ],
+          "durationMs": 0
+        },
+        {
+          "layer": "S4",
+          "verdict": "pass",
+          "criteria": [
+            {
+              "id": "S4-2d-nodes",
+              "verdict": "pass",
+              "expected": "<= 800 SVG-Knoten (S4-light)",
+              "actual": "15 Shapes (Vendor-Render)"
             },
             {
               "id": "S4-2d-module",
@@ -1073,185 +3404,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.829Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
-      "route": {
-        "mode": "2d",
-        "reason": "2d-svg Datenpfad"
-      },
-      "screenshot": "dist/final-dup-2.png"
-    },
-    {
-      "modelId": "dup-3",
-      "iteration": 1,
-      "layers": [
-        {
-          "layer": "S1",
-          "verdict": "pass",
-          "criteria": [
-            {
-              "id": "S1-forbidden",
-              "verdict": "pass",
-              "expected": "0 Verbots-Treffer",
-              "actual": "0 Treffer"
-            },
-            {
-              "id": "S1-size",
-              "verdict": "pass",
-              "expected": "<= 2000000 Bytes",
-              "actual": "1169 Bytes (green)"
-            },
-            {
-              "id": "S1-imports",
-              "verdict": "pass",
-              "expected": "nur three/wrapper-helpers/2d-*",
-              "actual": "2d-svg"
-            },
-            {
-              "id": "S1-shape",
-              "verdict": "pass",
-              "expected": "meta vollständig",
-              "actual": "ok"
-            }
-          ],
-          "durationMs": 0
-        },
-        {
-          "layer": "S2",
-          "verdict": "pass",
-          "criteria": [
-            {
-              "id": "S2-2d-parse",
-              "verdict": "pass",
-              "expected": "2D-Datenpfad (Import aus 2d-*)",
-              "actual": "2d-Import gefunden (Lib im Vendor, Modul liefert Daten)"
-            },
-            {
-              "id": "S2-2d-typ",
-              "verdict": "pass",
-              "expected": "diagram.kind in [er|bpmn|etl|uml|bars|chain|svg|generic]",
-              "actual": "etl erlaubt"
-            },
-            {
-              "id": "S2-2d-parse-svg",
-              "verdict": "pass",
-              "expected": "Vendor-Render wohlgeformt",
-              "actual": "1683 Zeichen SVG"
-            },
-            {
-              "id": "S2-2d-pixel",
-              "verdict": "pass",
-              "expected": ">= 4 SVG-Formelemente (gerendert)",
-              "actual": "15 Shapes im Vendor-Render"
-            },
-            {
-              "id": "S2-2d-wellformed",
-              "verdict": "pass",
-              "expected": "kein <script>, keine Fremd-URL im Modul",
-              "actual": "sauber"
-            }
-          ],
-          "durationMs": 0
-        },
-        {
-          "layer": "S3",
-          "verdict": "pass",
-          "screenshot": "dist-2d/dup-3.png",
-          "criteria": [
-            {
-              "id": "S3-screenshot",
-              "verdict": "pass",
-              "expected": "Screenshot > 0 Bytes",
-              "actual": "dist-2d/dup-3.png: 9087 Bytes"
-            },
-            {
-              "id": "S3-nonempty",
-              "verdict": "pass",
-              "expected": "nonEmpty=true (2D-Pixel-Gate)",
-              "actual": "2D-Screenshot vorhanden, 9087 Bytes"
-            }
-          ],
-          "durationMs": 0
-        },
-        {
-          "layer": "S4",
-          "verdict": "pass",
-          "criteria": [
-            {
-              "id": "S4-2d-nodes",
-              "verdict": "pass",
-              "expected": "<= 800 SVG-Knoten (S4-light)",
-              "actual": "15 Shapes (Vendor-Render)"
-            },
-            {
-              "id": "S4-2d-module",
-              "verdict": "pass",
-              "expected": "<= 34000 Bytes",
-              "actual": "1169 Bytes"
-            }
-          ],
-          "durationMs": 0
-        },
-        {
-          "layer": "S5",
-          "verdict": "pass",
-          "criteria": [
-            {
-              "id": "S5-manifest",
-              "verdict": "pass",
-              "expected": "Manifest ok",
-              "actual": "labels=4 mess=1"
-            },
-            {
-              "id": "S5-pflicht",
-              "verdict": "pass",
-              "expected": ">=2 Ziele, >=3 Labels, >=1 Messung",
-              "actual": "2 Ziele, 4 Labels, 1 Messungen"
-            },
-            {
-              "id": "S5-basis-labels-max5",
-              "verdict": "pass",
-              "expected": "Basis-Patch: hoechstens 5 Labels, 0 Messungen",
-              "actual": "max=5 mess=false"
-            },
-            {
-              "id": "S5-aufbau-aufgaben-min2",
-              "verdict": "pass",
-              "expected": "Aufbau enthaelt mindestens 2 Aufgaben",
-              "actual": "2 Aufgaben"
-            },
-            {
-              "id": "S5-profi-transfer-min1",
-              "verdict": "pass",
-              "expected": "Profi enthaelt mindestens 1 Transfer-/Fehlersuche-Aufgabe",
-              "actual": "1 Aufgaben"
-            },
-            {
-              "id": "S5-tasks-verteilung",
-              "verdict": "pass",
-              "expected": "Aufbau>=2, Profi>=1 (Basis beliebig)",
-              "actual": "B/A/P=0/2/1"
-            },
-            {
-              "id": "S5-soll",
-              "verdict": "pass",
-              "expected": "Labels==4, B/A/P=0/2/1",
-              "actual": "Labels=4, B/A/P=0/2/1"
-            },
-            {
-              "id": "S5-deklarativ",
-              "verdict": "pass",
-              "expected": "kein Lernziel-/Aufgabentext im Modulcode",
-              "actual": "sauber"
-            }
-          ],
-          "durationMs": 0
-        }
-      ],
-      "verdict": "gelb",
-      "failed": [],
-      "createdAt": "2026-10-29T00:18:01.829Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.741Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -1276,7 +3430,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "10155 Bytes (green)"
+              "actual": "10386 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -1433,8 +3587,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.833Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.744Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "3d"
       },
@@ -1458,7 +3612,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "21964 Bytes (green)"
+              "actual": "22428 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -1516,7 +3670,7 @@
               "actual": "22 Meshes statisch (Mesh 5 + Instanced 17)"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -1527,7 +3681,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 21964 Bytes vs Beleg 20892 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 22428 Bytes vs Beleg 20892 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1546,13 +3700,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21964 Bytes vs Beleg 20892 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 22428 Bytes vs Beleg 20892 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 21964 Bytes vs Beleg 20892 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 22428 Bytes vs Beleg 20892 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1615,8 +3769,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.837Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.748Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "3d"
       },
@@ -1640,7 +3794,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "15757 Bytes (green)"
+              "actual": "16183 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -1709,7 +3863,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 15757 Bytes vs Beleg 15423 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 16183 Bytes vs Beleg 15423 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1728,13 +3882,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15757 Bytes vs Beleg 15423 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 16183 Bytes vs Beleg 15423 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 15757 Bytes vs Beleg 15423 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 16183 Bytes vs Beleg 15423 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1797,8 +3951,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.840Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.751Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "3d"
       },
@@ -1822,7 +3976,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "13765 Bytes (green)"
+              "actual": "14125 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -1880,7 +4034,7 @@
               "actual": "14 Meshes statisch (Mesh 8 + Instanced 6)"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -1891,7 +4045,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 13765 Bytes vs Beleg 12903 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 14125 Bytes vs Beleg 12903 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1910,13 +4064,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13765 Bytes vs Beleg 12903 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14125 Bytes vs Beleg 12903 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 13765 Bytes vs Beleg 12903 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 14125 Bytes vs Beleg 12903 Bytes)"
             }
           ],
           "durationMs": 0
@@ -1979,8 +4133,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.842Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.753Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "3d"
       },
@@ -2004,7 +4158,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "10457 Bytes (green)"
+              "actual": "10759 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -2073,7 +4227,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 10457 Bytes vs Beleg 10270 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 10759 Bytes vs Beleg 10270 Bytes)"
             }
           ],
           "durationMs": 0
@@ -2092,13 +4246,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10457 Bytes vs Beleg 10270 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10759 Bytes vs Beleg 10270 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10457 Bytes vs Beleg 10270 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 10759 Bytes vs Beleg 10270 Bytes)"
             }
           ],
           "durationMs": 0
@@ -2161,8 +4315,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-29T00:18:01.843Z",
-      "buildHash": "69155f1d7875573333e574dfa9dd2cd64c01b81e19245d2ac61d1e5f5ccd67fa",
+      "createdAt": "2026-10-30T19:28:07.754Z",
+      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
       "route": {
         "mode": "3d"
       },

@@ -95,7 +95,7 @@ export function exportEntry(lib, id) {
   const e = getEntry(lib, id);
   if (!e) throw Object.assign(new Error('E-LIB-NOTFOUND: Eintrag fehlt'), { code: 'E-LIB-NOTFOUND' });
   const head = [
-    `// SkillSpark-Modellbibliothek: ${e.id} (Rev ${e.rev}, ${e.kind})`,
+    `// ModelMuse-Modellbibliothek: ${e.id} (Rev ${e.rev}, ${e.kind})`,
     `// Titel: ${e.title} | Anbieter: ${e.providerId} | Modell: ${e.modelId}`,
     `// Export: ${new Date().toISOString()} — kein Key enthalten.`,
     '',

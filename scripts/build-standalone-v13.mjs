@@ -1,6 +1,6 @@
 /**
  * Standalone builder v13 (the only release artifact, GitHub Pages-ready):
- * Upgrades dist-standalone/skillspark-standalone.html from v12-guide to v13.
+ * Upgrades dist-standalone/modelmuse-standalone.html from v12-guide to v13.
  * Uses the current file as its v12-guide-stamped base; reruns are idempotent.
  * A rerun exits when it finds the v13 build stamp.
  *
@@ -27,7 +27,7 @@
  */
 import { readFile, writeFile } from 'node:fs/promises';
 
-const FILE = process.argv[2] ?? 'dist-standalone/skillspark-standalone.html';
+const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const REPORT = process.argv[2] ? null : 'dist-standalone/build-standalone-v13-report.json';
 
 function must(cond, msg) {
@@ -369,7 +369,7 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
   const urlOld = `https://openrouter.ai/api/v1/chat/completions`;
   must(s.split(urlOld).length - 1 === 3, 'M6 URL-Zaehler != 3');
   s = s.split(urlOld).join(`https://inference.baseten.co/v1/chat/completions`);
-  const hdr = `headers:{Authorization:"Bearer "+this.genKey,"Content-Type":"application/json","HTTP-Referer":"https://skillspark.local","X-Title":"SkillSpark"}`;
+  const hdr = `headers:{Authorization:"Bearer "+this.genKey,"Content-Type":"application/json","HTTP-Referer":"https://modelmuse.local","X-Title":"ModelMuse"}`;
   must(s.split(hdr).length - 1 === 2, 'M6 Header-Zaehler != 2');
   s = s.split(hdr).join(`headers:{Authorization:"Bearer "+this.genKey,"Content-Type":"application/json"}`);
   console.log('  M6 Endpoint/Header: Baseten');
@@ -398,7 +398,7 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
   must(s.split(anchor).length - 1 === 1, 'M6 Modify-Source-Anker fehlt');
   s = s.replace(anchor, `var src=(lab&&(lab._source||lab.source))||null;if(!src){try{src=(window.__SOURCES||{})[lab.id]||null;}catch(eSrc){}}`);
   must(!s.includes('openModify:function'), 'M6 openModify schon vorhanden');
-  const methods = `openModify:function(id){try{this.selectLab(id);}catch(e){this.activeLabId=id;}try{var k=sessionStorage.getItem("skillspark-proxy-key");if(k&&!this.genKey){this.genKey=k;}}catch(e2){}this.modOverlay=true;this.modStatus="";this.modStatusBad=false;},\ncloseModify:function(){this.modOverlay=false;},\nsubmitModify:function(){if(!this.genKey){this.modStatus=this.t('keyMissing');this.modStatusBad=true;try{var el=document.getElementById('gen-key');if(el){el.scrollIntoView({block:"center"});el.focus();}}catch(e){}return;}this.modify();},`;
+  const methods = `openModify:function(id){try{this.selectLab(id);}catch(e){this.activeLabId=id;}try{var k=sessionStorage.getItem("modelmuse-proxy-key");if(k&&!this.genKey){this.genKey=k;}}catch(e2){}this.modOverlay=true;this.modStatus="";this.modStatusBad=false;},\ncloseModify:function(){this.modOverlay=false;},\nsubmitModify:function(){if(!this.genKey){this.modStatus=this.t('keyMissing');this.modStatusBad=true;try{var el=document.getElementById('gen-key');if(el){el.scrollIntoView({block:"center"});el.focus();}}catch(e){}return;}this.modify();},`;
   // No closeModify method exists yet; append the methods after dismissGenNotice.
   const dAnchor = `dismissGenNotice:function(){try{if(this.genNoticeTimer){clearTimeout(this.genNoticeTimer);}}catch(e){}this.genNoticeTimer=null;this.genNotice=null;},`;
   must(s.split(dAnchor).length - 1 === 1, 'M6 Methoden-Anker fehlt');
@@ -443,9 +443,9 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
   const litT = [
     [`labs:"Labs",noResults:"Keine Labs gefunden. Passe deine Suche an."`, `labs:"Modelle",noResults:"Keine Modelle gefunden. Passe deine Suche an."`],
     [`labs:"Labs",noResults:"No labs found. Adjust your search."`, `labs:"Models",noResults:"No models found. Adjust your search."`],
-    [`onboarding:"Willkommen bei SkillSpark! Wähle links ein Lab oder generiere ein eigenes Modell."`, `onboarding:"Willkommen bei SkillSpark! Wähle links ein Modell oder generiere ein eigenes Modell."`],
-    [`onboarding:"Welcome to SkillSpark! Pick a lab on the left or generate your own model."`, `onboarding:"Welcome to SkillSpark! Pick a model on the left or generate your own model."`],
-    [`onboarding:"\\u00a1Bienvenido a SkillSpark! Elige un laboratorio a la izquierda o genera tu propio modelo."`, `onboarding:"\\u00a1Bienvenido a SkillSpark! Elige un modelo a la izquierda o genera tu propio modelo."`],
+    [`onboarding:"Willkommen bei ModelMuse! Wähle links ein Lab oder generiere ein eigenes Modell."`, `onboarding:"Willkommen bei ModelMuse! Wähle links ein Modell oder generiere ein eigenes Modell."`],
+    [`onboarding:"Welcome to ModelMuse! Pick a lab on the left or generate your own model."`, `onboarding:"Welcome to ModelMuse! Pick a model on the left or generate your own model."`],
+    [`onboarding:"\\u00a1Bienvenido a ModelMuse! Elige un laboratorio a la izquierda o genera tu propio modelo."`, `onboarding:"\\u00a1Bienvenido a ModelMuse! Elige un modelo a la izquierda o genera tu propio modelo."`],
     [`searchPlaceholder:"Labs suchen …"`, `searchPlaceholder:"Modelle suchen …"`],
     [`searchPlaceholder:"Search labs …"`, `searchPlaceholder:"Search models …"`],
     [`searchPlaceholder:"Buscar laboratorios \\u2026"`, `searchPlaceholder:"Buscar modelos \\u2026"`],
@@ -460,9 +460,9 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
     s = s.replace(a, b);
   }
   // Update the genDetails paragraph; M6b already changed its URL to Baseten.
-  const gd = `OpenRouter-Direkt: POST https://inference.baseten.co/v1/chat/completions · Modelle meta/muse-spark-1.3-contributor (Default) + google/gemma-4-26b-a4b-it:free (Fallback) · Timeout 120 s · Key nur sessionStorage (skillspark-proxy-key).`;
+  const gd = `OpenRouter-Direkt: POST https://inference.baseten.co/v1/chat/completions · Modelle meta/muse-spark-1.3-contributor (Default) + google/gemma-4-26b-a4b-it:free (Fallback) · Timeout 120 s · Key nur sessionStorage (modelmuse-proxy-key).`;
   must(s.split(gd).length - 1 === 1, 'M6 genDetails-Absatz fehlt');
-  s = s.replace(gd, `Baseten-Direkt: POST https://inference.baseten.co/v1/chat/completions · Modell meta-models/muse-spark-open-1026 · Timeout 120 s · Key nur sessionStorage (skillspark-proxy-key).`);
+  s = s.replace(gd, `Baseten-Direkt: POST https://inference.baseten.co/v1/chat/completions · Modell meta-models/muse-spark-open-1026 · Timeout 120 s · Key nur sessionStorage (modelmuse-proxy-key).`);
   // Replace unused proxy and Muse hints so they do not contradict the no-proxy flow.
   const deadT = [
     [`proxyHint:"Der Proxy läuft lokal. Starte ihn bei Bedarf mit npm run proxy."`, `proxyHint:"Kein Proxy nötig. Der Aufruf geht direkt an Baseten."`],
@@ -542,14 +542,14 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
 {
   const htmlOpen = `<html lang="de" class="dark">\n<head>`;
   must(s.split(htmlOpen).length - 1 === 1, 'M8 html-Anker fehlt');
-  s = s.replace(htmlOpen, `<html lang="de">\n<head>\n<script>\n/*SkillSpark Theme-Init: Systemeinstellung (prefers-color-scheme) als Default, gespeicherte Wahl gewinnt (Toggle bleibt).*/\ntry{var __ssTheme=null;try{__ssTheme=localStorage.getItem("skillspark.theme");}catch(eSS){}if(__ssTheme!=="light"&&__ssTheme!=="dark"){__ssTheme=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark";}if(__ssTheme==="dark"){document.documentElement.classList.add("dark");}else{document.documentElement.classList.remove("dark");}}catch(eSS2){}\n</script>`);
+  s = s.replace(htmlOpen, `<html lang="de">\n<head>\n<script>\n/*ModelMuse Theme-Init: Systemeinstellung (prefers-color-scheme) als Default, gespeicherte Wahl gewinnt (Toggle bleibt).*/\ntry{var __ssTheme=null;try{__ssTheme=localStorage.getItem("modelmuse.theme");}catch(eSS){}if(__ssTheme!=="light"&&__ssTheme!=="dark"){__ssTheme=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark";}if(__ssTheme==="dark"){document.documentElement.classList.add("dark");}else{document.documentElement.classList.remove("dark");}}catch(eSS2){}\n</script>`);
   console.log('  M8 Theme-Init: Systemdefault + Toggle');
   const dataTheme = `lang:"de",theme:"dark",search:""`;
   must(s.split(dataTheme).length - 1 === 1, 'M8 Data-Theme-Anker fehlt');
-  s = s.replace(dataTheme, `lang:"de",theme:(function(){try{var __t=null;try{__t=localStorage.getItem("skillspark.theme");}catch(eT){}if(__t==="light"||__t==="dark")return __t;if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches)return "light";return "dark";}catch(eT2){return "dark";}})(),search:""`);
-  const mountTheme = `var th=localStorage.getItem("skillspark.theme");if(th==="light"||th==="dark"){this.theme=th;}var prog=localStorage.getItem("skillspark.progress");if(prog){var p=JSON.parse(prog);if(p.taskState){this.taskState=p.taskState;}}`;
+  s = s.replace(dataTheme, `lang:"de",theme:(function(){try{var __t=null;try{__t=localStorage.getItem("modelmuse.theme");}catch(eT){}if(__t==="light"||__t==="dark")return __t;if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches)return "light";return "dark";}catch(eT2){return "dark";}})(),search:""`);
+  const mountTheme = `var th=localStorage.getItem("modelmuse.theme");if(th==="light"||th==="dark"){this.theme=th;}var prog=localStorage.getItem("modelmuse.progress");if(prog){var p=JSON.parse(prog);if(p.taskState){this.taskState=p.taskState;}}`;
   must(s.split(mountTheme).length - 1 === 1, 'M8 Mounted-Anker fehlt');
-  s = s.replace(mountTheme, `var th=localStorage.getItem("skillspark.theme");if(th==="light"||th==="dark"){this.theme=th;}else{try{if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches){this.theme="light";}else{this.theme="dark";}}catch(eTh){}}`);
+  s = s.replace(mountTheme, `var th=localStorage.getItem("modelmuse.theme");if(th==="light"||th==="dark"){this.theme=th;}else{try{if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches){this.theme="light";}else{this.theme="dark";}}catch(eTh){}}`);
   console.log('  M8 Theme-Data/Mounted: Systemdefault');
 }
 // M8b: Fortschrittsleiste rechts oben restlos entfernen (Markup + JS + Key).
@@ -557,7 +557,7 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
   const progBox = `{{t('light')}}</button>\n</div>\n<div class="flex items-center gap-2 min-w-[220px] flex-1 sm:flex-none sm:min-w-[260px] rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2">\n</div>\n</div>\n</header>`;
   must(s.split(progBox).length - 1 === 1, 'M8 Progress-Box-Anker fehlt');
   s = s.replace(progBox, `{{t('light')}}</button>\n</div>\n</div>\n</header>`);
-  const saveProg = `saveProgress:function(){try{localStorage.setItem("skillspark.progress",JSON.stringify({taskState:this.taskState}));}catch(e){}},\n`;
+  const saveProg = `saveProgress:function(){try{localStorage.setItem("modelmuse.progress",JSON.stringify({taskState:this.taskState}));}catch(e){}},\n`;
   must(s.split(saveProg).length - 1 === 1, 'M8 saveProgress-Anker fehlt');
   s = s.replace(saveProg, '');
   const checkSave = `this.taskState[task.id]={status:status};this.saveProgress();},`;
@@ -576,7 +576,7 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
 // ---------- M7: Update title and stamp, then validate invariants and write the report ----------
 {
   const t = [
-    [`<title>SkillSpark Generator 3D-Viewer v12-guide</title>`, `<title>SkillSpark Modelle v13-standalone (GitHub-Pages)</title>`],
+    [`<title>ModelMuse Generator 3D-Viewer v12-guide</title>`, `<title>ModelMuse Modelle v13-standalone (GitHub-Pages)</title>`],
     [`viewerBadge:"3D-Viewer v12-guide"`, `viewerBadge:"Modelle v13-standalone"`],
     [`viewerBadge:"3D Viewer v12-guide"`, `viewerBadge:"Models v13-standalone"`],
     [`viewerBadge:"Visor 3D v12-guide"`, `viewerBadge:"Modelos v13-standalone"`],
@@ -599,7 +599,7 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
     ["{{t(\"learnMode\")}}", 0], ["{{t('level')}}", 0], ['goalOne', 0], ['learnMode', 0],
     ['<html lang="de" class="dark">', 0], ['<html lang="de">', 1],
     ['theme:"dark"', 0], ['prefers-color-scheme', 4],
-    ['min-w-[220px]', 0], ['saveProgress', 0], ['skillspark.progress', 0],
+    ['min-w-[220px]', 0], ['saveProgress', 0], ['modelmuse.progress', 0],
     ['gen-progress', 0], ['id="gen-status"', 1],
     ['Fortschritt', 0], ['fortschritt', 0],
     ['mt-2 w-full inline-flex', 0],

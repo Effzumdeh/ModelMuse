@@ -1,4 +1,4 @@
-Arbeitsverzeichnis: C:/Users/flori/OneDrive/skillSpark. Minimal invasiv, genau EIN Thema.
+Arbeitsverzeichnis: C:/Users/flori/OneDrive/modelMuse. Minimal invasiv, genau EIN Thema.
 
 THEMA (Backlog A-10, Stand 27.10.2026 abends, Orchestrator-verifiziert):
 - Vorabgenerierung laeuft ueber muse.exe (scripts/_gen-one.mjs, MODEL fix
