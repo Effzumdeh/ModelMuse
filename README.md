@@ -35,10 +35,9 @@ It is submitted in the Indie Developer Track by a FernUniversitaet Hagen student
 
 ## Live Demo
 
-> TODO: publish `dist-standalone/modelmuse-standalone.html` via GitHub Pages.
-> Planned URL: `https://<user>.github.io/ModelMuse/` (placeholder — replace `<user>` with the actual GitHub username once the repository is public).
+Try it live: [https://effzumdeh.github.io/ModelMuse/](https://effzumdeh.github.io/ModelMuse/) — serves `dist-standalone/modelmuse-standalone.html` via GitHub Pages (deployed automatically from `main` by `.github/workflows/pages.yml`).
 
-Until then, run the app locally (see Quickstart below) or open the release file through any static web server.
+Alternatively, run the app locally (see Quickstart below) or open the release file through any static web server.
 
 ## Quickstart
 
