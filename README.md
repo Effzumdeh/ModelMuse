@@ -1,95 +1,92 @@
-# SkillSpark Lab-Player
+# SkillSpark Models — Standalone Release
 
-Single-Page-Wrapper fuer generierte Lehr-Labs (three.js 3D + leichte 2D-Diagramme).
-Offline-faehig, Single-File-Artefakt (`dist/lab-player.html`), Standalone-Variante
-(`dist-standalone/skillspark-standalone.html`).
+SkillSpark is a static single-page application. The only release artifact is
+[`dist-standalone/skillspark-standalone.html`](dist-standalone/skillspark-standalone.html).
+It can be hosted on GitHub Pages or another static host; users do not need to
+build the project or run a backend. The application requires a network connection
+for its four CDN references: three.js 0.186.1, Vue 3, Tailwind CSS Play CDN, and
+Inter. See the [license and attribution audit](docs/LIZENZEN.md).
 
-> **Standalone-Hinweis (korrigiert 29.10.2026):** Das Standalone-Artefakt ist **nicht**
-> autark. Es referenziert vier Fremd-Komponenten per CDN (three.js 0.186.1, Vue 3,
-> Tailwind CSS Play CDN, Inter-Font via Google Fonts) und benoetigt daher Netz.
-> Es **buendelt** dagegen keine Fremd-Bibliothek. Details + Versionsstände:
-> [`docs/LIZENZEN.md`](docs/LIZENZEN.md). Das Hauptartefakt `dist/lab-player.html`
-> ist dagegen vollstaendig CDN-frei (`npm run verify:dist` prueft das).
+Runtime generation and revision use a direct browser request to
+`https://inference.baseten.co/v1/chat/completions`, with model
+`meta-models/muse-spark-open-1026`. Users supply their own API key (BYOK); the
+key is stored only in `sessionStorage`. No local proxy port is required, and no
+proxy starts automatically.
 
-## Lizenzen & Attribution
+**Kurzstatus 30.10.2026 (v15a):** Standalone-Artefakt mit 10 Modellen
+(5× 3D: `si-1`, `gpu-example`, `free-handbohrmaschine`, `chemie-koffein`,
+`arch-brandenburger-tor` + 5× 2D-Vendor-Engines: `demo-2d-svg/mermaid/chart/d3/katex`),
+378 KB, Single-File, 5 CDN-Abhängigkeiten (Vue, Three.js, OrbitControls, Tailwind, Inter),
+0 lokale Referenzen. Baseten-BYOK-Direktaufruf, kein lokaler Proxy nötig.
+`npm run build:standalone` → `scripts/build-standalone-v15a.mjs`, idempotent.
+Aktuelle Inventur: [`docs/INVENTUR-2026-10-30.md`](docs/INVENTUR-2026-10-30.md).
+Bereinigt 30.10.2026 (Tag `v15a-basis-vor-bereinigung`): 30 2D-Quellen versioniert,
+`node_modules/`, `dist/manual-tests/`, `cache/`, Legacy-Tarballs, alte Proxy-E2E-Skripte
+und Root-Backups entfernt (~105 MB frei, 140 MB → 35 MB). Build danach verifiziert.
 
-Vollstaendiges Audit (Paket, Version, Lizenz, Beleg, Hackathon-Tauglichkeit,
-Attributions-Texte, offene Punkte): [`docs/LIZENZEN.md`](docs/LIZENZEN.md).
+> The earlier 12-model v13 baseline is preserved in the German source archive
+> at [`docs/source-de/STANDALONE-REPORT-2026-10-29.md`](docs/source-de/STANDALONE-REPORT-2026-10-29.md).
+> Do not use that historical report as evidence that the current artifact
+> contains 12 models. See the current
+> [standalone report](dist-standalone/STANDALONE-REPORT-2026-10-29.md).
+>
+> The former `dist/lab-player.html` artifact has been retired and deleted.
+> `src/` and `scripts/` remain development and harness tools. The verification
+> command is `npm run verify:all`, which gates the standalone artifact.
+>
+> **Publication hold resolved 29.10.2026:** `npm run test:unit` passes 148/148
+> (13 model sources restored + new `arch-brandenburger-tor`, matrix in sync). The browser
+> suite covers the 5 showcase models; see the current
+> [showcase report](dist-standalone/SHOWCASE-REPORT-2026-10-29.md).
 
-Kurzfassung: Das Projekt verwendet ausschliesslich **MIT**, **Apache-2.0**, **ISC**
-und **SIL OFL 1.1** lizenzierte Komponenten — **keine NC-/ND-/proprietaeren Assets**.
-Eingebettet (Artefakt `dist/lab-player.html`): **three.js 0.186.1** und
-**Alpine.js 3.17.5** (beide MIT, inkl. `@vue/shared`/`@vue/reactivity` 3.5.41).
-Nur Werkzeug, nicht ausgeliefert: esbuild 0.28.2 (MIT), Playwright 1.64.1
-(Apache-2.0). Nur per CDN referenziert (nur im Standalone): Vue 3, Tailwind CSS
-(beide MIT), Inter (OFL-1.1). Eval-Korpus, nicht ausgeliefert: 3JSBench-Briefings
-(MIT, (c) 2026 General Context).
+## License and attribution
 
-> **Attribution.** Dieses Projekt verwendet bzw. verweist auf folgende Open-Source-Komponenten:
-> **three.js 0.186.1** (MIT, © 2010-2026 three.js authors) — <https://github.com/mrdoob/three.js> ·
-> **Alpine.js 3.17.5** (MIT, © 2019-2025 Caleb Porzio and contributors) — <https://github.com/alpinejs/alpine> ·
-> **@vue/shared 3.5.41** und **@vue/reactivity 3.5.41** (MIT, © 2018-present Yuxi (Evan) You and Vue contributors) — mitgeliefert innerhalb von Alpine.js ·
-> **esbuild 0.28.2** (MIT, © 2020 Evan Wallace, nur Build-Werkzeug) ·
-> **@playwright/test 1.64.1** / `playwright` / `playwright-core` (Apache-2.0, © Microsoft Corporation, nur Test-Werkzeug; enthält Code aus dem Puppeteer-Projekt, Apache-2.0) ·
-> **Tailwind CSS** (MIT, © Tailwind Labs, Inc., CDN-Referenz im Standalone-Artefakt) ·
-> **Inter** (SIL Open Font License 1.1, © 2016 The Inter Project Authors, CDN-Referenz im Standalone-Artefakt) ·
-> **Vue 3** (MIT, © 2018-present Yuxi (Evan) You and Vue contributors, CDN-Referenz im Standalone-Artefakt) ·
-> **3JSBench Task-Briefings** (MIT, © 2026 General Context — <https://github.com/GeneralContext/3jsbench>, Eval-Korpus, 100 Briefings).
-> Vollständige Lizenztexte, Herkunftsnachweise und die Abgrenzung „eingebettet vs. nur referenziert" stehen in [`docs/LIZENZEN.md`](docs/LIZENZEN.md).
+The full component inventory, license evidence, attribution text, and open items
+are documented in [`docs/LIZENZEN.md`](docs/LIZENZEN.md). The evaluated
+components use MIT, Apache-2.0, ISC, or SIL Open Font License 1.1 terms. The
+standalone artifact references its CDN components; it does not bundle their
+libraries. This statement does not determine the license for SkillSpark's own
+code: the repository still requires an owner decision on its project license.
 
-## Modelle (Meta-Regel, verbindlich)
+## Model and provider policy
 
-Jeder Modell-Call zur Laufzeit laeuft ueber den **Proxy-Default
-`meta-muse/muse-spark-1.3-contributor`**. Das gilt auch fuer 2D und Router:
+- The default Muse model for development generation is
+  `muse-spark-1.3-contributor`. Requests leave provider and model unset unless
+  the user explicitly selects an alternative and supplies their own key.
+- The standalone release uses the Baseten direct path described above. It does
+  not use a local proxy by default.
+- The historical 2D source modules use static SVG data from
+  `src/vendor/diagram-2d.js`; they do not require a runtime model call. They are
+  not bundled in the current EMPTY-STAND artifact.
 
-- `routeGeneration()` (`src/runtime/livegen.js`): laesst `provider`/`model`
-  unbelegt → Proxy-Default. Fremdmodelle nur explizit per Opts + BYOK-Key,
-  nie als Default.
-- `prompts/p0-router.txt`, `prompts/p1-generate-2d.txt`: pinnen den
-  Meta-Default im Promptkopf (`Kein Fremdmodell als Default`).
-- Baseten-Pfad (`scripts/proxy.mjs` -> `https://inference.baseten.co/v1`, Modell
-  `meta-models/muse-spark-open-1026`): nur explizit + BYOK (nie Server-Key).
-- 2D-Module brauchen zur Laufzeit **gar kein Modell** (statisches SVG aus
-  `src/vendor/diagram-2d.js`).
+## Historical 2D model sources
 
-Test-Pin: `tests-unit/router-2d.test.mjs` (`Meta-Regel im P0-Prompt`).
+- The previous 12-model baseline included `dup-1`–`dup-3` and `ae-1`–`ae-3` as
+  SVG data modules. Das v15a-Artefakt bündelt 5 2D-Demo-Modelle
+  (`demo-2d-svg/mermaid/chart/d3/katex`); `dup-*`/`ae-*`/`si-2`/`si-3` liegen nur in `src/`.
+- The source implementation uses the `2d-svg` vendor specification. SVG
+  verification checks parsing, pixels, and the type allowlist when models are
+  present.
+- See [`docs/ROUTER-KONZEPT.md`](docs/ROUTER-KONZEPT.md) for the routing design
+  and [`docs/2D-UMSTELLUNG-2026-10-28.md`](docs/2D-UMSTELLUNG-2026-10-28.md)
+  for historical implementation evidence.
 
-## 2D-Pfad (leichtgewichtig)
+## Development checks
 
-- 6 Labs als Datenmodule (SVG nativ, 0 externe Bytes): `dup-1..3`, `ae-1..3`
-  (`export const diagram` + `meta_2d`, Render via Vendor-Spec `2d-svg`).
-- Vendor-Prinzip: Lib in `src/vendor/diagram-2d.js`, Modul liefert nur Daten.
-- Verify-2D-Gates (`src/runtime/verify.js::verifySvgLayer`): parse + pixel +
-  Typ-Whitelist. Belege: `dist-2d/*.png`, `dist-2d/shot-2d-report.json`.
-- Router-Beispiele: `dist-2d/router-2d-log.json`
-  (`node scripts/router-2d-log.mjs`).
-- Doku: `docs/2D-UMSTELLUNG-2026-10-28.md` (Umsetzungsbeleg),
-  `docs/ROUTER-KONZEPT.md` (P0-Spec), `docs/2D-STACK-EVAL.md` (Lib-Eval).
+- `npm run build:standalone` builds the v15a release artifact.
+- `npm run verify:standalone` checks the artifact's release invariants.
+- `npx playwright test tests/standalone.spec.mjs` runs the standalone browser
+  suite.
+- `npm run test:unit` runs the Node.js unit tests.
+- `npm run verify:all` runs the model verification gates and checks the
+  standalone artifact.
 
-## Demo (180 s, ohne Generierung)
+The legacy `build`, `render`, and `verify:dist` scripts remain development
+utilities; they do not produce the release artifact.
 
-`node scripts/demo-timed.mjs [port]` — F2-Pfad mit vorbereitetem Modell,
-**kein Modell-Call** (Meta-Regel sichtbar in `dist/demo-timed.json`,
-Feld `bemerkung`). Ergebnis: `dist/demo-timed.json`.
+## 3D implementation guide
 
-## Pruefung
-
-- `npm run test:unit` — Node-Tests (u. a. Router/2D, Guards, Matrix).
-- `npm run build && npm run render && npm run verify:all` — Build, Artefakt,
-  Verify S1–S5 (2D: S2-light, S3 aus `dist-2d`, S4-light).
-- `npm test` — Playwright-Suiten (u. a. S3-Matrix mit 2D-Baselines).
-
-## 3D-Kernsanierung (6 Modelle, 28.10.2026)
-
-Kuratiert nach `docs/implementation-guide-3d-qualitaet.md` (IBL-Raum,
-4 Lichter, PCFShadowMap, DPR-Cap, Negativ-Liste), Harness-Loop max 2+1:
-`gpu-example`, `si-1`, `si-2`, `si-3`, `free-handbohrmaschine`
-(kuratiert aus Standalone-Embed), `chemie-koffein` (neu, C8H10N4O2,
-24 Atome, 9.648 Tris Geometrie-Summe, Maßstab 1 Å ≙ 10 mm, in mm
-gemessen, Budgets 150k Tris / 400 Calls).
-
-Belege: `dist/verify-report.json`, `dist/harness-6modelle.jsonl`,
-`dist/final-budgets-6modelle.json`,
-`dist-standalone/proof-<id>-{overview,detail}.png` +
-`dist-standalone/proof-6modelle.json`
-(Generator: `node scripts/_tmp/proof-6modelle.mjs`).
+The model-source implementation guidance and its evidence are maintained in
+[`docs/implementation-guide-3d-qualitaet.md`](docs/implementation-guide-3d-qualitaet.md).
+The guide specifies the r186 API pin, image-based lighting, shadow configuration,
+texture conventions, geometry budgets, and verification workflow.
