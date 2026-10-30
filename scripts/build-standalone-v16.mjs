@@ -8,10 +8,11 @@
  *     modify/submitModify/closeModify, modOverlay, Stift-Buttons) bleibt
  *     unangetastet — nur die Anzeige (aria-label="modify"-Section) faellt weg.
  * U2  Im Modify-Pop-in (modOverlay) je Modell einen Loeschen-Button ergaenzen:
- *     nur fuer eigene Modelle (free-*-IDs) sichtbar, mit Rueckfrage
+ *     fuer JEDE Lab-ID sichtbar (kein free-*-Gate), mit Rueckfrage
  *     (window.confirm), aktualisiert State (labs-Array, activeLabId, Overlay
  *     zu) + Liste (localStorage-Eintrag modelmuse.free.* entfernen, Liste
- *     rendert reaktiv neu). Neue Methode deleteLab + I18N-Keys de/en/es.
+ *     rendert reaktiv neu; Leerzustand: activeLab-Fallback + syncViewer).
+ *     Neue Methode deleteLab + I18N-Keys de/en/es.
  * U3  Referenzbericht-Block entfernen (Template-Doppelsection + Computed
  *     verifyBadges + verifyTitle-Keys de/en/es); Build-/Verify-Logik sonst
  *     unberuehrt.
@@ -33,11 +34,94 @@ function must(cond, msg) {
 }
 const cnt = (s, sub) => s.split(sub).length - 1;
 
+// Universelles Loeschen (kein free-*-Sonderfall): exakte Alt-/Neu-Texte,
+// gemeinsam genutzt von Erstaufbau (U2) und idempotenter v16-Migration.
+const DELETE_GATE_OLD = `<div v-if="activeLab.id&&activeLab.id.indexOf('free-')===0" class="mt-2 flex flex-wrap gap-2">`;
+const DELETE_GATE_NEW = `<div class="mt-2 flex flex-wrap gap-2">`;
+const DELETE_GUARD_OLD = `if(!lab||!lab.id||lab.id.indexOf("free-")!==0){return;}`;
+const DELETE_GUARD_NEW = `if(!lab||!lab.id){return;}`;
+const DELETE_EMPTY_OLD = `}else{this.activeLabId=null;}},`;
+const DELETE_EMPTY_NEW = `}else{this.activeLabId=null;try{this.syncViewer();}catch(e4){}}},`;
+const DELETE_METHOD_NEW = `closeModify:function(){this.modOverlay=false;},deleteLab:function(){var lab=this.activeLab;if(!lab||!lab.id){return;}var ok=true;try{ok=window.confirm(this.t('deleteConfirm'));}catch(e){ok=true;}if(!ok){return;}var id=lab.id;var at=-1;for(var i=0;i<this.labs.length;i++){if(this.labs[i].id===id){at=i;break;}}if(at>=0){this.labs.splice(at,1);}try{localStorage.removeItem("modelmuse.free."+id);}catch(e2){}this.modOverlay=false;this.modStatus="";this.modStatusBad=false;var nx=this.labs[0]||null;if(nx){try{this.selectLab(nx.id);}catch(e3){this.activeLabId=nx.id;}}else{this.activeLabId=null;try{this.syncViewer();}catch(e4){}}},`;
+
+function checkInvariants(s) {
+  const inv = [
+    ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', 0], ['OpenRouter', 0],
+    ['aria-label="modify"', 0], ['id="mod-desc"', 0], ['@click="modify"', 0],
+    ['id="mod-desc2"', 1], ['@click="openModify', 1], ['modify:async function', 1], ['submitModify:function', 1], ['closeModify:function', 1],
+    ['deleteLab', 6], ['deleteConfirm', 4],
+    ['v-if="activeLab.id&&activeLab.id.indexOf(\'free-\')===0"', 0],
+    ['lab.id.indexOf("free-")!==0){return;}', 0],
+    ['this.activeLabId=null;try{this.syncViewer();}', 1],
+    ['verifyBadges', 0], ['verifyTitle', 0], ["{{t('verifyTitle')}}", 0],
+    ['detailsTitle', 0], ["{{t('detailsTitle')}}", 0], ['measurementsTitle', 0], ['labelsTitle', 0],
+    ['v-if="showOnboarding"', 1],
+    ['shrink-0 inline-flex items-center justify-center rounded-xl border', 1],
+    ['role="dialog"', 2], ['id="gen-status"', 1], ['showcase: 5 Modelle', 1],
+    ['Fortschritt', 0], ['fortschritt', 0],
+    ['explanations:{de:[', 10], ['openPartInfo', 2], ['closePartInfo', 2], ['partInfoIndex', 7],
+    ['partInfoTitle', 5], ['partInfoAbout', 5], ['partExplanations', 2], ['partInfoMissing', 4],
+    ['v-if="partInfoIndex!==null"', 1], ['genClose:"Cerrar"', 1],
+  ];
+  for (const [sub, want] of inv) must(cnt(s, sub) === want, `Invariante ${sub}: ${cnt(s, sub)}, erwartet ${want}`);
+  const iBanner = s.indexOf('v-if="showOnboarding"');
+  const iAside = s.indexOf('<aside');
+  const iViewport = s.indexOf('id="viewport"');
+  must(iBanner > 0 && iAside > 0 && iViewport > 0, 'U5 Positions-Anker fehlen');
+  must(iBanner < iAside && iAside < iViewport, `Banner-Position: Banner@${iBanner}, Aside@${iAside}, Viewport@${iViewport} (erwartet Banner < Aside < Viewport)`);
+  must(s.length < 600000, `Datei zu gross: ${s.length}`);
+  console.log('  Invarianten ok (Banner < Liste < Viewer, universelles Loeschen)');
+}
+
+function writeReport(s) {
+  if (!REPORT) { console.log('build-v16: DRY-RUN ok (kein Report geschrieben)'); return; }
+  const report = {
+    createdAt: new Date().toISOString(),
+    basis: 'v15a-showcase',
+    standalone: 'v16',
+    fixes: ['U1 Modify-Hauptblock raus (Stift-Overlay bleibt)', 'U2 Loeschen-Button im Overlay universell (jede Lab-ID, Rueckfrage, State+Liste, Leerzustand)', 'U3 Referenzbericht raus (Template+Computed+Keys)', 'U4 Details (Messungen/Labels) raus (Template+Keys)', 'U5 Banner unter Menueleiste (ueber Liste+Viewer)'],
+    counts: { zeichen: s.length },
+  };
+  return writeFile(REPORT, JSON.stringify(report, null, 2));
+}
+
 let s = await readFile(FILE, 'utf8');
 console.log(`build-v16: Basis ${s.length} Zeichen`);
 must(s.includes('standalone-build v15a'), 'kein v15a-Stempel (falsche Basis)');
 if (s.includes('standalone-build v16')) {
-  console.log('build-v16: bereits v16 — nichts zu tun (idempotent, exit 0)');
+  // Bereits v16: idempotente Migration auf universelles Loeschen.
+  // Aeltere v16-Artefakte tragen noch Gate/Guard (free-*-Sonderfall);
+  // ohne Gate/Guard ist dies ein No-Op (exit 0).
+  console.log('build-v16: bereits v16 — migriere auf universelles Loeschen ...');
+  let changed = false;
+  if (s.includes(DELETE_GATE_OLD)) {
+    must(cnt(s, DELETE_GATE_OLD) === 1, 'U2-Migration Gate-Anker fehlt/mehrdeutig');
+    s = s.replace(DELETE_GATE_OLD, DELETE_GATE_NEW);
+    changed = true;
+    console.log('  U2-Migration: v-if-Gate (free-*) entfernt');
+  }
+  if (s.includes(DELETE_GUARD_OLD)) {
+    must(cnt(s, DELETE_GUARD_OLD) === 1, 'U2-Migration Guard-Anker fehlt/mehrdeutig');
+    s = s.replace(DELETE_GUARD_OLD, DELETE_GUARD_NEW);
+    changed = true;
+    console.log('  U2-Migration: deleteLab-Guard (free-*) entfernt');
+  }
+  if (s.includes(DELETE_EMPTY_OLD)) {
+    must(cnt(s, DELETE_EMPTY_OLD) === 1, 'U2-Migration Empty-Anker fehlt/mehrdeutig');
+    s = s.replace(DELETE_EMPTY_OLD, DELETE_EMPTY_NEW);
+    changed = true;
+    console.log('  U2-Migration: Leerzustand-Sync (syncViewer) ergaenzt');
+  }
+  checkInvariants(s);
+  if (!changed) {
+    console.log('build-v16: bereits universell — nichts zu tun (idempotent, exit 0)');
+    process.exit(0);
+  }
+  await writeFile(FILE, s);
+  console.log(`build-v16: migriert + geschrieben (${s.length} Zeichen)`);
+  await writeReport(s);
+  console.log('build-v16: OK v16 (universelles Loeschen)');
   process.exit(0);
 }
 must(s.includes('showcase: 5 Modelle'), 'kein Showcase-Stempel (falsche Basis)');
@@ -55,20 +139,19 @@ must(s.includes('showcase: 5 Modelle'), 'kein Showcase-Stempel (falsche Basis)')
   console.log('  U1: Haupt-Block "Modell überarbeiten" entfernt (Overlay/Stift-Logik bleibt)');
 }
 
-// ---------- U2: Loeschen-Button im Modify-Pop-in (nur eigene free-*-Modelle) ----------
+// ---------- U2: Loeschen-Button im Modify-Pop-in (universell, jede Lab-ID) ----------
 {
   const a = `<button type="button" @click="closeModify" class="inline-flex items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-700 px-4 min-h-[44px] text-sm font-semibold">{{t('genClose')}}</button>\n</div>`;
   must(cnt(s, a) === 1, 'U2 Overlay-Button-Anker fehlt/mehrdeutig');
-  const add = `<button type="button" @click="closeModify" class="inline-flex items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-700 px-4 min-h-[44px] text-sm font-semibold">{{t('genClose')}}</button>\n</div>\n<div v-if="activeLab.id&&activeLab.id.indexOf('free-')===0" class="mt-2 flex flex-wrap gap-2">\n<button type="button" @click="deleteLab" class="inline-flex items-center justify-center rounded-xl bg-red-600 text-white px-5 min-h-[44px] text-sm font-semibold transition-all hover:bg-red-500">{{t('deleteLab')}}</button>\n</div>`;
+  const add = `<button type="button" @click="closeModify" class="inline-flex items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-700 px-4 min-h-[44px] text-sm font-semibold">{{t('genClose')}}</button>\n</div>\n${DELETE_GATE_NEW}\n<button type="button" @click="deleteLab" class="inline-flex items-center justify-center rounded-xl bg-red-600 text-white px-5 min-h-[44px] text-sm font-semibold transition-all hover:bg-red-500">{{t('deleteLab')}}</button>\n</div>`;
   s = s.replace(a, add);
-  console.log('  U2: Loeschen-Button im Overlay (v-if free-*)');
+  console.log('  U2: Loeschen-Button im Overlay (universell, jede Lab-ID)');
 }
 {
   const a = `closeModify:function(){this.modOverlay=false;},`;
   must(cnt(s, a) === 1, 'U2 Methoden-Anker fehlt/mehrdeutig');
-  const m = `closeModify:function(){this.modOverlay=false;},deleteLab:function(){var lab=this.activeLab;if(!lab||!lab.id||lab.id.indexOf("free-")!==0){return;}var ok=true;try{ok=window.confirm(this.t('deleteConfirm'));}catch(e){ok=true;}if(!ok){return;}var id=lab.id;var at=-1;for(var i=0;i<this.labs.length;i++){if(this.labs[i].id===id){at=i;break;}}if(at>=0){this.labs.splice(at,1);}try{localStorage.removeItem("modelmuse.free."+id);}catch(e2){}this.modOverlay=false;this.modStatus="";this.modStatusBad=false;var nx=this.labs[0]||null;if(nx){try{this.selectLab(nx.id);}catch(e3){this.activeLabId=nx.id;}}else{this.activeLabId=null;}},`;
-  s = s.replace(a, m);
-  console.log('  U2: deleteLab-Methode (Rueckfrage, State + Liste)');
+  s = s.replace(a, DELETE_METHOD_NEW);
+  console.log('  U2: deleteLab-Methode (Rueckfrage, State + Liste, Leerzustand-Sync)');
 }
 {
   const t = [
@@ -157,48 +240,12 @@ must(s.includes('showcase: 5 Modelle'), 'kein Showcase-Stempel (falsche Basis)')
 {
   const stamp = '<!-- standalone-build v15a (Bestandteil-Info Fallback-Text + es genClose, via scripts/build-standalone-v15a.mjs) -->';
   must(cnt(s, stamp) === 1, 'U5 Stempel-Anker fehlt');
-  s = s.replace(stamp, `${stamp}\n<!-- standalone-build v16 (UI-Stromlinien: Modify-Block raus, Loeschen im Overlay, Referenzbericht raus, Details raus, Banner oben, via scripts/build-standalone-v16.mjs) -->`);
+  s = s.replace(stamp, `${stamp}\n<!-- standalone-build v16 (UI-Stromlinien: Modify-Block raus, Loeschen universell im Overlay, Referenzbericht raus, Details raus, Banner oben, via scripts/build-standalone-v16.mjs) -->`);
   console.log('  Stempel: v16');
 }
-{
-  const inv = [
-    ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', 0], ['OpenRouter', 0],
-    ['aria-label="modify"', 0], ['id="mod-desc"', 0], ['@click="modify"', 0],
-    ['id="mod-desc2"', 1], ['@click="openModify', 1], ['modify:async function', 1], ['submitModify:function', 1], ['closeModify:function', 1],
-    ['deleteLab', 6], ['deleteConfirm', 4],
-    ['verifyBadges', 0], ['verifyTitle', 0], ["{{t('verifyTitle')}}", 0],
-    ['detailsTitle', 0], ["{{t('detailsTitle')}}", 0], ['measurementsTitle', 0], ['labelsTitle', 0],
-    ['v-if="showOnboarding"', 1],
-    ['shrink-0 inline-flex items-center justify-center rounded-xl border', 1],
-    ['role="dialog"', 2], ['id="gen-status"', 1], ['showcase: 5 Modelle', 1],
-    ['Fortschritt', 0], ['fortschritt', 0],
-    ['explanations:{de:[', 10], ['openPartInfo', 2], ['closePartInfo', 2], ['partInfoIndex', 7],
-    ['partInfoTitle', 5], ['partInfoAbout', 5], ['partExplanations', 2], ['partInfoMissing', 4],
-    ['v-if="partInfoIndex!==null"', 1], ['genClose:"Cerrar"', 1],
-  ];
-  for (const [sub, want] of inv) must(cnt(s, sub) === want, `Invariante ${sub}: ${cnt(s, sub)}, erwartet ${want}`);
-  const iBanner = s.indexOf('v-if="showOnboarding"');
-  const iAside = s.indexOf('<aside');
-  const iViewport = s.indexOf('id="viewport"');
-  must(iBanner > 0 && iAside > 0 && iViewport > 0, 'U5 Positions-Anker fehlen');
-  must(iBanner < iAside && iAside < iViewport, `Banner-Position: Banner@${iBanner}, Aside@${iAside}, Viewport@${iViewport} (erwartet Banner < Aside < Viewport)`);
-  must(s.length < 600000, `Datei zu gross: ${s.length}`);
-  console.log('  Invarianten ok (Banner < Liste < Viewer)');
-}
+checkInvariants(s);
 
 await writeFile(FILE, s);
 console.log(`build-v16: geschrieben (${s.length} Zeichen)`);
-if (REPORT) {
-  const report = {
-    createdAt: new Date().toISOString(),
-    basis: 'v15a-showcase',
-    standalone: 'v16',
-    fixes: ['U1 Modify-Hauptblock raus (Stift-Overlay bleibt)', 'U2 Loeschen-Button im Overlay (free-*, Rueckfrage, State+Liste)', 'U3 Referenzbericht raus (Template+Computed+Keys)', 'U4 Details (Messungen/Labels) raus (Template+Keys)', 'U5 Banner unter Menueleiste (ueber Liste+Viewer)'],
-    counts: { zeichen: s.length },
-  };
-  await writeFile(REPORT, JSON.stringify(report, null, 2));
-  console.log('build-v16: OK v16');
-} else {
-  console.log('build-v16: DRY-RUN ok (kein Report geschrieben)');
-}
+await writeReport(s);
+console.log('build-v16: OK v16');

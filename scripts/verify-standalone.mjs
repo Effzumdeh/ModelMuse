@@ -5,7 +5,8 @@
  *  - v13 stamp, title/badges, 12 LABS and 12 META/INIT entries (6 3D, 6 2D metadata)
  *  - no obsolete lighting patterns (900/2048/PCFSoft/envMap/dark room)
  *  - no removed UI elements (objectives/level/learning mode/track/curriculum)
- *  - direct Baseten endpoint/model; no OpenRouter or local proxy port
+ * - direct endpoints/models for both providers (Baseten + Meta/Muse);
+ *   no OpenRouter or local proxy port
  *  - size limit (under 600 KB for GitHub Pages)
  * Exit 0 means every check passed; exit 1 means at least one check failed.
  */
@@ -235,11 +236,15 @@ if (isShowcase) {
     ["{{t(\"learnMode\")}}", 'learning mode'], ["{{t('level')}}", 'level label'],
     ['openrouter', 'OpenRouter lowercase'], ['OpenRouter', 'OpenRouter uppercase'],
   ]) eqS(sub, 0, `must be absent: ${label}`);
-  eqS('https://inference.baseten.co/v1/chat/completions', 3, 'Baseten endpoint');
-  if (cnt('meta-models/muse-spark-open-1026') < 3) fail('Baseten model is missing.');
+  eqS('https://inference.baseten.co/v1/chat/completions', 2, 'Baseten endpoint (Details + Fallback)');
+  eqS('https://api.meta.ai/v1', 2, 'Meta base (Provider + Details)');
+  eqS('https://api.meta.ai/v1/chat/completions', 1, 'Meta endpoint (Details)');
+  if (cnt('meta-models/muse-spark-open-1026') < 2) fail('Baseten model is missing.');
   else ok('Baseten model: muse-spark-open-1026');
   eqS('openrouter-direct', 0, 'OpenRouter provider ID');
-  eqS('modelmuse-proxy-key', 5, 'sessionStorage key name');
+  eqS('modelmuse-key-baseten-direct', 3, 'BYOK key name (Baseten)');
+  eqS('modelmuse-key-meta-muse', 3, 'BYOK key name (Meta)');
+  eqS('modelmuse-proxy-key', 1, 'Legacy key fallback (Baseten-Migration)');
   if (s.includes('127.0.0.1:8787') || s.includes('localhost:8787')) fail('Standalone references the local proxy port.');
   else ok('No local proxy port referenced.');
   if (cnt('prefers-color-scheme') < 3) fail('System theme default (prefers-color-scheme) is missing.');
@@ -256,7 +261,8 @@ if (isShowcase) {
   eqS('@click="openModify', 1, 'Per-model revise button');
   eqS('shrink-0 inline-flex items-center justify-center rounded-xl border', 1, 'Pencil button next to name (template)');
   // v16 (UI-Stromlinien): Modify-Hauptblock raus (Stift-Overlay bleibt),
-  // Loeschen im Overlay, Referenzbericht + Details raus, Banner oben.
+  // Loeschen universell im Overlay (jede Lab-ID, kein free-*-Sonderfall),
+  // Referenzbericht + Details raus, Banner oben.
   if (!s.includes('standalone-build v16')) fail('v16 stamp is missing (standalone-build v16).');
   else ok('v16 stamp present (UI-Stromlinien)');
   eqS('aria-label="modify"', 0, 'v16 modify main section');
@@ -266,6 +272,47 @@ if (isShowcase) {
   eqS('modify:async function', 1, 'v16 modify logic kept');
   eqS('deleteLab', 6, 'v16 delete affordance (template + method + 3 locales)');
   eqS('deleteConfirm', 4, 'v16 delete confirm (call + 3 locales)');
+  eqS('@click="deleteLab"', 1, 'v16 universal delete button');
+  eqS("v-if=\"activeLab.id&&activeLab.id.indexOf('free-')===0\"", 0, 'v16 no free-* gate in overlay');
+  eqS('lab.id.indexOf("free-")!==0){return;}', 0, 'v16 no free-* guard in deleteLab');
+  eqS('this.activeLabId=null;try{this.syncViewer();}', 1, 'v16 empty-state viewer sync');
+  // v17 (Provider-Umschalter): Baseten-Label ohne (direkt), Provider-Select
+  // mit genau 2 Optionen, Meta-Modelle exakt 3, Streaming-SSE, Keys je
+  // Provider, reasoning_effort max nur 1.3/wonder, 401-Texte je Provider.
+  if (!s.includes('standalone-build v17')) fail('v17 stamp is missing (standalone-build v17).');
+  else ok('v17 stamp present (Provider-Umschalter)');
+  eqS('Baseten (direkt)', 0, 'v17 no parenthesized Baseten label (de)');
+  eqS('Baseten (direct)', 0, 'v17 no parenthesized Baseten label (en)');
+  eqS('Baseten (directo)', 0, 'v17 no parenthesized Baseten label (es)');
+  eqS('I18N.de.providerFixed="Baseten";', 1, 'v17 provider label (de)');
+  eqS('I18N.en.providerFixed="Baseten";', 1, 'v17 provider label (en)');
+  eqS('providerFixed:"Baseten"', 1, 'v17 provider label (es)');
+  eqS("{{t('providerFixed')}}", 0, 'v17 no static provider badge (dynamic label)');
+  eqS('id="gen-provider"', 1, 'v17 provider select');
+  eqS('id:"baseten-direct"', 1, 'v17 Baseten provider ID');
+  eqS('id:"meta-muse"', 1, 'v17 Meta provider ID');
+  eqS('label:"Baseten"', 1, 'v17 Baseten label');
+  eqS('label:"Meta Muse"', 1, 'v17 Meta label');
+  eqS('models:["muse-spark-1.3-contributor","muse-spark-1.3","muse-wonder-1.0"]', 1, 'v17 Meta models (exactly 3)');
+  eqS('id="gen-reasoning"', 1, 'v17 reasoning select');
+  eqS('reasoningAllowed', 5, 'v17 reasoning gate (computed + selects + resets)');
+  eqS('text/event-stream', 3, 'v17 SSE streaming (generate + modify + reader)');
+  eqS('stream:true', 3, 'v17 stream flag (bodies + SSE decoder)');
+  eqS('max_completion_tokens', 2, 'v17 token cap (generate + modify)');
+  eqS('max_output_tokens', 0, 'v17 no legacy token field');
+  eqS('reasoning_effort', 2, 'v17 reasoning param (guarded generate + modify)');
+  eqS('this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 3, 'v17 reasoning gate+guards (never -contributor)');
+  eqS('logit_bias', 0, 'v17 no forbidden logits field');
+  eqS('web_search_options', 0, 'v17 no forbidden search field');
+  eqS('logprobs', 0, 'v17 no forbidden logprobs field');
+  eqS('modalities', 0, 'v17 no forbidden modalities field');
+  eqS('"stop"', 0, 'v17 no forbidden stop field');
+  eqS('dev.meta.ai', 10, 'v17 dashboard links (Meta hints + placeholder)');
+  eqS('keyMissingMeta', 4, 'v17 Meta key-missing text (3 locales + selector)');
+  eqS('keyInvalidMeta', 4, 'v17 Meta 401 text (3 locales + selector)');
+  eqS('keyFormatMeta', 4, 'v17 Meta LLM_ hint (3 locales + template)');
+  eqS('genProviderChanged', 2, 'v17 provider switch (binding + method)');
+  eqS('genModelChanged', 2, 'v17 model switch (binding + method)');
   eqS('verifyBadges', 0, 'v16 reference report computed');
   eqS('verifyTitle', 0, 'v16 reference report title keys');
   eqS('detailsTitle', 0, 'v16 details title keys');
