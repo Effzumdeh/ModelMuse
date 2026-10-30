@@ -65,6 +65,8 @@ export function buildFreePrompt(term, locale = 'de') {
     `Antwortsprache (locale): ${loc}. Labels im Code (addLabel-Texte) in dieser Sprache; KEINE Sprachlogik (kein if/locale-Verzweigen) im 3D-Code — Strings sind Daten.`,
     'Zusaetzlich meta_i18n liefern: export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] } } ' +
     'mit fachgerechten Uebersetzungen von Titel + parts (gleiche Anzahl/Reihenfolge wie meta.parts). Keine weiteren Sprachen, kein Code, nur Daten.',
+    'Bestandteil-Erklaerungen (Pflicht, NUR Daten): meta enthaelt zusaetzlich explanations: [je EIN Satz pro Hauptbauteil aus parts — WAS es ist + WOFUER im Modell, 8-200 Zeichen, gleiche Anzahl/Reihenfolge wie parts, Sprache wie parts]. ' +
+    'meta_i18n enthaelt en.explanations + es.explanations als fachgerechte Uebersetzungen (gleiche Anzahl/Reihenfolge). Verify prueft Vorhandensein + Laengen-Deckung; fehlende Erklaerungen = Ablehnung.',
     'update(patch): nur Sichtbarkeit (labels max, measurements) und Kamera (overview/detail/front/top) schalten, nie neues Modell. dispose(): Schleife stoppen, Geometrien/Materialien/Renderer freigeben, Element entfernen.',
     'Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences.',
   ].join('\n');
@@ -113,13 +115,19 @@ export function extractMeasureHints(source) {
  * Aufgaben je Niveau (0 Basis / 2 Aufbau / 1 Profi-Transfer).
  * Mehrsprachig (Teil 5): i18n-Segment aus meta_i18n (Modell liefert EN/ES als
  * Daten); fehlende Uebersetzungen fallen ehrlich auf Deutsch zurueck.
+ * Bestandteil-Erklaerungen: aus meta.explanations + meta_i18n en/es.explanations
+ * (jeweils gleiche Anzahl/Reihenfolge wie parts); nur bei Laengen-Deckung
+ * uebernommen, sonst ehrlich weggelassen.
  * @param {string} term
- * @param {{ title?: string, parts?: string[] }} meta
+ * @param {{ title?: string, parts?: string[], explanations?: string[] }} meta
  * @param {string} source
- * @param {{ en?: { title?: string, parts?: string[] }, es?: { title?: string, parts?: string[] } }} [i18nHints]
+ * @param {{ en?: { title?: string, parts?: string[], explanations?: string[] }, es?: { title?: string, parts?: string[], explanations?: string[] } }} [i18nHints]
  */
 export function buildFreeManifest(term, meta, source, i18nHints) {
   const parts = Array.isArray(meta?.parts) && meta.parts.length >= 3 ? meta.parts.slice(0, 8).map(String) : ['Bauteil A', 'Bauteil B', 'Bauteil C'];
+  const expDe = Array.isArray(meta?.explanations) && meta.explanations.length === parts.length
+    ? meta.explanations.map(String)
+    : null;
   const hints = extractMeasureHints(source);
   const measurements = hints.length > 0 ? hints : [{ id: 'frei-m1', from: [-0.2, -0.2, 0], to: [0.2, -0.2, 0], text: 'Breite: 40 cm', unit: 'cm' }];
   const firstNum = (NUM_RE.exec(measurements[0].text) ?? ['?'])[0];
@@ -128,12 +136,16 @@ export function buildFreeManifest(term, meta, source, i18nHints) {
   for (const loc of ['en', 'es']) {
     const h = i18nHints?.[loc];
     if (h && typeof h.title === 'string' && Array.isArray(h.parts) && h.parts.length === parts.length) {
+      const expLoc = Array.isArray(h.explanations) && h.explanations.length === parts.length
+        ? h.explanations.map(String)
+        : null;
       i18n[loc] = {
         title: h.title,
         objectives: loc === 'en'
           ? [`Trainees correctly name the main parts of ${h.title} (${h.parts.slice(0, 3).join(', ')}).`, `Trainees read the dimension “${measurements[0].text}” and assign it to the part.`]
           : [`El alumnado nombra correctamente los componentes principales de ${h.title} (${h.parts.slice(0, 3).join(', ')}).`, `El alumnado lee la medida “${measurements[0].text}” y la asigna al componente.`],
         labels: h.parts.map(String),
+        ...(expLoc ? { explanations: expLoc } : {}),
         measurements: measurements.map((m) => ({ id: m.id, text: m.text })),
         tasks: [
           { id: 'frei-aufbau-1', prompt: loc === 'en' ? `Match: Which part carries the main function of ${h.title}?` : `Relacione: ¿qué componente tiene la función principal de ${h.title}?`, expected: h.parts[0] },
@@ -152,6 +164,7 @@ export function buildFreeManifest(term, meta, source, i18nHints) {
       `Die Auszubildenden lesen die Bemaßung „${measurements[0].text}“ ab und ordnen sie dem Bauteil zu.`,
     ],
     labels: parts,
+    ...(expDe ? { explanations: expDe } : {}),
     measurements,
     tasks: [
       { id: 'frei-aufbau-1', level: 'aufbau', type: 'zuordnung', prompt: `Ordne zu: Welches Bauteil traegt die Hauptfunktion von ${title}?`, expected: parts[0], tolerance: 0 },
@@ -165,7 +178,8 @@ export function buildFreeManifest(term, meta, source, i18nHints) {
 /**
  * meta_i18n-Export aus generierter Quelle lesen (Daten, kein Code):
  * export const meta_i18n = { en: {...}, es: {...} }. Nur gueltig bei
- * passender parts-Laenge (Pruefung in buildFreeManifest).
+ * passender parts-Laenge (Pruefung in buildFreeManifest). Enthaelt auch
+ * en/explanations + es/explanations, wenn das Modell sie mitliefert.
  * @param {string} source
  */
 export function extractMetaI18n(source) {

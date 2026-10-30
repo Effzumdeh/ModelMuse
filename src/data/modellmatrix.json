@@ -10,5 +10,16 @@
   "ae-3": { "labelsMin": 4, "units": ["m"], "tasks": [0, 2, 1] },
   "gpu-example": { "labelsMin": 10, "units": ["mm"], "tasks": [0, 2, 1] },
   "free-handbohrmaschine": { "labelsMin": 6, "units": ["mm"], "tasks": [0, 2, 1] },
-  "chemie-koffein": { "labelsMin": 6, "units": ["mm"], "tasks": [0, 2, 1] }
+  "chemie-koffein": { "labelsMin": 6, "units": ["mm"], "tasks": [0, 2, 1] },
+  "arch-brandenburger-tor": { "labelsMin": 6, "units": ["m"], "tasks": [0, 2, 1] },
+  "demo-2d-svg": { "labelsMin": 4, "units": ["cm"], "tasks": [0, 2, 1] },
+  "demo-2d-mermaid": { "labelsMin": 5, "units": ["cm"], "tasks": [0, 2, 1] },
+  "demo-2d-chart": { "labelsMin": 4, "units": ["cm"], "tasks": [0, 2, 1] },
+  "demo-2d-d3": { "labelsMin": 5, "units": ["m"], "tasks": [0, 2, 1] },
+  "demo-2d-katex": { "labelsMin": 4, "units": ["cm"], "tasks": [0, 2, 1] },
+  "demo-2d-svg-v2": { "labelsMin": 4, "units": ["cm"], "tasks": [0, 2, 1] },
+  "demo-2d-mermaid-v2": { "labelsMin": 4, "units": ["min"], "tasks": [0, 2, 1] },
+  "demo-2d-chart-v2": { "labelsMin": 4, "units": ["°C"], "tasks": [0, 2, 1] },
+  "demo-2d-d3-v2": { "labelsMin": 4, "units": ["cm"], "tasks": [0, 2, 1] },
+  "demo-2d-katex-v2": { "labelsMin": 4, "units": ["cm"], "tasks": [0, 2, 1] }
 }

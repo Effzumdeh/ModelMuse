@@ -319,6 +319,18 @@ export const ROUTER_TYP_TO_KIND = Object.freeze({
   'tabelle': 'generic',
 });
 void TWOD_KINDS;
+/** P1-Variantenwahl (2D-Alle-Varianten): P0-Typ -> Rendering-Variante + Spec.
+ * Der P0-Router entscheidet nur Modus/Typ; welche der fuenf Libs rendert,
+ * waehlt P1 (Vertrag p1-generate-2d-varianten.txt). Tabelle = Checklist. */
+export const ROUTER_TYP_TO_VARIANT = Object.freeze({
+  'schaltplan': { variant: 'svg', spec: '2d-svg' },
+  'flussdiagramm': { variant: 'mermaid', spec: '2d-mermaid' },
+  'schnitt-ansicht': { variant: 'svg', spec: '2d-svg' },
+  'diagramm': { variant: 'chart', spec: '2d-chart' },
+  'tabelle': { variant: 'katex', spec: '2d-katex' },
+});
+/** Netz-Topologie (Spezialfall von schaltplan) rendert d3-light. */
+export const ROUTER_TOPOLOGY_VARIANT = Object.freeze({ variant: 'd3', spec: '2d-d3' });
 
 /**
  * Kappt den Fachtext fuer den P0-Call (Router-Konzept §2: max. 4000 Zeichen).

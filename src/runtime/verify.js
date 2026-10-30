@@ -3,9 +3,9 @@
  * S2..S4 laufen im Browser (Playwright-Suiten); hier als skip-Layer mit Grund.
  * Bauplan Abschnitt 4 (verify) und Abschnitt 6 (Gate-Reihenfolge).
  */
-import { staticGate, checkMeta, TWOD_KINDS, isTwoDSource } from './guard-static.js';
+import { staticGate, checkMeta } from './guard-static.js';
+import { verifyTwoDLayer } from './verify-2d.js';
 import { validateManifest, checkLevelRules, findPedagogyLeak } from './didactics.js';
-import { buildDiagramSvg, countSvgShapes, isWellformedSvg } from '../vendor/diagram-2d.js';
 import {
   GEO_LIMITS,
   verifyGeometryScene,
@@ -439,69 +439,13 @@ export function extractDiagram(source) {
 }
 
 /**
- * 2D-Gates (S2-light, Node-seitig, deterministisch): parse + pixel + Typ-Whitelist.
- * - parse: 2D-Quelle (Import aus 2d-*) UND diagram-Literal, das der Vendor-
- *   Renderer wohlgeformt baut (kein <script>, keine Fremd-URL).
- * - pixel: >= 4 SVG-Formelemente im GERENDERTEN Svg (echter Pixel-Proxy;
- *   Browser-Visual-Suite zaehlt zusaetzlich nicht-leere Alphapixel).
- * - typ: diagram.kind in TWOD_KINDS-Whitelist.
+ * 2D-Gates (S2-light, Node-seitig, deterministisch): parse + pixel +
+ * Typ-Whitelist — je Variante (svg/mermaid/chart/d3/katex), Kriterium-Ids
+ * variantenuebergreifend identisch. Implementierung in verify-2d.js.
  * @param {string} source Modulquelle
  */
 export function verifySvgLayer(source) {
-  const t0 = Date.now();
-  const layer = makeLayer('S2');
-  const src = String(source);
-  try {
-    const is2d = isTwoDSource(src);
-    layer.criteria.push(
-      crit('S2-2d-parse', is2d ? 'pass' : 'fail', '2D-Datenpfad (Import aus 2d-*)', is2d ? '2d-Import gefunden (Lib im Vendor, Modul liefert Daten)' : 'kein 2d-Import (3D-Pfad oder Fremd-Import)')
-    );
-    const diagram = extractDiagram(src);
-    if (!diagram) {
-      layer.criteria.push(crit('S2-2d-data', 'fail', 'export const diagram {...}', 'kein Diagramm-Literal extrahierbar'));
-      layer.criteria.push(crit('S2-2d-pixel', 'fail', '>= 4 SVG-Formelemente (gerendert)', 'ohne Daten kein Render'));
-      layer.criteria.push(crit('S2-2d-typ', 'fail', `diagram.kind in [${TWOD_KINDS.join('|')}]`, 'kein kind (keine Daten)'));
-    } else {
-      const kind = typeof diagram.kind === 'string' ? diagram.kind : null;
-      const typOk = kind !== null && TWOD_KINDS.includes(kind);
-      layer.criteria.push(
-        crit('S2-2d-typ', typOk ? 'pass' : 'fail', `diagram.kind in [${TWOD_KINDS.join('|')}]`, kind === null ? 'kein kind gefunden' : `${kind} ${typOk ? 'erlaubt' : 'NICHT erlaubt'}`)
-      );
-      let svg = '';
-      let wellformed = false;
-      try {
-        svg = buildDiagramSvg(/** @type {any} */ (diagram));
-        wellformed = isWellformedSvg(svg);
-      } catch (e) {
-        svg = '';
-        wellformed = false;
-      }
-      layer.criteria.push(
-        crit('S2-2d-parse-svg', wellformed ? 'pass' : 'fail', 'Vendor-Render wohlgeformt', wellformed ? `${svg.length} Zeichen SVG` : 'Render unwohlgeformt/abgebrochen')
-      );
-      const shapes = countSvgShapes(svg);
-      layer.criteria.push(
-        crit('S2-2d-pixel', shapes >= 4 ? 'pass' : 'fail', '>= 4 SVG-Formelemente (gerendert)', `${shapes} Shapes im Vendor-Render`)
-      );
-      const badScript = /<script[\s>]/.test(src);
-      const badUrl = /(https?:|javascript:)/.test(stripSvgCommentsSafe(src));
-      layer.criteria.push(
-        crit('S2-2d-wellformed', !badScript && !badUrl ? 'pass' : 'fail', 'kein <script>, keine Fremd-URL im Modul', badScript ? '<script> gefunden' : badUrl ? 'Fremd-URL gefunden' : 'sauber')
-      );
-    }
-  } catch (e) {
-    layer.criteria.push(
-      crit('S2-2d-intern', 'fail', '2D pruefbar', `Prueffehler: ${String((e && e.message) || e).slice(0, 160)}`)
-    );
-  }
-  layer.verdict = layer.criteria.every((c) => c.verdict === 'pass') ? 'pass' : 'fail';
-  layer.durationMs = Date.now() - t0;
-  return { layer };
-}
-
-/** @param {string} src */
-function stripSvgCommentsSafe(src) {
-  return String(src).replace(/<!--[\s\S]*?-->/g, '');
+  return verifyTwoDLayer(source);
 }
 
 /**

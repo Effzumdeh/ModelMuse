@@ -80,8 +80,9 @@ export function t(locale, path, vars) {
 
 /**
  * Sprachneutrale Manifest-Ansicht: kanonische DE-Felder, bei i18n-Segment
- * in der Ziellokale ueberschrieben (Titel, Objectives, Labels, Messungs- und
- * Aufgabentexte). Vektoren/Ids/Toleranzen bleiben kanonisch.
+ * in der Ziellokale ueberschrieben (Titel, Objectives, Labels, Erklaerungen,
+ * Messungs- und Aufgabentexte). Vektoren/Ids/Toleranzen bleiben kanonisch.
+ * Erklaerungen ohne Segment fallen auf Deutsch zurueck.
  * @param {Record<string, unknown>} [manifest] @param {string} locale
  */
 export function localizeManifest(manifest, locale) {
@@ -94,6 +95,9 @@ export function localizeManifest(manifest, locale) {
   if (typeof seg.title === 'string') out.title = seg.title;
   if (Array.isArray(seg.objectives)) out.objectives = seg.objectives;
   if (Array.isArray(seg.labels)) out.labels = seg.labels;
+  if (Array.isArray(base.explanations) && Array.isArray(seg.explanations) && seg.explanations.length === base.explanations.length) {
+    out.explanations = seg.explanations;
+  }
   if (Array.isArray(seg.measurements)) {
     const byId = new Map(seg.measurements.map((m) => [m?.id, m]));
     if (Array.isArray(out.measurements)) {

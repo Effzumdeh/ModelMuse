@@ -98,9 +98,11 @@ export function buildDiagramSvg(spec) {
       const x = x0 + i * (bw + 16);
       const y = 300 - h;
       const hot = i === 1 || i === 2;
-      out += group(L(0) && i === 0 ? L(0) : `Balken ${i + 1}`,
+      const barLabel = L(i) || `Balken ${i + 1}`;
+      out += group(barLabel,
         `<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${hot ? '#fef9c3' : '#dbeafe'}" stroke="#0f172a" stroke-width="2"/>`
-        + `<text x="${x + bw / 2}" y="${y - 8}" fill="#0f172a" font-size="12" text-anchor="middle">${escXml(String(data[i]))}</text>`);
+        + `<text x="${x + bw / 2}" y="${y - 8}" fill="#0f172a" font-size="12" text-anchor="middle">${escXml(String(data[i]))}</text>`
+        + `<text x="${x + bw / 2}" y="${i % 2 ? 354 : 338}" fill="#0f172a" font-size="11" text-anchor="middle">${escXml(barLabel.slice(0, 18))}</text>`);
     }
     out += '</g>';
     const ax = x0 + bw / 2;

@@ -33,6 +33,27 @@ export function toggleHidden(hidden, index) {
 }
 
 /**
+ * Bestandteil-Erklaerungen zur Ansicht (lokalisiert, mit Fallback de->en):
+ * je Eintrag ein Text in Reihenfolge der partEntries; fehlt die Lokale,
+ * faellt die Ansicht auf Deutsch (dann Englisch) zurueck, fehlende
+ * Einzeltexte auf '' (Button blendet sich dann aus).
+ * @param {{ labels?: unknown[], parts?: unknown[], explanations?: unknown, i18n?: unknown }} [manifest]
+ * @param {string} [locale]
+ * @returns {string[]}
+ */
+export function partExplanations(manifest, locale = 'de') {
+  const entries = partEntries(manifest);
+  if (entries.length === 0) return [];
+  const loc = locale === 'en' || locale === 'es' ? locale : 'de';
+  const base = Array.isArray(manifest?.explanations) ? manifest.explanations.map(String) : [];
+  const seg = manifest?.i18n && typeof manifest.i18n === 'object' ? manifest.i18n[loc] : null;
+  const locArr = seg && typeof seg === 'object' && Array.isArray(seg.explanations) ? seg.explanations.map(String) : [];
+  // de-Ansicht: kanonisch; en/es: Lokale, sonst kanonisch.
+  if (loc === 'de') return entries.map((e) => (typeof base[e.index] === 'string' ? base[e.index] : ''));
+  return entries.map((e) => locArr[e.index] ?? base[e.index] ?? '');
+}
+
+/**
  * addLabel-Aufruf mit EXAKTEM Text in der Quelle (positional oder Objektform).
  * @param {string} source
  * @param {string} name

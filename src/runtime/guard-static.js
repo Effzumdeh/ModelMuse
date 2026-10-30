@@ -37,9 +37,22 @@ export const THREE_KNOWN_EXPORTS = Object.freeze([
 export const ADDON_KNOWN_EXPORTS = Object.freeze(['OrbitControls']);
 export const HELPER_KNOWN_EXPORTS = Object.freeze(['addLabel', 'addMeasurement']);
 /** Benannte Exporte des 2D-Vendor-Bundles (src/vendor/diagram-2d.js). */
-export const TWOD_KNOWN_EXPORTS = Object.freeze(['renderDiagram2D', 'buildDiagramSvg', 'DIAGRAM_KINDS', 'escXml', 'countSvgShapes', 'isWellformedSvg', 'SVG_NODE_BUDGET']);
+export const TWOD_KNOWN_EXPORTS = Object.freeze(['renderDiagram2D', 'buildDiagramSvg', 'DIAGRAM_KINDS', 'escXml', 'countSvgShapes', 'isWellformedSvg', 'SVG_NODE_BUDGET', 'renderMermaid2D', 'parseMermaid', 'buildMermaidSvg', 'MERMAID_CHUNK_MANIFEST', 'renderChart2D', 'parseChartConfig', 'buildChartSvg', 'CHART_TYPES', 'renderGraph2D', 'parseGraph', 'buildGraphSvg', 'D3_SUBMODULE_MANIFEST', 'renderMath2D', 'parseLatex', 'buildMathHtml', 'KATEX_FONT_SUBSET']);
 /** 2D-Diagramm-Typen (Whitelist): SVG-nativ-Kinds je Lab (siehe vendor/diagram-2d.js). */
 export const TWOD_KINDS = Object.freeze(['er', 'bpmn', 'etl', 'uml', 'bars', 'chain', 'svg', 'generic']);
+/** Mermaid Chunk-Selektion (Eval 2.1): vier Diagrammtypen je ESM-Chunk. */
+export const MERMAID_DIAGRAMS = Object.freeze(['fluss', 'sequenz', 'er', 'gantt']);
+/** Chart.js tree-shaken (Eval 2.2): drei Schul-Charttypen. */
+export const CHART_KINDS = Object.freeze(['balken', 'linie', 'kreis']);
+/** d3-light (Eval 2.3): Netz (force) und Baum (hierarchy/tree). */
+export const D3_KINDS = Object.freeze(['netz', 'baum']);
+/** KaTeX Font-Subsetting (Eval 2.4): Schulformel-Sorte. */
+export const KATEX_KINDS = Object.freeze(['formel']);
+/** Benannte Exporte je 2D-Vendor-Datei (Repair-Lauf-Gegenstuecke). */
+export const MERMAID_KNOWN_EXPORTS = Object.freeze(['renderMermaid2D', 'parseMermaid', 'buildMermaidSvg', 'MERMAID_CHUNK_MANIFEST']);
+export const CHART_KNOWN_EXPORTS = Object.freeze(['renderChart2D', 'parseChartConfig', 'buildChartSvg', 'CHART_TYPES']);
+export const D3_KNOWN_EXPORTS = Object.freeze(['renderGraph2D', 'parseGraph', 'buildGraphSvg', 'D3_SUBMODULE_MANIFEST']);
+export const KATEX_KNOWN_EXPORTS = Object.freeze(['renderMath2D', 'parseLatex', 'buildMathHtml', 'KATEX_FONT_SUBSET']);
 
 /**
  * @param {string} source

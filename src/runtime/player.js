@@ -4,11 +4,11 @@
  * Bauplan Abschnitt 4 (Host-Fassade, Dispose-Muster).
  */
 import { staticGate, repairThreeImports, isTwoDSource } from './guard-static.js';
-import { renderDiagram2D } from '../vendor/diagram-2d.js';
+import { renderTwoDSource } from './render-2d.js';
 import { createBudgetWatcher, DEFAULT_BUDGET_LIMITS } from './budget.js';
 import { createGuestSession, loadModule, readProbe, captureFrame, disposeSession } from './sandbox-host.js';
 import { buildLevelPatch } from './didactics.js';
-import { verifyStaticLayer, verifyGeometryLayer, verifyDidacticsLayer, verifySvgLayer, extractDiagram, sollFromMatrixEntry, skipLayer, buildVerifyReport } from './verify.js';
+import { verifyStaticLayer, verifyGeometryLayer, verifyDidacticsLayer, verifySvgLayer, sollFromMatrixEntry, skipLayer, buildVerifyReport } from './verify.js';
 import { extractMeta } from './verify.js';
 import { renderFallback2D } from './fallback2d.js';
 
@@ -97,11 +97,12 @@ export function createPlayer(options) {
         host.className = 'lab-2d';
         host.style.cssText = 'position:absolute;inset:0;';
         stage.appendChild(host);
-        const diagram = extractDiagram(ref.source);
         let shapes = 0;
+        let variant = 'svg';
         try {
-          const info = renderDiagram2D(host, diagram ?? {});
+          const info = renderTwoDSource(host, ref.source);
           shapes = info.shapes;
+          variant = info.variant ?? 'svg';
         } catch (e) {
           layers.push({ layer: 'S2', verdict: 'fail', criteria: [{ id: 'E-2D-RENDER', verdict: 'fail', expected: 'SVG rendert', actual: String((e && e.message) || e).slice(0, 200) }], durationMs: Date.now() - t2d });
           layers.push(skipLayer('S3', '2D-Render fehlgeschlagen'));
@@ -129,7 +130,7 @@ export function createPlayer(options) {
         });
         layers.push(lastManifest ? validateLayer(lastManifest, ref.source, ref.id) : skipLayer('S5', 'kein Manifest'));
         lastReport = buildVerifyReport({ modelId: ref.id, layers });
-        lastReport.route = { mode: '2d', reason: '2d-svg Datenpfad' };
+        lastReport.route = { mode: '2d', reason: `2d-${variant} Datenpfad` };
         if (options.onReport) options.onReport(lastReport);
         return { sessionId: null, report: lastReport, mode: '2d' };
       }
