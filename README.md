@@ -90,6 +90,14 @@ Exact versions are taken from `package.json` (devDependencies):
 - The release approval command is `npm run verify:all`, which also covers the standalone artifact.
 - `src/` and `scripts/` remain development and verification tools; only `dist-standalone/modelmuse-standalone.html` ships.
 
+## Origin Story
+
+ModelMuse was built with Meta models to showcase and use Meta models (see [Hackathon](#hackathon)): the bulk of the work was produced with Muse Spark 1.3 on the Contributor tier, driven through a mix of Hermes Agent and the Muse Code CLI, the CLI tool for Muse models.
+
+Total build cost was about $5, thanks to the low Contributor pricing. The most expensive single step, at just under $2, was a one-off experiment with Muse Wonder (Frontier, outside the Contributor tier) for detailed computer-hardware 3D (mainboard, GPU, CPU). The Wonder output was more detailed than the 1.3 Contributor comparison run, but many times more expensive — a surcharge the price/performance ratio did not justify.
+
+The takeaway is a value-for-money recommendation: Muse Spark 1.3 is remarkably capable for its price.
+
 ## Contributing
 
 Contributions are welcome. Please keep pull requests focused, run `npm run verify:all` before submitting, and do not commit generated reports, `node_modules/`, or API keys. For larger changes, open an issue first to discuss scope and direction.

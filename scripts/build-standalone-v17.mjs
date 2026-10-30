@@ -45,6 +45,100 @@ function rep1(s, oldStr, newStr, label) {
   return s.replace(oldStr, newStr);
 }
 
+// ---------- G0: Standalone-Guard (strip+mask, top/parent praezise) ----------
+// Der alte Rohtext-Wortcheck (\btop\b auf unbereinigtem Code) warf schon
+// 'const top = 2.44' (Torlatte) oder '// top edge'. Wie
+// src/runtime/guard-static.js werden Kommentare/Strings ausgeblendet;
+// 'top'/'parent' sind nur noch als Frame-Flucht (window.top, top.document,
+// top.postMessage, top[..], ungedehnter Global-Read) verboten. window,
+// document, eval & Co. bleiben strikte \b-Verbote. Idempotent via Marker.
+const GUARD_MARK = '__FREE_GUARD_V18__';
+const GUARD_OLD = 'var words=["document","window","parent","top","fetch","eval","Function","navigator","localStorage","sessionStorage","indexedDB","sendBeacon","WebSocket","XMLHttpRequest","THREE"];for(var wi=0;wi<words.length;wi++){var w=words[wi];var wr=new RegExp("\\\\b"+w+"\\\\b");if(wr.test(code)){throw new Error("E-FREE-FORBID: "+w);}}';
+const GUARD_NEW = String.raw`/*__FREE_GUARD_V18__ strip+mask, top/parent member-only*/var clean=code;var BT=String.fromCharCode(96),DL=String.fromCharCode(36,123);try{var __so="",__si=0,__sn=clean.length,__sq=null;while(__si<__sn){var __sc=clean.charAt(__si);var __sd=clean.charAt(__si+1);if(__sq){__so+=__sc;if(__sc==="\\"){__so+=__sd||"";__si+=2;continue;}if(__sc===__sq){__sq=null;}__si+=1;continue;}if(__sc==='"'||__sc==="'"||__sc===BT){__sq=__sc;__so+=__sc;__si+=1;continue;}if(__sc==="/"&&__sd==="/"){while(__si<__sn&&clean.charAt(__si)!=="\n"){__so+=" ";__si+=1;}continue;}if(__sc==="/"&&__sd==="*"){__so+="  ";__si+=2;while(__si<__sn&&!(clean.charAt(__si)==="*"&&clean.charAt(__si+1)==="/")){__so+=clean.charAt(__si)==="\n"?"\n":" ";__si+=1;}__so+="  ";__si+=2;continue;}__so+=__sc;__si+=1;}clean=__so;}catch(__se){}try{var __mo="",__mi=0,__mn=clean.length,__mq=null,__md=0;while(__mi<__mn){var __mc=clean.charAt(__mi);if(__mq){if(__mc==="\\"){__mo+="  ";__mi+=2;continue;}if(__md===0&&__mc===__mq){__mo+=" ";__mq=null;__mi+=1;continue;}if(__mc==="$"&&clean.charAt(__mi+1)==="{"&&__mq===BT){__md+=1;__mo+=DL;__mi+=2;continue;}if(__md>0){if(__mc==="{"){__md+=1;}if(__mc==="}"){__md-=1;}__mo+=__mc;__mi+=1;continue;}__mo+=__mc==="\n"?"\n":" ";__mi+=1;continue;}if(__mc==='"'||__mc==="'"||__mc===BT){if(__mc===BT){__mq=BT;__md=0;}else{__mq=__mc;}__mo+=" ";__mi+=1;continue;}__mo+=__mc;__mi+=1;}clean=__mo;}catch(__me){}var words=["document","window","fetch","eval","Function","navigator","localStorage","sessionStorage","indexedDB","sendBeacon","WebSocket","XMLHttpRequest","THREE"];for(var wi=0;wi<words.length;wi++){var w=words[wi];var wr=new RegExp("\\b"+w+"\\b");if(wr.test(clean)){throw new Error("E-FREE-FORBID: "+w);}}var __dc=function(__dn){if(new RegExp("(?:^|[^.\\w$])(?:var|let|const)\\s+"+__dn+"\\b").test(clean)){return true;}if(new RegExp("function\\s+"+__dn+"\\b").test(clean)){return true;}if(new RegExp("class\\s+"+__dn+"\\b").test(clean)){return true;}if(new RegExp("(?:var|let|const)\\s*\\{[^}]*\\b"+__dn+"\\b").test(clean)){return true;}if(new RegExp("(?:var|let|const)\\s*\\[[^\\]]*\\b"+__dn+"\\b").test(clean)){return true;}if(new RegExp("catch\\s*\\(\\s*"+__dn+"\\b").test(clean)){return true;}if(new RegExp("function\\s*\\([^)]*\\b"+__dn+"\\b").test(clean)){return true;}if(new RegExp("\\([^()]*\\b"+__dn+"\\b[^()]*\\)\\s*=>").test(clean)){return true;}if(new RegExp("[^\\w$]"+__dn+"\\s*=>").test(clean)){return true;}return false;};var __tn=["top","parent"];for(var __ti=0;__ti<__tn.length;__ti++){var __t2=__tn[__ti];if(__dc(__t2)){continue;}if(new RegExp("(?:\\bwindow|\\bself|\\bglobalThis|\\bframes?|\\bframe|\\bcontentWindow)\\s*\\.\\s*"+__t2+"\\b").test(clean)){throw new Error("E-FREE-FORBID: "+__t2);}if(new RegExp("\\b"+__t2+"\\s*\\.\\s*(?:document|window|location|frames?|postMessage|top|parent|self|opener|close|length|name)\\b").test(clean)){throw new Error("E-FREE-FORBID: "+__t2);}if(new RegExp("\\b"+__t2+"\\s*\\[").test(clean)){throw new Error("E-FREE-FORBID: "+__t2);}var __tr=new RegExp("\\b"+__t2+"\\b","g");var __tm;while((__tm=__tr.exec(clean))!==null){if(clean.charAt(__tm.index-1)!=="."){throw new Error("E-FREE-FORBID: "+__t2);}}}`;
+function applyGuardFix(s) {
+  if (s.includes(GUARD_MARK)) return { s, changed: false };
+  must((s.split(GUARD_OLD).length - 1) === 1, 'G Guard-Anker fehlt/mehrdeutig');
+  return { s: s.replace(GUARD_OLD, GUARD_NEW), changed: true };
+}
+
+// ---------- W0: Owner-Liste (W1..W11), idempotent auf v16/v17 ----------
+function applyOwnerFixes(s) {
+  let changed = false;
+  const rep = (oldStr, newStr, label) => {
+    if (newStr && s.includes(newStr)) return;
+    const n = s.split(oldStr).length - 1;
+    if (n === 0) return;
+    must(n === 1, label + ': Anker fehlt/mehrdeutig x' + n);
+    s = s.split(oldStr).join(newStr);
+    changed = true;
+    console.log('  ' + label);
+  };
+  // W1 Loesch-Confirm ohne 'eigene' (gilt fuer alle Modelle)
+  rep(`I18N.de.deleteConfirm="Dieses eigene Modell wirklich löschen?";`, `I18N.de.deleteConfirm="Dieses Modell wirklich löschen?";`, 'W1 Confirm de');
+  rep(`I18N.en.deleteConfirm="Really delete this custom model?";`, `I18N.en.deleteConfirm="Really delete this model?";`, 'W1 Confirm en');
+  rep(`deleteConfirm:"¿Eliminar este modelo propio?"`, `deleteConfirm:"¿Eliminar este modelo?"`, 'W1 Confirm es');
+  // W2 Labels-/Masse-Toggles nur im Overlay-Menue (Dopplung ueber Viewer raus)
+  rep(`{{t('is3dReason')}}</p>\n<label class="inline-flex items-center gap-2 text-sm min-h-[44px]"><input type="checkbox" v-model="showLabels" @change="toggleAnno" class="w-5 h-5"> {{t('showLabels')}}</label>\n<label class="inline-flex items-center gap-2 text-sm min-h-[44px]"><input type="checkbox" v-model="showMeasures" @change="toggleAnno" class="w-5 h-5"> {{t('showMeasures')}}</label>\n</div>\n<div class="relative">\n<div id="viewport"`, `{{t('is3dReason')}}</p>\n</div>\n<div class="relative">\n<div id="viewport"`, 'W2 Viewer-Toggles raus (Overlay bleibt)');
+  // W3 unteren Block mit Modellnamen entfernen
+  rep(`<section class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 transition-all">\n<h2 class="text-2xl font-bold mb-3">{{activeLab.title[lang]}}</h2>\n</section>\n`, '', 'W3 Titel-Block unten raus');
+  // W4 WebGL-/2D-Fallback-Hinweis unter Viewer entfernen (Logik bleibt)
+  rep(`<p v-if="viewerMode==='2d'" class="mt-2 text-sm text-amber-600 dark:text-amber-400">{{t('webglFallback')}}</p>\n<p v-if="viewerMode==='2d'" class="mt-2 text-sm text-amber-600 dark:text-amber-400">{{t('diagramNote')}}</p>\n`, '', 'W4 Fallback-Hinweise raus');
+  // W5 Generatortext neu (Provider/Key/Modell statt Objekt/3D/Baseten-Direkt)
+  rep(`generatorHint:"Beschreibe ein Objekt und erzeuge ein neues 3D-Modell (Baseten-Direkt, Key nur Sitzung)."`, `generatorHint:"Wähle Provider und Modell, trage deinen Key ein und erzeuge ein neues Modell."`, 'W5 GeneratorHint de');
+  rep(`generatorHint:"Describe an object and create a new 3D model (Baseten direct, key session-only)."`, `generatorHint:"Choose provider and model, enter your key and create a new model."`, 'W5 GeneratorHint en');
+  rep(`generatorHint:"Describe un objeto y crea un nuevo modelo con Baseten (clave propia, directo en el navegador)."`, `generatorHint:"Elige proveedor y modelo, introduce tu clave y crea un nuevo modelo."`, 'W5 GeneratorHint es');
+  // W6 Detailblock mit POST-Befehl entfernen (Template + Computeds)
+  rep(`<details class="mt-3 rounded-xl border border-slate-200 dark:border-slate-700 p-3">\n<summary class="cursor-pointer text-sm font-medium min-h-[44px] flex items-center">{{t('genDetails')}}</summary>\n<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">{{genDetailsMsg}}</p>\n</details>\n`, '', 'W6 POST-Detailblock raus');
+  {
+    const a6 = 'genDetailsMsg:function(){';
+    if (s.includes(a6)) {
+      const st6 = s.indexOf(a6);
+      const en6 = s.indexOf('keyMissingMsg:function(){', st6);
+      must(st6 > 0 && en6 > st6, 'W6 genDetailsMsg-Grenzen');
+      must(s.slice(st6, en6).trimEnd().endsWith('},'), 'W6 genDetailsMsg-Ende');
+      s = s.slice(0, st6) + s.slice(en6);
+      changed = true;
+      console.log('  W6: genDetailsMsg-Computed entfernt');
+    }
+  }
+  {
+    const a6k = 'keyStore:function(){';
+    if (s.includes(a6k)) {
+      const st6k = s.indexOf(a6k);
+      const en6k = s.indexOf('genKeyPlaceholder:function(){', st6k);
+      must(st6k > 0 && en6k > st6k, 'W6 keyStore-Grenzen');
+      must(s.slice(st6k, en6k).trimEnd().endsWith('},'), 'W6 keyStore-Ende');
+      s = s.slice(0, st6k) + s.slice(en6k);
+      changed = true;
+      console.log('  W6: keyStore-Computed entfernt');
+    }
+  }
+  // W7 Versionspill aus Menueleiste entfernen (Titel/I18N bleiben)
+  rep(`<span class="text-xs px-2 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200">{{t('viewerBadge')}}</span>\n`, '', 'W7 Versionspill raus');
+  // W8 Key-Persistenz: Checkbox aus = dauerhaft localStorage (+Feedback+Prefill)
+  rep(`loadKeyFor:function(id){var k=id==="meta-muse"?"modelmuse-key-meta-muse":"modelmuse-key-baseten-direct";try{var v=sessionStorage.getItem(k);if(typeof v==="string"&&v.length>=8){return v;}}catch(e){}if(id!=="meta-muse"){try{var w=sessionStorage.getItem("modelmuse-proxy-key");if(typeof w==="string"&&w.length>=8){return w;}}catch(e2){}}return null;},`, `loadKeyFor:function(id){var k=id==="meta-muse"?"modelmuse-key-meta-muse":"modelmuse-key-baseten-direct";try{var v=sessionStorage.getItem(k);if(typeof v==="string"&&v.length>=8){return v;}}catch(e){}if(id!=="meta-muse"){try{var w=sessionStorage.getItem("modelmuse-proxy-key");if(typeof w==="string"&&w.length>=8){return w;}}catch(e2){}}try{var lp=JSON.parse(localStorage.getItem("modelmuse.keys")||"{}");var lv=lp[id];if(typeof lv==="string"&&lv.length>=8){return lv;}}catch(e3){}return null;},keyLocation:function(id){var k=id==="meta-muse"?"modelmuse-key-meta-muse":"modelmuse-key-baseten-direct";try{var v=sessionStorage.getItem(k);if(typeof v==="string"&&v.length>=8){return "session";}}catch(e){}try{var lp2=JSON.parse(localStorage.getItem("modelmuse.keys")||"{}");if(typeof lp2[id]==="string"&&lp2[id].length>=8){return "local";}}catch(e2){}return null;},`, 'W8 loadKeyFor+keyLocation (session+local)');
+  rep(`saveKeyFor:function(id){var k=id==="meta-muse"?"modelmuse-key-meta-muse":"modelmuse-key-baseten-direct";try{if(this.genConsent&&this.genKey){sessionStorage.setItem(k,this.genKey);}else{sessionStorage.removeItem(k);}}catch(e){}},`, `saveKeyFor:function(id){var k=id==="meta-muse"?"modelmuse-key-meta-muse":"modelmuse-key-baseten-direct";try{if(this.genConsent&&this.genKey){sessionStorage.setItem(k,this.genKey);try{var lp=JSON.parse(localStorage.getItem("modelmuse.keys")||"{}");if(lp&&lp[id]){delete lp[id];localStorage.setItem("modelmuse.keys",JSON.stringify(lp));}}catch(eL){}}else if(!this.genConsent&&this.genKey){try{var lp2=JSON.parse(localStorage.getItem("modelmuse.keys")||"{}");lp2[id]=this.genKey;localStorage.setItem("modelmuse.keys",JSON.stringify(lp2));}catch(eL2){}try{sessionStorage.removeItem(k);}catch(eS){}}else{try{sessionStorage.removeItem(k);}catch(eS2){}try{var lp3=JSON.parse(localStorage.getItem("modelmuse.keys")||"{}");if(lp3&&lp3[id]){delete lp3[id];localStorage.setItem("modelmuse.keys",JSON.stringify(lp3));}}catch(eL3){}}}catch(e){}},`, 'W8 saveKeyFor je Checkbox (session/local)');
+  rep(`try{var sk=this.loadKeyFor(this.genProvider);if(sk){this.genKey=sk;}}catch(eSK2){}`, `try{var sk=this.loadKeyFor(this.genProvider);if(sk){this.genKey=sk;try{var wl=this.keyLocation(this.genProvider);if(wl){this.genConsent=(wl==="session");}}catch(eWL){}}}catch(eSK2){}`, 'W8 Prefill+Consent mounted');
+  rep(`try{var k=this.loadKeyFor(this.genProvider);if(k&&!this.genKey){this.genKey=k;}}catch(e2){}`, `try{var k=this.loadKeyFor(this.genProvider);if(k&&!this.genKey){this.genKey=k;try{var wl2=this.keyLocation(this.genProvider);if(wl2){this.genConsent=(wl2==="session");}}catch(eWL2){}}}catch(e2){}`, 'W8 Prefill+Consent openModify');
+  rep(`directHintMsg:function(){return this.genProvider==="meta-muse"?this.t('directHintMeta'):this.t('directHint');},`, `directHintMsg:function(){return this.genProvider==="meta-muse"?this.t('directHintMeta'):this.t('directHint');},\nkeyStoreMsg:function(){return this.genConsent?this.t('keyStoredSession'):this.t('keyStoredLocal');},`, 'W8 keyStoreMsg-Computed');
+  rep(`{{directHintMsg}}</p>\n</div>`, `{{directHintMsg}}</p>\n<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">{{keyStoreMsg}}</p>\n</div>`, 'W8 Feedback-Zeile (Speicherort)');
+  rep(`I18N.de.keyMissing="Baseten-Key fehlt. Fuege oben deinen Key ein.";`, `I18N.de.keyMissing="Baseten-Key fehlt. Fuege oben deinen Key ein.";I18N.de.keyStoredSession="Key nur fuer diese Sitzung gespeichert (sessionStorage).";I18N.de.keyStoredLocal="Key dauerhaft gespeichert (localStorage).";`, 'W8 I18N de');
+  rep(`I18N.en.keyMissing="Baseten key missing. Paste your key above.";`, `I18N.en.keyMissing="Baseten key missing. Paste your key above.";I18N.en.keyStoredSession="Key stored for this session only (sessionStorage).";I18N.en.keyStoredLocal="Key stored permanently (localStorage).";`, 'W8 I18N en');
+  rep(`keyMissing:"Falta la clave Baseten. Pega tu clave arriba.",`, `keyMissing:"Falta la clave Baseten. Pega tu clave arriba.",keyStoredSession:"Clave guardada solo para esta sesion (sessionStorage).",keyStoredLocal:"Clave guardada permanente (localStorage).",`, 'W8 I18N es');
+  // W9 Loeschungen (kuratiert + free-*) in localStorage persistieren
+  rep(`data(){return{labs:LABS,activeLabId:null`, `data(){return{labs:(function(){try{var __dd=JSON.parse(localStorage.getItem("modelmuse.deleted")||"[]");if(Object.prototype.toString.call(__dd)!=="[object Array]"||!__dd.length){return LABS.slice();}return LABS.filter(function(__l){return __dd.indexOf(__l.id)<0;});}catch(__e){try{return LABS.slice();}catch(__e2){return LABS;}}})(),activeLabId:null`, 'W9 Boot-Filter (deleted)');
+  rep(`if(at>=0){this.labs.splice(at,1);}try{localStorage.removeItem("modelmuse.free."+id);}catch(e2){}`, `if(at>=0){this.labs.splice(at,1);}try{localStorage.removeItem("modelmuse.free."+id);}catch(e2){}try{var __dl=[];try{__dl=JSON.parse(localStorage.getItem("modelmuse.deleted")||"[]");}catch(__eD){__dl=[];}if(Object.prototype.toString.call(__dl)!=="[object Array]"){__dl=[];}if(__dl.indexOf(id)<0){__dl.push(id);}localStorage.setItem("modelmuse.deleted",JSON.stringify(__dl));}catch(__eD2){}`, 'W9 deleteLab persistiert ID');
+  rep(`try{var raw=localStorage.getItem(k);var o=JSON.parse(raw);if(!o||!o.id){continue;}`, `try{var raw=localStorage.getItem(k);var o=JSON.parse(raw);if(!o||!o.id){continue;}try{var __dd2=JSON.parse(localStorage.getItem("modelmuse.deleted")||"[]");if(Object.prototype.toString.call(__dd2)==="[object Array]"&&__dd2.indexOf(o.id)>=0){continue;}}catch(__eDD0){}`, 'W9 restoreFree ueberspringt deleted');
+  // W10 Leerzustand ohne Suche (eigener Text statt noResults)
+  rep(`<p class="text-slate-500 dark:text-slate-400">{{t('noResults')}}</p>\n<button type="button" @click="search=''"`, `<p class="text-slate-500 dark:text-slate-400">{{search?t('noResults'):t('emptyLibrary')}}</p>\n<button v-if="search" type="button" @click="search=''"`, 'W10 Leerzustand konditional');
+  rep(`,viewportTitle:"3D-Ansicht",`, `,emptyLibrary:"Keine Modelle gespeichert, nutze den Generator.",viewportTitle:"3D-Ansicht",`, 'W10 I18N de');
+  rep(`,viewportTitle:"3D viewport",`, `,emptyLibrary:"No models saved, use the generator.",viewportTitle:"3D viewport",`, 'W10 I18N en');
+  rep(`,viewportTitle:"Vista",`, `,emptyLibrary:"No hay modelos guardados, usa el generador.",viewportTitle:"Vista",`, 'W10 I18N es');
+  // W11 Button 'Beispiel laden' neben Generieren entfernen
+  rep(`<button @click="selectLab('free-handbohrmaschine')" type="button" class="inline-flex items-center justify-center rounded-xl bg-indigo-600 text-white px-4 min-h-[44px] min-w-[44px] text-sm font-semibold">{{t('exampleLoad')}}</button>\n`, '', 'W11 Beispiel-Button raus');
+  return { s, changed };
+}
+
 function checkInvariants(s) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
@@ -55,8 +149,8 @@ function checkInvariants(s) {
     ['id="gen-provider"', 1], ['id="gen-reasoning"', 1], ['id:"baseten-direct"', 1], ['id:"meta-muse"', 1],
     ['label:"Baseten"', 1], ['label:"Meta Muse"', 1],
     ['models:["muse-spark-1.3-contributor","muse-spark-1.3","muse-wonder-1.0"]', 1],
-    ['https://api.meta.ai/v1', 2], ['https://api.meta.ai/v1/chat/completions', 1],
-    ['https://inference.baseten.co/v1/chat/completions', 2],
+    ['https://api.meta.ai/v1', 1], ['https://api.meta.ai/v1/chat/completions', 0],
+    ['https://inference.baseten.co/v1/chat/completions', 1],
     ['meta-models/muse-spark-open-1026', 2],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['text/event-stream', 3], ['stream:true', 3], ['max_completion_tokens', 2],
@@ -70,6 +164,27 @@ function checkInvariants(s) {
     ['id="mod-desc2"', 1], ['@click="openModify', 1], ['modify:async function', 1], ['submitModify:function', 1], ['closeModify:function', 1],
     ['deleteLab', 6], ['deleteConfirm', 4],
     ['v-if="showOnboarding"', 1], ['id="gen-status"', 1], ['showcase: 5 Modelle', 1],
+    ['__FREE_GUARD_V18__', 1],
+    ['emptyLibrary', 4],
+    ['modelmuse.deleted', 4],
+    ['modelmuse.keys', 8],
+    ['keyStoredSession', 4],
+    ['keyStoredLocal', 4],
+    ['keyStoreMsg', 2],
+    ['{{genDetailsMsg}}', 0],
+    ["{{t('viewerBadge')}}", 0],
+    ["{{t('exampleLoad')}}", 0],
+    ['exampleLoad', 3],
+    ["{{t('webglFallback')}}</p>", 0],
+    ["{{t('diagramNote')}}</p>", 0],
+    ['keyStore:function', 0],
+    ['genDetailsMsg:function', 0],
+    ['Dieses eigene Modell', 0],
+    ['delete this custom model', 0],
+    ['modelo propio', 0],
+    ['Baseten-Direkt', 1],
+    ['Meta-Direkt', 0],
+    ['Baseten direct', 0],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
@@ -92,9 +207,21 @@ let s = await readFile(FILE, 'utf8');
 console.log(`build-v17: Basis ${s.length} Zeichen`);
 must(s.includes('standalone-build v16'), 'kein v16-Stempel (falsche Basis)');
 if (s.includes('standalone-build v17')) {
-  console.log('build-v17: bereits v17 — pruefe Invarianten ...');
+  console.log('build-v17: bereits v17 — prüfe Migrationen ...');
+  let changed17 = false;
+  const g17 = applyGuardFix(s);
+  if (g17.changed) { s = g17.s; changed17 = true; console.log('  G: Guard gehärtet (strip+mask, top/parent präzise)'); }
+  const w17 = applyOwnerFixes(s);
+  if (w17.changed) { s = w17.s; changed17 = true; }
   checkInvariants(s);
-  console.log('build-v17: bereits v17 — nichts zu tun (idempotent, exit 0)');
+  if (!changed17) {
+    console.log('build-v17: bereits v17 — nichts zu tun (idempotent, exit 0)');
+    process.exit(0);
+  }
+  await writeFile(FILE, s);
+  console.log(`build-v17: migriert + geschrieben (${s.length} Zeichen)`);
+  await writeReport(s);
+  console.log('build-v17: OK v17 (Guard+Owner migriert)');
   process.exit(0);
 }
 
@@ -152,6 +279,16 @@ s = rep1(s, 'try{res=await fetch(this.genDirectUrl,{method:"POST",headers:{Autho
 must(cnt(s, 'var data=null;try{data=await res.json();}catch(e){data=null;}var text="";try{if(data&&data.choices&&data.choices[0]&&data.choices[0].message&&typeof data.choices[0].message.content==="string"){text=data.choices[0].message.content;}}catch(e){text="";}') === 2, 'P4 parse-Snippet (generate+modify) fehlt/mehrdeutig');
 s = s.split('var data=null;try{data=await res.json();}catch(e){data=null;}var text="";try{if(data&&data.choices&&data.choices[0]&&data.choices[0].message&&typeof data.choices[0].message.content==="string"){text=data.choices[0].message.content;}}catch(e){text="";}').join('var text="";try{text=await this.readChatText(res);}catch(e){text="";}');
 console.log('  P4/P6: generate+modify (Streaming, 401 je Provider, Key je Provider)');
+
+// ---------- G+W: Guard haerten + Owner-Liste (idempotent) ----------
+{
+  const gf = applyGuardFix(s);
+  if (gf.changed) console.log('  G: Guard gehärtet (strip+mask, top/parent präzise)');
+  else console.log('  G: Guard bereits gehärtet');
+  s = gf.s;
+  const wf = applyOwnerFixes(s);
+  s = wf.s;
+}
 
 // ---------- Stempel + Invarianten ----------
 {

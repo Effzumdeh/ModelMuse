@@ -236,9 +236,9 @@ if (isShowcase) {
     ["{{t(\"learnMode\")}}", 'learning mode'], ["{{t('level')}}", 'level label'],
     ['openrouter', 'OpenRouter lowercase'], ['OpenRouter', 'OpenRouter uppercase'],
   ]) eqS(sub, 0, `must be absent: ${label}`);
-  eqS('https://inference.baseten.co/v1/chat/completions', 2, 'Baseten endpoint (Details + Fallback)');
-  eqS('https://api.meta.ai/v1', 2, 'Meta base (Provider + Details)');
-  eqS('https://api.meta.ai/v1/chat/completions', 1, 'Meta endpoint (Details)');
+  eqS('https://inference.baseten.co/v1/chat/completions', 1, 'Baseten endpoint (Provider-Fallback, kein POST-Detailblock)');
+  eqS('https://api.meta.ai/v1', 1, 'Meta base (Provider, kein POST-Detailblock)');
+  eqS('https://api.meta.ai/v1/chat/completions', 0, 'kein Meta-POST-Detailblock');
   if (cnt('meta-models/muse-spark-open-1026') < 2) fail('Baseten model is missing.');
   else ok('Baseten model: muse-spark-open-1026');
   eqS('openrouter-direct', 0, 'OpenRouter provider ID');

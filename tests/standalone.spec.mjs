@@ -245,7 +245,7 @@ test('Leerzustand: alle 10 nacheinander loeschbar, Liste leer, Viewer-Hinweis, G
   await expect(page.locator('#gen-status')).toHaveCount(1);
 });
 
-test('Reload stellt kuratierte wieder her (nur free-* persistiert)', async ({ page }) => {
+test('Reload behaelt Loeschungen (kuratiert + free-* persistiert, W9)', async ({ page }) => {
   page.on('dialog', (d) => d.accept());
   await ready(page);
   await expect(page.locator('aside li')).toHaveCount(10);
@@ -254,8 +254,10 @@ test('Reload stellt kuratierte wieder her (nur free-* persistiert)', async ({ pa
   await expect(page.locator('aside li')).toHaveCount(9);
   await page.reload();
   await ready(page);
-  await expect(page.locator('aside li')).toHaveCount(10);
-  await expect(page.locator('aside h2')).toHaveText('Modelle (10)');
+  await expect(page.locator('aside li')).toHaveCount(9);
+  await expect(page.locator('aside h2')).toHaveText('Modelle (9)');
+  const deleted = await page.evaluate(() => localStorage.getItem('modelmuse.deleted'));
+  expect(JSON.parse(deleted)).toContain('arch-brandenburger-tor');
 });
 
 test('Alle 10 Modelle (5x 3D + 5x 2D v14): rendern + Screenshots', async ({ page }) => {

@@ -44,6 +44,22 @@ const DELETE_EMPTY_OLD = `}else{this.activeLabId=null;}},`;
 const DELETE_EMPTY_NEW = `}else{this.activeLabId=null;try{this.syncViewer();}catch(e4){}}},`;
 const DELETE_METHOD_NEW = `closeModify:function(){this.modOverlay=false;},deleteLab:function(){var lab=this.activeLab;if(!lab||!lab.id){return;}var ok=true;try{ok=window.confirm(this.t('deleteConfirm'));}catch(e){ok=true;}if(!ok){return;}var id=lab.id;var at=-1;for(var i=0;i<this.labs.length;i++){if(this.labs[i].id===id){at=i;break;}}if(at>=0){this.labs.splice(at,1);}try{localStorage.removeItem("modelmuse.free."+id);}catch(e2){}this.modOverlay=false;this.modStatus="";this.modStatusBad=false;var nx=this.labs[0]||null;if(nx){try{this.selectLab(nx.id);}catch(e3){this.activeLabId=nx.id;}}else{this.activeLabId=null;try{this.syncViewer();}catch(e4){}}},`;
 
+// ---------- G0: Standalone-Guard (strip+mask, top/parent praezise) ----------
+// Der alte Rohtext-Wortcheck (\btop\b auf unbereinigtem Code) warf schon
+// 'const top = 2.44' (Torlatte) oder '// top edge'. Wie
+// src/runtime/guard-static.js werden Kommentare/Strings ausgeblendet;
+// 'top'/'parent' sind nur noch als Frame-Flucht (window.top, top.document,
+// top.postMessage, top[..], ungedehnter Global-Read) verboten. window,
+// document, eval & Co. bleiben strikte \b-Verbote. Idempotent via Marker.
+const GUARD_MARK = '__FREE_GUARD_V18__';
+const GUARD_OLD = 'var words=["document","window","parent","top","fetch","eval","Function","navigator","localStorage","sessionStorage","indexedDB","sendBeacon","WebSocket","XMLHttpRequest","THREE"];for(var wi=0;wi<words.length;wi++){var w=words[wi];var wr=new RegExp("\\\\b"+w+"\\\\b");if(wr.test(code)){throw new Error("E-FREE-FORBID: "+w);}}';
+const GUARD_NEW = String.raw`/*__FREE_GUARD_V18__ strip+mask, top/parent member-only*/var clean=code;var BT=String.fromCharCode(96),DL=String.fromCharCode(36,123);try{var __so="",__si=0,__sn=clean.length,__sq=null;while(__si<__sn){var __sc=clean.charAt(__si);var __sd=clean.charAt(__si+1);if(__sq){__so+=__sc;if(__sc==="\\"){__so+=__sd||"";__si+=2;continue;}if(__sc===__sq){__sq=null;}__si+=1;continue;}if(__sc==='"'||__sc==="'"||__sc===BT){__sq=__sc;__so+=__sc;__si+=1;continue;}if(__sc==="/"&&__sd==="/"){while(__si<__sn&&clean.charAt(__si)!=="\n"){__so+=" ";__si+=1;}continue;}if(__sc==="/"&&__sd==="*"){__so+="  ";__si+=2;while(__si<__sn&&!(clean.charAt(__si)==="*"&&clean.charAt(__si+1)==="/")){__so+=clean.charAt(__si)==="\n"?"\n":" ";__si+=1;}__so+="  ";__si+=2;continue;}__so+=__sc;__si+=1;}clean=__so;}catch(__se){}try{var __mo="",__mi=0,__mn=clean.length,__mq=null,__md=0;while(__mi<__mn){var __mc=clean.charAt(__mi);if(__mq){if(__mc==="\\"){__mo+="  ";__mi+=2;continue;}if(__md===0&&__mc===__mq){__mo+=" ";__mq=null;__mi+=1;continue;}if(__mc==="$"&&clean.charAt(__mi+1)==="{"&&__mq===BT){__md+=1;__mo+=DL;__mi+=2;continue;}if(__md>0){if(__mc==="{"){__md+=1;}if(__mc==="}"){__md-=1;}__mo+=__mc;__mi+=1;continue;}__mo+=__mc==="\n"?"\n":" ";__mi+=1;continue;}if(__mc==='"'||__mc==="'"||__mc===BT){if(__mc===BT){__mq=BT;__md=0;}else{__mq=__mc;}__mo+=" ";__mi+=1;continue;}__mo+=__mc;__mi+=1;}clean=__mo;}catch(__me){}var words=["document","window","fetch","eval","Function","navigator","localStorage","sessionStorage","indexedDB","sendBeacon","WebSocket","XMLHttpRequest","THREE"];for(var wi=0;wi<words.length;wi++){var w=words[wi];var wr=new RegExp("\\b"+w+"\\b");if(wr.test(clean)){throw new Error("E-FREE-FORBID: "+w);}}var __dc=function(__dn){if(new RegExp("(?:^|[^.\\w$])(?:var|let|const)\\s+"+__dn+"\\b").test(clean)){return true;}if(new RegExp("function\\s+"+__dn+"\\b").test(clean)){return true;}if(new RegExp("class\\s+"+__dn+"\\b").test(clean)){return true;}if(new RegExp("(?:var|let|const)\\s*\\{[^}]*\\b"+__dn+"\\b").test(clean)){return true;}if(new RegExp("(?:var|let|const)\\s*\\[[^\\]]*\\b"+__dn+"\\b").test(clean)){return true;}if(new RegExp("catch\\s*\\(\\s*"+__dn+"\\b").test(clean)){return true;}if(new RegExp("function\\s*\\([^)]*\\b"+__dn+"\\b").test(clean)){return true;}if(new RegExp("\\([^()]*\\b"+__dn+"\\b[^()]*\\)\\s*=>").test(clean)){return true;}if(new RegExp("[^\\w$]"+__dn+"\\s*=>").test(clean)){return true;}return false;};var __tn=["top","parent"];for(var __ti=0;__ti<__tn.length;__ti++){var __t2=__tn[__ti];if(__dc(__t2)){continue;}if(new RegExp("(?:\\bwindow|\\bself|\\bglobalThis|\\bframes?|\\bframe|\\bcontentWindow)\\s*\\.\\s*"+__t2+"\\b").test(clean)){throw new Error("E-FREE-FORBID: "+__t2);}if(new RegExp("\\b"+__t2+"\\s*\\.\\s*(?:document|window|location|frames?|postMessage|top|parent|self|opener|close|length|name)\\b").test(clean)){throw new Error("E-FREE-FORBID: "+__t2);}if(new RegExp("\\b"+__t2+"\\s*\\[").test(clean)){throw new Error("E-FREE-FORBID: "+__t2);}var __tr=new RegExp("\\b"+__t2+"\\b","g");var __tm;while((__tm=__tr.exec(clean))!==null){if(clean.charAt(__tm.index-1)!=="."){throw new Error("E-FREE-FORBID: "+__t2);}}}`;
+function applyGuardFix(s) {
+  if (s.includes(GUARD_MARK)) return { s, changed: false };
+  must((s.split(GUARD_OLD).length - 1) === 1, 'G Guard-Anker fehlt/mehrdeutig');
+  return { s: s.replace(GUARD_OLD, GUARD_NEW), changed: true };
+}
+
 function checkInvariants(s) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1],
@@ -58,7 +74,8 @@ function checkInvariants(s) {
     ['detailsTitle', 0], ["{{t('detailsTitle')}}", 0], ['measurementsTitle', 0], ['labelsTitle', 0],
     ['v-if="showOnboarding"', 1],
     ['shrink-0 inline-flex items-center justify-center rounded-xl border', 1],
-    ['role="dialog"', 2], ['id="gen-status"', 1], ['showcase: 5 Modelle', 1],
+    ['role="dialog"', 2], ['id="gen-status"', 1],    ['showcase: 5 Modelle', 1],
+    ['__FREE_GUARD_V18__', 1],
     ['Fortschritt', 0], ['fortschritt', 0],
     ['explanations:{de:[', 10], ['openPartInfo', 2], ['closePartInfo', 2], ['partInfoIndex', 7],
     ['partInfoTitle', 5], ['partInfoAbout', 5], ['partExplanations', 2], ['partInfoMissing', 4],
@@ -113,6 +130,8 @@ if (s.includes('standalone-build v16')) {
     changed = true;
     console.log('  U2-Migration: Leerzustand-Sync (syncViewer) ergaenzt');
   }
+  const gg16 = applyGuardFix(s);
+  if (gg16.changed) { s = gg16.s; changed = true; console.log('  G: Guard gehärtet (strip+mask, top/parent präzise)'); }
   checkInvariants(s);
   if (!changed) {
     console.log('build-v16: bereits universell — nichts zu tun (idempotent, exit 0)');
@@ -155,9 +174,9 @@ must(s.includes('showcase: 5 Modelle'), 'kein Showcase-Stempel (falsche Basis)')
 }
 {
   const t = [
-    [`I18N.de.modDone="Überarbeitung geladen.";I18N.de.modifyOpen="Überarbeiten";`, `I18N.de.modDone="Überarbeitung geladen.";I18N.de.modifyOpen="Überarbeiten";I18N.de.deleteLab="Löschen";I18N.de.deleteConfirm="Dieses eigene Modell wirklich löschen?";`],
-    [`I18N.en.modDone="Revision loaded.";I18N.en.modifyOpen="Revise";`, `I18N.en.modDone="Revision loaded.";I18N.en.modifyOpen="Revise";I18N.en.deleteLab="Delete";I18N.en.deleteConfirm="Really delete this custom model?";`],
-    [`modDone:"Revision cargada.",modifyOpen:"Revisar"`, `modDone:"Revision cargada.",modifyOpen:"Revisar",deleteLab:"Eliminar",deleteConfirm:"¿Eliminar este modelo propio?"`],
+    [`I18N.de.modDone="Überarbeitung geladen.";I18N.de.modifyOpen="Überarbeiten";`, `I18N.de.modDone="Überarbeitung geladen.";I18N.de.modifyOpen="Überarbeiten";I18N.de.deleteLab="Löschen";I18N.de.deleteConfirm="Dieses Modell wirklich löschen?";`],
+    [`I18N.en.modDone="Revision loaded.";I18N.en.modifyOpen="Revise";`, `I18N.en.modDone="Revision loaded.";I18N.en.modifyOpen="Revise";I18N.en.deleteLab="Delete";I18N.en.deleteConfirm="Really delete this model?";`],
+    [`modDone:"Revision cargada.",modifyOpen:"Revisar"`, `modDone:"Revision cargada.",modifyOpen:"Revisar",deleteLab:"Eliminar",deleteConfirm:"¿Eliminar este modelo?"`],
   ];
   for (const [a, b] of t) {
     must(cnt(s, a) === 1, `U2 I18N-Anker fehlt: ${a.slice(0, 40)}`);
@@ -234,6 +253,14 @@ must(s.includes('showcase: 5 Modelle'), 'kein Showcase-Stempel (falsche Basis)')
   must(cnt(s, head) === 1, 'U5 Header/Content-Anker fehlt/mehrdeutig');
   s = s.replace(head, `</header>\n<div class="max-w-[1920px] mx-auto w-full px-4 pt-4">\n${banner}</div>\n<div class="max-w-[1920px] mx-auto w-full flex-1 flex flex-col lg:flex-row gap-6 p-4">`);
   console.log('  U5: Banner unter Menueleiste (ueber Liste + Viewer)');
+}
+
+// ---------- G: Guard härten (idempotent, fresh + migriert) ----------
+{
+  const gg = applyGuardFix(s);
+  if (gg.changed) console.log('  G: Guard gehärtet (strip+mask, top/parent präzise)');
+  else console.log('  G: Guard bereits gehärtet');
+  s = gg.s;
 }
 
 // ---------- Stempel + Invarianten ----------
