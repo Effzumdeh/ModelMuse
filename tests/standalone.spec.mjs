@@ -1,9 +1,10 @@
 /**
- * Standalone-v13/v14-Suite (einzige Auslieferung, GitHub-Pages-faehig).
+ * Standalone-v13/v14/v15a/v16-Suite (einzige Auslieferung, GitHub-Pages-faehig).
  * Laedt dist-standalone/modelmuse-standalone.html ueber den Repo-Server
- * (CDN: Vue/three via unpkg), prueft Struktur (5 Showcase-3D + 5 2D-Demos v14,
- * entfernte Labels, Banner unten, Stift-Modify, Baseten-Default) und
- * rendert jedes Modell mit Screenshot nach dist-standalone/shots/<id>.png.
+ * (CDN: Vue/three via unpkg), prueft Struktur (10 Modelle, Stift-Modify,
+ * Banner oben, Referenzbericht/Details/Modify-Block entfernt, Loeschen
+ * eigener Modelle, Baseten-Default) und rendert jedes Modell mit Screenshot
+ * nach dist-standalone/shots/<id>.png.
  * Kein Key, kein Netz ausser CDN. Generieren/Modify nur Validierungspfad.
  */
 import { test, expect } from '@playwright/test';
@@ -37,13 +38,14 @@ test('Boot: Titel v13/v14, 10 Modelle, 10 Stift-Buttons, keine Errors', async ({
   await page.waitForTimeout(4000);
 });
 
-test('Entfernte Labels: keine Ziele/Niveau/Modus/Track/Lernfeld-Anzeigen', async ({ page }) => {
+test('Entfernte Bloecke: keine Ziele/Niveau/Modus/Track/Lernfeld-Anzeigen, kein Referenzbericht, keine Details, kein Modify-Hauptblock', async ({ page }) => {
   await ready(page);
   // innerText = nur gerendertes UI (keine <script>-Inhalte wie SOURCES/LABS).
   const body = await page.evaluate(() => document.body.innerText ?? '');
   for (const wort of [
     'Lernziele', 'Lernziel', 'Niveau', 'Lernmodus', 'Lernfeld', 'ARP-Block',
     'Curriculum-Details', 'LF 3', 'LF 2', 'ARP C-', 'Keine Labs',
+    'Referenzbericht', 'Details (Messungen', 'Messwerte', 'Modell überarbeiten',
   ]) {
     expect(body, `kein entferntes UI-Wort: ${wort}`).not.toContain(wort);
   }
@@ -51,20 +53,27 @@ test('Entfernte Labels: keine Ziele/Niveau/Modus/Track/Lernfeld-Anzeigen', async
   expect(body).toContain('Baseten');
 });
 
-test('Banner unten: Onboarding steht hinter dem Referenzbericht', async ({ page }) => {
+test('Banner oben: Onboarding steht direkt unter der Menueleiste, ueber Liste und Viewer; Verstanden dismissed', async ({ page }) => {
   await ready(page);
   const pos = await page.evaluate(() => {
-    const main = document.querySelector('main');
-    const html = main?.innerHTML ?? '';
-    const txt = main?.innerText ?? '';
-    const iViewport = txt.indexOf('3D-Ansicht');
-    const iVerify = txt.indexOf('Referenzbericht');
-    const iBanner = txt.indexOf('Willkommen bei ModelMuse');
-    return { iBanner, iVerify, iViewport, len: html.length };
+    const txt = document.body.innerText ?? '';
+    return {
+      iBanner: txt.indexOf('Willkommen bei ModelMuse'),
+      iListe: txt.indexOf('Modelle ('),
+      iViewport: txt.indexOf('3D-Ansicht'),
+    };
   });
-  expect(pos.iViewport).toBeGreaterThanOrEqual(0);
-  expect(pos.iVerify).toBeGreaterThan(pos.iViewport);
-  expect(pos.iBanner).toBeGreaterThan(pos.iVerify);
+  expect(pos.iBanner).toBeGreaterThanOrEqual(0);
+  expect(pos.iListe).toBeGreaterThan(pos.iBanner);
+  expect(pos.iViewport).toBeGreaterThan(pos.iBanner);
+  const above = await page.evaluate(() => {
+    const header = document.querySelector('#app > header');
+    const next = header?.nextElementSibling ?? null;
+    return { hasBanner: (next?.textContent ?? '').includes('Willkommen bei ModelMuse') };
+  });
+  expect(above.hasBanner).toBe(true);
+  await page.getByRole('button', { name: 'Verstanden' }).click();
+  await expect(page.getByText('Willkommen bei ModelMuse')).toHaveCount(0);
 });
 
 test('Provider-Default: Baseten muse-spark-open-1026, Key-Placeholder', async ({ page }) => {
@@ -95,6 +104,45 @@ test('Stift-Modify: Overlay oeffnet mit Modell, Key-Abfrage ohne Key', async ({ 
   await expect(dlg).toContainText('Baseten-Key fehlt');
   await dlg.getByRole('button', { name: 'Schließen' }).click();
   await expect(dlg).toHaveCount(0);
+});
+
+test('Loeschen: eigene Modelle im Overlay mit Rueckfrage loeschbar, kuratierte ohne Button', async ({ page }) => {
+  const seedKey = 'modelmuse.free.free-test-loesch';
+  const seedVal = JSON.stringify({
+    id: 'free-test-loesch',
+    title: { de: 'Test Loesch', en: 'Test Delete', es: 'Prueba' },
+    meta: { title: 'Test Loesch', parts: ['Teil A', 'Teil B', 'Teil C'], category: 'sonstiges', is3d: true },
+    manifest: {
+      labels: { de: ['Teil A', 'Teil B', 'Teil C'], en: ['Part A', 'Part B', 'Part C'], es: ['Pieza A', 'Pieza B', 'Pieza C'] },
+      measurements: [],
+      tasks: [],
+      quiz: { q: { de: '?', en: '?', es: '?' }, options: { de: ['a', 'b', 'c', 'd'], en: ['a', 'b', 'c', 'd'], es: ['a', 'b', 'c', 'd'] }, correct: 0, rationale: { de: '', en: '', es: '' } },
+    },
+    source: null,
+    sourceOmitted: true,
+  });
+  await page.addInitScript(
+    ({ k, v }) => localStorage.setItem(k, v),
+    { k: seedKey, v: seedVal },
+  );
+  page.on('dialog', (d) => d.accept());
+  await ready(page);
+  await expect(page.locator('aside h2')).toHaveText('Modelle (11)');
+  // Kuratiert: Overlay ohne Loeschen-Button.
+  await page.locator('aside li', { hasText: 'Koffein' }).getByRole('button', { name: 'Überarbeiten' }).click();
+  const dlg = page.locator('[role="dialog"]');
+  await expect(dlg).toBeVisible();
+  await expect(dlg.getByRole('button', { name: 'Löschen' })).toHaveCount(0);
+  await dlg.getByRole('button', { name: 'Schließen' }).click();
+  await expect(dlg).toHaveCount(0);
+  // Eigenes Modell: Loeschen mit Rueckfrage entfernt State + Listeneintrag.
+  await page.locator('aside li', { hasText: 'Test Loesch' }).getByRole('button', { name: 'Überarbeiten' }).click();
+  await expect(dlg).toBeVisible();
+  await dlg.getByRole('button', { name: 'Löschen' }).click();
+  await expect(page.locator('aside li', { hasText: 'Test Loesch' })).toHaveCount(0);
+  await expect(page.locator('aside h2')).toHaveText('Modelle (10)');
+  const stored = await page.evaluate((k) => localStorage.getItem(k), seedKey);
+  expect(stored).toBeNull();
 });
 
 test('Alle 10 Modelle (5x 3D + 5x 2D v14): rendern + Screenshots', async ({ page }) => {

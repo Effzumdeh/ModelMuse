@@ -255,6 +255,30 @@ if (isShowcase) {
   eqS('fortschritt', 0, 'fortschritt remnants (lowercase)');
   eqS('@click="openModify', 1, 'Per-model revise button');
   eqS('shrink-0 inline-flex items-center justify-center rounded-xl border', 1, 'Pencil button next to name (template)');
+  // v16 (UI-Stromlinien): Modify-Hauptblock raus (Stift-Overlay bleibt),
+  // Loeschen im Overlay, Referenzbericht + Details raus, Banner oben.
+  if (!s.includes('standalone-build v16')) fail('v16 stamp is missing (standalone-build v16).');
+  else ok('v16 stamp present (UI-Stromlinien)');
+  eqS('aria-label="modify"', 0, 'v16 modify main section');
+  eqS('id="mod-desc"', 0, 'v16 main modify textarea');
+  eqS('id="mod-desc2"', 1, 'v16 overlay modify textarea');
+  eqS('@click="modify"', 0, 'v16 main modify button');
+  eqS('modify:async function', 1, 'v16 modify logic kept');
+  eqS('deleteLab', 6, 'v16 delete affordance (template + method + 3 locales)');
+  eqS('deleteConfirm', 4, 'v16 delete confirm (call + 3 locales)');
+  eqS('verifyBadges', 0, 'v16 reference report computed');
+  eqS('verifyTitle', 0, 'v16 reference report title keys');
+  eqS('detailsTitle', 0, 'v16 details title keys');
+  eqS('measurementsTitle', 0, 'v16 measurements title keys');
+  eqS('labelsTitle', 0, 'v16 labels title keys');
+  eqS('v-if="showOnboarding"', 1, 'v16 onboarding banner');
+  {
+    const iB = s.indexOf('v-if="showOnboarding"');
+    const iA = s.indexOf('<aside');
+    const iV = s.indexOf('id="viewport"');
+    if (!(iB > 0 && iB < iA && iA < iV)) fail('v16 banner must sit below header, above list + viewer');
+    else ok('v16 banner below header, above list + viewer');
+  }
   eqS('empty-stand: 0 Modelle', 0, 'Stale empty-stand marker');
   if (!s.includes('showcase: 5 Modelle')) fail('Showcase marker is missing.');
   else ok('Showcase marker is present');
