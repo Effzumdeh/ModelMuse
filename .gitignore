@@ -31,3 +31,16 @@ cache/
 dist/manual-tests/
 *.tgz
 *.tar.gz
+# Strukturelle Hygiene 2026-10-30: generierte Shot-/Report-/Tmp-Artefakte lokal, nie versionieren
+# scripts/_tmp/* statt scripts/_tmp/, damit !.gitkeep-Ausnahme greift (Parent-Dir-Exclusion)
+scripts/_tmp/*
+!scripts/_tmp/.gitkeep
+dist-standalone/shots*/
+dist-standalone/showcase-harness/
+dist-standalone/*-report.json
+dist-standalone/SHOWCASE-REPORT-*.md
+dist-standalone/STANDALONE-REPORT-*.md
+dist-standalone/build-showcase-report.json
+dist-standalone/proof-aktuell-*.png
+dist-2d/demo-*
+docs/routing-shots/
