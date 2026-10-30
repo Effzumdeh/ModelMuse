@@ -216,7 +216,7 @@ Session `20261028_010153_3193af97` (539 Msg, 221 Tools) mit **8 designer-Profil-
 | 23:34 | „2D-Umstellung + Router: dup-1..3/ae-1..3 auf 2D…" (416 Msg, 226 Tools) | SVG-Datenmodule, `routeGeneration()`, Verify-2D-Gates | `7f483de` (00:14) |
 | 23:55 | „OpenRouter durch Baseten ersetzen…" (276 Msg, 152 Tools) | `docs/BASETEN-MIGRATION.md` | — |
 | 00:15 | „Slim-Generator: Quiz/Progress/Tipps-Code…" (440 Msg, 241 Tools) | Slim-Standalone | `292494e` (01:19) |
-| 00:15 | „Lizenz-Audit: je Fremdinhalt…" (233 Msg, 141 Tools) | `docs/LIZENZEN.md` | — |
+| 00:15 | „Lizenz-Audit: je Fremdinhalt…" (233 Msg, 141 Tools) | `docs/licenses.md` | — |
 
 **Git-Historie (vollständig, 7 Commits):**
 
@@ -585,7 +585,7 @@ Anhang zum Fachkonzept: 9 vollständige Beispiel-Specs nach Schema-Profil `lab-s
 - **Live-Generierung im 180-s-Fenster**: „physikalisch unmöglich (92–401 s gemessen); Demo fährt ehrlich den F2-Pfad."
 - **A-03**: Pfad + Skripte verifiziert grün, Generierung steht auf 429 des Gratis-Tiers → Retry innerhalb der Key-Stunde, danach als „ratenlimitiert, $0 verbraucht" dokumentieren.
 
-### 4.15 `docs/LIZENZEN.md` (29.10.) — Lizenz-Audit
+### 4.15 `docs/licenses.md` (29.10.) — Lizenz-Audit
 
 **Kernaussage:** Alle identifizierten Fremdbestandteile stehen unter MIT, Apache-2.0, ISC oder SIL OFL 1.1. **Kein NC-, ND- oder proprietäres Asset** im geprüften Material.
 
@@ -809,7 +809,7 @@ Kein Widerspruch zwischen beiden Dokumenten festgestellt.
 
 ### 8.2 Umsetzungsdokumente (`OneDrive/modelMuse/docs/`, 24 Dateien)
 
-`2D-STACK-EVAL.md` (23.601 B) · `2D-UMSTELLUNG-2026-10-28.md` (6.362 B) · `ABLAGEKONVENTION.md` (2.508 B) · `ABWEICHUNGSBLATT-2026-10-27.md` (1.673 B) · `AKTUELL-SCREENSHOTS.md` (3.338 B) · `ARCHITEKTUR-PFADE.md` (2.182 B) · `BASETEN-MIGRATION.md` (5.823 B) · `FINAL-NACHWEISE.md` (2.377 B) · `implementation-guide-3d-qualitaet.md` (7.411 B) · `INSTALLATION-MUSE.md` (958 B) · `ki-modellqualitaet-recherche.md` (85.667 B) · `LEGACY-INVENTUR.md` (8.818 B) · `LEGACY-OFFEN.md` (5.176 B) · `LIZENZEN.md` (9.056 B) · `MODELLPORTFOLIO-VORSCHLAG.md` (31.852 B) · `NEUBAU-UI-CHECK.md` (7.333 B) · `NEXT-STEPS.md` (7.313 B) · `PROXY-BOOTSTRAP-BEFUND.md` (4.390 B) · `REALGEBAEUDE-MACHBARKEIT.md` (16.319 B) · `ROUTER-KONZEPT.md` (5.441 B) · `ROUTING-TESTS.md` (9.852 B) · `modelmuse-v8-spec.md` (9.901 B) · `three-186-api-pin.md` (2.956 B) + `source-de/` (5 Dateien: FINAL-NACHWEISE, implementation-guide, LIZENZEN, ROUTER-KONZEPT, STANDALONE-REPORT)
+`2D-STACK-EVAL.md` (23.601 B) · `2D-UMSTELLUNG-2026-10-28.md` (6.362 B) · `ABLAGEKONVENTION.md` (2.508 B) · `ABWEICHUNGSBLATT-2026-10-27.md` (1.673 B) · `AKTUELL-SCREENSHOTS.md` (3.338 B) · `ARCHITEKTUR-PFADE.md` (2.182 B) · `BASETEN-MIGRATION.md` (5.823 B) · `FINAL-NACHWEISE.md` (2.377 B) · `implementation-guide-3d-qualitaet.md` (7.411 B) · `INSTALLATION-MUSE.md` (958 B) · `ki-modellqualitaet-recherche.md` (85.667 B) · `LEGACY-INVENTUR.md` (8.818 B) · `LEGACY-OFFEN.md` (5.176 B) · `licenses.md` (9.056 B) · `MODELLPORTFOLIO-VORSCHLAG.md` (31.852 B) · `NEUBAU-UI-CHECK.md` (7.333 B) · `NEXT-STEPS.md` (7.313 B) · `PROXY-BOOTSTRAP-BEFUND.md` (4.390 B) · `REALGEBAEUDE-MACHBARKEIT.md` (16.319 B) · `ROUTER-KONZEPT.md` (5.441 B) · `ROUTING-TESTS.md` (9.852 B) · `modelmuse-v8-spec.md` (9.901 B) · `three-186-api-pin.md` (2.956 B) + `source-de/` (5 Dateien: FINAL-NACHWEISE, implementation-guide, LIZENZEN, ROUTER-KONZEPT, STANDALONE-REPORT)
 
 ### 8.3 Mess- und Ledger-Belege
 

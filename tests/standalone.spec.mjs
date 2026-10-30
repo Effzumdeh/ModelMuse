@@ -234,9 +234,11 @@ test('Leerzustand: alle 10 nacheinander loeschbar, Liste leer, Viewer-Hinweis, G
   }
   await expect(page.locator('aside li')).toHaveCount(0);
   await expect(page.locator('aside h2')).toHaveText('Modelle (0)');
-  // Viewer mit Hinweis (activeLab-Fallback), Buehne rendert Fallback.
-  await expect(page.locator('section[aria-label="3D-Ansicht"] h2')).toContainText('Keine Modelle');
-  await page.waitForSelector('#viewport canvas, #viewport svg', { timeout: 60000 });
+  // v18 (OOB Designlob): Viewer bei leerer Liste ausgeblendet (v-if labs.length),
+  // nur Empty-State + Generator sichtbar.
+  await expect(page.locator('section[aria-label="3D-Ansicht"]')).toHaveCount(0);
+  await expect(page.locator('#viewport')).toHaveCount(0);
+  await expect(page.getByText('Keine Modelle gespeichert')).toBeVisible();
   // Generator weiter nutzbar (Validierungspfad ohne Upstream).
   await expect(page.locator('#gen-desc')).toBeVisible();
   await page.fill('#gen-desc', '');
@@ -278,4 +280,95 @@ test('Alle 10 Modelle (5x 3D + 5x 2D v14): rendern + Screenshots', async ({ page
   }
   // Buehne zeigt zuletzt die pq-Formel (KaTeX-Block, kein Canvas).
   await expect(page.locator('#viewport .katex-block')).toHaveCount(1);
+});
+
+/**
+ * Regression leere Antwort (v18): simulierter Upstream ohne Key/Netz.
+ * Meta/Baseten liefern bei Reasoning-Last leere Deltas + stop bzw.
+ * content null + finish length (live belegt 30.10.2026: 198/200 Tokens
+ * Reasoning, kein sichtbarer Text). Der Reader darf das nicht still
+ * verschlucken: Diagnose mit Provider/Modell/HTTP/finish statt nur
+ * "Leere Antwort".
+ */
+const SSE_MIN_MODULE = [
+  'import { Scene, Group, Mesh, MeshStandardMaterial, BoxGeometry, HemisphereLight, DirectionalLight, Vector3 } from \'three\';',
+  'import { addLabel, addMeasurement } from \'wrapper-helpers\';',
+  'export const meta = { title: "Regressionsquader", category: "hardware", detailLevel: 2, parts: ["Korpus", "Deckel", "Boden"], units: "m" };',
+  'export function init(container, params) { const scene = new Scene(); const g = new Group(); scene.add(g); return { update(patch) {}, dispose() {} }; };',
+].join('\n');
+
+function sseBody(events) {
+  return `${events.map((e) => `data: ${JSON.stringify(e)}`).join('\n')}\ndata: [DONE]\n`;
+}
+
+test('Regression: leere SSE-Antwort meldet Diagnose mit Provider Modell Status', async ({ page }) => {
+  await ready(page);
+  await page.route('https://inference.baseten.co/v1/chat/completions', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/event-stream',
+      body: sseBody([
+        { choices: [{ delta: { reasoning_content: 'Denke nach...' } }] },
+        { choices: [{ delta: {} }] },
+        { choices: [{ delta: {}, finish_reason: 'stop' }] },
+      ]),
+    });
+  });
+  await page.fill('#gen-key', 'byok-test-key-12345');
+  await page.fill('#gen-desc', 'Regressionsquader leer');
+  await page.getByRole('button', { name: 'Generieren' }).click();
+  const status = page.locator('#gen-status');
+  await expect(status).toContainText('Leere Antwort');
+  await expect(status).toContainText('baseten-direct');
+  await expect(status).toContainText('meta-models/muse-spark-open-1026');
+  await expect(status).toContainText('HTTP 200');
+});
+
+test('Regression: Reasoning plus Content-Array wird gesammelt (kein Leere-Antwort)', async ({ page }) => {
+  await ready(page);
+  await page.route('https://inference.baseten.co/v1/chat/completions', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/event-stream',
+      body: sseBody([
+        { choices: [{ delta: { reasoning_content: 'plane...' } }] },
+        { choices: [{ delta: {} }] },
+        { choices: [{ message: { content: [{ type: 'text', text: SSE_MIN_MODULE }], role: 'assistant' }, finish_reason: 'stop' }] },
+      ]),
+    });
+  });
+  await page.fill('#gen-key', 'byok-test-key-12345');
+  await page.fill('#gen-desc', 'Regressionsquader voll');
+  await page.getByRole('button', { name: 'Generieren' }).click();
+  await expect(page.locator('#gen-status')).toContainText('Modell bereit', { timeout: 60000 });
+  await expect(page.locator('#gen-status')).toContainText('Regressionsquader');
+  await expect(page.locator('aside h2')).toHaveText('Modelle (11)');
+});
+
+test('Regression: leere Liste blendet Viewer aus, erstes Modell bringt ihn zurueck', async ({ page }) => {
+  test.setTimeout(180000);
+  page.on('dialog', (d) => d.accept());
+  await ready(page);
+  await page.route('https://inference.baseten.co/v1/chat/completions', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/event-stream',
+      body: sseBody([
+        { choices: [{ delta: { content: SSE_MIN_MODULE, finish_reason: 'stop' } }] },
+      ]),
+    });
+  });
+  for (let n = 10; n >= 1; n -= 1) {
+    await expect(page.locator('aside li')).toHaveCount(n);
+    await page.locator('aside li').first().getByRole('button', { name: 'Überarbeiten' }).click();
+    await page.locator('[role="dialog"]').getByRole('button', { name: 'Löschen' }).click();
+  }
+  await expect(page.locator('aside h2')).toHaveText('Modelle (0)');
+  await expect(page.locator('#viewport')).toHaveCount(0);
+  await page.fill('#gen-key', 'byok-test-key-12345');
+  await page.fill('#gen-desc', 'Regressionsquader neu');
+  await page.getByRole('button', { name: 'Generieren' }).click();
+  await expect(page.locator('#gen-status')).toContainText('Modell bereit', { timeout: 60000 });
+  await expect(page.locator('aside h2')).toHaveText('Modelle (1)');
+  await expect(page.locator('#viewport')).toHaveCount(1);
 });

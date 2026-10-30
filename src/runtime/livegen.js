@@ -90,43 +90,131 @@ function isTransportFailure(e) {
 }
 
 /**
+ * Ein Chat-Chunk (SSE-Event oder JSON-Antwort) -> sichtbarer Text.
+ * Sammelt delta.content + message.content + text + output_text (String oder
+ * Text-Parts-Array wie [{type:'text',text:...}]), ignoriert Reasoning-Felder
+ * (reasoning_content/reasoning: nur gezaehlt, nie abgebrochen) und leere
+ * choices. Gibt '' zurueck, wenn der Chunk nichts Sichtbares traegt.
+ * Diagnose laeuft ueber `info` (Seitenkanal, nie geloggt mit Key-Inhalten).
+ * @param {unknown} evt
+ * @param {{ chunks: number, empty: number, reason: number, finish: string, err: string, usage: string }} [info]
+ */
+export function collectChatText(evt, info) {
+  const st = info ?? { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
+  if (!evt || typeof evt !== 'object') return '';
+  const rec = /** @type {any} */ (evt);
+  if (typeof rec.error === 'string' && rec.error) st.err = String(rec.error).slice(0, 80);
+  else if (rec.error && typeof rec.error.message === 'string') st.err = String(rec.error.message).slice(0, 80);
+  if (rec.usage && typeof rec.usage.completion_tokens === 'number') {
+    const rt = typeof rec.usage.reasoning_tokens === 'number' ? `reasoning ${rec.usage.reasoning_tokens}/` : '';
+    st.usage = `${rt}${rec.usage.completion_tokens} tokens`;
+  }
+  const ch = (rec.choices && rec.choices[0]) || null;
+  if (!ch) {
+    if (Array.isArray(rec.choices)) st.empty += 1;
+    const fb = (typeof rec.output_text === 'string' && rec.output_text)
+      || (typeof rec.text === 'string' && rec.text) || '';
+    if (fb) st.chunks += 1;
+    return fb;
+  }
+  const fr = ch.finish_reason ?? rec.finish_reason ?? '';
+  if (fr) st.finish = String(fr);
+  const d = ch.delta ?? null;
+  const m = ch.message ?? null;
+  const hasReason = (d && (typeof d.reasoning_content === 'string' || typeof d.reason === 'string'))
+    || (m && (typeof m.reasoning_content === 'string' || typeof m.reason === 'string'));
+  if (hasReason) st.reason += 1;
+  const raw = (d && d.content != null) ? d.content
+    : (m && m.content != null) ? m.content
+    : (ch.text != null) ? ch.text
+    : (rec.output_text != null) ? rec.output_text
+    : (rec.text != null) ? rec.text : '';
+  let out = '';
+  if (typeof raw === 'string') out = raw;
+  else if (raw && typeof raw.text === 'string') out = raw.text;
+  else if (Array.isArray(raw)) {
+    for (const p of raw) {
+      if (typeof p === 'string') out += p;
+      else if (p && typeof p.text === 'string') out += p.text;
+    }
+  }
+  if (out) st.chunks += 1;
+  else st.empty += 1;
+  return out;
+}
+
+/** Kompakte Diagnose-Anreicherung fuer E-GEN-PARSE (Provider/Modell/Status/finish). */
+function emptyHint(info) {
+  const parts = [];
+  if (info && info.finish) parts.push(`finish_reason=${info.finish}`);
+  if (info && info.err) parts.push(String(info.err).slice(0, 60));
+  else if (info && info.reason > 0 && !(info.chunks > 0)) {
+    parts.push('nur Reasoning, kein sichtbarer Content (Budget teilen sich Reasoning+Content)');
+  } else if (info && info.usage) parts.push(String(info.usage));
+  else if (!(info && info.chunks > 0)) parts.push('0 Text-Chunks');
+  return parts.length > 0 ? ` (${parts.join(', ')})` : '';
+}
+
+/**
  * SSE-Stream lesen: data-Prefix, DONE-Terminator, finish_reason pruefen.
+ * Sammelt robust (collectChatText); Reasoning/leere Deltas verwerfen nichts.
  * @param {Response} res
  */
 async function readSseModule(res, onToken) {
   const reader = res.body?.getReader();
   if (!reader) throw Object.assign(new Error('E-GEN-PARSE: kein Stream'), { code: 'E-GEN-PARSE' });
+  const info = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
   const decoder = new TextDecoder();
   let buf = '';
   let full = '';
-  let finishReason = null;
+  let raw = '';
+  /** @param {string} line */
+  const feed = (line) => {
+    const t = String(line).trim();
+    if (!t.startsWith('data:')) {
+      // Kein SSE-Prefix: evtl. reiner JSON-Body bei SSE-Content-Type.
+      if (t) raw += `${t}\n`;
+      return;
+    }
+    const payload = t.slice(5).trim();
+    if (!payload || payload === '[DONE]') return;
+    let evt = null;
+    try {
+      evt = JSON.parse(payload);
+    } catch {
+      full += payload;
+      info.chunks += 1;
+      return;
+    }
+    const c = collectChatText(evt, info);
+    if (c) {
+      full += c;
+      if (onToken) onToken(c);
+    }
+  };
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
     buf += decoder.decode(value, { stream: true });
     const lines = buf.split('\n');
     buf = lines.pop() ?? '';
-    for (const line of lines) {
-      const t = line.trim();
-      if (!t.startsWith('data:')) continue;
-      const payload = t.slice(5).trim();
-      if (payload === '[DONE]') continue;
-      try {
-        const evt = JSON.parse(payload);
-        const delta =
-          evt.choices?.[0]?.delta?.content ?? evt.choices?.[0]?.message?.content ?? evt.output_text ?? '';
-        if (typeof delta === 'string') {
-          full += delta;
-          if (onToken) onToken(delta);
-        }
-        const fr = evt.choices?.[0]?.finish_reason ?? evt.finish_reason ?? null;
-        if (fr) finishReason = fr;
-      } catch {
-        full += payload;
+    for (const line of lines) feed(line);
+  }
+  const tail = String(`${raw}${buf}`).trim();
+  if (tail.startsWith('data:')) feed(tail);
+  else if (!full && tail.startsWith('{')) {
+    // SSE-Content-Type, aber reiner JSON-Body (kein data:-Prefix).
+    try {
+      const c = collectChatText(JSON.parse(tail), info);
+      if (c) {
+        full += c;
+        if (onToken) onToken(c);
       }
+    } catch {
+      /* kein valides JSON: kein sichtbarer Content */
     }
   }
-  return { full, finishReason };
+  return { full, finishReason: info.finish || null, info };
 }
 
 /** @param {number} status */
@@ -184,16 +272,25 @@ export function extractModuleSource(rawText) {
  * @param {string} full
  * @param {string | null} finishReason
  * @param {'direct' | 'proxy'} via
+ * @param {{ provider?: string, model?: string, status?: number, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string } }} [ctx]
  */
-function finishModule(full, finishReason, via) {
+function finishModule(full, finishReason, via, ctx = {}) {
+  const who = `${ctx.provider ?? '?'}/${ctx.model ?? '?'}`;
+  const where = `(via ${via}, HTTP ${ctx.status ?? '?'}, ${who})`;
+  if (!full || !full.trim()) {
+    throw Object.assign(new Error(`E-GEN-PARSE: leere Antwort ${where}${emptyHint(ctx.info)}`), { code: 'E-GEN-PARSE' });
+  }
   // E-S2-BOOT-Repair: fehlende benannte Imports (z.B. Scene) ergaenzen,
   // bevor Quelle gespeichert/gebootet wird (E2E-Befund 2026-10-27).
   const source = repairThreeImports(extractModuleSource(full));
   if (!source.includes('export const meta') || !source.includes('export function init')) {
-    throw Object.assign(new Error('E-GEN-PARSE: kein Modul extrahierbar'), { code: 'E-GEN-PARSE' });
+    throw Object.assign(new Error(`E-GEN-PARSE: kein Modul extrahierbar ${where}${emptyHint(ctx.info)}`), { code: 'E-GEN-PARSE' });
   }
   if (finishReason && finishReason !== 'stop') {
-    throw Object.assign(new Error(`E-GEN-PARSE: finish_reason=${finishReason}`), { code: 'E-GEN-PARSE' });
+    const budget = finishReason === 'length'
+      ? ' (Ausgabebudget erschoepft: Reasoning+Content teilen sich das Limit)'
+      : '';
+    throw Object.assign(new Error(`E-GEN-PARSE: finish_reason=${finishReason} ${where}${budget}`), { code: 'E-GEN-PARSE' });
   }
   return { source, meta: { title: '', category: '', detailLevel: 1, parts: [], units: 'm' }, raw: full, via };
 }
@@ -203,7 +300,7 @@ function finishModule(full, finishReason, via) {
  * Ein Versuch, keine Wiederholung: definitive HTTP-Fehler werfen E-GEN-*,
  * Transport-Fehler (Netz/CORS/Timeout) werfen E-GEN-DIREKT (Fallback-Signal).
  */
-async function generateDirect(url, model, promptText, opts, key) {
+async function generateDirect(url, provider, model, promptText, opts, key) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -218,8 +315,8 @@ async function generateDirect(url, model, promptText, opts, key) {
       const code = classify(res.status);
       throw Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
     }
-    const { full, finishReason } = await readSseModule(res, opts.onToken);
-    return finishModule(full, finishReason, 'direct');
+    const { full, finishReason, info } = await readSseModule(res, opts.onToken);
+    return finishModule(full, finishReason, 'direct', { provider, model, status: res.status, info });
   } catch (e) {
     clearTimeout(timer);
     if (e && typeof e.code === 'string' && e.code.startsWith('E-GEN-')) throw e;
@@ -247,7 +344,7 @@ export async function generateLive(promptText, opts = {}) {
   const directUrl = directFirst && key && model ? directChatUrl(provider) : null;
   if (directUrl) {
     try {
-      return await generateDirect(directUrl, model, promptText, opts, key);
+      return await generateDirect(directUrl, provider, model, promptText, opts, key);
     } catch (e) {
       // Definitive Antwort (Key/Modell/Parse) sofort melden; nur bei
       // Transport-Fehler UND konfiguriertem Proxy als Fallback weiter.
@@ -286,9 +383,9 @@ export async function generateLive(promptText, opts = {}) {
         }
         continue;
       }
-      const { full, finishReason } = await readSseModule(res, opts.onToken);
+      const { full, finishReason, info } = await readSseModule(res, opts.onToken);
       sawHttp = true;
-      return finishModule(full, finishReason, 'proxy');
+      return finishModule(full, finishReason, 'proxy', { provider, model, status: res.status, info });
     } catch (e) {
       clearTimeout(timer);
       if (e && (e.code === 'E-GEN-PARSE' || e.code === 'E-GEN-400' || e.code === 'E-GEN-401' || e.code === 'E-GEN-402' || e.code === 'E-GEN-403' || e.code === 'E-GEN-404' || e.code === 'E-GEN-413')) {

@@ -1,6 +1,6 @@
-# Lizenz- und Quellenprüfung — ModelMuse (v13, historisch)
+# License and Provenance Audit — ModelMuse (v13, historical)
 
-> **Einordnung zum aktuellen Stand (v15a, 30.10.2026, redaktionell — keine neue Rechtsprüfung):** Dieser Audit beschreibt den **v13-Stand** vom 29.10.2026 und bleibt als historischer Beleg erhalten. Für das aktuelle Release-Artefakt `dist-standalone/modelmuse-standalone.html` (v15a, 378.519 Bytes, 10 Modelle) gilt abweichend: Es referenziert **5** CDN-Bibliotheken — Vue 3, Three.js 0.186.1, OrbitControls (Three.js-Beispielmodul), Tailwind CSS Play CDN und Inter — statt der unten für v13 genannten vier. Die unten dokumentierten Vorbehalte (kein Offline-Betrieb, Versionsdrift bei ungepinnten Referenzen, Tailwind Play CDN nur für Entwicklung, Projektlizenz offen) gelten für v15a unverändert fort. Eine vollständige v15a-Neuprüfung steht aus.
+> **Status note on the current release (v15a, 30 October 2026, editorial — not a new legal review):** This audit describes the **v13 state** of 29 October 2026 and is retained as a historical record. For the current release artifact `dist-standalone/modelmuse-standalone.html` (v15a, 378,519 bytes, 10 models), the following applies instead: it references **5** CDN libraries — Vue 3, Three.js 0.186.1, OrbitControls (a Three.js example module), Tailwind CSS Play CDN, and Inter — rather than the four named below for v13. The caveats documented below (no offline operation, version drift from unpinned references, Tailwind Play CDN for development only) continue to apply unchanged to v15a. The project itself is licensed since (MIT, © 2026 Effzumdeh; see `LICENSE` in the repository root), which resolves the former open item O-1. A full v15a re-audit is still outstanding.
 
 **Audit date:** 29 October 2026  
 **Scope:** Repository dependencies, vendor files, model data, evaluated content,
@@ -25,8 +25,8 @@ marked uncertain or an owner decision is pending.
   must not be mistaken for a description of the current standalone artifact.
 - The 3JSBench evaluation briefings are MIT-licensed and remain in the
   repository, not in the release HTML.
-- The repository has no license for ModelMuse's own code. A repository owner
-  must decide whether and how to license it before redistribution.
+- ModelMuse's own code is released under the MIT License (© 2026 Effzumdeh);
+  see the `LICENSE` file in the repository root.
 
 ## 2. Component inventory
 
@@ -58,9 +58,9 @@ marked uncertain or an owner decision is pending.
 - **Baseten model endpoint — `meta-models/muse-spark-open-1026`.** No model
   weights are included and no model-weight license is present in the repository.
   Provider terms are not evidenced here and must be checked by the owner.
-- **ModelMuse source, prompts, and data — license unspecified.** No repository
-  `LICENSE` file is present. Redistribution rights for project-owned material
-  remain unresolved.
+- **ModelMuse source, prompts, and data — MIT, © 2026 Effzumdeh.** See the
+  repository root `LICENSE` file. Redistribution of project-owned material
+  follows those terms.
 
 The project's own `src/vendor/diagram-2d.js` and `src/vendor/three.entry.js`
 are described in their headers as project-authored code; model files are
@@ -139,9 +139,10 @@ license obligations for the copy being distributed.
 
 ## 6. Open items
 
-- **O-1 — Project license:** No license is declared for ModelMuse's own code.
-  The repository owner must choose and add a project license before
-  redistribution.
+- **O-1 — Project license: resolved.** ModelMuse's own code is released under
+  the MIT License (© 2026 Effzumdeh); see the repository root `LICENSE` file.
+  (At the v13 audit date no project license had been declared; that gap is now
+  closed.)
 - **O-2 — 3JSBench source:** A source reference in
   `eval/didaktik-minimalsatz.json` was recorded as inconsistent with the upstream
   repository. Correct it and verify the attribution against

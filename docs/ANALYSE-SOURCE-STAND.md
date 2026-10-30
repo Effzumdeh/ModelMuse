@@ -244,7 +244,7 @@ Unit (`tests-unit/`, 148 Tests grün): `livegen` (292), `guide-3d-qualitaet` (26
 
 ### 5.5 `docs/` + Root + `dist*`
 Docs (je Zeilen): `ki-modellqualitaet-recherche` (701), `2D-STACK-EVAL` (323),
-`MODELLPORTFOLIO-VORSCHLAG` (345), `modelmuse-v8-spec` (182), `LIZENZEN` (171, M),
+`MODELLPORTFOLIO-VORSCHLAG` (345), `modelmuse-v8-spec` (182), `licenses` (171, M),
 `implementation-guide-3d-qualitaet` (151, M), `REALGEBAEUDE-MACHBARKEIT` (150, U),
 `ROUTER-KONZEPT` (110, M), `NEXT-STEPS` (113), `ROUTING-TESTS` (87, U),
 `LEGACY-INVENTUR` (82), `INSTALLATION-MUSE` (21), `PROXY-BOOTSTRAP-BEFUND` (67),

@@ -493,7 +493,7 @@ Stärkster Moment laut Fachkonzept: Retry-Loop live („Fehlerbehebung statt Feh
 (Standalone-only, GitHub-Pages, kein Build/Backend), 5er-Showcase (je Domäne 1),
 BYOK-Fluss (Baseten-Direkt, Key nur sessionStorage mit Zustimmung, kein Proxy-Port),
 Budget-/Verify-Kurzbeleg (148/148, 7/7, 5/5 grün Iter 0, 13× gelb = Lehrkraft-Freigabe
-ausstehend), Lizenz-Verweis (`docs/LIZENZEN.md`) + O-1-Vorbehalt (Projekt-Lizenz fehlt),
+ausstehend), Lizenz-Verweis (`docs/licenses.md`) + O-1-Vorbehalt (Projekt-Lizenz fehlt),
 Quellen-Hinweis Brandenburger Tor. Demo-Video + Submit gehen vor allem Rest-Polish (P-10).
 
 ---
@@ -509,7 +509,7 @@ Registry-Eintrag gelöscht, Unit-Test pinnt das). Kein Fremd-Laufzeit-Modell im 
 einziges Release-Artefakt ist das statische Standalone-HTML (GitHub-Pages, kein Backend,
 kein Build beim Nutzer). CDN-Referenzen (three 0.186.1, Vue 3, Tailwind Play, Inter)
 sind Laufzeit-Bestandteil mit bekannten Drift-Risiken (Vue major-only, Tailwind/Inter
-unversioniert, Play-CDN development-only — `docs/LIZENZEN.md` O-4/O-5); kein Tooling-Modell
+unversioniert, Play-CDN development-only — `docs/licenses.md` O-4/O-5); kein Tooling-Modell
 in der Laufzeit. **Key-Regel:** BYOK ausschließlich (Browser-Eingabe, sessionStorage nur
 mit Zustimmung; nie Server-Fallback, nie Code/Logs/Chat/Dateien/Repo).
 

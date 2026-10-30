@@ -290,3 +290,61 @@ test('extractModuleSource: ohne Modul-Anfang leer (E-GEN-PARSE-Pfad)', () => {
   assert.equal(extractModuleSource('Nur Prosa, kein Code.'), '');
   assert.equal(extractModuleSource(''), '');
 });
+
+/** Regression leere Antwort: simulierte Reasoning-SSE-Formen (beide Provider). */
+function reasoningSseResponse(events) {
+  const enc = new TextEncoder();
+  const lines = events.map((e) => `data: ${JSON.stringify(e)}`);
+  lines.push('data: [DONE]');
+  const bytes = enc.encode(`${lines.join('\n')}\n`);
+  let used = false;
+  return {
+    ok: true,
+    status: 200,
+    body: {
+      getReader() {
+        return {
+          async read() {
+            if (used) return { done: true, value: undefined };
+            used = true;
+            return { done: false, value: bytes };
+          },
+        };
+      },
+    },
+  };
+}
+
+test('Reasoning-only SSE (Meta-Form) -> E-GEN-PARSE mit Provider/Modell/finish', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  globalThis.fetch = async () => reasoningSseResponse([
+    { choices: [{ delta: { reasoning_content: 'Denke nach...' } }] },
+    { choices: [{ delta: {} }] },
+    { choices: [{ delta: {}, finish_reason: 'stop' }] },
+  ]);
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'meta-muse', model: 'muse-spark-1.3-contributor' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
+  assert.match(String(err?.message ?? err), /meta-muse/, 'Provider in Meldung');
+  assert.match(String(err?.message ?? err), /muse-spark-1\.3-contributor/, 'Modell in Meldung');
+});
+
+test('finish length bei kappbarem Modul -> E-GEN-PARSE mit length-Hinweis + Provider', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  globalThis.fetch = async () => reasoningSseResponse([
+    { choices: [{ delta: { reasoning_content: 'r'.repeat(10) } }] },
+    { choices: [{ delta: { content: MODULE }, finish_reason: 'length' }] },
+  ]);
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
+  assert.match(String(err?.message ?? err), /length/, 'finish-Hinweis');
+  assert.match(String(err?.message ?? err), /baseten/, 'Provider in Meldung');
+});
+
+test('Leerer SSE-Stream (nur DONE) -> E-GEN-PARSE mit Provider/Modell', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  globalThis.fetch = async () => reasoningSseResponse([]);
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
+  assert.match(String(err?.message ?? err), /baseten/);
+  assert.match(String(err?.message ?? err), /muse-spark-open-1026/);
+});
