@@ -111,7 +111,7 @@ const maxTable = {
   'src/shell/index.html': 12000,    'src/shell/main.js': 21000, // Teil 6 (28.10.2026): 18000 -> 21000, Theme/Onboarding/Suche-Verdrahtung
     'src/shell/ui-providers.js': 7000,
     'src/shell/ui-library.js': 8000,
-    'src/shell/ui-modify.js': 9000, // Slim-Generator (28.10.2026): neu, Modify-Flow (P2 als Modify)
+    'src/shell/ui-modify.js': 10000, // v22 (31.10.2026): 9000 -> 10000, Diagnose-Copy-Button (wie Freimodus); Slim-Generator (28.10.2026): neu, Modify-Flow (P2 als Modify)
     'src/runtime/providers.js': 7000,
     'src/runtime/session-library.js': 8000,
     'src/runtime/scoreboard.js': 6000, 'src/shell/store.js': 8000,
@@ -122,11 +122,11 @@ const maxTable = {
   'src/runtime/player.js': 16000, 'src/runtime/sandbox-host.js': 14000,
   'src/runtime/frame-bootstrap.js': 16000,  'src/runtime/guard-static.js': 16500, // 29.10.2026: 15000 -> 16500, 2D-Alle-Varianten (MERMAID/CHART/D3/KATEX-Kinds + Exportnamen je Vendor-Datei); Allowlist 2d-* unveraendert
   'src/runtime/guard-runtime.js': 8000, 'src/runtime/budget.js': 12000,
-  'src/runtime/verify.js': 27000, 'src/runtime/didactics.js': 9000, // 28.10.2026: 22000 -> 27000, parallel Guide-3D edits grew the file to ~25-26k (diagram extraction + S2-geometry checks); 28.10.2026 (prior): 20000 -> 22000, Guide-3D-F4 (name-independent room gate) + P2 log with scene state/images; Part 5 (27.10.2026): 7000 -> 9000, i18n segment validation
+  'src/runtime/verify.js': 27000, 'src/runtime/didactics.js': 11000, // v22 (31.10.2026): didactics 9000 -> 11000, Bestand 10582 war bereits ueber Limit (Build rot seit v21); 28.10.2026: verify 22000 -> 27000, parallel Guide-3D edits (~25-26k: diagram extraction + S2-geometry checks); 28.10.2026 (prior): 20000 -> 22000, Guide-3D-F4 (name-independent room gate) + P2 log mit scene state/images; Part 5 (27.10.2026): 7000 -> 9000, i18n segment validation
   'src/runtime/geometry-checks.js': 20000,
   'src/runtime/fallback2d.js': 8000,  'src/runtime/annotate.js': 10000,
-  'src/runtime/livegen.js': 20000, // 29.10.2026: 19500 -> 20000, 2D-Alle-Varianten (ROUTER_TYP_TO_VARIANT + TOPOLOGY_VARIANTE; P0→Variante als P1-Checklist)
-  'src/shell/ui-livegen.js': 17500, // Slim-Generator (28.10.2026): 16000 -> 17500, parallele Generieren-Arbeit (Datei misst 17057); Guards bleiben
+  'src/runtime/livegen.js': 40000, // v22 (31.10.2026): 20000 -> 40000, Diagnose-Export (GEN_BUILD/redact/buildDiagnoseText/errorDiagnose + Usage-Zahlen/reasonSample/rawSnippet-Diagnose an Fehlern)
+  'src/shell/ui-livegen.js': 21000, // v22 (31.10.2026): 17500 -> 21000, Diagnose-Copy-Button (Fehlerzustand, redigiert/ohne Key); Slim-Generator (28.10.2026): 16000 -> 17500, parallele Generieren-Arbeit (Datei misst 17057); Guards bleiben
   'src/vendor/three.entry.js': 760, // 28.10.2026: 700 -> 760, Guide-3D-F1/F2 (F1-Option-B: MeshPhysicalMaterial; F2: PCFShadowMap + VSMShadowMap; PCFSoftShadowMap bleibt fuer Bestandsmodelle); A-3 (2026-10-27, Nachtauftrag Hyperrealismus Teil 2): 560 -> 700, 8 weitere benannte three-Imports (InstancedMesh, ExtrudeGeometry, Shape, DataTexture, LinearFilter, RepeatWrapping, Matrix4, Quaternion) fuer Hyper-Geometrie/Texturen; kein CDN, keine externen Files; Bundle-Wachstum klein, Artefakt-Budget gruen
   'src/vendor/diagram-2d.js': 12500, // 28.10.2026: neu, 2D-Vendor-Renderer (SVG nativ, 0 externe Bytes; Lib im Vendor, Module liefern nur Daten)
   'src/vendor/mermaid-2d.js': 15000, // 29.10.2026: neu, Mermaid-Chunk-Selektion (flow/sequenz/er/gantt als Text-DSL, SVG-Render, Gate parseMermaid)

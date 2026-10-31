@@ -70,7 +70,9 @@ function checkInvariants(s) {
     ['reasoningAllowed', 5],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
-    ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 6], ['_lastHttp', 5],
+    ['collectChatText', 4], ['emptyDetail', 3],
+    // v22-Nachfolger (Diagnose-Export): diagText liest _lastChatInfo/_lastHttp
+    // je +1 (exakt in v22: 7/6). Exakte v22-Werte prueft build-standalone-v22.mjs.
     ['emptyResponse', 4],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
@@ -82,6 +84,9 @@ function checkInvariants(s) {
   }
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
   must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4, 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4');
+  // v22-Toleranz: Diagnose-Export (pre-v22: 6/5 | v22: 7/6).
+  must(cnt(s, '_lastChatInfo') === 6 || cnt(s, '_lastChatInfo') === 7, 'Invariante _lastChatInfo: ' + cnt(s, '_lastChatInfo') + ', erwartet 6 oder 7');
+  must(cnt(s, '_lastHttp') === 5 || cnt(s, '_lastHttp') === 6, 'Invariante _lastHttp: ' + cnt(s, '_lastHttp') + ', erwartet 5 oder 6');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v19 Budget 16384 + Retry 32768)');
 }

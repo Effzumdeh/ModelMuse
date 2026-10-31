@@ -215,7 +215,7 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish/Usage/Retry/Build statt nur
   assert.match(msg, /finish=length/);
   assert.match(msg, /reasoning 198\/200/, 'Usage immer sichtbar (Budget- vs Thinking-Hypothese)');
   assert.match(msg, /Retry 1\/1/, 'Retry-Zaehler sichtbar');
-  assert.match(msg, /Build v21/, 'Build-Stempel sichtbar');
+  assert.match(msg, /Build v22/, 'Build-Stempel sichtbar');
   assert.ok(msg.length <= 200, 'passt in genNotice (slice 200)');
   app._lastRetry = 0;
   assert.match(app.emptyDetail(), /Retry 0\/1/, 'kein Retry ohne Budget-Retry');
@@ -239,9 +239,10 @@ test('v21-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Ext
   const count = (sub) => src.split(sub).length - 1;
   assert.equal(count('gbody.max_tokens=65536'), 1, 'Extras gen');
   assert.equal(count('mbody.max_tokens=65536'), 1, 'Extras mod');
-  assert.equal(count('gbody.reasoning_effort="none"'), 1, 'Thinking-Reduktion gen');
-  assert.equal(count('mbody.reasoning_effort="none"'), 1, 'Thinking-Reduktion mod');
-  assert.equal(count('reasoning_effort'), 4, '2 Gates + 2 none (v17-v20-Toleranz)');
+  assert.equal(count('gbody.reasoning_effort="low"'), 1, 'Thinking-Budget gen (v22: belegtes Minimum low)');
+  assert.equal(count('mbody.reasoning_effort="low"'), 1, 'Thinking-Budget mod');
+  assert.equal(count('reasoning_effort="none"'), 0, 'kein unbelegtes none (Doku: rejected/gemapped)');
+  assert.equal(count('reasoning_effort'), 4, '2 Gates + 2 low Baseten-Extras (v17-v22-Toleranz)');
   assert.equal(count('include_usage'), 2, 'Usage im Stream gen+mod');
   assert.equal(count('gbody.max_tokens=131072'), 1, 'Retry-Mirror gen');
   assert.equal(count('mbody.max_tokens=131072'), 1, 'Retry-Mirror mod');
@@ -276,7 +277,7 @@ test('v21-Reader: neue Content-Felder, Reasoning nie Content, strukturiertes Rea
 test('v21-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('standalone-build v21'), 1, 'Build-Stempel im HTML');
+  assert.equal(count('standalone-build v22'), 1, 'Build-Stempel im HTML');
   assert.equal(count('buildTag:function'), 1, 'buildTag-Methode');
   assert.equal(count('staleHint:function'), 1, 'staleHint-Methode');
   assert.ok(count('Strg+F5') === 1, 'Hart-Neuladen-Hinweis');
@@ -285,9 +286,76 @@ test('v21-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
     const code = extractMethod(src, name);
     app[name] = eval(`(${code.replace(`${name}:function`, 'function')})`);
   }
-  assert.equal(app.buildTag(), 'v21');
+  assert.equal(app.buildTag(), 'v22');
   for (const name of ['collectChatText', 'readSseText', 'readChatText', 'emptyDetail', 'buildTag', 'staleHint']) {
     assert.notEqual(src.indexOf(`${name}:function`), -1, `${name} vorhanden`);
   }
   assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
+});
+
+/* v22: Diagnose-Export (Copy-Button) + Usage-Zahlen + Reasoning-Auszug. */
+
+test('v22-Reader: Usage-Zahlen + reasonSample (2KB-Cap) im Info-Seitenkanal', async () => {
+  const app = appFrom(await html());
+  const info = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
+  app.collectChatText({ choices: [{ delta: { reasoning_content: 'r1' } }], usage: { completion_tokens: 10, reasoning_tokens: 8 } }, info);
+  assert.equal(info.usageReasoning, 8);
+  assert.equal(info.usageCompletion, 10);
+  assert.equal(info.reasonSample, 'r1');
+  const text = await app.readSseText(sseRes([
+    ev({ choices: [{ delta: { reasoning_content: 'Denke nach...' } }], usage: { completion_tokens: 200, reasoning_tokens: 198 } }),
+    ev({ choices: [{ delta: {}, finish_reason: 'length' }] }),
+    'data: [DONE]',
+  ]));
+  assert.equal(text, '');
+  assert.equal(app._lastChatInfo.usageReasoning, 198);
+  assert.equal(app._lastChatInfo.usageCompletion, 200);
+  assert.ok(String(app._lastChatInfo.reasonSample).includes('Denke nach'), 'Reasoning-Auszug fuer Diagnose');
+});
+
+test('v22-Diagnose: diagText redigiert, alle Felder, ~2KB-Cap', async () => {
+  const src = await html();
+  const app = appFrom(await html());
+  const code = extractMethod(src, 'diagText');
+  app.diagText = eval(`(${code.replace('diagText:function', 'function')})`);
+  app.genProvider = 'baseten-direct';
+  app.genModel = 'meta-models/muse-spark-open-1026';
+  app._lastHttp = 200;
+  app._lastRetry = 1;
+  app._lastChatInfo = {
+    chunks: 0, empty: 2, reason: 3, finish: 'length', err: '',
+    usage: 'reasoning 198/200 tokens', usageReasoning: 198, usageCompletion: 200,
+    reasonSample: 'Denke nach... Authorization: Bearer HACKME12345678 ' + 'y'.repeat(5000),
+  };
+  for (const lang of ['de', 'en', 'es']) {
+    app.lang = lang;
+    const t = app.diagText();
+    for (const bit of ['provider: baseten-direct', 'model: meta-models/muse-spark-open-1026', 'http: 200',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v22']) {
+      assert.ok(t.includes(bit), `${lang}: ${bit}`);
+    }
+    const rawLine = t.split('\n').find((l) => l.startsWith('raw_snippet_2k: '));
+    assert.ok(rawLine && rawLine.length <= 'raw_snippet_2k: '.length + 2048, `${lang}: Rohantwort gedeckelt`);
+    assert.ok(!t.includes('HACKME12345678'), `${lang}: kein Key im Clipboard-Text`);
+    assert.ok(t.includes('[REDACTED]'), `${lang}: Redaktionsmarker`);
+  }
+  assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
+});
+
+test('v22-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('standalone-build v22'), 1, 'v22-Stempel');
+  assert.equal(count('diagText:function'), 1, 'diagText-Methode');
+  assert.equal(count('copyDiag:function'), 1, 'copyDiag-Methode');
+  assert.equal(count('copyDiagBtn'), 4, 'Button-Label: 3 Locales + Template');
+  assert.equal(count('@click="copyDiag"'), 1, 'Button nur im Fehlerzustand (genStatusBad)');
+  assert.equal(count('v-if="genStatusBad"'), 1, 'Button nur im Fehlerzustand');
+  for (const [sub, n, label] of [
+    ['copyDiagBtn:"Diagnose kopieren"', 1, 'de-Label'], ['copyDiagBtn:"Copy diagnostics"', 1, 'en-Label'],
+    ['copyDiagBtn:"Copiar diagnóstico"', 1, 'es-Label'],
+    ['diagCopied:"Diagnose kopiert (ohne Key)."', 1, 'de-Bestaetigung'],
+    ['diagCopied:"Diagnostics copied (no key)."', 1, 'en-Bestaetigung'],
+    ['diagCopied:"Diagnóstico copiado (sin clave)."', 1, 'es-Bestaetigung'],
+  ]) assert.equal(count(sub), n, label);
 });

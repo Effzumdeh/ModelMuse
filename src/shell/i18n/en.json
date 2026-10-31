@@ -125,6 +125,11 @@
     "E-GEN-OFFLINE": "No generation proxy configured. The prepared library is available.",
     "E-GEN-DIREKT": "Direct call blocked (network/CORS) and no proxy fallback configured. Enter a proxy URL or use the library."
   },
+  "diagnose": {
+    "kopieren": "Copy diagnostics",
+    "kopiert": "Diagnostics copied (no key).",
+    "fehler": "Copy failed — please select the text manually."
+  },
   "sprache": {
     "titel": "Language",
     "name": "English"

@@ -243,7 +243,7 @@ test('v21 upstreamChatBody: Baseten-Extras nur mit provider=baseten', async () =
   const b = up('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', 65536, 'baseten');
   assert.equal(b.max_completion_tokens, 65536);
   assert.equal(b.max_tokens, 65536);
-  assert.equal(b.reasoning_effort, 'none');
+  assert.equal(b.reasoning_effort, 'low');
   assert.deepEqual(b.stream_options, { include_usage: true });
   const m = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', 65536, 'meta-muse');
   assert.ok(!('max_tokens' in m) && !('reasoning_effort' in m) && !('stream_options' in m), 'Meta-Pfad unveraendert');
@@ -286,7 +286,7 @@ test('v21 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras',
     assert.equal(r.status, 200);
     await r.text();
     assert.equal(n, 2, 'genau 1 Slim-Fallback');
-    assert.equal(seen[0].reasoning_effort, 'none', 'erst mit Extras');
+    assert.equal(seen[0].reasoning_effort, 'low', 'erst mit Extras');
     assert.ok(!('reasoning_effort' in seen[1]) && !('max_tokens' in seen[1]), 'Fallback ohne Extras');
   } finally {
     await new Promise((r) => server.close(r));

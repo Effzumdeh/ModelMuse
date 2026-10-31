@@ -4,9 +4,10 @@
  * Generierungs-Proxy -> Verify (player.load) -> Reload als neue Sitzungs-Revision.
  * Reine Prompt-Bauer sind DOM-/netzfrei und unit-getestet (tests-unit/modify.test.mjs).
  */
-import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey } from '../runtime/livegen.js';
+import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, errorDiagnose } from '../runtime/livegen.js';
 import { extractMeta, formatP2Protocol } from '../runtime/verify.js';
 import { tt } from './i18n.js';
+import { wireDiagnoseCopy, showDiagnoseButton, hideDiagnoseButton } from './ui-diagnose.js';
 
 /** Max. automatische Modify-Iterationen (P2-Regel: max 2, Iteration 3 nur manuell). */
 export const MODIFY_MAX_ITERATION = 2;
@@ -98,6 +99,10 @@ export function mountModify(els) {
     els.statusBox.textContent = msg;
     els.statusBox.dataset.state = bad ? 'fehler' : 'ok';
   };
+  // Diagnose-Export (v22): wie Freimodus — nur im Fehlerzustand sichtbar.
+  let lastDiagnose = null;
+  const copyBtn = typeof document !== 'undefined' ? document.getElementById('modify-diagnose-copy') : null;
+  wireDiagnoseCopy(copyBtn, () => lastDiagnose);
   els.goButton.addEventListener('click', async () => {
     const wish = els.promptInput.value.trim();
     if (wish.length < 2) {
@@ -141,6 +146,8 @@ export function mountModify(els) {
     }
     const target = typeof els.getTarget === 'function' ? els.getTarget() : null;
     els.goButton.disabled = true;
+    lastDiagnose = null;
+    hideDiagnoseButton(copyBtn);
     say(tt('modify.generiere', { id: cur.id }));
     try {
       const proto = formatP2Protocol(cur.report?.layers ?? [], { iteration: (cur.report?.iteration ?? 1) + 1 });
@@ -168,6 +175,8 @@ export function mountModify(els) {
       paintModel();
       say(tt('modify.geladen', { titel: title, id }));
     } catch (e) {
+      lastDiagnose = errorDiagnose(e);
+      showDiagnoseButton(copyBtn);
       const code = e && typeof e.code === 'string' ? e.code : '';
       const detail = String((e && e.message) || e).slice(0, 200);
       if (code.startsWith('E-GEN-') && tt(`fehler.${code}`) !== `fehler.${code}`) say(tt(`fehler.${code}`), true);

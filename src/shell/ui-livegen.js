@@ -8,9 +8,10 @@
  * Hauptbauteil), Manifest mit Aufgaben je Niveau wird automatisch gebaut.
  * Bauplan Abschnitt 4 (generateLive) und 9 (E-GEN-*).
  */
-import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey } from '../runtime/livegen.js';
+import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, errorDiagnose } from '../runtime/livegen.js';
 import { extractMeta } from '../runtime/verify.js';
 import { STRINGS, tt, getLocale } from './i18n.js';
+import { wireDiagnoseCopy, showDiagnoseButton, hideDiagnoseButton } from './ui-diagnose.js';
 
 /**
  * Deutsche Fehlermeldungen je Code (kanonisch, aus der Sprachdatei — keine
@@ -285,6 +286,11 @@ export function mountLivegen(els) {
     els.statusBox.textContent = msg;
     els.statusBox.dataset.state = bad ? 'fehler' : 'ok';
   };
+  // Diagnose-Export (v22): letzte Fehler-Diagnose merken, Copy-Button nur im
+  // Fehlerzustand zeigen. Clipboard erhaelt nur redigierten Text ohne Key.
+  let lastDiagnose = null;
+  const copyBtn = typeof document !== 'undefined' ? document.getElementById('live-diagnose-copy') : null;
+  wireDiagnoseCopy(copyBtn, () => lastDiagnose);
   els.goButton.addEventListener('click', async () => {
     const term = els.termInput.value.trim();
     if (term.length < 2) {
@@ -317,6 +323,9 @@ export function mountLivegen(els) {
       return;
     }
     els.goButton.disabled = true;
+    // Neuer Versuch: alte Diagnose zuruecksetzen, Button erst bei Fehler zeigen.
+    lastDiagnose = null;
+    hideDiagnoseButton(copyBtn);
     // Zielpfad: Anbieter-/Modellauswahl (M3) oder Meta-Default. Baseten-Pfad
     // braucht den User-Key (BYOK, nur Sitzung) — ohne Key: E-GEN-CONFIG.
     const target = typeof els.getTarget === 'function' ? els.getTarget() : null;
@@ -336,6 +345,9 @@ export function mountLivegen(els) {
     } catch (e) {
       // E-GEN-*: gemappte UI-Meldung; Harness-Fehler (E-S1-*, E-S2-*, rot-Bericht)
       // zeigen die echte Ursache statt generischem 5XX-Text (E2E-Befund 27.10.2026).
+      // Diagnose merken + Copy-Button einblenden (redigiert, ohne Key).
+      lastDiagnose = errorDiagnose(e);
+      showDiagnoseButton(copyBtn);
       const code = e && typeof e.code === 'string' ? e.code : '';
       say(code.startsWith('E-GEN-') ? germanMessage(e) : tt('freimodus.pruefungRot', { detail: String((e && e.message) || e).slice(0, 200) }), true);
     } finally {

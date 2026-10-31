@@ -125,6 +125,11 @@
     "E-GEN-OFFLINE": "Sin proxy de generación configurado. La biblioteca preparada está disponible.",
     "E-GEN-DIREKT": "Llamada directa bloqueada (red/CORS) y sin proxy de reserva. Introduzca la URL del proxy o use la biblioteca."
   },
+  "diagnose": {
+    "kopieren": "Copiar diagnóstico",
+    "kopiert": "Diagnóstico copiado (sin clave).",
+    "fehler": "No se pudo copiar — seleccione el texto manualmente."
+  },
   "sprache": {
     "titel": "Idioma",
     "name": "Español"

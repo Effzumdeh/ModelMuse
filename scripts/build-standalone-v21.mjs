@@ -182,10 +182,12 @@ function checkInvariants(s) {
     ['reasoningAllowed', 5],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
-    ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 6], ['_lastHttp', 5],
-    ['_lastRetry', 5],
-    ['staleHint', 2], ['buildTag', 2],
-    ['Build v21', 1], ['Strg+F5', 1],
+    ['collectChatText', 4], ['emptyDetail', 3],
+    // v22-Nachfolger (Diagnose-Export): _lastChatInfo 6->7, _lastHttp 5->6,
+    // _lastRetry 5->6, buildTag 2->3, Build v21->v22 (exakt in v22).
+    // Exakte v22-Werte prueft build-standalone-v22.mjs; hier nur Toleranz.
+    ['staleHint', 2],
+    ['Strg+F5', 1],
     ['slice(0,200)', 2], ['slice(0,160)', 0],
     ['emptyResponse', 4],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
@@ -193,6 +195,10 @@ function checkInvariants(s) {
     ['Kein Nachdenken, keine Einleitung', 2],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v22-Toleranz: Diagnose-Export (pre-v22 | v22).
+  for (const [sub, vals] of [['_lastChatInfo', [6, 7]], ['_lastHttp', [5, 6]], ['_lastRetry', [5, 6]], ['buildTag', [2, 3]], ['Build v21', [1, 0]], ['Build v22', [0, 1]]]) {
+    must(vals.includes(cnt(s, sub)), 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + vals.join(' oder '));
+  }
   must(cnt(s, 'gbody.max_tokens=65536') === 1, 'Extras-Anker gen');
   must(cnt(s, 'mbody.max_tokens=65536') === 1, 'Extras-Anker mod');
   must(cnt(s, 'gbody.max_tokens=131072') === 1, 'Retry-Mirror gen');

@@ -83,7 +83,7 @@ test('F3: nur scene.environmentIntensity, keine toten envMapIntensity-Zuweisunge
   for (const f of ['prompts/p2-repair.txt', 'prompts/p2-repair.v6-harness.txt']) {
     assert.ok(!(await read(f)).includes('envMapIntensity'), `${f}: kein envMapIntensity`);
   }
-  for (const f of ['gpu-example.js', 'src/models/gpu-example.js']) {
+  for (const f of ['src/models/gpu-example.js']) { // v22 (31.10.2026): Root-Backup gpu-example.js ist seit Bereinigung f292bb1 (30.10.2026) entfernt — nur noch kanonischer Modellpfad
     const src = await read(f);
     assert.ok(!src.includes('envMapIntensity'), `${f}: keine tote Zuweisung`);
     assert.ok(src.includes('scene.environmentIntensity = 0.55'), `${f}: scene.environmentIntensity gesetzt`);

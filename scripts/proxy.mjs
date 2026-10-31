@@ -158,8 +158,12 @@ export async function loadServerKey() {
 }
 
 /** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Budget+Temperatur).
- * v21-Extras NUR fuer Baseten (provider-Param): max_tokens spiegelt
- * max_completion_tokens, reasoning_effort 'none' fordert direkte Antwort,
+ * v22-Extras NUR fuer Baseten (provider-Param): max_tokens spiegelt
+ * max_completion_tokens, reasoning_effort 'low' fordert das kleinste BELEGTE
+ * Thinking-Budget (Baseten-Doku: Muse Spark Open "Always on / Control None",
+ * supported low/medium/high/xhigh(default) — docs.baseten.co/inference/
+ * model-apis/reasoning; Meta: nur low/medium/high/xhigh, none rejected —
+ * dev.meta.ai/docs/muse-spark-open/prompting),
  * stream_options.include_usage liefert Usage im Stream. Meta-Pfad (und
  * unbekannte Provider) unveraendert — keine unverifizierten Params. */
 export function upstreamChatBody(model, prompt, maxTokens = UPSTREAM_MAX_COMPLETION_TOKENS, provider = undefined) {
@@ -172,18 +176,18 @@ export function upstreamChatBody(model, prompt, maxTokens = UPSTREAM_MAX_COMPLET
   };
   if (provider === 'baseten') {
     body.max_tokens = normalizeMaxTokens(maxTokens);
-    body.reasoning_effort = 'none';
+    body.reasoning_effort = 'low';
     body.stream_options = { include_usage: true };
   }
   return body;
 }
 
-/** v21-Extras aus einem Upstream-Body streichen (exakt v20-Form). @param {any} body */
+/** v22-Extras aus einem Upstream-Body streichen (exakt v20-Form). @param {any} body */
 export function stripUpstreamExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
   if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
-  if (body.reasoning_effort === 'none') { delete body.reasoning_effort; stripped = true; }
+  if (body.reasoning_effort === 'low') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
   return stripped;
 }
@@ -306,7 +310,7 @@ export function createProxyServer() {
         return;
       }
       if (!upstream.ok && upstream.status === 400 && stripUpstreamExtras(upBody)) {
-        // v21: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut.
+        // v22: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut.
         try {
           await upstream.body?.cancel();
         } catch {

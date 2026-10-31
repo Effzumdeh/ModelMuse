@@ -370,7 +370,7 @@ test('v21 buildChatBody: Budget + Temperatur + Baseten-Extras, Reasoning-Gate (n
   const base = buildChatBody('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', { provider: 'baseten' });
   assert.equal(base.max_completion_tokens, 65536);
   assert.equal(base.max_tokens, 65536, 'max_tokens spiegelt Budget (Gateway liest evtl. nur max_tokens)');
-  assert.equal(base.reasoning_effort, 'none', 'direkte Antwort ohne Thinking anfordern');
+  assert.equal(base.reasoning_effort, 'low', 'kleinstes belegtes Thinking-Budget (kein Abschalter, Doku: low)');
   assert.deepEqual(base.stream_options, { include_usage: true }, 'Usage im Stream fuer Diagnose');
   assert.equal(base.temperature, 0.2);
   assert.equal(base.stream, true);
@@ -420,8 +420,8 @@ test('v19 Direkt: length+Reasoning-only -> 1 Retry mit 131072, dann Erfolg via d
   assert.equal(bodies[0].max_completion_tokens, 65536, 'erst 65536');
   assert.equal(bodies[1].max_completion_tokens, 131072, 'retry 131072');
   assert.equal(bodies[0].temperature, 0.2);
-  assert.equal(bodies[0].reasoning_effort, 'none', 'Thinking-Reduktion angefordert');
-  assert.equal(bodies[1].reasoning_effort, 'none');
+  assert.equal(bodies[0].reasoning_effort, 'low', 'Thinking-Reduktion angefordert');
+  assert.equal(bodies[1].reasoning_effort, 'low');
   assert.equal(bodies[1].max_tokens, 131072, 'Retry spiegelt Budget auch in max_tokens');
   assert.equal(gen.via, 'direct');
   assert.ok(gen.source.includes('export function init'));
@@ -538,7 +538,7 @@ test('v21 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras (nie schlechter
     const b = JSON.parse(opts?.body ?? '{}');
     bodies.push(b);
     if (n === 1) {
-      assert.equal(b.reasoning_effort, 'none', 'erst mit Extras');
+      assert.equal(b.reasoning_effort, 'low', 'erst mit Extras');
       return { ok: false, status: 400 };
     }
     assert.ok(!('reasoning_effort' in b) && !('max_tokens' in b) && !('stream_options' in b), 'Fallback exakt v20-Form');
@@ -562,10 +562,99 @@ test('v21 Direkt: 400 ohne Extras (meta-muse) -> kein Fallback, direkt E-GEN-400
 
 test('v21 stripChatExtras: entfernt nur v21-Extras, meldet ob gestrippt', async () => {
   const { stripChatExtras } = await import('../src/runtime/livegen.js');
-  const b = { model: 'm', max_completion_tokens: 1, max_tokens: 1, reasoning_effort: 'none', stream_options: { include_usage: true } };
+  const b = { model: 'm', max_completion_tokens: 1, max_tokens: 1, reasoning_effort: 'low', stream_options: { include_usage: true } };
   assert.equal(stripChatExtras(b), true);
   assert.deepEqual(b, { model: 'm', max_completion_tokens: 1 });
   assert.equal(stripChatExtras({ model: 'm', max_completion_tokens: 1 }), false, 'nichts zu strippen');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'max' }), false, 'max bleibt (Meta-Gate)');
+  assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'none' }), false, 'none ist kein Baseten-Extra (Doku: rejected/nur low)');
   assert.equal(stripChatExtras(null), false);
+});
+
+/* v22: Diagnose-Export (Copy-Button) + belegte Thinking-Stufe low. */
+
+test('v22 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Build', async () => {
+  const { GEN_BUILD } = await import('../src/runtime/livegen.js');
+  assert.equal(GEN_BUILD, 'v22');
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  globalThis.fetch = async () => reasoningSseResponse([
+    { choices: [{ delta: { reasoning_content: 'Denke nach...' } }], usage: { completion_tokens: 200, prompt_tokens: 22, total_tokens: 222, reasoning_tokens: 198 } },
+    { choices: [{ delta: {}, finish_reason: 'length' }] },
+  ]);
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
+  for (const bit of ['baseten', 'muse-spark-open-1026', 'HTTP 200', 'finish_reason=length', 'Retry 1/1', 'Build v22']) {
+    assert.match(String(err?.message ?? err), new RegExp(bit.replace(/[./]/g, (c) => `\\${c}`)), bit);
+  }
+  assert.equal(err?.diagnose?.build, 'v22');
+  assert.equal(err?.diagnose?.provider, 'baseten');
+  assert.equal(err?.diagnose?.model, 'meta-models/muse-spark-open-1026');
+  assert.equal(err?.diagnose?.status, 200);
+  assert.equal(err?.diagnose?.finish, 'length');
+  assert.equal(err?.diagnose?.usageReasoning, 198);
+  assert.equal(err?.diagnose?.usageCompletion, 200);
+  assert.equal(err?.diagnose?.retried, true);
+  assert.ok(String(err?.diagnose?.rawSnippet ?? '').includes('Denke nach'), 'Rohantwort-Auszug enthaelt Reasoning');
+});
+
+test('v22 collectChatText: Usage-Zahlen + completion_tokens_details + reasonSample-Cap', async () => {
+  const { collectChatText } = await import('../src/runtime/livegen.js');
+  const info = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
+  collectChatText({ choices: [{ delta: { reasoning_content: 'r1' } }], usage: { completion_tokens: 10, reasoning_tokens: 8 } }, info);
+  assert.equal(info.usageReasoning, 8);
+  assert.equal(info.usageCompletion, 10);
+  assert.equal(info.reasonSample, 'r1');
+  const info2 = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
+  collectChatText({ choices: [{ delta: { content: 'x' } }], usage: { completion_tokens: 5, completion_tokens_details: { reasoning_tokens: 3 } } }, info2);
+  assert.equal(info2.usageReasoning, 3, 'OpenAI-Form completion_tokens_details');
+  assert.equal(info2.usageCompletion, 5);
+  const info3 = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '', reasonSample: 'a'.repeat(2040) };
+  collectChatText({ choices: [{ delta: { reasoning_content: 'b'.repeat(100) } }] }, info3);
+  assert.ok(info3.reasonSample.length <= 2048, 'reasonSample gedeckelt');
+});
+
+test('v22 redactDiagnoseText: Key-Formen raus, Modell-Slug bleibt', async () => {
+  const { redactDiagnoseText } = await import('../src/runtime/livegen.js');
+  const dirty = 'Authorization: Bearer SECRETKEY12345678\nkey=LLM_12345678_abcdefghijklmnop\nsk-geheim4567890\napi_key: topsecret999\nmodel meta-models/muse-spark-open-1026';
+  const clean = redactDiagnoseText(dirty);
+  assert.ok(!clean.includes('SECRETKEY12345678'), 'Bearer-Token redigiert');
+  assert.ok(!clean.includes('LLM_12345678_abcdefghijklmnop'), 'Meta-Key redigiert');
+  assert.ok(!clean.includes('sk-geheim4567890'), 'sk-Key redigiert');
+  assert.ok(!clean.includes('topsecret999'), 'api_key redigiert');
+  assert.ok(clean.includes('[REDACTED]'), 'Redaktionsmarker gesetzt');
+  assert.ok(clean.includes('meta-models/muse-spark-open-1026'), 'Modell-Slug bleibt lesbar');
+});
+
+test('v22 buildDiagnoseText: alle Felder, ~2KB-Cap, de/en/es, nie Key', async () => {
+  const { buildDiagnoseText } = await import('../src/runtime/livegen.js');
+  const diag = {
+    provider: 'baseten', model: 'meta-models/muse-spark-open-1026', via: 'direct',
+    status: 200, finish: 'length', usage: 'reasoning 198/200 tokens',
+    usageReasoning: 198, usageCompletion: 200, retried: true, build: 'v22',
+    rawSnippet: `x\nAuthorization: Bearer HACKME12345678\n${'y'.repeat(5000)}`,
+  };
+  for (const loc of ['de', 'en', 'es']) {
+    const t = buildDiagnoseText(diag, loc);
+    for (const bit of ['provider: baseten', 'model: meta-models/muse-spark-open-1026', 'via: direct', 'http: 200',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v22']) {
+      assert.ok(t.includes(bit), `${loc}: ${bit}`);
+    }
+    const rawLine = t.split('\n').find((l) => l.startsWith('raw_snippet_2k: '));
+    assert.ok(rawLine && rawLine.length <= 'raw_snippet_2k: '.length + 2048, `${loc}: Rohantwort gedeckelt`);
+    assert.ok(!t.includes('HACKME12345678'), `${loc}: kein Key im Clipboard-Text`);
+  }
+  assert.ok(buildDiagnoseText(diag, 'de').startsWith('ModelMuse Diagnose'), 'de-Kopf');
+  assert.ok(buildDiagnoseText(diag, 'en').startsWith('ModelMuse diagnostics'), 'en-Kopf');
+  assert.ok(buildDiagnoseText(diag, 'es').startsWith('ModelMuse diagnóstico'), 'es-Kopf');
+  assert.ok(buildDiagnoseText(diag, 'fr').startsWith('ModelMuse Diagnose'), 'unbekannt -> de');
+});
+
+test('v22 errorDiagnose: Fallback ohne diagnose-Feld, nie Key', async () => {
+  const { errorDiagnose, buildDiagnoseText } = await import('../src/runtime/livegen.js');
+  const e = Object.assign(new Error('E-GEN-401: HTTP 401'), { code: 'E-GEN-401' });
+  const d = errorDiagnose(e);
+  assert.equal(d.build, 'v22');
+  assert.ok(String(d.rawSnippet).includes('E-GEN-401'));
+  const t = buildDiagnoseText(d, 'de');
+  assert.ok(!/Bearer \S{8,}/.test(t) || t.includes('Bearer [REDACTED]'), 'kein offener Bearer-Token');
 });

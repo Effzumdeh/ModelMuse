@@ -40,6 +40,14 @@ export const DIRECT_DEFAULT_MODEL = Object.freeze({
 });
 
 /**
+ * Diagnose-Build-Stempel (wird in Fehlermeldungen + kopierter Diagnose
+ * mitgefuehrt, damit Support Faelle Build-Versionen zuordnen kann).
+ * v22: Baseten-Thinking belegt nicht abschaltbar (Doku: reasoning low statt
+ * none) + Diagnose-Export (Copy-Button, redigiert, ohne Key).
+ */
+export const GEN_BUILD = 'v22';
+
+/**
  * Ausgabe-Budget (Befund 30.10.2026: Reasoning frisst das Budget — HTTP 200,
  * finish=length, nur Reasoning, kein Content; Eigentuemer-Vorgabe 31.10.2026:
  * deutlich hoeher, Contributor ist guenstig). Meta-Doku: Reasoning-Tokens
@@ -66,13 +74,18 @@ export function reasoningMaxAllowed(provider, model) {
 
 /**
  * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder).
- * Baseten-Extras (v21, NUR provider baseten — Meta-Pfad unveraendert):
+ * Baseten-Extras (v22, NUR provider baseten — Meta-Pfad unveraendert):
  * max_tokens spiegelt max_completion_tokens (falls das Gateway nur
  * max_tokens liest — erklaert wirkungslose Budget-Erhoehungen),
- * reasoning_effort 'none' fordert direkte Antwort ohne Thinking
- * (Baseten-Doku: reasoning.* nur fuer gelistete Modelle garantiert;
- * muse-spark-open-1026 ist nicht gelistet -> Verhalten unverifiziert),
- * stream_options.include_usage liefert Usage im SSE-Stream (Diagnose
+ * reasoning_effort 'low' fordert das kleinste BELEGTE Thinking-Budget
+ * (kein Abschalter: Baseten-Doku listet Muse Spark Open als "Always on /
+ * Control None", supported low/medium/high/xhigh(default), none/minimal
+ * laufen auf low — docs.baseten.co/inference/model-apis/reasoning; Meta
+ * prompting-Doku laesst nur low/medium/high/xhigh zu, none wird rejected —
+ * dev.meta.ai/docs/muse-spark-open/prompting; Chat-Completions-Referenz:
+ * Gateway akzeptiert none..max, Modelle ohne Support ignorieren den Param —
+ * docs.baseten.co/reference/inference-api/chat-completions),
+ * stream_options.include_usage liefert Usage im Stream (Diagnose
  * zeigt Reasoning-/Total-Tokens). Unverifizierte Params -> 400-Risiko,
  * deshalb genau EIN Fallback ohne Extras (exakt v20-Body) bei HTTP 400.
  * @param {string} model
@@ -94,18 +107,18 @@ export function buildChatBody(model, promptText, opts = {}) {
   if (opts.reasoning === 'max' && reasoningMaxAllowed(opts.provider ?? '', model)) body.reasoning_effort = 'max';
   if ((opts.provider ?? '') === 'baseten') {
     body.max_tokens = maxTokens;
-    body.reasoning_effort = 'none';
+    body.reasoning_effort = 'low';
     body.stream_options = { include_usage: true };
   }
   return body;
 }
 
-/** v21-Extras aus einem Chat-Body streichen (exakt v20-Form). @param {any} body */
+/** v22-Extras aus einem Chat-Body streichen (exakt v20-Form). @param {any} body */
 export function stripChatExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
   if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
-  if (body.reasoning_effort === 'none') { delete body.reasoning_effort; stripped = true; }
+  if (body.reasoning_effort === 'low') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
   return stripped;
 }
@@ -229,6 +242,19 @@ function hasReasoning(v) {
 }
 
 /**
+ * Reasoning-Textauszug fuer die Diagnose (gekürzt, nie Key-haltig —
+ * Reasoning enthaelt Denkarbeit, keine Credentials; wird vor dem Kopieren
+ * ohnehin redigiert). Gibt '' zurueck, wenn kein String-Reasoning vorliegt.
+ * @param {unknown} v
+ */
+function reasoningSample(v) {
+  if (!v || typeof v !== 'object') return '';
+  const o = /** @type {{ reasoning_content?: unknown, reasoning?: unknown, reason?: unknown, thinking?: unknown }} */ (v);
+  const r = o.reasoning_content ?? o.reasoning ?? o.reason ?? o.thinking;
+  return typeof r === 'string' ? r : '';
+}
+
+/**
  * Erstes belegtes Content-Feld (leere Strings werden uebersprungen, damit
  * ein leeres delta.content kein belegtes message.content verdeckt).
  * @param {unknown[]} vals
@@ -252,9 +278,12 @@ function firstContent(...vals) {
  * abgebrochen, nie als Content gewertet — auch nicht als Parts mit
  * type reasoning/thinking) und leere choices. Refusals landen in info.err.
  * Gibt '' zurueck, wenn der Chunk nichts Sichtbares traegt.
- * Diagnose laeuft ueber `info` (Seitenkanal, nie geloggt mit Key-Inhalten).
+ * Diagnose laeuft ueber `info` (Seitenkanal, nie geloggt mit Key-Inhalten):
+ * chunks/empty/reason/finish/err/usage wie bisher, dazu usageReasoning/
+ * usageCompletion (Zahlen, null wenn unbekannt) und reasonSample
+ * (Reasoning-Textauszug, max ~2KB, fuer den Diagnose-Export).
  * @param {unknown} evt
- * @param {{ chunks: number, empty: number, reason: number, finish: string, err: string, usage: string }} [info]
+ * @param {{ chunks: number, empty: number, reason: number, finish: string, err: string, usage: string, usageReasoning?: number | null, usageCompletion?: number | null, reasonSample?: string }} [info]
  */
 export function collectChatText(evt, info) {
   const st = info ?? { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
@@ -263,8 +292,13 @@ export function collectChatText(evt, info) {
   if (typeof rec.error === 'string' && rec.error) st.err = String(rec.error).slice(0, 80);
   else if (rec.error && typeof rec.error.message === 'string') st.err = String(rec.error.message).slice(0, 80);
   if (rec.usage && typeof rec.usage.completion_tokens === 'number') {
-    const rt = typeof rec.usage.reasoning_tokens === 'number' ? `reasoning ${rec.usage.reasoning_tokens}/` : '';
+    const details = rec.usage.completion_tokens_details;
+    const rtRaw = typeof rec.usage.reasoning_tokens === 'number' ? rec.usage.reasoning_tokens
+      : (details && typeof details.reasoning_tokens === 'number' ? details.reasoning_tokens : null);
+    const rt = typeof rtRaw === 'number' ? `reasoning ${rtRaw}/` : '';
     st.usage = `${rt}${rec.usage.completion_tokens} tokens`;
+    st.usageCompletion = rec.usage.completion_tokens;
+    st.usageReasoning = typeof rtRaw === 'number' ? rtRaw : null;
   }
   const ch = (rec.choices && rec.choices[0]) || null;
   if (!ch) {
@@ -278,7 +312,16 @@ export function collectChatText(evt, info) {
   if (fr) st.finish = String(fr);
   const d = ch.delta ?? null;
   const m = ch.message ?? null;
-  if (hasReasoning(d) || hasReasoning(m)) st.reason += 1;
+  if (hasReasoning(d) || hasReasoning(m)) {
+    st.reason += 1;
+    try {
+      const sample = reasoningSample(d) || reasoningSample(m);
+      if (sample) {
+        st.reasonSample = String(st.reasonSample ?? '') + sample;
+        if (st.reasonSample.length > 2048) st.reasonSample = st.reasonSample.slice(0, 2048);
+      }
+    } catch { /* Diagnose-Seitenkanal darf nie werfen */ }
+  }
   if (m && typeof m.refusal === 'string' && m.refusal) st.err = String(m.refusal).slice(0, 80);
   const raw = firstContent(
     d?.content, d?.text,
@@ -292,7 +335,7 @@ export function collectChatText(evt, info) {
   return out;
 }
 
-/** Kompakte Diagnose-Anreicherung fuer E-GEN-PARSE (Provider/Modell/Status/finish/Retry). */
+/** Kompakte Diagnose-Anreicherung fuer E-GEN-PARSE (Provider/Modell/Status/finish/Retry/Build). */
 function emptyHint(info, retried) {
   const parts = [];
   if (info && info.finish) parts.push(`finish_reason=${info.finish}`);
@@ -305,7 +348,74 @@ function emptyHint(info, retried) {
     if (info && info.usage) parts.push(String(info.usage).slice(0, 60));
   }
   parts.push(`Retry ${retried ? 1 : 0}/1`);
+  parts.push(`Build ${GEN_BUILD}`);
   return parts.length > 0 ? ` (${parts.join(', ')})` : '';
+}
+
+/**
+ * Redigiert einen Diagnosetext vor Anzeige/Clipboard: Authorization-Header,
+ * Bearer-Tokens und Key-Formen (sk-*, LLM_*, api_key-Zuweisungen) werden
+ * ersetzt. Modell-Slugs (mit '/') und kurze Kennungen bleiben lesbar.
+ * @param {unknown} s
+ */
+export function redactDiagnoseText(s) {
+  let out = String(s ?? '');
+  out = out.replace(/Authorization\s*:\s*Bearer\s+\S+/gi, 'Authorization: Bearer [REDACTED]');
+  out = out.replace(/Bearer\s+[A-Za-z0-9._\-~+/=]{8,}/g, 'Bearer [REDACTED]');
+  out = out.replace(/\bsk-[A-Za-z0-9\-_]{8,}\b/g, '[REDACTED]');
+  out = out.replace(/\bLLM_[A-Za-z0-9._\-]{8,}\b/g, '[REDACTED]');
+  out = out.replace(/(["']?api[_-]?key["']?\s*[:=]\s*["']?)[^"'\s,}]+/gi, '$1[REDACTED]');
+  return out;
+}
+
+/**
+ * Baut den kopierbaren Diagnose-Text (stabile Feldnamen, lokalisierte Kopfzeile,
+ * Rohantwort auf ~2KB gekuerzt, IMMER redigiert — nie ein Key im Clipboard).
+ * @param {{ provider?: unknown, model?: unknown, via?: unknown, status?: unknown, finish?: unknown, usage?: unknown, usageReasoning?: unknown, usageCompletion?: unknown, retried?: unknown, build?: unknown, rawSnippet?: unknown }} [diag]
+ * @param {string} [locale]
+ */
+export function buildDiagnoseText(diag = {}, locale = 'de') {
+  const loc = ['de', 'en', 'es'].includes(locale) ? locale : 'de';
+  const head = loc === 'en'
+    ? 'ModelMuse diagnostics (redacted, no key).'
+    : loc === 'es'
+      ? 'ModelMuse diagnóstico (editado, sin clave).'
+      : 'ModelMuse Diagnose (redigiert, ohne Key).';
+  const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? String(v) : '');
+  const lines = [
+    head,
+    `provider: ${diag.provider ?? '?'}`,
+    `model: ${diag.model ?? '?'}`,
+    `via: ${diag.via ?? '?'}`,
+    `http: ${diag.status ?? '?'}`,
+    `finish: ${diag.finish ?? ''}`,
+    `usage: ${diag.usage ?? ''}`,
+    `usage_reasoning_tokens: ${num(diag.usageReasoning)}`,
+    `usage_completion_tokens: ${num(diag.usageCompletion)}`,
+    `retry: ${(diag.retried ? 1 : 0)}/1`,
+    `build: ${diag.build ?? GEN_BUILD}`,
+    `raw_snippet_2k: ${String(diag.rawSnippet ?? '').slice(0, 2048)}`,
+  ];
+  return redactDiagnoseText(lines.join('\n'));
+}
+
+/**
+ * Diagnose zu einem Generierungsfehler: bevorzugt das strukturierte
+ * Diagnose-Objekt am Fehler (via/finish/Usage/Retry/Build/Rohantwort),
+ * sonst ehrlicher Fallback aus der (key-freien) Fehlermeldung.
+ * @param {unknown} e
+ */
+export function errorDiagnose(e) {
+  if (e && typeof e === 'object') {
+    const d = /** @type {{ diagnose?: unknown }} */ (e).diagnose;
+    if (d && typeof d === 'object') return /** @type {any} */ (d);
+  }
+  const msg = String((e && typeof e === 'object' && 'message' in e && e.message) || e);
+  return {
+    provider: '?', model: '?', via: '?', status: '?',
+    finish: '', usage: '', usageReasoning: null, usageCompletion: null,
+    retried: false, build: GEN_BUILD, rawSnippet: msg.slice(0, 2048),
+  };
 }
 
 /**
@@ -367,7 +477,14 @@ async function readSseModule(res, onToken) {
       /* kein valides JSON: kein sichtbarer Content */
     }
   }
-  return { full, finishReason: info.finish || null, info };
+  // Rohantwort-Auszug fuer den Diagnose-Export (max ~2KB): sichtbarer Text
+  // zuerst, sonst Reasoning-Auszug (Thinking-Fall), sonst Stream-Rest.
+  // Enthaelt nie Key-Material (nur Modell-Output); wird vor dem Kopieren
+  // ohnehin redigiert.
+  const rawSnippet = String(
+    full || info.reasonSample || `${raw}${buf}`.slice(-2048) || ''
+  ).slice(0, 2048);
+  return { full, finishReason: info.finish || null, info, rawSnippet };
 }
 
 /** @param {number} status */
@@ -422,28 +539,50 @@ export function extractModuleSource(rawText) {
 
 /**
  * Modul aus SSE-Volltext bauen (Direkt- und Proxy-Pfad teilen sich das).
+ * Haengt jeden E-GEN-PARSE-Fehler an `err.diagnose` (Provider/Modell/HTTP/
+ * finish/Usage-Zahlen/Retry/Build/Rohantwort, key-frei) fuer den
+ * Diagnose-Export per Copy-Button.
  * @param {string} full
  * @param {string | null} finishReason
  * @param {'direct' | 'proxy'} via
- * @param {{ provider?: string, model?: string, status?: number, retried?: boolean, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string } }} [ctx]
+ * @param {{ provider?: string, model?: string, status?: number, retried?: boolean, rawSnippet?: string, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string, usageReasoning?: number | null, usageCompletion?: number | null, reasonSample?: string } }} [ctx]
  */
 function finishModule(full, finishReason, via, ctx = {}) {
   const who = `${ctx.provider ?? '?'}/${ctx.model ?? '?'}`;
   const where = `(via ${via}, HTTP ${ctx.status ?? '?'}, ${who})`;
+  const diagnose = () => ({
+    provider: ctx.provider ?? '?',
+    model: ctx.model ?? '?',
+    via,
+    status: ctx.status ?? '?',
+    finish: (ctx.info && ctx.info.finish) || finishReason || '',
+    usage: (ctx.info && ctx.info.usage) || '',
+    usageReasoning: (ctx.info && ctx.info.usageReasoning) ?? null,
+    usageCompletion: (ctx.info && ctx.info.usageCompletion) ?? null,
+    retried: !!ctx.retried,
+    build: GEN_BUILD,
+    rawSnippet: String(ctx.rawSnippet ?? full ?? '').slice(0, 2048),
+  });
   if (!full || !full.trim()) {
-    throw Object.assign(new Error(`E-GEN-PARSE: leere Antwort ${where}${emptyHint(ctx.info, ctx.retried)}`), { code: 'E-GEN-PARSE' });
+    const err = Object.assign(new Error(`E-GEN-PARSE: leere Antwort ${where}${emptyHint(ctx.info, ctx.retried)}`), { code: 'E-GEN-PARSE' });
+    err.diagnose = diagnose();
+    throw err;
   }
   // E-S2-BOOT-Repair: fehlende benannte Imports (z.B. Scene) ergaenzen,
   // bevor Quelle gespeichert/gebootet wird (E2E-Befund 2026-10-27).
   const source = repairThreeImports(extractModuleSource(full));
   if (!source.includes('export const meta') || !source.includes('export function init')) {
-    throw Object.assign(new Error(`E-GEN-PARSE: kein Modul extrahierbar ${where}${emptyHint(ctx.info, ctx.retried)}`), { code: 'E-GEN-PARSE' });
+    const err = Object.assign(new Error(`E-GEN-PARSE: kein Modul extrahierbar ${where}${emptyHint(ctx.info, ctx.retried)}`), { code: 'E-GEN-PARSE' });
+    err.diagnose = diagnose();
+    throw err;
   }
   if (finishReason && finishReason !== 'stop') {
     const budget = finishReason === 'length'
       ? ' (Ausgabebudget erschoepft: Reasoning+Content teilen sich das Limit)'
       : '';
-    throw Object.assign(new Error(`E-GEN-PARSE: finish_reason=${finishReason} ${where}${budget}`), { code: 'E-GEN-PARSE' });
+    const err = Object.assign(new Error(`E-GEN-PARSE: finish_reason=${finishReason} ${where}${budget}`), { code: 'E-GEN-PARSE' });
+    err.diagnose = diagnose();
+    throw err;
   }
   return { source, meta: { title: '', category: '', detailLevel: 1, parts: [], units: 'm' }, raw: full, via };
 }
@@ -472,7 +611,7 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
         });
         let res = await send(chatBody);
         if (!res.ok && res.status === 400 && !slimmed && stripChatExtras(chatBody)) {
-          // v21: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut
+          // v22: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut
           // (nie schlechter als v20: ohne Extras gab es dasselbe 400).
           slimmed = true;
           res = await send(chatBody);
@@ -481,8 +620,8 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
           const code = classify(res.status);
           throw Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
         }
-        const { full, finishReason, info } = await readSseModule(res, opts.onToken);
-        return { full, finishReason, info, status: res.status };
+        const { full, finishReason, info, rawSnippet } = await readSseModule(res, opts.onToken);
+        return { full, finishReason, info, rawSnippet, status: res.status };
       } finally {
         clearTimeout(timer);
       }
@@ -493,7 +632,7 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
       retried = true;
       r = await once(GEN_RETRY_MAX_COMPLETION_TOKENS); // max 1 Retry
     }
-    return finishModule(r.full, r.finishReason, 'direct', { provider, model, status: r.status, retried, info: r.info });
+    return finishModule(r.full, r.finishReason, 'direct', { provider, model, status: r.status, retried, info: r.info, rawSnippet: r.rawSnippet });
   } catch (e) {
     if (e && typeof e.code === 'string' && e.code.startsWith('E-GEN-')) throw e;
     throw Object.assign(new Error('E-GEN-DIREKT: Direkt-Call nicht moeglich (Netz/CORS/Timeout)'), { code: 'E-GEN-DIREKT' });
@@ -564,7 +703,7 @@ export async function generateLive(promptText, opts = {}) {
         }
         continue;
       }
-      const { full, finishReason, info } = await readSseModule(res, opts.onToken);
+      const { full, finishReason, info, rawSnippet } = await readSseModule(res, opts.onToken);
       sawHttp = true;
       if (!budgetRetried && isBudgetExhausted(full, finishReason, info)) {
         // Budget-Retry: Reasoning hat das Limit gefressen (leer + length +
@@ -575,7 +714,7 @@ export async function generateLive(promptText, opts = {}) {
         attempt -= 1;
         continue;
       }
-      return finishModule(full, finishReason, 'proxy', { provider, model, status: res.status, retried: budgetRetried, info });
+      return finishModule(full, finishReason, 'proxy', { provider, model, status: res.status, retried: budgetRetried, info, rawSnippet });
     } catch (e) {
       clearTimeout(timer);
       if (e && (e.code === 'E-GEN-PARSE' || e.code === 'E-GEN-400' || e.code === 'E-GEN-401' || e.code === 'E-GEN-402' || e.code === 'E-GEN-403' || e.code === 'E-GEN-404' || e.code === 'E-GEN-413')) {

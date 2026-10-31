@@ -125,6 +125,11 @@
     "E-GEN-OFFLINE": "Kein Generierungs-Proxy konfiguriert. Die vorbereitete Bibliothek steht bereit.",
     "E-GEN-DIREKT": "Direkt-Aufruf blockiert (Netz/CORS) und kein Proxy-Fallback konfiguriert. Proxy-URL eintragen oder Bibliothek nutzen."
   },
+  "diagnose": {
+    "kopieren": "Diagnose kopieren",
+    "kopiert": "Diagnose kopiert (ohne Key).",
+    "fehler": "Kopieren fehlgeschlagen — Text manuell markieren."
+  },
   "sprache": {
     "titel": "Sprache",
     "name": "Deutsch"
