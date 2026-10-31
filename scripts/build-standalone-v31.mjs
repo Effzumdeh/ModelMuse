@@ -99,14 +99,17 @@ function checkInvariants(s) {
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
     ['modify:async function', 1], ['role="dialog"', 2], ['id="gen-status"', 1],
     ['{id:"demo-2d-chart",track', 1], ['explanations:{de:[', 6],
-    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', 5],
+    // v32-Nachfolger (ETA-Tabelle liest Default): 5->6.
+    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', 6],
     ['genReasoning:"xhigh"', 1],
     // v31-Marker.
-    ['enqueueGenerate', 2], ['pumpGenQueue', 2],
+    // v35-Nachfolger (eine Pumpe, zwei Einreihungen): 2->3.
+    ['enqueueGenerate', 2], ['pumpGenQueue', 3],
     ['startGenEta', 2], ['stopGenEta', 2], ['startModEta', 2], ['stopModEta', 2],
     ['genEtaText', 2], ['modEtaText', 2],
     ['genJobsTitle', 4], ['genPatient', 8], ['modPatient', 8],
-    ['jobWaiting', 6], ['jobRunning', 4], ['jobDone', 4], ['jobError', 6],
+    // v35-Nachfolger (mod-Einreihung teilt Status): 6->7.
+    ['jobWaiting', 7], ['jobRunning', 4], ['jobDone', 4], ['jobError', 6],
     ['genStopped', 4], ['genJobs:[]', 1],
     ['id="gen-jobs"', 1], ['id="mod-status"', 1],
     ['position:fixed;bottom:16px;right:16px', 2],

@@ -248,6 +248,15 @@ test('buildFreePrompt: locale-Parameter + meta_i18n-Vertrag, keine Sprachlogik',
   assert.ok(buildFreePrompt('Windkraftanlage', 'xx').includes('(locale): de'), 'unbekannte Lokale -> de');
 });
 
+test('buildFreePrompt: Bauteil-Registrierung + parts.hidden (Fussballfeld-Befund)', () => {
+  const p = buildFreePrompt('Fussballfeld', 'de');
+  assert.ok(p.includes('registerPartGroups'), 'Registrierungs-Pflicht im Prompt');
+  assert.ok(p.includes('applyPartVisibility'), 'parts.hidden-Auswertung im Prompt');
+  assert.ok(p.includes('patch.parts.hidden'), 'parts.hidden-Patchform');
+  assert.ok(p.includes('Standard-Gruppe'), 'Standard-Gruppe fuer Meshes ohne Treffer');
+  assert.ok(p.includes('>= 1 Mesh'), 'Selbst-Check je Part-Label');
+});
+
 test('extractMetaI18n + buildFreeManifest: Hints erzeugen en/es-Segment, valide', () => {
   const src = `export const meta_i18n = { en: { title: 'Wind turbine', parts: ['Mast','Rotor','Nacelle'] }, es: { title: 'Aerogenerador', parts: ['Mástil','Rotor','Góndola'] } };`;
   const hints = extractMetaI18n(src);

@@ -74,7 +74,7 @@ test('C: Auftrags-Queue (Eingabe leeren, beauftragbar, Status je Auftrag)', asyn
   assert.ok(s.includes('try{this.modDesc="";}catch(eModClear){}'), 'Mod-Eingabe leeren');
   // Queue-Kern: Pumpe + Status je Auftrag.
   assert.equal(cnt(s, 'enqueueGenerate'), 2, 'enqueue (Template + Methode)');
-  assert.equal(cnt(s, 'pumpGenQueue'), 2, 'Pumpe (Aufruf + Methode)');
+  assert.equal(cnt(s, 'pumpGenQueue'), 3, 'Pumpe (2 Einreihungen + Methode, v35)');
   assert.ok(s.includes('id="gen-jobs"'), 'Auftragsliste im Overlay');
   for (const key of ['jobWaiting', 'jobRunning', 'jobDone', 'jobError', 'genJobsTitle']) {
     assert.ok(cnt(s, key) >= 3, `${key} mit de/en/es-Abdeckung`);

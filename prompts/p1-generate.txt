@@ -16,7 +16,7 @@ PCFShadowMap, VSMShadowMap, Vector3, BufferGeometry, Matrix4, Quaternion, PMREMG
 Zusaetzlich genau ein Addon-Import erlaubt:
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 Erlaubte Imports aus wrapper-helpers (ABSCHLIESSEND):
-import { addLabel, addMeasurement } from 'wrapper-helpers';
+import { addLabel, addMeasurement, registerPartGroups, applyPartVisibility } from 'wrapper-helpers';
 Farben nur als Hexzahlen (kein Color-Import). Keine weiteren Imports, keine URLs, kein dynamischer Import.
 Du greifst nicht auf fetch, DOM, Speicher oder Netzwerk zu.
 VERBOTENE Bezeichner (S1-Wortgrenzen): nutze niemals document, window, parent, top, fetch, eval, Function,
@@ -81,6 +81,6 @@ NEGATIV-MUSTER (6 Fehlerklassen, je 1 Negativ + 1 Positiv):
 [S4-meshcount] NEGATIV: 312 Meshes als Einzelteile (Mesh 280 + Instanced 32). POSITIV: maximal 250 Meshes, Ziel ~45, Wiederholteile als InstancedMesh je Teilefamilie.
 meta (Pflicht, EXAKT): export const meta = { title, category, detailLevel, parts, units: 'm' }.
 init(container, params): Szene, Kamera, OrbitControls, RAF-Schleife (bei params.reducedMotion keine Rotation),
-Rueckgabe { update, dispose }. update(patch): labels {enabled,max}, measurements {enabled}, view overview/detail/front/top.
+Rueckgabe { update, dispose }. update(patch): labels {enabled,max,hidden}, measurements {enabled}, parts {hidden}, view overview/detail/front/top. Bauteil-Registrierung (Pflicht): nach dem Szenenaufbau registerPartGroups(root, meta.parts) — Namens-Matching (Normalisierung de/en/es, Teil-Matching statt Exakt, laengster Treffer gewinnt; Meshes ohne Treffer -> Standard-Gruppe, bleibt sichtbar); JEDES Bauteil muss >= 1 Mesh treffen. update wertet patch.parts.hidden via applyPartVisibility(root, patch.parts.hidden) aus (Geometrie je Index ausblenden).
 dispose(): RAF stoppen, controls.dispose, Szene traversieren (geometry.dispose, material.dispose),
 renderer.dispose, pmrem-Ressourcen freigeben, renderer.domElement.remove.

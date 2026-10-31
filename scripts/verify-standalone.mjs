@@ -113,9 +113,9 @@ function v15PartInfo(s, fail, ok) {
     else fail(`${label}: ${n}; expected ${want}`);
   };
   eqV('openPartInfo', 2, 'v15 openPartInfo (Template + Methode)');
-  eqV('closePartInfo', 2, 'v15 closePartInfo (Template + Methode)');
+  eqV('closePartInfo', 3, 'v15+v34 closePartInfo (2x Template + Methode)');
   eqV('partInfoIndex', 7, 'v15 partInfoIndex (data/reset/open/close/3x Template)');
-  eqV('partInfoTitle', 5, 'v15 partInfoTitle (3 I18N + aria + h3)');
+  eqV('partInfoTitle', 6, 'v15+v34 partInfoTitle (3 I18N + aria + h3 + Win-Leiste)');
   eqV('partInfoAbout', 5, 'v15 partInfoAbout (3 I18N + aria + title)');
   eqV('partExplanations', 2, 'v15a partExplanations (computed + text)');
   eqV('partInfoMissing', 4, 'v15a partInfoMissing (3 I18N + Popup-Fallback)');
@@ -275,7 +275,7 @@ if (isShowcase) {
   eqS('@click="deleteLab"', 1, 'v16 universal delete button');
   eqS("v-if=\"activeLab.id&&activeLab.id.indexOf('free-')===0\"", 0, 'v16 no free-* gate in overlay');
   eqS('lab.id.indexOf("free-")!==0){return;}', 0, 'v16 no free-* guard in deleteLab');
-  eqS('this.activeLabId=null;try{this.syncViewer();}', 1, 'v16 empty-state viewer sync');
+  eqS('this.activeLabId=null;try{localStorage.removeItem("modelmuse.lab");}catch(eDL){}try{this.syncViewer();}', 1, 'v16+v36 empty-state viewer sync (Auswahl geraeumt)');
   // v17 (Provider-Umschalter): Baseten-Label ohne (direkt), Provider-Select
   // mit genau 2 Optionen, Meta-Modelle exakt 3, Streaming-SSE, Keys je
   // Provider, reasoning_effort max nur 1.3/wonder, 401-Texte je Provider.
@@ -317,7 +317,7 @@ if (isShowcase) {
   eqS('reasoning_effort="low"', 0, 'v26 kein low mehr (xhigh)');
   eqS('reasoning_effort="none"', 0, 'v26 kein unbelegtes none (Doku: rejected/gemapped)');
   eqS('xhighAllowed', 6, 'v26 xhigh-Leitplanken (Methode + selects + defaults + bodies)');
-  eqS('reasoningDefault', 5, 'v26 UI-Default-Ableitung (Methode + resets + bodies)');
+  eqS('reasoningDefault', 6, 'v26+v32 UI-Default-Ableitung (Methode + resets + bodies + ETA-Tabelle)');
   eqS('genReasoning:"xhigh"', 1, 'v26 UI-Default xhigh (Baseten-Startprovider)');
   eqS('reasoningHigh', 4, 'v26 xhigh-Option (3 Locales + Template)');
   eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
@@ -340,11 +340,11 @@ if (isShowcase) {
   eqS('@click="generate"', 0, 'v31 kein blockierender Generate-Handler mehr');
   eqS('@click="enqueueGenerate"', 1, 'v31 Queue-Einstieg am Generieren-Button');
   eqS('enqueueGenerate', 2, 'v31 enqueue-Methode (Template + Definition)');
-  eqS('pumpGenQueue', 2, 'v31 Queue-Pumpe (Aufruf + Definition)');
+  eqS('pumpGenQueue', 3, 'v31+v35 Queue-Pumpe (2 Einreihungen + Definition)');
   eqS('id="gen-jobs"', 1, 'v31 Auftragsliste im Gen-Overlay');
   eqS('genJobsTitle', 4, 'v31 Auftragstitel (3 Locales + Template)');
   eqS('genJobs:[]', 1, 'v31 Queue-State im Data-Block');
-  eqS('jobWaiting', 6, 'v31 Auftragsstatus wartend (3 Locales + enqueue + pumpe + stopp)');
+  eqS('jobWaiting', 7, 'v31+v35 Auftragsstatus wartend (3 Locales + 2x enqueue + Pumpe + Stopp)');
   eqS('jobRunning', 4, 'v31 Auftragsstatus laeuft (3 Locales + Pumpe)');
   eqS('jobDone', 4, 'v31 Auftragsstatus fertig (3 Locales + Pumpe)');
   eqS('jobError', 6, 'v31 Auftragsstatus Fehler (3 Locales + Pumpe x2 + Stopp)');
@@ -354,6 +354,46 @@ if (isShowcase) {
   eqS('genPatient', 8, 'v31 Gen-Geduld (3 Locales + State + Timer + Template x2)');
   eqS('modPatient', 8, 'v31 Mod-Geduld (3 Locales + State + Timer + Template x2)');
   eqS('Hab noch einen Moment Geduld.', 2, 'v31 Geduld-Hinweis de (gen + mod)');
+  eqS('standalone-build v32', 1, 'v32 stamp (Overtime + Gesamtzeit + ETA-Tabelle)');
+  // v32 (D/E/F): Overtime de/en/es, Gesamtzeit de/en/es, 4-Min-Texte,
+  // Tabelle + dynamischer Abort.
+  eqS('länger als erwartet', 2, 'v32 Overtime de (gen + mod)');
+  eqS('longer than expected', 2, 'v32 Overtime en (gen + mod)');
+  eqS('lento de lo esperado', 2, 'v32 Overtime es (gen + mod)');
+  eqS('fertig nach {s} s', 2, 'v32 Gesamtzeit de (gen + mod)');
+  eqS('done after {s} s', 2, 'v32 Gesamtzeit en (gen + mod)');
+  eqS('listo tras {s} s', 2, 'v32 Gesamtzeit es (gen + mod)');
+  eqS('ca. 4 Minuten', 2, 'v32 Lang-Countdown de (gen + mod)');
+  eqS('about 4 minutes', 2, 'v32 Lang-Countdown en (gen + mod)');
+  eqS('aprox. 4 minutos', 2, 'v32 Lang-Countdown es (gen + mod)');
+  eqS('etaSeconds:function', 1, 'v32 ETA-Tabelle (1.3+xhigh/max->240 s)');
+  eqS('*1000+120000', 2, 'v32 Abort folgt Tabelle (gen + mod)');
+  eqS('},120000);', 0, 'v32 kein fixer 120-s-Abort mehr');
+  eqS('standalone-build v33', 1, 'v33 stamp (Mesh-Text raus + Erklaerungs-Haertung)');
+  // v33 (G/H): kein Mesh-Text, tolerante Erklaerungen.
+  eqS('mappingNote', 0, 'v33 Mesh-Text-Key entfernt');
+  eqS('mappingText', 0, 'v33 Mesh-Text-Methode entfernt');
+  eqS('Meshes zugeordnet', 0, 'v33 Mesh-Text entfernt');
+  eqS('normExp:function', 1, 'v33 Toleranz-Helper');
+  eqS('standalone-build v34', 1, 'v34 stamp (Stapelung + Minimieren + Schliessen)');
+  // v34 (I): Win-Dock, drei Leisten, Min/Close.
+  eqS('toggleWinMin(', 3, 'v34 Minimieren (gen + mod + part)');
+  eqS('id="part-info"', 1, 'v34 Part-Dialog adressierbar');
+  eqS('win-dock v34', 1, 'v34 Stapel-Skript');
+  eqS('cancelGenerate', 3, 'v34 Gen-Close (Stopp + Methode + Leiste)');
+  eqS('dismissGenNotice', 5, 'v34 Gen-Notizen (Methode + Aufrufe)');
+  eqS('closeModify', 3, 'v34 Mod-Close (Methode + Button + Leiste)');
+  eqS('standalone-build v35', 1, 'v35 stamp (Modify in derselben Queue)');
+  // v35 (J): einheitliche Queue gen+mod.
+  eqS('enqueueModify', 2, 'v35 Mod-Einreihung (Call + Methode)');
+  eqS("kind:'mod'", 1, 'v35 Mod-Auftraege markiert');
+  eqS('job.kindKey', 1, 'v35 Art-Badge im Template');
+  eqS(':disabled="modBusy"', 0, 'v35 Mod-Button nie disabled');
+  eqS('genBusy||genNotice||genPumping', 1, 'v35 Fenster bei Pumpe sichtbar');
+  eqS('standalone-build v36', 1, 'v36 stamp (Startauswahl + Fallback + Geister-Modell)');
+  // v36 (K): Startaufloesung + Modus.
+  eqS('modelmuse.mode', 5, 'v36 Modus (4x persist + 1x restore)');
+  eqS('localStorage.removeItem("modelmuse.lab")', 2, 'v36 stale Auswahl geraeumt');
   eqS('standalone-build v29', 1, 'v29 stamp (Modelliste 10->6 + Umbenennungen)');
   eqS('standalone-build v28', 1, 'v28 stamp (2D-Klassifizierer Bindestrich-Padding)');
   eqS('standalone-build v27', 1, 'v27 stamp (2D-Klassifizierer-Feinschliff)');

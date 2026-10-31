@@ -170,7 +170,8 @@ function checkInvariants(s) {
     ['v-if="showOnboarding"', 1], ['id="gen-status"', 1], ['showcase: 5 Modelle', 1],
     ['__FREE_GUARD_V18__', 1],
     ['emptyLibrary', 4],
-    ['modelmuse.deleted', 4],
+    // v36-Nachfolger (K1 Startaufloesung): 4->5.
+    ['modelmuse.deleted', 5],
     ['modelmuse.keys', 8],
     ['keyStoredSession', 4],
     ['keyStoredLocal', 4],

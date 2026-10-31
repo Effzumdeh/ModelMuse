@@ -211,3 +211,125 @@ export function clearAnnotations(root, scope = 'all') {
   if (scope === 'measurements' || scope === 'all') drop(b.measurements);
   return n;
 }
+
+/**
+ * Bauteil-Mesh-Zuordnung, Gast-Seite (kanonisch — Spiegel von
+ * src/runtime/parts.js assignPartMeshes; dort kein Import moeglich, weil
+ * dieses Modul als Frame-Blob ohne relative Imports laeuft. Bei
+ * Regel-Aenderung HIER UND DORT synchronisieren — Paritaetstest in
+ * tests-unit/parts.test.mjs).
+ *
+ * Ordnet jedes Mesh (isMesh/isInstancedMesh) unter root per Namens-Matching
+ * einem Part-Label zu (o.name, sonst Material-Name) und stempelt
+ * o.userData.partIndex. Teil-Matching statt Exakt (beide Richtungen,
+ * ersatzweise Stammformen de/en/es), laengster Treffer gewinnt,
+ * Gleichstand ans erste Label. Meshes ohne
+ * Treffer -> Standard-Gruppe (Index labels.length, bleibt sichtbar).
+ * @param {object} root
+ * @param {string[]} labels Part-Labels in Manifest-Reihenfolge
+ * @param {{ translations?: Array<string[] | undefined | null> }} [opts] je Label en/es-Varianten
+ * @returns {{ groups: number[], warnings: Array<{ type: string, label?: string, mesh?: string }> }}
+ */
+export function registerPartGroups(root, labels, opts = {}) {
+  if (!root || typeof root.traverse !== 'function') throw err('E-HELPER-ARG', 'root ohne traverse');
+  const labs = Array.isArray(labels) ? labels.map(String) : [];
+  if (labs.length === 0) throw err('E-HELPER-ARG', 'leere labels');
+  const norm = (s) => String(s ?? '').trim().toLowerCase()
+    .replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ß/g, 'ss')
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+  const stem = (t) => {
+    const s = String(t ?? '');
+    if (s.length <= 4) return s;
+    for (const suf of ['nen', 'en', 'es', 'n', 's', 'e']) {
+      if (s.endsWith(suf)) {
+        const c = s.slice(0, -suf.length);
+        if (c.length >= 4) return c;
+      }
+    }
+    return s;
+  };
+  const trans = Array.isArray(opts?.translations) ? opts.translations : [];
+  const variants = labs.map((l, i) => {
+    const set = [];
+    for (const v of [l, ...(Array.isArray(trans[i]) ? trans[i] : [])]) {
+      const n = norm(v);
+      if (n.length >= 2 && !set.includes(n)) set.push(n);
+    }
+    return set;
+  });
+  const matName = (o) => {
+    try {
+      const mt = o.material;
+      const list = Array.isArray(mt) ? mt : [mt];
+      for (const m of list) {
+        if (m && typeof m.name === 'string' && m.name) return m.name;
+      }
+    } catch { /* namenlos */ }
+    return '';
+  };
+  const groups = labs.map(() => 0);
+  groups.push(0);
+  const warnings = [];
+  const hits = labs.map(() => 0);
+  root.traverse((o) => {
+    if (!o || (!o.isMesh && !o.isInstancedMesh)) return;
+    const raw = (typeof o.name === 'string' && o.name) ? o.name : matName(o);
+    const nm = norm(raw);
+    const stemN = stem(nm);
+    let best = -1;
+    let bestLen = 0;
+    if (nm.length >= 2) {
+      for (let i = 0; i < variants.length; i += 1) {
+        for (const v of variants[i]) {
+          let hit = 0;
+          if (nm === v) hit = v.length + 1000;
+          else if (nm.includes(v) || v.includes(nm)) hit = Math.min(nm.length, v.length);
+          else {
+            const stemV = stem(v);
+            if (stemN.length >= 4 && stemV.length >= 4 && (stemN.includes(stemV) || stemV.includes(stemN))) {
+              hit = Math.min(stemN.length, stemV.length);
+            }
+          }
+          if (hit > bestLen) {
+            bestLen = hit;
+            best = i;
+          }
+        }
+      }
+    }
+    const idx = best >= 0 ? best : labs.length;
+    try {
+      o.userData = o.userData || {};
+      o.userData.partIndex = idx;
+    } catch { /* Stempel best effort */ }
+    groups[idx] += 1;
+    if (best >= 0) hits[best] += 1;
+    else warnings.push({ type: 'mesh-ohne-treffer', mesh: String(raw || '(namenlos)') });
+  });
+  labs.forEach((label, i) => {
+    if (hits[i] === 0) warnings.push({ type: 'label-ohne-mesh', label });
+  });
+  return { groups, warnings };
+}
+
+/**
+ * Wertet patch.parts.hidden aus (Index-Array wie labels.hidden):
+ * Meshes, deren userData.partIndex (s. registerPartGroups) enthalten ist,
+ * werden unsichtbar, alle anderen sichtbar. Meshes ohne Stempel (spaeter
+ * ergaenzt) und die Standard-Gruppe (Index labels.length) bleiben sichtbar.
+ * @param {object} root
+ * @param {unknown} hidden
+ */
+export function applyPartVisibility(root, hidden) {
+  if (!root || typeof root.traverse !== 'function') throw err('E-HELPER-ARG', 'root ohne traverse');
+  const set = new Set(Array.isArray(hidden) ? hidden.filter((n) => Number.isInteger(n)) : []);
+  root.traverse((o) => {
+    if (!o || (!o.isMesh && !o.isInstancedMesh)) return;
+    let idx = null;
+    try {
+      idx = o.userData && Number.isInteger(o.userData.partIndex) ? o.userData.partIndex : null;
+    } catch { /* unlesbar -> sichtbar */ }
+    o.visible = idx === null ? true : !set.has(idx);
+  });
+}

@@ -6,6 +6,7 @@
 import { staticGate, checkMeta } from './guard-static.js';
 import { verifyTwoDLayer } from './verify-2d.js';
 import { validateManifest, checkLevelRules, findPedagogyLeak } from './didactics.js';
+import { checkPartMeshCoverage } from './parts.js';
 import {
   GEO_LIMITS,
   verifyGeometryScene,
@@ -117,6 +118,26 @@ export function verifyDidacticsLayer(manifest, source, soll) {
     const phrases = [...m.objectives, ...m.tasks.map((t) => t.prompt)];
     const leaks = findPedagogyLeak(source, phrases);
     layer.criteria.push(crit('S5-deklarativ', leaks.length === 0 ? 'pass' : 'fail', 'kein Lernziel-/Aufgabentext im Modulcode', leaks.length === 0 ? 'sauber' : `${leaks.length} Treffer`));
+    // Bauteil-Mesh-Zuordnung (Selbst-Check): jedes Part-Label muss >= 1 Mesh
+    // treffen, sonst WARNUNG in der Diagnose (immer pass — Warnung statt Rot;
+    // ohne registerPartGroups neutral, labels-only graceful). Uebersetzungen
+    // aus dem Manifest-i18n (en/es labels, Laengen-Deckung) verbessern Treffer.
+    try {
+      const labels = Array.isArray(manifest?.labels) ? manifest.labels.map(String) : [];
+      const seg = (loc) => {
+        const s = manifest?.i18n && typeof manifest.i18n === 'object' ? manifest.i18n[loc] : null;
+        return s && typeof s === 'object' && Array.isArray(s.labels) && s.labels.length === labels.length
+          ? s.labels.map(String)
+          : null;
+      };
+      const en = seg('en');
+      const es = seg('es');
+      const translations = labels.map((_, i) => [en?.[i], es?.[i]].filter((v) => typeof v === 'string'));
+      const cov = checkPartMeshCoverage(String(source ?? ''), labels, { translations });
+      layer.criteria.push(crit('S5-parts-coverage', cov.criterion.verdict, cov.criterion.expected, cov.criterion.actual));
+    } catch {
+      layer.criteria.push(crit('S5-parts-coverage', 'pass', 'jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)', 'Pruefung uebersprungen (interner Fehler)'));
+    }
   }
   layer.verdict = layer.criteria.every((c) => c.verdict === 'pass') ? 'pass' : 'fail';
   layer.durationMs = Date.now() - t0;

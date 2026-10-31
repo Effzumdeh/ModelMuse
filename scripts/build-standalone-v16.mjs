@@ -69,7 +69,8 @@ function checkInvariants(s) {
     ['deleteLab', 6], ['deleteConfirm', 4],
     ['v-if="activeLab.id&&activeLab.id.indexOf(\'free-\')===0"', 0],
     ['lab.id.indexOf("free-")!==0){return;}', 0],
-    ['this.activeLabId=null;try{this.syncViewer();}', 1],
+    // v36-Nachfolger (K3): stale Auswahl wird geraeumt.
+    ['this.activeLabId=null;try{localStorage.removeItem("modelmuse.lab");}catch(eDL){}try{this.syncViewer();}', 1],
     ['verifyBadges', 0], ['verifyTitle', 0], ["{{t('verifyTitle')}}", 0],
     ['detailsTitle', 0], ["{{t('detailsTitle')}}", 0], ['measurementsTitle', 0], ['labelsTitle', 0],
     ['v-if="showOnboarding"', 1],
@@ -78,8 +79,9 @@ function checkInvariants(s) {
     ['__FREE_GUARD_V18__', 1],
     ['Fortschritt', 0], ['fortschritt', 0],
     // v29-Nachfolger (Modelliste 10->6): explanations 10->6 (exakt in v29).
-    ['openPartInfo', 2], ['closePartInfo', 2], ['partInfoIndex', 7],
-    ['partInfoTitle', 5], ['partInfoAbout', 5], ['partExplanations', 2], ['partInfoMissing', 4],
+    // v34-Nachfolger (Win-Leiste): closePartInfo 2->3, partInfoTitle 5->6.
+    ['openPartInfo', 2], ['closePartInfo', 3], ['partInfoIndex', 7],
+    ['partInfoTitle', 6], ['partInfoAbout', 5], ['partExplanations', 2], ['partInfoMissing', 4],
     ['v-if="partInfoIndex!==null"', 1], ['genClose:"Cerrar"', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, `Invariante ${sub}: ${cnt(s, sub)}, erwartet ${want}`);

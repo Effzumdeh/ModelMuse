@@ -35,7 +35,7 @@ export const THREE_KNOWN_EXPORTS = Object.freeze([
   'TorusGeometry', 'VSMShadowMap', 'Vector3', 'WebGLRenderer',
 ]);
 export const ADDON_KNOWN_EXPORTS = Object.freeze(['OrbitControls']);
-export const HELPER_KNOWN_EXPORTS = Object.freeze(['addLabel', 'addMeasurement']);
+export const HELPER_KNOWN_EXPORTS = Object.freeze(['addLabel', 'addMeasurement', 'registerPartGroups', 'applyPartVisibility']);
 /** Benannte Exporte des 2D-Vendor-Bundles (src/vendor/diagram-2d.js). */
 export const TWOD_KNOWN_EXPORTS = Object.freeze(['renderDiagram2D', 'buildDiagramSvg', 'DIAGRAM_KINDS', 'escXml', 'countSvgShapes', 'isWellformedSvg', 'SVG_NODE_BUDGET', 'renderMermaid2D', 'parseMermaid', 'buildMermaidSvg', 'MERMAID_CHUNK_MANIFEST', 'renderChart2D', 'parseChartConfig', 'buildChartSvg', 'CHART_TYPES', 'renderGraph2D', 'parseGraph', 'buildGraphSvg', 'D3_SUBMODULE_MANIFEST', 'renderMath2D', 'parseLatex', 'buildMathHtml', 'KATEX_FONT_SUBSET']);
 /** 2D-Diagramm-Typen (Whitelist): SVG-nativ-Kinds je Lab (siehe vendor/diagram-2d.js). */

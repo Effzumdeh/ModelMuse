@@ -226,7 +226,8 @@ function checkInvariants(s) {
     ['this._lastReq={', 4],
     ['reasoningAllowed', 7],
     ['xhighAllowed', 6],
-    ['reasoningDefault', 5],
+    // v32-Nachfolger (ETA-Tabelle liest Default): 5->6.
+    ['reasoningDefault', 6],
     ['genReasoning:"xhigh"', 1],
     ['genReasoning:""', 0],
     ['reasoningHigh', 4],

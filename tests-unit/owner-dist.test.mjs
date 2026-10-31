@@ -63,7 +63,7 @@ test('W8 Key-Persistenz (Marker + I18N)', () => {
 });
 
 test('W9 deleted-Persistenz, W10 emptyLibrary', () => {
-  eq('modelmuse.deleted', 4);
+  eq('modelmuse.deleted', 5); // v36 K1: Startaufloesung respektiert Loeschungen
   eq('emptyLibrary', 4);
   assert.ok(s.includes("{{search?t('noResults'):t('emptyLibrary')}}"));
 });
