@@ -5,8 +5,8 @@
  *  - v13 stamp, title/badges, 12 LABS and 12 META/INIT entries (6 3D, 6 2D metadata)
  *  - no obsolete lighting patterns (900/2048/PCFSoft/envMap/dark room)
  *  - no removed UI elements (objectives/level/learning mode/track/curriculum)
- * - direct endpoints/models for both providers (Baseten + Meta/Muse);
- *   no OpenRouter or local proxy port
+ * - direct endpoints/models for all three providers (Baseten + Meta/Muse + OpenRouter);
+ *   no local proxy port
  *  - size limit (under 600 KB for GitHub Pages)
  * Exit 0 means every check passed; exit 1 means at least one check failed.
  */
@@ -234,17 +234,29 @@ if (isShowcase) {
     ['{{lab.track}}', 'list track badge'], ['{{activeLab.track}}', 'title track badge'],
     ['curriculum_ref.badge}}</span>', 'curriculum badge pills'], ['curriculum_ref.lf', 'curriculum field text'],
     ["{{t(\"learnMode\")}}", 'learning mode'], ["{{t('level')}}", 'level label'],
-    ['openrouter', 'OpenRouter lowercase'], ['OpenRouter', 'OpenRouter uppercase'],
   ]) eqS(sub, 0, `must be absent: ${label}`);
   eqS('https://inference.baseten.co/v1/chat/completions', 1, 'Baseten endpoint (Provider-Fallback, kein POST-Detailblock)');
   eqS('https://api.meta.ai/v1', 1, 'Meta base (Provider, kein POST-Detailblock)');
   eqS('https://api.meta.ai/v1/chat/completions', 0, 'kein Meta-POST-Detailblock');
-  if (cnt('meta-models/muse-spark-open-1026') < 2) fail('Baseten model is missing.');
-  else ok('Baseten model: muse-spark-open-1026');
-  eqS('openrouter-direct', 0, 'OpenRouter provider ID');
+  eqS('https://openrouter.ai/api/v1', 1, 'v38 OpenRouter base (Direkt-Call, kein POST-Detailblock)');
+  for (const slug of ['openai/gpt-6.1-sol', 'meta/muse-spark-1.3', 'anthropic/claude-opus-5.5']) {
+    if (cnt(slug) < 1) fail(`v38 OpenRouter slug missing: ${slug}`);
+  }
+  ok('v38 OpenRouter slugs: 3 verifizierte Slugs');
+  eqS('id:"openrouter"', 1, 'v38 OpenRouter provider ID');
+  eqS('openrouter-direct', 0, 'v38 keine alte OpenRouter-ID');
   eqS('modelmuse-key-baseten-direct', 3, 'BYOK key name (Baseten)');
   eqS('modelmuse-key-meta-muse', 3, 'BYOK key name (Meta)');
+  eqS('modelmuse-key-openrouter', 3, 'v38 BYOK key name (OpenRouter)');
   eqS('modelmuse-proxy-key', 1, 'Legacy key fallback (Baseten-Migration)');
+  eqS('HTTP-Referer', 1, 'v38 OpenRouter-Attribution (nur OpenRouter)');
+  eqS('X-Title', 1, 'v38 OpenRouter-Titel (nur OpenRouter)');
+  eqS('directHeaders:function', 1, 'v38 Header-Methode');
+  eqS('keyMissingOpenrouter', 4, 'v38 Key-Hinweis de/en/es + Auswahl');
+  eqS('keyInvalidOpenrouter', 4, 'v38 401-Hinweis de/en/es + Auswahl');
+  eqS('keyFormatOpenrouter', 4, 'v38 Format-Hinweis de/en/es + Template');
+  if (cnt('meta-models/muse-spark-open-1026') < 2) fail('Baseten model is missing.');
+  else ok('Baseten model: muse-spark-open-1026');
   if (s.includes('127.0.0.1:8787') || s.includes('localhost:8787')) fail('Standalone references the local proxy port.');
   else ok('No local proxy port referenced.');
   if (cnt('prefers-color-scheme') < 3) fail('System theme default (prefers-color-scheme) is missing.');
@@ -296,7 +308,7 @@ if (isShowcase) {
   eqS('models:["muse-spark-1.3-contributor","muse-spark-1.3","muse-wonder-1.0"]', 1, 'v17 Meta models (exactly 3)');
   eqS('id="gen-reasoning"', 1, 'v17 reasoning select');
   eqS('reasoningAllowed', 7, 'v26 max-Gate (computed + selects + defaults + bodies)');
-  eqS('text/event-stream', 3, 'v17 SSE streaming (generate + modify + reader)');
+  eqS('text/event-stream', 2, 'v17 SSE streaming (directHeaders + Reader)');
   eqS('stream:true', 3, 'v17 stream flag (bodies + SSE decoder)');
   eqS('max_output_tokens', 0, 'v17 no legacy token field');
   { const n = cnt('temperature:0.2,max_completion_tokens'); if (n !== 0) fail(`v23 no limit in Erst-Body: ${n}; expected 0`); else ok('v23 no max_completion_tokens in Erst-Body = 0'); }
@@ -407,6 +419,17 @@ if (isShowcase) {
   eqS("{{t('jobDoneHint')}}", 1, 'v37 Erfolgs-Hinweis in Queue');
   eqS('Date.now()-30000', 1, 'v37 30-s-Hygiene');
   eqS('sj.labId===id', 1, 'v37 Prune beim Modell-Oeffnen');
+  eqS('standalone-build v38', 1, 'v38 stamp (OpenRouter + ETA robust/Entkopplung + Telemetrie-UX + OrthographicCamera)');
+  // v38 (O/E/T/F): OpenRouter-Drittprovider, robuste ETA + entdoppelte Queue,
+  // Telemetrie-UX (Sterne/Danke/Issue), OrthographicCamera.
+  eqS('{{teleBlock()}}', 0, 'v38 Vorschau entfernt (Block bleibt Kopierquelle)');
+  eqS('teleStars>=n', 1, 'v38 Sterne-Auswahl sichtbar (Farbwechsel)');
+  eqS("{{t('teleThanks')}}", 1, 'v38 Danke-Text im Fenster');
+  eqS('teleIssueShow', 6, 'v38 Issue erst nach Danke (Data/Reset/Close/Copy/Template)');
+  eqS('if(st==="jobDone"){return "";}', 1, 'v38 Queue: fertig ohne eigene Zeit');
+  eqS('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 1, 'v38 ETA robust (Varianten + openrouter/unbekannt -> 240)');
+  eqS('"OctahedronGeometry","OrthographicCamera","PCFShadowMap"', 1, 'v38 OrthographicCamera-Allowlist');
+  eqS('OctahedronGeometry,OrthographicCamera,PCFShadowMap', 2, 'v38 OrthographicCamera-Prolog x2');
   eqS('standalone-build v29', 1, 'v29 stamp (Modelliste 10->6 + Umbenennungen)');
   eqS('standalone-build v28', 1, 'v28 stamp (2D-Klassifizierer Bindestrich-Padding)');
   eqS('standalone-build v27', 1, 'v27 stamp (2D-Klassifizierer-Feinschliff)');

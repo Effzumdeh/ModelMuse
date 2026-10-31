@@ -2,9 +2,10 @@
  * Teil 1 — Multi-Provider-Registry (reine Funktionen, kein DOM, kein Key).
  * Quelle: src/data/providers.json. Alle Benchmark-Aussagen stammen aus
  * docs/ki-modellqualitaet-recherche.md (M1, Stand 27.10.2026); Provider-APIs
- * werden NICHT halluziniert — Proxy-Pfade (Baseten) brauchen laufzeitsseitig
- * einen User-Key (BYOK, nur Sitzung, nie Logs/Dateien). OpenRouter-Pfad seit
- * 28.10.2026 inaktiv/entfernt (docs/BASETEN-MIGRATION.md).
+ * werden NICHT halluziniert — Proxy-/Direkt-Pfade (Baseten/OpenRouter)
+ * brauchen laufzeitsseitig einen User-Key (BYOK, nur Sitzung, nie
+ * Logs/Dateien). OpenRouter-Slugs verifiziert via
+ * https://openrouter.ai/models (31.10.2026, siehe docs/OPENROUTER-PROVIDER.md).
  */
 
 /** @typedef {{ id: string, label: string, tags?: string[], privacy?: string, badges?: Array<{ achse: string, text: string }>, empfehlung?: string }} ProviderModel */
@@ -30,7 +31,7 @@ export function validateProviders(reg) {
       if (!Array.isArray(m?.badges)) errors.push(`${p?.id ?? '?'}/${m?.id ?? '?'}: keine Badges`);
     }
     const g = p?.generation;
-    if (!g || (g.kind !== 'muse-cli' && g.kind !== 'proxy')) errors.push(`${p?.id ?? '?'}: generation.kind fehlt/ungueltig`);
+    if (!g || (g.kind !== 'muse-cli' && g.kind !== 'proxy' && g.kind !== 'direct')) errors.push(`${p?.id ?? '?'}: generation.kind fehlt/ungueltig`);
   }
   if (typeof r.defaultProvider !== 'string' || !ids.has(r.defaultProvider)) errors.push('defaultProvider ungueltig');
   return { ok: errors.length === 0, errors };
@@ -97,7 +98,7 @@ export function privacyNotice(reg, providerId, modelId) {
  * Generierungsbefehl je Pfad. muse-cli = echte, belegte Kommandozeile
  * (scripts/_gen-one.mjs); proxy/direkt = braucht laufzeitsseitig einen User-Key
  * (BYOK, nur Sitzung): Direkt-Call im Browser zuerst, lokaler Proxy nur als
- * Fallback bei Netz/CORS-Problemen.
+ * Fallback bei Netz/CORS-Problemen (OpenRouter: NUR Direkt-Call, kein Proxy-Pfad).
  * @param {{ providers?: Provider[] }} reg
  * @param {string} providerId
  * @param {string} modelId
@@ -111,6 +112,13 @@ export function generationTarget(reg, providerId, modelId, promptFile = '<PROMPT
       kind: 'muse-cli',
       ready: true,
       text: `muse.exe exec --model ${modelId} --api-key-stdin --prompt-file ${promptFile}`,
+    };
+  }
+  if (p.generation?.kind === 'direct') {
+    return {
+      kind: 'direct',
+      ready: false,
+      text: `BYOK noetig: Direkt-Call im Browser (Modell ${modelId}, Key nur Sitzung, nie Logs/Dateien) — ohne Proxy, mit HTTP-Referer + X-Title.`,
     };
   }
   return {

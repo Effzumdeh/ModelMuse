@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://api.meta.ai https://inference.baseten.co; frame-src 'self' blob:; child-src blob:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://api.meta.ai https://inference.baseten.co https://openrouter.ai; frame-src 'self' blob:; child-src blob:; base-uri 'none'; form-action 'none'">
 <title data-i18n="app.title">ModelMuse Lab-Player</title>
 <link rel="stylesheet" href="./src/shell/theme.css">
 </head>
@@ -120,7 +120,7 @@
         <input id="live-proxy" type="url" inputmode="url" value="http://127.0.0.1:8787/generate" placeholder="leer lassen = nur Direkt-Call" autocomplete="off">
       </div>
       <div class="lab-field">
-        <label for="live-key" data-i18n="freimodus.eigenerKey">Eigener Muse-API-Key</label>
+        <label for="live-key" data-i18n="freimodus.eigenerKey">Eigener API-Key (zum gewählten Anbieter)</label>
         <input id="live-key" type="password" autocomplete="off" data-i18n-ph="freimodus.keyPlatzhalter" placeholder="Nur diese Sitzung">
       </div>
       <div class="lab-field lab-check">
@@ -149,7 +149,7 @@
       <p id="prov-cmd" class="lab-note"></p>
       <p id="prov-docs" class="lab-note"></p>
       <div class="lab-field" id="prov-proxy-wrap" hidden>
-        <label for="prov-proxy" data-i18n="anbieter.proxyUrl">OpenRouter-Proxy-URL (laufzeitsseitig)</label>
+        <label for="prov-proxy" data-i18n="anbieter.proxyUrl">Proxy-URL (laufzeitsseitig, nur Fallback)</label>
         <input id="prov-proxy" type="url" autocomplete="off" placeholder="https://…">
       </div>
       <p id="prov-status" class="lab-note" role="status"></p>

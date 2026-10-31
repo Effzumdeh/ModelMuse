@@ -50,7 +50,7 @@
     "titel": "Modo libre (clave propia)",
     "notiz": "Llamada directa primero: la generación se ejecuta en el navegador contra la API del proveedor (clave propia, solo esta sesión). Proxy local (scripts/proxy.mjs, solo localhost) solo como reserva ante problemas de red/CORS — sin clave usa su clave de servidor.",
     "proxyUrl": "URL del proxy",
-    "eigenerKey": "Clave API propia de Muse",
+    "eigenerKey": "Clave API propia (para el proveedor elegido)",
     "keyPlatzhalter": "Solo esta sesión",
     "keyMerken": "Recordar clave en esta sesión (session storage)",
     "freierBegriff": "Término libre",
@@ -73,7 +73,8 @@
     "generierung": "Generación: {detail}",
     "proxyNoetig": " (requiere proxy)",
     "offline": "Registro de proveedores sin conexión: valor Meta por defecto (muse-spark-1.3-contributor). {detail}",
-    "proxyUrl": "URL del proxy Baseten (en tiempo de ejecución)"
+    "proxyUrl": "URL del proxy (en tiempo de ejecución, solo reserva)",
+    "byokNoetig": " (requiere clave)"
   },
   "bibliothek": {
     "titel": "Biblioteca de modelos (sesión)",

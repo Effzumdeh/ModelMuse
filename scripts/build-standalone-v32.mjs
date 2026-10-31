@@ -107,7 +107,7 @@ function checkInvariants(s) {
     ['etaSeconds:function', 1], ['genOverText:function', 1], ['modOverText:function', 1],
     ['genTotalText:function', 1], ['modTotalText:function', 1],
     ['genOver:0', 1], ['modOver:0', 1], ['genTotal:0', 1], ['modTotal:0', 1],
-    ['genOver>0', 1], ['modOver>0', 1], ['return 240;', 1],
+    ['genOver>0', 1], ['modOver>0', 1], ['return 240;', 3],
     ['*1000+120000', 2], ['},120000);', 0],
     // v31-Vertrag bleibt (Countdown-Zeile, Geduld, Queue).
     ['{{genEtaText}}', 1], ['{{modEtaText}}', 1],

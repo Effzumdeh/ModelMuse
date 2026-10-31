@@ -104,8 +104,9 @@ function checkInvariants(s) {
     ['winMin:{gen:false,mod:false,part:false,tele:false}', 1],
     ['id==="tele"){this.winMin.tele', 1],
     // E: Tabelle je Modell+Reasoning (1.3 ODER wonder mit xhigh/max -> 240 s).
-    ['indexOf("wonder")', 1], ['if(isBig&&hi&&pv){return 240;}return 60;}', 1],
-    ['if(is13&&hi&&pv)', 0],
+    // v38-Nachfolger (ETA robust): exakte v37-Zeile ersetzt, wonder bleibt.
+    ['indexOf("wonder")', 1], ['if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 1],
+    ['if(is13&&hi&&pv)', 0], ['if(isBig&&hi&&pv){return 240;}return 60;}', 0],
     // T: Overlay, Methoden, Hooks, Dock, i18n, Issue-Link.
     ['id="tele-status"', 1], ['"tele-status"', 2],
     ['openTele:function', 1], ["openTele('gen'", 1], ["openTele('mod'", 1],
@@ -113,7 +114,7 @@ function checkInvariants(s) {
     ['teleTitle', 4], ['teleAsk', 4], ['teleYes', 4], ['teleNo', 4],
     ['teleRate', 4], ['teleCommentPh', 4], ['copyTele:function', 1],
     ['teleCopyMsg', 5], ['teleCopied', 8], ['teleCopyFail', 4],
-    ['teleIssue', 8], ['teleIssueLink', 4],
+    ['teleIssueLink', 4], ["{{t('teleIssue')}}", 1], ['.teleIssue=', 2], ['teleIssue:"', 1],
     // Q: Queue je Auftrag (Countdown/Overtime + Erfolgs-Feedback).
     ['jobTimeText:function', 1], ['jobTimeText(job,queueNow)', 1],
     ['queuedAt:Date.now()', 2], ['job.startedAt=Date.now()', 1],

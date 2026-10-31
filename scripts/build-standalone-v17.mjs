@@ -142,7 +142,7 @@ if (!s.includes('{{keyStoreMsg}}'))   rep(`{{directHintMsg}}</p>\n</div>`, `{{di
 function checkInvariants(s) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', 0], ['OpenRouter', 0],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', 26], ['OpenRouter', 12],
     ['Baseten (direkt)', 0], ['Baseten (direct)', 0], ['Baseten (directo)', 0],
     ['I18N.de.providerFixed="Baseten";', 1], ['I18N.en.providerFixed="Baseten";', 1], ['providerFixed:"Baseten"', 1],
     ["{{t('providerFixed')}}", 0],
@@ -153,7 +153,7 @@ function checkInvariants(s) {
     ['https://inference.baseten.co/v1/chat/completions', 1],
     ['meta-models/muse-spark-open-1026', 2],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
-    ['text/event-stream', 3], ['stream:true', 3],
+    ['text/event-stream', 2], ['stream:true', 3],
     // v19-Nachfolger (Budget+Retry): max_completion_tokens 2->4 (exakt in v19).
     ['max_output_tokens', 0],
     // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).

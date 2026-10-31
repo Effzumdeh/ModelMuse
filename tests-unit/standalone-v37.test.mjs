@@ -40,24 +40,34 @@ test('M: Min-Buttons zustandsabhaengig (gen/mod/part/tele)', async () => {
   assert.ok(s.includes('"tele-status"'), 'Dock stapelt tele-status');
 });
 
-test('E: ETA-Tabelle je Modell+Reasoning (wonder wie 1.3)', async () => {
+test('E: ETA-Tabelle je Modell+Reasoning (robust, v38-Nachfolger)', async () => {
   const s = await html();
-  assert.ok(s.includes('m.indexOf("wonder")'), 'wonder in Tabelle');
-  assert.ok(s.includes('if(isBig&&hi&&pv){return 240;}return 60;}'), '240 s nur mit xhigh/max');
+  assert.ok(s.includes('m.indexOf("1.3")') || s.includes('low.indexOf("1.3")'), '1.3 in Tabelle');
+  assert.ok(s.includes('indexOf("wonder")'), 'wonder in Tabelle');
+  assert.ok(s.includes('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}'), '240 s robust (Varianten, openrouter/unbekannt)');
   assert.equal(cnt(s, 'if(is13&&hi&&pv)'), 0, 'alte is13-Bedingung ersetzt');
+  assert.equal(cnt(s, 'if(isBig&&hi&&pv){return 240;}return 60;}'), 0, 'v37-Zeile ersetzt');
+  assert.equal(cnt(s, 'if(st==="jobDone"){return "";}'), 1, 'Queue: fertig ohne eigene Zeit (v38-Entkopplung)');
 });
 
-test('T: Telemetrie-Fenster (Ask/Rate/Copy/Issue-Link)', async () => {
+test('T: Telemetrie-Fenster (Ask/Rate/Copy/Issue-Link, v38-UX)', async () => {
   const s = await html();
   assert.equal(cnt(s, 'id="tele-status"'), 1, 'Tele-Fenster genau 1x');
   assert.ok(s.includes("teleStep==='ask'"), 'Ja/Nein-Schritt');
   assert.ok(s.includes("teleStep==='rate'"), 'Sterne/Freitext-Schritt');
   assert.ok(s.includes('v-for="n in 5"'), '5 Sterne-Buttons');
+  assert.ok(s.includes('teleStars>=n'), 'Sterne-Auswahl sichtbar (Farbwechsel aktiv)');
   assert.ok(s.includes('v-model="teleComment"'), 'Freitextfeld');
-  assert.ok(s.includes('{{teleBlock()}}'), 'Block-Vorschau');
+  assert.equal(cnt(s, '{{teleBlock()}}'), 0, 'Vorschau-Text raus (Block bleibt Kopierquelle)');
+  assert.ok(s.includes("{{t('teleThanks')}}"), 'Danke-Animation im selben Fenster');
+  assert.ok(s.includes('teleIssueShow'), 'Issue-Button erst nach Danke');
   assert.ok(s.includes('https://github.com/Effzumdeh/ModelMuse/issues'), 'Issue-Link');
   assert.ok(s.includes("openTele('gen'"), 'Hook nach Generierung');
   assert.ok(s.includes("openTele('mod'"), 'Hook nach Ueberarbeiten');
+  for (const loc of ['teleThanks']) {
+    assert.ok(s.includes('I18N.de.' + loc + '='), 'de.' + loc);
+    assert.ok(s.includes('I18N.en.' + loc + '='), 'en.' + loc);
+  }
 });
 
 test('T: Block-Felder + Key-Redaktion', async () => {

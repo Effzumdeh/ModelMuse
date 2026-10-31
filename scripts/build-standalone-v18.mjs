@@ -88,10 +88,10 @@ function checkInvariants(s) {
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1],
     ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
     ['standalone-build v18', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', 0], ['OpenRouter', 0],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', 26], ['OpenRouter', 12],
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
-    ['text/event-stream', 3], ['stream:true', 3],
+    ['text/event-stream', 2], ['stream:true', 3],
     // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
     // Exakte v21-Werte prueft build-standalone-v21.mjs; hier nur Toleranz.
     // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.

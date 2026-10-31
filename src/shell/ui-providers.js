@@ -1,13 +1,14 @@
 /**
  * Teil 1 — Anbieter-/Modellauswahl-UI (DOM-Bindung, Logik in runtime/providers.js).
  * Keys: Meta-Pfad braucht kein Key-Feld (muse.exe); Baseten-Pfad nimmt
- * Proxy-URL + Key NUR laufzeitsseitig (Speicher, Session-Storage mit
- * Zustimmung). Nie Logs, nie Dateien.
+ * Proxy-URL + Key, OpenRouter-Pfad nur Key (Direkt-Call) — jeweils NUR
+ * laufzeitsseitig (Speicher, Session-Storage je Anbieter mit Zustimmung).
+ * Nie Logs, nie Dateien.
  */
 import {
   getProvider, getModel, recommendModel, privacyNotice, generationTarget, didaktikHinweis,
 } from '../runtime/providers.js';
-import { configureLiveGen, setLiveApiKey, clearLiveApiKey } from '../runtime/livegen.js';
+import { configureLiveGen, setLiveApiKey, clearLiveApiKey, liveKeySessionKey } from '../runtime/livegen.js';
 import { tt } from './i18n.js';
 
 /**
@@ -83,15 +84,45 @@ export function mountProviders(els) {
   for (const p of providers) {
     const o = document.createElement('option');
     o.value = p.id;
-    o.textContent = `${p.label}${p?.generation?.status === 'aktiv' ? '' : tt('anbieter.proxyNoetig')}`;
+    const suffix = p?.generation?.status === 'aktiv' ? ''
+      : p?.generation?.kind === 'direct' ? tt('anbieter.byokNoetig')
+      : tt('anbieter.proxyNoetig');
+    o.textContent = `${p.label}${suffix}`;
     els.providerSel.appendChild(o);
   }
   els.providerSel.value = state.providerId;
+  // Key je Anbieter: beim Wechsel alten Feld-Key unter altem Anbieter-Key
+  // parken, neuen Anbieter-Key ins Feld laden (Speicher folgt dem Feld).
+  const stashFieldKey = (providerId) => {
+    try {
+      const cur = els.keyInput?.value.trim() ?? '';
+      if (cur.length >= 8) {
+        try { setLiveApiKey(cur); } catch { /* Feld prueft spaeter */ }
+        try {
+          const box = els.consentInput;
+          if (box?.checked) sessionStorage.setItem(liveKeySessionKey(providerId), cur);
+        } catch { /* Speicher blockiert */ }
+      }
+    } catch { /* kein Key-Feld verdrahtet */ }
+  };
+  const restoreFieldKey = (providerId) => {
+    try {
+      const saved = sessionStorage.getItem(liveKeySessionKey(providerId))
+        ?? sessionStorage.getItem('modelmuse-live-key');
+      if (els.keyInput) els.keyInput.value = (typeof saved === 'string' && saved.length >= 8) ? saved : '';
+      if (els.keyInput?.value) {
+        try { setLiveApiKey(els.keyInput.value); } catch { /* Feld prueft spaeter */ }
+      } else {
+        clearLiveApiKey();
+      }
+    } catch { clearLiveApiKey(); }
+  };
   els.providerSel.addEventListener('change', () => {
+    stashFieldKey(state.providerId);
     state.providerId = els.providerSel.value;
     const p = getProvider(reg, state.providerId);
     state.modelId = p?.models?.[0]?.id;
-    clearLiveApiKey();
+    restoreFieldKey(state.providerId);
     paint();
   });
   els.modelSel.addEventListener('change', () => {

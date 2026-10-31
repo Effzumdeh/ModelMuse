@@ -28,7 +28,7 @@ export const THREE_KNOWN_EXPORTS = Object.freeze([
   'DirectionalLight', 'DoubleSide', 'EdgesGeometry', 'ExtrudeGeometry', 'Group',
   'HemisphereLight', 'InstancedMesh', 'Line', 'LineBasicMaterial',
   'LinearFilter', 'Matrix4', 'Mesh', 'MeshBasicMaterial',
-  'MeshPhysicalMaterial', 'MeshStandardMaterial', 'PCFShadowMap', 'PCFSoftShadowMap',
+  'MeshPhysicalMaterial', 'MeshStandardMaterial', 'OrthographicCamera', 'PCFShadowMap', 'PCFSoftShadowMap',
   'PerspectiveCamera', 'PlaneGeometry', 'PMREMGenerator', 'PointLight',
   'Quaternion', 'RepeatWrapping', 'Scene', 'ShadowMaterial', 'Shape',
   'SphereGeometry', 'Sprite', 'SpriteMaterial', 'SRGBColorSpace',

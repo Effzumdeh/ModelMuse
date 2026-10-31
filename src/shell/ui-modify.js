@@ -4,7 +4,8 @@
  * Generierungs-Proxy -> Verify (player.load) -> Reload als neue Sitzungs-Revision.
  * Reine Prompt-Bauer sind DOM-/netzfrei und unit-getestet (tests-unit/modify.test.mjs).
  */
-import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, errorDiagnose } from '../runtime/livegen.js';
+import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, errorDiagnose, liveKeySessionKey } from '../runtime/livegen.js';
+import { germanMessageWithHint } from './ui-livegen.js';
 import { extractMeta, formatP2Protocol } from '../runtime/verify.js';
 import { tt } from './i18n.js';
 import { wireDiagnoseCopy, showDiagnoseButton, hideDiagnoseButton } from './ui-diagnose.js';
@@ -119,6 +120,8 @@ export function mountModify(els) {
       return;
     }
     const { url, key } = els.getProxy?.() ?? { url: '', key: '' };
+    const earlyTarget = typeof els.getTarget === 'function' ? els.getTarget() : null;
+    const earlyProvider = earlyTarget?.providerId ?? undefined;
     // Direkt-Call braucht keinen Proxy: Key allein genuegt (BYOK, Browser -> Upstream).
     if (!url && !key) {
       say(tt('fehler.E-GEN-OFFLINE'), true);
@@ -129,10 +132,10 @@ export function mountModify(els) {
         setLiveApiKey(key);
         try {
           const box = /** @type {HTMLInputElement | null} */ (document.getElementById('live-consent'));
-          if (box?.checked) sessionStorage.setItem('modelmuse-live-key', key);
+          if (box?.checked) sessionStorage.setItem(liveKeySessionKey(earlyProvider), key);
         } catch { /* Speicher blockiert */ }
       } catch {
-        say(tt('fehler.E-GEN-CONFIG'), true);
+        say(germanMessageWithHint({ code: 'E-GEN-CONFIG' }, earlyProvider), true);
         return;
       }
     } else {
@@ -141,7 +144,7 @@ export function mountModify(els) {
     try {
       configureLiveGen({ proxyUrl: url || null, timeoutMs: 300000 });
     } catch {
-      say(tt('fehler.E-GEN-CONFIG'), true);
+      say(germanMessageWithHint({ code: 'E-GEN-CONFIG' }, earlyProvider), true);
       return;
     }
     const target = typeof els.getTarget === 'function' ? els.getTarget() : null;
@@ -179,7 +182,7 @@ export function mountModify(els) {
       showDiagnoseButton(copyBtn);
       const code = e && typeof e.code === 'string' ? e.code : '';
       const detail = String((e && e.message) || e).slice(0, 200);
-      if (code.startsWith('E-GEN-') && tt(`fehler.${code}`) !== `fehler.${code}`) say(tt(`fehler.${code}`), true);
+      if (code.startsWith('E-GEN-') && tt(`fehler.${code}`) !== `fehler.${code}`) say(germanMessageWithHint(e, target?.providerId ?? undefined), true);
       else if (code.startsWith('E-MODIFY-')) say(tt('modify.fehler', { detail }), true);
       else say(tt('modify.pruefungRot', { detail }), true);
     } finally {

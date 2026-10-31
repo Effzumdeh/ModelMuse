@@ -50,7 +50,7 @@
     "titel": "Freimodus (eigener Key)",
     "notiz": "Direkt-Call zuerst: Generierung läuft im Browser direkt gegen die Anbieter-API (eigener Key, nur diese Sitzung). Lokaler Proxy (scripts/proxy.mjs, nur localhost) nur als Fallback bei Netz/CORS-Problemen — ohne Key nutzt er seinen Server-Key.",
     "proxyUrl": "Proxy-URL",
-    "eigenerKey": "Eigener Muse-API-Key",
+    "eigenerKey": "Eigener API-Key (zum gewählten Anbieter)",
     "keyPlatzhalter": "Nur diese Sitzung",
     "keyMerken": "Key in dieser Sitzung merken (Session-Storage)",
     "freierBegriff": "Freier Begriff",
@@ -73,7 +73,8 @@
     "generierung": "Generierung: {detail}",
     "proxyNoetig": " (Proxy nötig)",
     "offline": "Anbieter-Registry offline: Meta-Default (muse-spark-1.3-contributor). {detail}",
-    "proxyUrl": "Baseten-Proxy-URL (laufzeitsseitig)"
+    "proxyUrl": "Proxy-URL (laufzeitsseitig, nur Fallback)",
+    "byokNoetig": " (Key nötig)"
   },
   "bibliothek": {
     "titel": "Modellbibliothek (Sitzung)",

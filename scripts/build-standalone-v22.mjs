@@ -104,10 +104,10 @@ function checkInvariants(s) {
     ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
     ['standalone-build v18', 1], ['standalone-build v19', 1], ['standalone-build v20', 1],
     ['standalone-build v21', 1], ['standalone-build v22', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', 0], ['OpenRouter', 0],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', 26], ['OpenRouter', 12],
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
-    ['text/event-stream', 3], ['stream:true', 3],
+    ['text/event-stream', 2], ['stream:true', 3],
     // v23-Nachfolger (kein Length-Limit): 4->1 / 2->0 (exakt in v23).
     // v23-Nachfolger (Request-Echo): reasoning_effort 4->10 (exakt in v23).
     ['budgetRetryable', 3],

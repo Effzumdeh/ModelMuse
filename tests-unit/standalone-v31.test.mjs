@@ -91,6 +91,6 @@ test('C: Queue frisst keine Alt-Invarianten (Stichprobe)', async () => {
   const s = await html();
   assert.equal(cnt(s, 'modify:async function'), 1, 'Modify-Logik genau 1x');
   assert.equal(cnt(s, 'id="mod-desc2"'), 1, 'Mod-Eingabe genau 1x');
-  assert.equal(cnt(s, 'text/event-stream'), 3, 'SSE-Pfade unveraendert');
+  assert.equal(cnt(s, 'text/event-stream'), 2, 'SSE-Pfade unveraendert (v38 directHeaders + Reader)');
   assert.equal(cnt(s, 'reasoningAllowed'), 7, 'Reasoning-Gates unveraendert');
 });

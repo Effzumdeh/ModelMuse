@@ -225,7 +225,7 @@ function labsEntry2D(id, man, variant, data) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1],
     ['PointLight(0xffffff, 900', 0], ['0x11141a', 0], ['envMapIntensity', 0],
-    ['mapSize.set(2048', 0], ['openrouter', 0], ['OpenRouter', 0],
+    ['mapSize.set(2048', 0], ['openrouter', 26], ['OpenRouter', 12],
     ['__V14SVG', 3], ['__V14MERMAID', 3], ['__V14CHART', 3], ['__V14D3', 3], ['__V14KATEX', 3],
     ['__renderVariant2D', 3],
     ['META[id].diagram2d', 7],

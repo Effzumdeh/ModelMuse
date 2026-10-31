@@ -33,9 +33,8 @@ export const META_BASE = 'https://api.meta.ai/v1';
 // (POST /chat/completions, Authorization Bearer $BASETEN_API_KEY, SSE moeglich).
 // Modell meta-models/muse-spark-open-1026 (Meta-Regel: Laufzeit nur Meta-Modelle).
 // Keys NUR laufzeitsseitig per BYOK-Header (User-Eingabe, nur Sitzung), nie in Code/Logs/Dateien.
-// INAKTIV seit 28.10.2026: OpenRouter-Pfad (zuvor https://openrouter.ai/api/v1,
-// Modell google/gemma-4-26b-a4b-it:free) — entfernt, siehe docs/BASETEN-MIGRATION.md.
-// Der Providername 'openrouter' wird in parseGenerateBody mit E-GEN-404 + Migrationshinweis
+// OpenRouter (31.10.2026): NUR Direkt-Call, kein Proxy-Pfad — der Providername
+// 'openrouter' wird in parseGenerateBody mit E-GEN-404 + Direkt-Hinweis
 // abgewiesen (kein Upstream-Call).
 export const BASETEN_BASE = 'https://inference.baseten.co/v1';
 const KEY_FILE_DEFAULT = 'C:/Users/flori/OneDrive/Key_muse.md';
@@ -106,10 +105,12 @@ export function parseGenerateBody(body) {
     return { ok: false, code: 'E-GEN-413', message: 'E-GEN-413: Prompt zu gross (max. 60000 Zeichen)' };
   }
   const provider = typeof body.provider === 'string' && body.provider ? body.provider : DEFAULT_PROVIDER;
-  // INAKTIV seit 28.10.2026: OpenRouter-Pfad entfernt (siehe docs/BASETEN-MIGRATION.md).
-  // Ehrliche Abweisung mit Migrationshinweis, kein Upstream-Call.
+  // OpenRouter (31.10.2026): NUR Direkt-Call (Browser ->
+  // https://openrouter.ai/api/v1/chat/completions, Key laufzeitsseitig per
+  // BYOK, HTTP-Referer + X-Title) — kein Proxy-Pfad. Ehrliche Abweisung
+  // mit Hinweis, kein Upstream-Call.
   if (provider === 'openrouter') {
-    return { ok: false, code: 'E-GEN-404', message: 'E-GEN-404: Anbieter openrouter ist inaktiv (seit 28.10.2026) — nutze provider baseten, Modell meta-models/muse-spark-open-1026 (Key laufzeitsseitig per BYOK)' };
+    return { ok: false, code: 'E-GEN-404', message: 'E-GEN-404: Anbieter openrouter nur als Direkt-Call (Browser -> https://openrouter.ai/api/v1/chat/completions, Key laufzeitsseitig per BYOK, Referer/Title-Header) — kein Proxy-Pfad' };
   }
   const reg = PROVIDERS[provider];
   if (!reg) {

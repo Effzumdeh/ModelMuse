@@ -9,11 +9,11 @@ import {
 
 const reg = JSON.parse(await readFile('src/data/providers.json', 'utf8'));
 
-test('Registry ist gueltig: 2 Anbieter, 3 Modelle, Defaults belegt', () => {
+test('Registry ist gueltig: 3 Anbieter, 6 Modelle, Defaults belegt', () => {
   const { ok, errors } = validateProviders(reg);
   assert.equal(ok, true, errors.join('; '));
-  assert.equal(reg.providers.length, 2);
-  assert.equal(listModels(reg).length, 3);
+  assert.equal(reg.providers.length, 3);
+  assert.equal(listModels(reg).length, 6);
   assert.equal(reg.defaultProvider, 'meta-muse');
   assert.equal(reg.defaultModel, 'muse-spark-1.3-contributor');
 });
@@ -44,9 +44,23 @@ test('Baseten: NUR verifizierter Meta-Modell-Slug (keine erfundenen Slugs)', () 
   }
 });
 
-test('OpenRouter-Pfad ist inaktiv/entfernt (seit 28.10.2026)', () => {
-  assert.equal(getProvider(reg, 'openrouter'), null);
-  assert.equal(getModel(reg, 'openrouter', 'gemma-4-26b-it-free'), null);
+test('OpenRouter: NUR verifizierte Slugs (31.10.2026, nichts erfunden)', () => {
+  const p = getProvider(reg, 'openrouter');
+  assert.ok(p, 'openrouter-Anbieter fehlt');
+  assert.equal(p.generation?.kind, 'direct', 'OpenRouter: NUR Direkt-Call, kein Proxy-Pfad');
+  const ids = (p.models ?? []).map((m) => m.id);
+  assert.deepEqual(ids, ['gpt-6.1-sol', 'muse-spark-1.3', 'opus-5.5']);
+  // Exakte OpenRouter-Slugs (verifiziert via https://openrouter.ai/models,
+  // 31.10.2026 — keine Abweichung, keine erfundenen Slugs).
+  assert.equal(getModel(reg, 'openrouter', 'gpt-6.1-sol')?.providerModellId, 'openai/gpt-6.1-sol');
+  assert.equal(getModel(reg, 'openrouter', 'muse-spark-1.3')?.providerModellId, 'meta/muse-spark-1.3');
+  assert.equal(getModel(reg, 'openrouter', 'opus-5.5')?.providerModellId, 'anthropic/claude-opus-5.5');
+  for (const id of ids) {
+    const m = getModel(reg, 'openrouter', id);
+    assert.ok((m.badges ?? []).length >= 1, `${id}: Badge fehlt`);
+    assert.match(String(m.routingHinweis ?? ''), /verifiziert/, `${id}: Verifikations-Beleg fehlt`);
+    assert.match(String(m.privacy ?? ''), /OpenRouter-Key/, `${id}: BYOK-Hinweis fehlt`);
+  }
 });
 
 test('Empfehlungen: Geometrie/Aesthetik/Praeferenz=Fallback Standard, Allround=Contributor, Datenschutz=Standard', () => {
@@ -62,7 +76,7 @@ test('Empfehlungen: Geometrie/Aesthetik/Praeferenz=Fallback Standard, Allround=C
   }
 });
 
-test('Generierungspfade: Muse-CLI echt, Baseten braucht BYOK (kein Key)', () => {
+test('Generierungspfade: Muse-CLI echt, Baseten braucht BYOK, OpenRouter direkt mit BYOK', () => {
   const cli = generationTarget(reg, 'meta-muse', 'muse-spark-1.3-contributor', 'p1-test.txt');
   assert.equal(cli.ready, true);
   assert.ok(cli.text.includes('muse.exe exec --model muse-spark-1.3-contributor'));
@@ -71,14 +85,25 @@ test('Generierungspfade: Muse-CLI echt, Baseten braucht BYOK (kein Key)', () => 
   const proxy = generationTarget(reg, 'baseten', 'muse-spark-open-1026');
   assert.equal(proxy.ready, false);
   assert.match(proxy.text, /BYOK/);
+  const direkt = generationTarget(reg, 'openrouter', 'openai/gpt-6.1-sol');
+  assert.equal(direkt.kind, 'direct', 'OpenRouter: eigener Direkt-Pfad (kein Proxy)');
+  assert.equal(direkt.ready, false);
+  assert.match(direkt.text, /BYOK/);
+  assert.match(direkt.text, /HTTP-Referer/, 'Referer/Title-Hinweis im Pfadtext');
 });
 
 test('Didaktik-Hinweis: kein Benchmark misst Didaktik', () => {
   assert.match(didaktikHinweis(reg), /Kein Benchmark misst Didaktik/);
 });
 
-test('Keine Halluzination: keine erfundenen API-Endpunkte im Repo', async () => {
+test('Keine Halluzination: keine erfundenen API-Endpunkte/Keys im Repo', async () => {
   const txt = await readFile('src/data/providers.json', 'utf8');
-  assert.ok(!/api\.openrouter\.ai\/v1|openai\.com\/v1/i.test(txt), 'keine OpenRouter/OpenAI-URLs mehr');
+  // Belegte OpenRouter-URLs (Modelle-API-verifiziert 31.10.2026): Allowlist.
+  const allowed = ['https://openrouter.ai/models', 'https://openrouter.ai/docs/api-reference/chat-completions', 'https://openrouter.ai/keys', 'https://openrouter.ai/api/v1'];
+  for (const m of txt.match(/https:\/\/openrouter\.ai[^\s"']*/gi) ?? []) {
+    assert.ok(allowed.some((a) => m === a || m.startsWith(a)), `unbelegte OpenRouter-URL: ${m}`);
+  }
+  assert.ok(!/openai\.com\/v1/i.test(txt), 'keine OpenAI-URLs mehr');
   assert.ok(!/sk-[A-Za-z0-9]/.test(txt), 'kein Key-Muster');
+  assert.ok(!/LLM_[A-Za-z0-9]/.test(txt), 'kein Meta-Key-Muster');
 });

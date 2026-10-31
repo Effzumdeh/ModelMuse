@@ -132,7 +132,10 @@ test('Registry: baseten-Pfad (byokOnly, NUR Meta-Modell, localhost-Bindung bleib
   assert.equal(okFree.ok, true);
   assert.equal(okFree.model, 'meta-models/muse-spark-open-1026');
   assert.equal(parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'baseten', model: 'erfunden-99' }).code, 'E-GEN-404');
-  assert.equal(parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'openrouter', model: 'google/gemma-4-26b-a4b-it:free' }).code, 'E-GEN-404', 'openrouter inaktiv (Baseten-Migration)');
+  const orDirect = parseGenerateBody({ prompt: 'x'.repeat(20), provider: 'openrouter', model: 'openai/gpt-6.1-sol' });
+  assert.equal(orDirect.code, 'E-GEN-404', 'openrouter NUR Direkt-Call, kein Proxy-Pfad');
+  assert.match(orDirect.message, /Direkt-Call/, 'Abweisung nennt den Direkt-Pfad');
+  assert.match(orDirect.message, /openrouter\.ai\/api\/v1\/chat\/completions/, 'Abweisung nennt belegten Endpunkt');
 });
 
 test('Server: baseten ohne BYOK -> E-GEN-CONFIG (Meta-Server-Key geht NIE an Baseten)', async () => {

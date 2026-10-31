@@ -8,7 +8,7 @@
  * Hauptbauteil), Manifest mit Aufgaben je Niveau wird automatisch gebaut.
  * Bauplan Abschnitt 4 (generateLive) und 9 (E-GEN-*).
  */
-import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, errorDiagnose } from '../runtime/livegen.js';
+import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, errorDiagnose, liveKeySessionKey } from '../runtime/livegen.js';
 import { extractMeta } from '../runtime/verify.js';
 import { STRINGS, tt, getLocale } from './i18n.js';
 import { wireDiagnoseCopy, showDiagnoseButton, hideDiagnoseButton } from './ui-diagnose.js';
@@ -29,8 +29,53 @@ export function germanMessage(e) {
 
 /** Lokaler Generierungs-Proxy als FALLBACK (scripts/proxy.mjs). Direkt-Call braucht ihn nicht. */
 export const PROXY_DEFAULT = 'http://127.0.0.1:8787/generate';
-/** Session-Key-Ablage (nur mit Zustimmung, Standalone-Muster). */
+/** Session-Key-Ablage, je Anbieter (nur mit Zustimmung, Standalone-Muster). */
 export const LIVE_KEY_SESSION = 'modelmuse-live-key';
+
+/**
+ * Key-Hinweis je Anbieter (BYOK): woher der Key kommt — Fehlertexte zu
+ * E-GEN-401/E-GEN-CONFIG erhalten dadurch einen belegten Key-Hinweis
+ * (OpenRouter: https://openrouter.ai/keys).
+ * @param {string} [providerId]
+ * @param {string} [locale]
+ */
+export function keyHintFor(providerId, locale = 'de') {
+  const loc = ['de', 'en', 'es'].includes(locale) ? locale : 'de';
+  const table = {
+    'meta-muse': {
+      de: 'Meta-Key (LLM_...) von dev.meta.ai — nur diese Sitzung.',
+      en: 'Meta key (LLM_...) from dev.meta.ai — this session only.',
+      es: 'Clave Meta (LLM_...) de dev.meta.ai — solo esta sesión.',
+    },
+    baseten: {
+      de: 'Baseten-Key aus dem Baseten-Dashboard — nur diese Sitzung.',
+      en: 'Baseten key from the Baseten dashboard — this session only.',
+      es: 'Clave Baseten del panel de Baseten — solo esta sesión.',
+    },
+    openrouter: {
+      de: 'OpenRouter-Key von https://openrouter.ai/keys — nur diese Sitzung (BYOK).',
+      en: 'OpenRouter key from https://openrouter.ai/keys — this session only (BYOK).',
+      es: 'Clave OpenRouter de https://openrouter.ai/keys — solo esta sesión (BYOK).',
+    },
+  };
+  return table[providerId]?.[loc] ?? '';
+}
+
+/**
+ * Fehlermeldung in aktueller UI-Lokale, bei Key-Fehlern (401/CONFIG) mit
+ * Anbieter-Hinweis (woher der Key kommt).
+ * @param {unknown} e
+ * @param {string} [providerId]
+ */
+export function germanMessageWithHint(e, providerId) {
+  const base = germanMessage(e);
+  const code = e && typeof e.code === 'string' ? e.code : '';
+  if ((code === 'E-GEN-401' || code === 'E-GEN-CONFIG') && typeof providerId === 'string') {
+    const hint = keyHintFor(providerId, getLocale());
+    if (hint) return `${base} ${hint}`;
+  }
+  return base;
+}
 
 function slug(term) {
   const s = String(term).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -59,7 +104,7 @@ export function buildFreePrompt(term, locale = 'de') {
     'Beispiel: export const meta = { title: "Handbohrmaschine", category: "hardware", detailLevel: 2, parts: ["Gehaeuse","Motor","Bohrfutter"], units: "m" }. ' +
     'export function init(container, params) synchron mit Rueckgabe { update, dispose }.',
     'Imports NUR: benannte Imports aus three plus OrbitControls-Addon plus { addLabel, addMeasurement, registerPartGroups, applyPartVisibility } aus wrapper-helpers. Keine weiteren Module, URLs, dynamischen Imports. ' +
-    'Import-Vorlage (EXAKT dieses Muster: ALLE Vorlagen-Namen behalten, NIEMALS kuergen, nur bei Bedarf weitere aus three ergaenzen): import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, HemisphereLight, DirectionalLight, Vector3 } from \'three\'; import { OrbitControls } from \'three/addons/controls/OrbitControls.js\'; import { addLabel, addMeasurement, registerPartGroups, applyPartVisibility } from \'wrapper-helpers\'; Nutze die Namen DIREKT (new Scene()), NIEMALS THREE.xxx (kein Namespace-Import, kein globales THREE). Jeder direkt genutzte Name MUSS in der Importliste stehen — fehlender Import = Startfehler "X is not defined".',
+    'Import-Vorlage (EXAKT dieses Muster: ALLE Vorlagen-Namen behalten, NIEMALS kuergen, nur bei Bedarf weitere aus three ergaenzen): import { Scene, PerspectiveCamera, OrthographicCamera, WebGLRenderer, Group, Mesh, MeshStandardMaterial, BoxGeometry, CylinderGeometry, SphereGeometry, HemisphereLight, DirectionalLight, Vector3 } from \'three\'; import { OrbitControls } from \'three/addons/controls/OrbitControls.js\'; import { addLabel, addMeasurement, registerPartGroups, applyPartVisibility } from \'wrapper-helpers\'; Nutze die Namen DIREKT (new Scene()), NIEMALS THREE.xxx (kein Namespace-Import, kein globales THREE). Jeder direkt genutzte Name MUSS in der Importliste stehen — fehlender Import = Startfehler. Kamera: PerspectiveCamera (Standard) oder OrthographicCamera (technische/planartige Ansichten, z. B. Grundriss) — die genutzte Kamera steht in der Importliste.',
     'VERBOTENE Bezeichner (S1-Wortgrenzen, Modul wird sonst abgelehnt): nutze NIEMALS document, window, parent, top, fetch, eval, Function, navigator, localStorage, sessionStorage, indexedDB, sendBeacon, WebSocket, XMLHttpRequest als Variablen, Properties oder Strings. Nur container und renderer.domElement anfassen (kein window-Resize-Listener).',
     'Pflicht: JEDES Hauptbauteil aus parts mit addLabel(root, text, [x,y,z], {id, level:"aufbau", sizePx:16, leader:true}) beschriften (positional). Mindestens EINE Messung mit addMeasurement(root, from, to, "Name: Zahl Einheit", {id, level:"aufbau", unit}) mit Einheit (mm/cm/m).',
     'Optik: ACES, SRGB, Antialiasing, Hemisphere- + Key-Licht (Schatten), PBR-Materialien, castShadow/receiveShadow je Mesh (Linien ausgenommen).',
@@ -222,43 +267,56 @@ export function extractMetaI18n(source) {
  * Sitzungseingabe im Browser. Speicherhaltung im livegen-Modul (nur Speicher);
  * Session-Storage NUR mit Zustimmung (Checkbox), nie Logs.
  * @param {string} key Speicher-Key (roh, wird validiert)
+ * @param {string} [providerId] Anbieter (eigener Session-Key je Anbieter)
  */
-function rememberKey(key) {
+function rememberKey(key, providerId) {
   setLiveApiKey(key);
   try {
     const box = /** @type {HTMLInputElement | null} */ (document.getElementById('live-consent'));
-    if (box?.checked) sessionStorage.setItem(LIVE_KEY_SESSION, key);
-    else sessionStorage.removeItem(LIVE_KEY_SESSION);
+    const store = liveKeySessionKey(providerId);
+    if (box?.checked) sessionStorage.setItem(store, key);
+    else sessionStorage.removeItem(store);
   } catch { /* Speicher blockiert */ }
 }
 
+/** Gespeicherten Sitzungs-Key lesen (anbieterspezifisch, Legacy als Fallback). */
+function readStoredKey(providerId) {
+  const keys = typeof providerId === 'string' && providerId
+    ? [liveKeySessionKey(providerId), LIVE_KEY_SESSION]
+    : [LIVE_KEY_SESSION];
+  try {
+    for (const k of keys) {
+      const v = sessionStorage.getItem(k);
+      if (typeof v === 'string' && v.length >= 8) return v;
+    }
+  } catch { /* Speicher blockiert */ }
+  return null;
+}
+
 /** Vergisst den Sitzungs-Key (Speicher + Session-Storage). */
-export function forgetStoredKey() {
+export function forgetStoredKey(providerId) {
   clearLiveApiKey();
   try {
-    sessionStorage.removeItem(LIVE_KEY_SESSION);
+    if (typeof providerId === 'string' && providerId) sessionStorage.removeItem(liveKeySessionKey(providerId));
+    else sessionStorage.removeItem(LIVE_KEY_SESSION);
   } catch { /* Speicher blockiert */ }
 }
 
 /** Aus Kompatibilitaet: gespeicherter Session-Key (oder null). */
-export function loadStoredKey() {
-  try {
-    const v = sessionStorage.getItem(LIVE_KEY_SESSION);
-    return typeof v === 'string' && v.length >= 8 ? v : null;
-  } catch {
-    return null;
-  }
+export function loadStoredKey(providerId) {
+  return readStoredKey(typeof providerId === 'string' ? providerId : undefined);
 }
 
 /**
  * Aus Kompatibilitaet: Key merken (Speicher + Session nur mit Zustimmung).
- * @param {string} _key @param {boolean} _consent
+ * @param {string} _key @param {boolean} _consent @param {string} [_providerId]
  */
-export function storeKey(_key, _consent) {
+export function storeKey(_key, _consent, _providerId) {
   try {
     setLiveApiKey(_key);
-    if (_consent) sessionStorage.setItem(LIVE_KEY_SESSION, _key);
-    else sessionStorage.removeItem(LIVE_KEY_SESSION);
+    const store = liveKeySessionKey(typeof _providerId === 'string' ? _providerId : undefined);
+    if (_consent) sessionStorage.setItem(store, _key);
+    else sessionStorage.removeItem(store);
   } catch { /* ungueltiger Key oder Speicher blockiert */ }
 }
 
@@ -268,12 +326,13 @@ export function storeKey(_key, _consent) {
  */
 export function mountLivegen(els) {
   if (!els.proxyInput.value) els.proxyInput.value = PROXY_DEFAULT;
-  // Session-Key wiederherstellen (nur Sitzung, nie localStorage/Logs).
+  // Session-Key wiederherstellen (je Anbieter, nur Sitzung, nie localStorage/Logs).
   if (els.consentInput) {
     els.consentInput.disabled = false;
     els.consentInput.removeAttribute('title');
     try {
-      const saved = sessionStorage.getItem(LIVE_KEY_SESSION);
+      const pv = typeof els.getTarget === 'function' ? els.getTarget()?.providerId : undefined;
+      const saved = readStoredKey(typeof pv === 'string' ? pv : undefined);
       if (saved && !els.keyInput.value) {
         els.keyInput.value = saved;
         els.consentInput.checked = true;
@@ -304,17 +363,22 @@ export function mountLivegen(els) {
     const proxyUrl = els.proxyInput.value.trim();
     // Key optional: leer = Server-Key des lokalen Proxy-Fallbacks; mit Key
     // zuerst Direkt-Call (Browser -> Upstream), Proxy nur bei Netz/CORS-Fehler.
+    // Key-Ablage je Anbieter (eigener Session-Storage-Key).
     const key = els.keyInput.value.trim();
+    // Zielpfad: Anbieter-/Modellauswahl (M3) oder Meta-Default. BYOK-Pfade
+    // (Baseten/OpenRouter) brauchen den User-Key — ohne Key: E-GEN-CONFIG.
+    const target = typeof els.getTarget === 'function' ? els.getTarget() : null;
+    const provider = target?.providerId ?? undefined;
     delete els.keyInput.dataset.hasStored;
     if (key) {
       try {
-        rememberKey(key);
+        rememberKey(key, provider);
       } catch {
-        say(germanMessage({ code: 'E-GEN-CONFIG' }), true);
+        say(germanMessageWithHint({ code: 'E-GEN-CONFIG' }, provider), true);
         return;
       }
     } else {
-      forgetStoredKey();
+      forgetStoredKey(provider);
     }
     if (!proxyUrl && !key) {
       say(germanMessage({ code: 'E-GEN-OFFLINE' }));
@@ -330,10 +394,8 @@ export function mountLivegen(els) {
     // Neuer Versuch: alte Diagnose zuruecksetzen, Button erst bei Fehler zeigen.
     lastDiagnose = null;
     hideDiagnoseButton(copyBtn);
-    // Zielpfad: Anbieter-/Modellauswahl (M3) oder Meta-Default. Baseten-Pfad
-    // braucht den User-Key (BYOK, nur Sitzung) — ohne Key: E-GEN-CONFIG.
-    const target = typeof els.getTarget === 'function' ? els.getTarget() : null;
-    const provider = target?.providerId ?? undefined;
+    // Zielpfad: Anbieter-/Modellauswahl (M3) oder Meta-Default. BYOK-Pfade
+    // (Baseten/OpenRouter) brauchen den User-Key — ohne Key: E-GEN-CONFIG.
     const model = target?.modelId ?? undefined;
     const modelLabel = model ?? 'muse-spark-1.3-contributor';
     say(tt('freimodus.generiere', { term, modell: modelLabel }));
@@ -353,7 +415,7 @@ export function mountLivegen(els) {
       lastDiagnose = errorDiagnose(e);
       showDiagnoseButton(copyBtn);
       const code = e && typeof e.code === 'string' ? e.code : '';
-      say(code.startsWith('E-GEN-') ? germanMessage(e) : tt('freimodus.pruefungRot', { detail: String((e && e.message) || e).slice(0, 200) }), true);
+      say(code.startsWith('E-GEN-') ? germanMessageWithHint(e, provider) : tt('freimodus.pruefungRot', { detail: String((e && e.message) || e).slice(0, 200) }), true);
     } finally {
       els.goButton.disabled = false;
     }

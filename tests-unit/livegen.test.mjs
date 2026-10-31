@@ -3,13 +3,13 @@ import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, hasLiveApiKey, liveGenStatus, extractModuleSource,
-  directChatUrl, DIRECT_BASES, DIRECT_DEFAULT_MODEL,
+  directChatUrl, DIRECT_BASES, DIRECT_DEFAULT_MODEL, OPENROUTER_REFERER, OPENROUTER_TITLE, liveKeySessionKey,
   GEN_TEMPERATURE,
   buildChatBody, isBudgetExhausted, reasoningMaxAllowed, reasoningXhighAllowed, reasoningLevel, requestEcho,
 } from '../src/runtime/livegen.js';
 import {
   E_GEN_DE, germanMessage, buildFreePrompt, freeModelId, extractMeasureHints, buildFreeManifest, extractMetaI18n,
-  loadStoredKey, storeKey, forgetStoredKey,
+  loadStoredKey, storeKey, forgetStoredKey, keyHintFor, germanMessageWithHint,
 } from '../src/shell/ui-livegen.js';
 import { validateManifest } from '../src/runtime/didactics.js';
 
@@ -64,9 +64,21 @@ test('E-GEN-OFFLINE ohne Key und ohne Proxy (UI schaltet auf Bibliothek)', async
 test('Direkt-Mapping: Upstream-URLs + Defaults, unbekannt -> null', () => {
   assert.equal(directChatUrl('baseten'), `${DIRECT_BASES.baseten}/chat/completions`);
   assert.equal(directChatUrl('meta-muse'), 'https://api.meta.ai/v1/chat/completions');
-  assert.equal(directChatUrl('openrouter'), null);
+  assert.equal(directChatUrl('openrouter'), 'https://openrouter.ai/api/v1/chat/completions');
   assert.equal(DIRECT_DEFAULT_MODEL.baseten, 'meta-models/muse-spark-open-1026');
   assert.equal(DIRECT_DEFAULT_MODEL['meta-muse'], 'muse-spark-1.3-contributor');
+  assert.equal(DIRECT_DEFAULT_MODEL.openrouter, 'openai/gpt-6.1-sol');
+  assert.equal(OPENROUTER_REFERER, 'https://github.com/Effzumdeh/ModelMuse');
+  assert.equal(OPENROUTER_TITLE, 'ModelMuse');
+});
+
+test('Session-Keys je Anbieter (eigener Key, Legacy lesbar)', () => {
+  assert.equal(liveKeySessionKey('openrouter'), 'modelmuse-live-key-openrouter');
+  assert.equal(liveKeySessionKey('baseten'), 'modelmuse-live-key-baseten');
+  assert.equal(liveKeySessionKey('meta-muse'), 'modelmuse-live-key-meta-muse');
+  assert.equal(liveKeySessionKey(), 'modelmuse-live-key');
+  assert.equal(loadStoredKey(), null);
+  assert.equal(loadStoredKey('openrouter'), null);
 });
 
 test('Direkt zuerst: Key + kein Proxy -> via direct an Upstream-URL', async () => {
@@ -199,6 +211,12 @@ test('buildFreePrompt enthaelt Begriff, Vertrag und Helper-Pflicht', () => {
   assert.ok(p.includes('Windkraftanlage') && p.includes('addLabel') && p.includes('addMeasurement') && p.includes('muse-spark'));
   assert.ok(p.includes('hardware, architektur, auto, pflanze, sonstiges'), 'category-Enum vorgegeben (E2E-Befund 27.10.2026)');
   assert.ok(p.includes('NIEMALS kuergen') && p.includes('MUSS in der Importliste stehen'), 'Import-Vorlage unkuerzbar (E-S2-BOOT "Scene is not defined")');
+});
+
+test('buildFreePrompt: OrthographicCamera als legitime Kamera (Live-Fall Wonder/A380)', () => {
+  const p = buildFreePrompt('A380');
+  assert.ok(p.includes('OrthographicCamera'), 'Kamera in Import-Vorlage');
+  assert.ok(p.includes('PerspectiveCamera (Standard) oder OrthographicCamera'), 'Kamera-Verwendungsklausel');
 });
 
 test('freeModelId ist regex-konform (^[a-z0-9-]{2,24}$)', () => {
@@ -404,11 +422,73 @@ test('v26 reasoningLevel: max nur belegt, sonst xhigh, sonst nichts', () => {
   assert.equal(reasoningLevel('meta-muse', 'muse-spark-1.3-contributor', undefined), null);
   assert.equal(reasoningLevel('baseten', 'meta-models/muse-spark-open-1026', undefined), 'xhigh', 'Baseten-Default xhigh');
   assert.equal(reasoningLevel('baseten', 'meta-models/muse-spark-open-1026', 'max'), 'xhigh', 'Baseten nie max');
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', undefined), 'xhigh', 'OpenRouter-Default xhigh (belegt, Modelle-API 31.10.2026)');
+  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', undefined), 'xhigh');
+  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', undefined), 'xhigh');
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'max'), 'xhigh', 'OpenRouter: max -> xhigh (nie 400)');
   assert.equal(reasoningLevel('unbekannt', 'm', 'max'), null);
   assert.equal(reasoningXhighAllowed('meta-muse', 'muse-spark-1.3'), true);
   assert.equal(reasoningXhighAllowed('meta-muse', 'muse-spark-1.3-contributor'), true);
   assert.equal(reasoningXhighAllowed('baseten', 'x'), true);
+  assert.equal(reasoningXhighAllowed('openrouter', 'openai/gpt-6.1-sol'), true);
+  assert.equal(reasoningMaxAllowed('openrouter', 'openai/gpt-6.1-sol'), false, 'OpenRouter nie max per UI-Gate');
   assert.equal(reasoningXhighAllowed('unbekannt', 'm'), false);
+});
+
+test('OpenRouter-Body: xhigh belegt, kein Limit, kein stream_options (400-Fallback bleibt)', () => {
+  for (const slug of ['openai/gpt-6.1-sol', 'meta/muse-spark-1.3', 'anthropic/claude-opus-5.5']) {
+    const b = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter' });
+    assert.equal(b.model, slug);
+    assert.equal(b.reasoning_effort, 'xhigh', `${slug}: belegtes Default-Thinking (Modelle-API 31.10.2026)`);
+    assert.ok(!('max_completion_tokens' in b) && !('max_tokens' in b), `${slug}: keine Token-Caps (Eigentuemer-Vorgabe)`);
+    assert.ok(!('stream_options' in b), `${slug}: kein unverifizierter Param`);
+    assert.equal(b.temperature, 0.2);
+  }
+  const capped = buildChatBody('openai/gpt-6.1-sol', 'Hallo Welt, lang genug', { provider: 'openrouter', reasoning: 'max' });
+  assert.equal(capped.reasoning_effort, 'xhigh', 'OpenRouter max-Wunsch -> xhigh (nie 400)');
+});
+
+test('OpenRouter-Direkt: Bearer + Referer/Title, andere Anbieter ohne Extra-Header', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('OR_TESTKEY_12345678_abcdefghijklmnop');
+  let seenUrl = null;
+  let seenHeaders = null;
+  globalThis.fetch = async (url, opts) => {
+    seenUrl = String(url);
+    seenHeaders = opts?.headers ?? {};
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'openrouter', model: 'openai/gpt-6.1-sol' });
+  assert.equal(seenUrl, 'https://openrouter.ai/api/v1/chat/completions');
+  assert.ok(String(seenHeaders.authorization ?? '').startsWith('Bearer '), 'BYOK-Bearer gesetzt');
+  assert.equal(seenHeaders['HTTP-Referer'], OPENROUTER_REFERER, 'Referer gesetzt (App-Kennung, kein Key)');
+  assert.equal(seenHeaders['X-Title'], OPENROUTER_TITLE, 'X-Title gesetzt');
+  assert.equal(gen.via, 'direct');
+});
+
+test('Direkt ohne OpenRouter: keine Referer/Title-Header (Meta-Pfad unveraendert)', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let seenHeaders = null;
+  globalThis.fetch = async (_url, opts) => {
+    seenHeaders = opts?.headers ?? {};
+    return sseResponse([MODULE]);
+  };
+  await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
+  assert.ok(!('HTTP-Referer' in seenHeaders) && !('X-Title' in seenHeaders), 'nur OpenRouter erhaelt Attribution');
+});
+
+test('Key-Hinweis je Anbieter (de/en/es, openrouter.ai/keys)', () => {
+  assert.match(keyHintFor('openrouter'), /openrouter\.ai\/keys/);
+  assert.match(keyHintFor('openrouter', 'en'), /openrouter\.ai\/keys/);
+  assert.match(keyHintFor('openrouter', 'es'), /openrouter\.ai\/keys/);
+  assert.match(keyHintFor('meta-muse'), /dev\.meta\.ai/);
+  assert.match(keyHintFor('baseten'), /Baseten/);
+  assert.equal(keyHintFor('unbekannt'), '');
+  assert.match(germanMessageWithHint({ code: 'E-GEN-401' }, 'openrouter'), /openrouter\.ai\/keys/, '401 + Key-Hinweis');
+  assert.match(germanMessageWithHint({ code: 'E-GEN-CONFIG' }, 'openrouter'), /openrouter\.ai\/keys/, 'CONFIG + Key-Hinweis');
+  assert.ok(!/openrouter/.test(germanMessageWithHint({ code: 'E-GEN-401' }, 'baseten')), 'fremder Hinweis bleibt draussen');
+  assert.ok(!/openrouter/.test(String(germanMessageWithHint({ code: 'E-GEN-PARSE' }, 'openrouter'))), 'nur Key-Fehler erhalten Hinweis');
 });
 
 test('v23 requestEcho: belegt gesendete Params + 400-Fallback, key-frei', () => {

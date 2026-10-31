@@ -25,19 +25,42 @@ let directFirst = true;
 
 /**
  * Direkt-Endpunkte (OpenAI-kompatibel, POST /chat/completions, SSE).
- * Browser-faehig mit User-Key (BYOK); CORS-Fehler -> Proxy-Fallback.
+ * Browser-faehig mit User-Key (BYOK); CORS-Fehler -> Proxy-Fallback
+ * (OpenRouter: NUR Direkt-Call, kein Proxy-Pfad).
  * @type {Record<string, string>}
  */
 export const DIRECT_BASES = Object.freeze({
   'meta-muse': 'https://api.meta.ai/v1',
   baseten: 'https://inference.baseten.co/v1',
+  openrouter: 'https://openrouter.ai/api/v1',
 });
 
 /** Upstream-Default-Modelle je Anbieter (stimmen mit scripts/proxy.mjs ueberein). */
 export const DIRECT_DEFAULT_MODEL = Object.freeze({
   'meta-muse': 'muse-spark-1.3-contributor',
   baseten: 'meta-models/muse-spark-open-1026',
+  openrouter: 'openai/gpt-6.1-sol',
 });
+
+/**
+ * OpenRouter-Attribution (Pflicht-Empfehlung fuer Browser-Calls:
+ * https://openrouter.ai/docs/api-reference/overview — nur statische
+ * App-Kennung, nie Key-Material).
+ */
+export const OPENROUTER_REFERER = 'https://github.com/Effzumdeh/ModelMuse';
+export const OPENROUTER_TITLE = 'ModelMuse';
+
+/**
+ * Session-Storage-Keys je Anbieter (BYOK, nur Sitzung, nie localStorage).
+ * Legacy-Einzelschluessel 'modelmuse-live-key' bleibt Lese-Fallback.
+ * @param {string} [providerId]
+ */
+export function liveKeySessionKey(providerId) {
+  if (typeof providerId === 'string' && providerId.length >= 2 && !/\s/.test(providerId)) {
+    return `modelmuse-live-key-${providerId}`;
+  }
+  return 'modelmuse-live-key';
+}
 
 /**
  * Diagnose-Build-Stempel (wird in Fehlermeldungen + kopierter Diagnose
@@ -79,13 +102,17 @@ export function reasoningMaxAllowed(provider, model) {
  * Hoechstes BELEGT unterstuetztes Level ist xhigh: max-faehige Modelle (s.o.)
  * plus contributor-Modelle (meta-muse -contributor: xhigh akzeptiert, max
  * rejected — dev.meta.ai/docs/reasoning) plus Baseten-Pfad (spark-open:
- * xhigh default/belegt, max rejected — docs.baseten.co, dev.to-Analyse).
+ * xhigh default/belegt, max rejected — docs.baseten.co, dev.to-Analyse)
+ * plus OpenRouter-Pfad (alle 3 Slugs: reasoning_effort belegt inkl.
+ * xhigh/max — OpenRouter-Modelle-API 31.10.2026; Default xhigh, max wird
+ * ehrlich auf xhigh begrenzt, nie 400).
  * @param {string} provider
  * @param {string} model
  */
 export function reasoningXhighAllowed(provider, model) {
-  if (reasoningMaxAllowed(provider, model)) return true;
+  if (reasoningMaxAllowed(provider ?? '', model)) return true;
   if ((provider ?? '') === 'baseten') return true;
+  if ((provider ?? '') === 'openrouter') return true;
   if ((provider ?? '') === 'meta-muse' && String(model ?? '').includes('contributor')) return true;
   return false;
 }
@@ -94,7 +121,7 @@ export function reasoningXhighAllowed(provider, model) {
  * Hoechstes BELEGTES Level fuer (provider, model, Wunsch): 'max' nur wo
  * erlaubt, sonst 'xhigh' wo erlaubt (max-Wunsch wird dort ehrlich auf xhigh
  * begrenzt — nie 400), sonst null (kein Param). Default ohne Wunsch: xhigh
- * auf Baseten (belegt), sonst nichts (Modell-Default).
+ * auf Baseten + OpenRouter (belegt), sonst nichts (Modell-Default).
  * @param {string} provider
  * @param {string} model
  * @param {string} [want]
@@ -102,7 +129,7 @@ export function reasoningXhighAllowed(provider, model) {
 export function reasoningLevel(provider, model, want) {
   if (want === 'max' && reasoningMaxAllowed(provider ?? '', model)) return 'max';
   if ((want === 'max' || want === 'xhigh') && reasoningXhighAllowed(provider ?? '', model)) return 'xhigh';
-  if (!want && (provider ?? '') === 'baseten') return 'xhigh';
+  if (!want && ((provider ?? '') === 'baseten' || (provider ?? '') === 'openrouter')) return 'xhigh';
   return null;
 }
 
@@ -116,7 +143,10 @@ export function reasoningLevel(provider, model, want) {
  * contributor max rejected, xhigh akzeptiert —
  * dev.meta.ai/docs/reasoning),
  * stream_options.include_usage liefert Usage im Stream (Diagnose
- * zeigt Reasoning-/Total-Tokens). Unverifizierte Params -> 400-Risiko,
+ * zeigt Reasoning-/Total-Tokens). OpenRouter (NUR provider openrouter):
+ * reasoning_effort 'xhigh' (belegt fuer alle 3 Slugs — OpenRouter-Modelle-API
+ * 31.10.2026); KEIN stream_options (unverifiziert, kein Param-Risiko).
+ * Unverifizierte Params -> 400-Risiko,
  * deshalb genau EIN Fallback ohne Extras bei HTTP 400.
  * @param {string} model
  * @param {string} promptText
@@ -666,6 +696,8 @@ function finishModule(full, finishReason, via, ctx = {}) {
 
 /**
  * Direkt-Call: Browser -> Upstream (OpenAI-kompatibel, SSE), Key per BYOK.
+ * OpenRouter (NUR provider openrouter): zusaetzlich HTTP-Referer + X-Title
+ * (App-Kennung, kein Key-Material).
  * v23: KEIN Length-Limit (Modell nutzt eigenes Maximum); bei
  * Budget-Erschoepfung (leer + finish length + nur Reasoning) max EIN Retry
  * mit UNVERAENDERTEM Body. Request-Echo je Versuch landet in err.diagnose.
@@ -677,6 +709,9 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
   try {
     let slimmed = false;
     const attempts = [];
+    const extraHeaders = provider === 'openrouter'
+      ? { 'HTTP-Referer': OPENROUTER_REFERER, 'X-Title': OPENROUTER_TITLE }
+      : {};
     const once = async () => {
       const timer = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
@@ -684,7 +719,7 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
         if (slimmed) stripChatExtras(chatBody);
         const send = async (b) => fetch(url, {
           method: 'POST',
-          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key, accept: 'text/event-stream' },
+          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key, accept: 'text/event-stream', ...extraHeaders },
           body: JSON.stringify(b),
           signal: ctrl.signal,
         });
@@ -737,9 +772,11 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
  * @param {string} promptText vollstaendiger P1-Prompt inkl. Thema
  * @param {{ seed?: number, onToken?: (t: string) => void, provider?: string, model?: string, reasoning?: string }} [opts]
  * provider/model: Optional — Defaults (meta-muse/muse-spark-1.3-contributor).
- * reasoning 'max': nur meta-muse + 1.3/wonder (nie -contributor/Baseten).
+ * reasoning 'max': nur meta-muse + 1.3/wonder (nie -contributor/Baseten/OpenRouter:
+ * max-Wunsch wird dort ehrlich auf xhigh begrenzt).
  * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser), Proxy nur als Fallback
- * bei Transport-Fehler; ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
+ * bei Transport-Fehler (OpenRouter: NUR Direkt-Call — Proxy lehnt openrouter
+ * mit E-GEN-404 + Hinweis ab); ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
  * v23: KEIN Length-Limit im Proxy-Body (Modell nutzt eigenes Maximum);
  * max EIN Retry mit UNVERAENDERTEM Body bei Budget-Erschoepfung
  * (leer + finish length + nur Reasoning). Request-Echo (Proxy-Upstream-Form,
