@@ -1,17 +1,18 @@
 /**
  * Teil 5 — Internationalisierung (reine Funktionen + duenne DOM-Bindung).
- * Locales: de (Standard/Fallback), en, es. Standard = Systemsprache des Users
- * (navigator.language: de* -> de, es* -> es, en* -> en, sonst de).
+ * Locales: de (Standard/Fallback), en, es, fr. Standard = Systemsprache des Users
+ * (navigator.language: de* -> de, en* -> en, es* -> es, fr* -> fr, sonst de).
  * Strings als Daten aus src/shell/i18n/*.json (Build bettet ein, kein Fetch).
  * Manifest-Aufloesung: kanonisches Deutsch + optionales i18n-Segment
- * ({en:{...}, es:{...}}); ohne Segment faellt die Ansicht auf Deutsch zurueck.
+ * ({en:{...}, es:{...}, fr:{...}}); ohne Segment faellt die Ansicht auf Deutsch zurueck.
  */
 import DE from './i18n/de.json' with { type: 'json' };
 import EN from './i18n/en.json' with { type: 'json' };
 import ES from './i18n/es.json' with { type: 'json' };
+import FR from './i18n/fr.json' with { type: 'json' };
 
-export const LOCALES = Object.freeze(['de', 'en', 'es']);
-export const STRINGS = Object.freeze({ de: DE, en: EN, es: ES });
+export const LOCALES = Object.freeze(['de', 'en', 'es', 'fr']);
+export const STRINGS = Object.freeze({ de: DE, en: EN, es: ES, fr: FR });
 
 /** Aktuelle UI-Lokale (Start: Systemsprache, umschaltbar im UI). */
 let currentLocale = 'de';
@@ -49,6 +50,7 @@ export function detectLocale(nav) {
   }
   for (const t of tags) {
     const s = String(t).toLowerCase();
+    if (s.startsWith('fr')) return 'fr';
     if (s.startsWith('es')) return 'es';
     if (s.startsWith('en')) return 'en';
     if (s.startsWith('de')) return 'de';
@@ -83,7 +85,7 @@ export function t(locale, path, vars) {
  * in der Ziellokale ueberschrieben (Titel, Objectives, Labels, Erklaerungen,
  * Messungs- und Aufgabentexte). Vektoren/Ids/Toleranzen bleiben kanonisch.
  * Erklaerungen ohne Segment fallen auf Deutsch zurueck.
- * @param {Record<string, unknown>} [manifest] @param {string} locale
+ * @param {Record<string, unknown>} [manifest] @param {string} locale (de/en/es/fr)
  */
 export function localizeManifest(manifest, locale) {
   const loc = normalizeLocale(locale);

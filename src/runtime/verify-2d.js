@@ -365,9 +365,14 @@ export function verifyTwoDSemantics(variant, data, source) {
     if (parts.length < 3 || parts.length > 8) return fail(`${parts.length} meta.parts (Soll 3..8)`);
     if (meta.units !== 'm') return fail(`meta.units ${String(meta.units)} (Soll "m")`);
     if (!m18 || typeof m18 !== 'object' || !m18.en || !m18.es) return fail('meta_i18n en/es fehlt');
+    // FR (31.10.2026): optional, aber streng-wenn-vorhanden (Laengen-Deckung).
     for (const lang of ['en', 'es']) {
       const lp = Array.isArray(m18[lang]?.parts) ? m18[lang].parts : [];
       if (lp.length !== parts.length) return fail(`meta_i18n.${lang}.parts ${lp.length} != ${parts.length}`);
+    }
+    if (m18.fr !== undefined) {
+      const lp = Array.isArray(m18.fr?.parts) ? m18.fr.parts : [];
+      if (lp.length !== parts.length) return fail(`meta_i18n.fr.parts ${lp.length} != ${parts.length}`);
     }
     const labels = Array.isArray(d.labels) ? d.labels.map((x) => String(x)) : [];
     if (labels.length < 3 || labels.length > 8) return fail(`${labels.length} labels (Soll 3..8)`);

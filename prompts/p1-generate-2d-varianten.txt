@@ -22,13 +22,13 @@ VERTRAG (EXAKT einhalten):
 - export const meta = { title, category, detailLevel: 2, parts: [3-8 Hauptbestandteile], units: "m" }.
   category MUSS einer sein: hardware, architektur, auto, pflanze, sonstiges.
   title min. 3 Zeichen. parts: 3-8 eindeutige, nicht-leere deutsche Begriffe.
-- export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] } }
+- export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] }, fr: { title, parts: [...] } }
   (gleiche Anzahl/Reihenfolge wie meta.parts — EXAKT, sonst Fail).
 - Bestandteil-Erklaerungen (Pflicht, NUR Daten): export const meta enthaelt zusaetzlich
   explanations: [...] mit je EINER fachlichen Erklaerung pro Eintrag in meta.parts
   (WAS der Bestandteil ist + WOFUER im Modell, 1-2 Saetze, je 8-200 Zeichen,
   gleiche Anzahl/Reihenfolge wie meta.parts, deutsch). meta_i18n enthaelt
-  en.explanations + es.explanations als fachgerechte Uebersetzungen
+  en.explanations + es.explanations + fr.explanations als fachgerechte Uebersetzungen
   (gleiche Anzahl/Reihenfolge wie meta.parts — EXAKT, sonst Fail).
   Verify prueft Vorhandensein + Laengen-Deckung.
 - export const meta_2d = { kind, version: 1 }. kind MUSS einer sein UND zum

@@ -1,0 +1,179 @@
+{
+  "_meta": {
+    "locale": "fr",
+    "name": "Français",
+    "quelle": "Traduction professionnelle de l'allemand (31.10.2026), tutoiement"
+  },
+  "app": {
+    "title": "ModelMuse Lab-Player",
+    "brandSub": "Lab-Player",
+    "freigabestatus": "Statut de validation",
+    "ampelGruen": "vert · vérifié (enseignant)",
+    "ampelGelb": "jaune · contrôle auto",
+    "ampelRot": "rouge · refusé"
+  },
+  "toolbar": {
+    "modell": "Modèle",
+    "niveau": "Niveau",
+    "basis": "Base",
+    "aufbau": "Intermédiaire",
+    "profi": "Avancé",
+    "labels": "Étiquettes",
+    "messungen": "Mesures",
+    "ansicht": "Vue",
+    "overview": "Vue d'ensemble",
+    "detail": "Détail",
+    "front": "Face",
+    "top": "Dessus",
+    "modus2d": "Mode 2D"
+  },
+  "bauteile": {
+    "titel": "Étiquettes et cotes",
+    "kopf": "Étiquettes ({n})",
+    "keineAnnotationen": "Aucune annotation à ce niveau.",
+    "etikett": "Étiquette : {label}",
+    "mass": "Cote : {text}",
+    "bauteilAnzeigen": "Afficher l'étiquette {name}"
+  },
+  "bericht": {
+    "titel": "Rapport de vérification S1–S5",
+    "leer": "Aucune exécution.",
+    "modell": "Modèle",
+    "iteration": "Itération",
+    "ampel": "Statut",
+    "fehler": "Erreurs :"
+  },
+  "hinweis": {
+    "titel": "Remarque"
+  },
+  "freimodus": {
+    "titel": "Mode libre (clé personnelle)",
+    "notiz": "Appel direct d'abord : la génération tourne dans le navigateur directement via l'API du fournisseur (ta clé personnelle, session en cours uniquement). Proxy local (scripts/proxy.mjs, localhost uniquement) uniquement en repli en cas de souci réseau/CORS — sans clé, il utilise sa clé serveur.",
+    "proxyUrl": "URL du proxy",
+    "eigenerKey": "Ta clé API personnelle (pour le fournisseur choisi)",
+    "keyPlatzhalter": "Session en cours uniquement",
+    "keyMerken": "Mémoriser la clé pendant cette session (session storage)",
+    "freierBegriff": "Terme libre",
+    "begriffPlatzhalter": "p. ex. éolienne",
+    "generieren": "Générer le modèle",
+    "statusLeer": "Aucune génération en mode libre.",
+    "begriffZuKurz": "Saisis un terme libre (au moins 2 caractères).",
+    "generiere": "Génération de « {term} » … (modèle {modell}, flux)",
+    "geladen": "« {titel} » chargé : {labels} étiquettes, {messungen} mesures, {aufgaben} tâches.",
+    "pruefungRot": "Contrôle du modèle : {detail}",
+    "proxyUrlFallback": "URL du proxy (repli uniquement)",
+    "viaDirekt": " (appel direct)",
+    "viaProxy": " (repli proxy)"
+  },
+  "anbieter": {
+    "titel": "Fournisseur et modèle (M3)",
+    "anbieter": "Fournisseur",
+    "modell": "Modèle",
+    "empfehlung": "Recommandation — géométrie : {geo} · esthétique : {aes} · polyvalent/prix : {all}. {didaktik}",
+    "generierung": "Génération : {detail}",
+    "proxyNoetig": " (proxy requis)",
+    "offline": "Registre des fournisseurs hors ligne : défaut Meta (muse-spark-1.3-contributor). {detail}",
+    "proxyUrl": "URL du proxy (exécution, repli uniquement)",
+    "byokNoetig": " (clé requise)"
+  },
+  "bibliothek": {
+    "titel": "Bibliothèque de modèles (session)",
+    "notiz": "Bibliothèque de 10 modèles de référence = référence (lecture seule). Entrées de session : voir, retoucher, supprimer, exporter.",
+    "leer": "Bibliothèque vide — adopte un modèle de référence ou importe un .js.",
+    "sitzungMerken": "Mémoriser la bibliothèque dans le navigateur (localStorage, choix utilisateur)",
+    "uebernehmen": "Adopter le modèle actuel",
+    "importieren": "Importer .js",
+    "ansehen": "Voir",
+    "ueberarbeiten": "Retoucher",
+    "exportQuellcode": "Exporter",
+    "loeschen": "Supprimer",
+    "bereit": "Bibliothèque prête.",
+    "geladen": "« {titel} » chargé.",
+    "ladefehler": "Erreur de chargement : {detail}",
+    "exportiert": "{datei} exporté (provenance en tête, sans clé).",
+    "geloescht": "{id} supprimé (session).",
+    "uebernommen": "{id} adopté dans la bibliothèque (rév. 1).",
+    "importiert": "{id} importé{rev}.",
+    "importiertRev": " (révision de {parent})",
+    "uebernahmeFehler": "Erreur d'adoption : {detail}",
+    "importFehler": "Erreur d'import : {detail}",
+    "sitzungMerkt": "La session est mémorisée dans cet onglet.",
+    "nurSpeicher": "Mémoire seule — pas de session storage.",
+    "keinModell": "aucun modèle chargé",
+    "inModify": "« {id} » chargé dans le panneau de retouche — décris la modification et lance."
+  },
+  "modellExport": {
+    "speichern": "Enregistrer",
+    "glb": "GLB (modèle 3D)",
+    "png": "PNG (vue actuelle)",
+    "svg": "SVG (vectoriel)",
+    "gespeichert": "{datei} enregistré.",
+    "fehler": "Échec de l'enregistrement : {detail}",
+    "keinModell": "Aucun modèle chargé.",
+    "keinSvg": "Aucun SVG pour cette vue."
+  },
+  "player": {
+    "registryFehler": "Erreur de registre : {detail}",
+    "playerFehler": "Erreur du lecteur : {detail}",
+    "ladefehler": "Erreur de chargement : {detail}"
+  },
+  "fallback": {
+    "keinWebgl2": "F3 : WebGL2 manquant. Vue 2D de repli avec liste des pièces et cotes. Statut : contrôle auto avec réserve.",
+    "darstellung": "F3 ({level}) : erreur d'affichage. Vue 2D de repli active. Statut : contrôle auto avec réserve."
+  },
+  "fehler": {
+    "E-GEN-400": "La demande est invalide. Vérifie le terme et réessaie.",
+    "E-GEN-401": "La clé API a été refusée (401). Vérifie les fautes de frappe.",
+    "E-GEN-402": "Crédit épuisé (402). Utilise la bibliothèque préparée.",
+    "E-GEN-403": "Pas d'autorisation pour ce modèle (403). Vérifie les droits de la clé.",
+    "E-GEN-404": "Modèle introuvable (404). L'ID est obsolète — utilise la bibliothèque.",
+    "E-GEN-413": "La demande est trop volumineuse (413). Raccourcis le terme.",
+    "E-GEN-429": "Limite de débit atteinte (429). Patiente une minute et réessaie.",
+    "E-GEN-5XX": "Le service de génération est surchargé. Réessaie plus tard ou utilise la bibliothèque.",
+    "E-GEN-504": "Délai de génération dépassé (504). Raccourcis le terme et réessaie.",
+    "E-GEN-PARSE": "La réponse ne contenait aucun modèle valide. Réessaie ou utilise la bibliothèque.",
+    "E-GEN-CONFIG": "Saisis l'URL du proxy et une clé valide.",
+    "E-GEN-OFFLINE": "Aucun proxy de génération configuré. La bibliothèque préparée est disponible.",
+    "E-GEN-DIREKT": "Appel direct bloqué (réseau/CORS) et aucun repli proxy configuré. Saisis une URL de proxy ou utilise la bibliothèque."
+  },
+  "diagnose": {
+    "kopieren": "Copier le diagnostic",
+    "kopiert": "Diagnostic copié (sans clé).",
+    "fehler": "Échec de la copie — sélectionne le texte à la main."
+  },
+  "sprache": {
+    "titel": "Langue",
+    "name": "Français"
+  },
+  "labs": {
+    "titel": "Labs",
+    "suche": "Rechercher des labs",
+    "suchePlatzhalter": "Rechercher …"
+  },
+  "modify": {
+    "titel": "Retoucher le modèle",
+    "notiz": "Modifie le modèle actuel via LLM : décris la modification, fais-la contrôler, le résultat se recharge automatiquement.",
+    "keinModell": "Aucun modèle chargé",
+    "prompt": "Modification souhaitée",
+    "promptPlatzhalter": "p. ex. boîtier rouge, deux fois plus grand",
+    "ueberarbeiten": "Retoucher le modèle",
+    "statusLeer": "Aucune retouche.",
+    "promptZuKurz": "Saisis une modification (au moins 2 caractères).",
+    "generiere": "Retouche de « {id} » …",
+    "geladen": "« {titel} » chargé ({id}).",
+    "fehler": "Erreur de retouche : {detail}",
+    "pruefungRot": "Contrôle du modèle : {detail}",
+    "reserve": "Itération 3 uniquement manuelle — pas de réparation auto ({id})."
+  },
+  "onboarding": {
+    "text": "Bienvenue ! Choisis un lab à gauche, génère directement en mode libre avec ta clé personnelle (session uniquement) — sans aucun proxy.",
+    "verstanden": "Compris"
+  },
+  "theme": {
+    "dunkel": "Sombre",
+    "hell": "Clair"
+  },
+  "fuss": {
+    "notiz": "Lab-Player · génération directement dans le navigateur (clé de session uniquement) ou via repli proxy local · historique local dans le navigateur."
+  }
+}

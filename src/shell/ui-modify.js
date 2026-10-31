@@ -63,7 +63,7 @@ export function buildModifyPrompt(args) {
   if (wish.length < 2) {
     throw Object.assign(new Error('E-MODIFY-400: Aenderungswunsch zu kurz'), { code: 'E-MODIFY-400' });
   }
-  const loc = ['de', 'en', 'es'].includes(args?.locale) ? args.locale : 'de';
+  const loc = ['de', 'en', 'es', 'fr'].includes(args?.locale) ? args.locale : 'de';
   const proto = String(args?.protocolText ?? '').trim()
     || '[keine] Alle Schichten pass — nur den Aenderungswunsch umsetzen.';
   return [

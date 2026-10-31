@@ -84,14 +84,14 @@ init(container, params): Szene, Kamera, OrbitControls, RAF-Schleife (bei params.
 Rueckgabe { update, dispose }. update(patch): labels {enabled,max,hidden}, measurements {enabled}, parts {hidden}, view overview/detail/front/top. Bauteil-Registrierung (Pflicht): nach dem Szenenaufbau registerPartGroups(root, meta.parts) — Namens-Matching (Normalisierung de/en/es, Teil-Matching statt Exakt, laengster Treffer gewinnt; Meshes ohne Treffer -> Standard-Gruppe, bleibt sichtbar); JEDES Bauteil muss >= 1 Mesh treffen. update wertet patch.parts.hidden via applyPartVisibility(root, patch.parts.hidden) aus (Geometrie je Index ausblenden).
 dispose(): RAF stoppen, controls.dispose, Szene traversieren (geometry.dispose, material.dispose),
 renderer.dispose, pmrem-Ressourcen freigeben, renderer.domElement.remove.
-LOCALE & I18N (Teil 5, Manifest-Eintraege in allen drei Sprachen):
-Antwortsprache (locale): {LOCALE} (de/en/es) — Labels im Code (addLabel-Texte) in dieser Sprache;
+LOCALE & I18N (Teil 5, Manifest-Eintraege in allen vier Sprachen):
+Antwortsprache (locale): {LOCALE} (de/en/es/fr) — Labels im Code (addLabel-Texte) in dieser Sprache;
 KEINE Sprachlogik (kein if/locale-Verzweigen) im 3D-Code — Strings sind Daten aus Manifest/Prompt.
-Zusaetzlich meta_i18n (Pflicht, NUR Daten): export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] } }
+Zusaetzlich meta_i18n (Pflicht, NUR Daten): export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] }, fr: { title, parts: [...] } }
 mit fachgerechten Uebersetzungen von Titel + parts (gleiche Anzahl und Reihenfolge wie meta.parts).
 BESTANDTEIL-ERKLAERUNGEN (Pflicht, NUR Daten): export const meta enthaelt zusaetzlich explanations: [...]
 mit je EINER fachlichen Erklaerung pro Eintrag in meta.parts — WAS das Bauteil ist + WOFUER es im Modell dient
 (1-2 Saetze, je 8-200 Zeichen, gleiche Anzahl und Reihenfolge wie meta.parts, Sprache wie meta.parts).
-Zusaetzlich meta_i18n (Pflicht): en.explanations + es.explanations als fachgerechte Uebersetzungen
+Zusaetzlich meta_i18n (Pflicht): en.explanations + es.explanations + fr.explanations als fachgerechte Uebersetzungen
 (gleiche Anzahl/Reihenfolge wie parts). Verify prueft Vorhandensein + Laengen-Deckung (S1-shape, S5);
 fehlende oder falsch zaehlige Erklaerungen = Ablehnung. Repair darf Erklaerungen fachlich korrigieren, nie entfernen.

@@ -90,7 +90,7 @@ function $(id) {
 }
 
 async function boot() {
-  // Teil 5: Standard = Systemsprache des Users, umschaltbar (de/en/es).
+  // Teil 5: Standard = Systemsprache des Users, umschaltbar (de/en/es/fr).
   setLocale(detectLocale());
   applyLocale(getLocale());
   const langSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('lang-select'));

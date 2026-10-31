@@ -2,7 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, MeshStandardMater
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Handbohrmaschine', category: 'hardware', detailLevel: 2, parts: ['Gehaeuse','Griff','Bohrfutter','Bohrer','Schalter','Lueftungsschlitze'], units: 'm' };
-export const meta_i18n = { en: { title: 'Hand drill', parts: ['Housing','Handle','Chuck','Drill bit','Switch','Vents'] }, es: { title: 'Taladro manual', parts: ['Carcasa','Mango','Portabrocas','Broca','Interruptor','Rejillas de ventilación'] } };
+export const meta_i18n = { en: { title: 'Hand drill', parts: ['Housing','Handle','Chuck','Drill bit','Switch','Vents'] }, es: { title: 'Taladro manual', parts: ['Carcasa','Mango','Portabrocas','Broca','Interruptor','Rejillas de ventilación'] }, fr: { title: 'Perceuse manuelle', parts: ['Carter','Poignée','Mandrin','Foret','Interrupteur','Ouïes de ventilation'] } };
 export function init(container, params) {
 const p = params || {};
 let dpr = p.dpr || 1;

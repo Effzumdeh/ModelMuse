@@ -7,13 +7,14 @@ import { LOCALES, detectLocale, normalizeLocale, t, localizeManifest } from '../
 const de = JSON.parse(await readFile('src/shell/i18n/de.json', 'utf8'));
 const en = JSON.parse(await readFile('src/shell/i18n/en.json', 'utf8'));
 const es = JSON.parse(await readFile('src/shell/i18n/es.json', 'utf8'));
+const fr = JSON.parse(await readFile('src/shell/i18n/fr.json', 'utf8'));
 
-test('Locales: genau de/en/es, gleiche Schluesselmenge', () => {
-  assert.deepEqual([...LOCALES], ['de', 'en', 'es']);
+test('Locales: genau de/en/es/fr, gleiche Schluesselmenge', () => {
+  assert.deepEqual([...LOCALES], ['de', 'en', 'es', 'fr']);
   const keys = (o, pre = '') =>
     Object.entries(o).flatMap(([k, v]) => (v && typeof v === 'object' ? keys(v, `${pre}${k}.`) : [`${pre}${k}`]));
   const dk = keys(de).filter((k) => !k.startsWith('_meta')).sort();
-  for (const [name, dict] of [['en', en], ['es', es]]) {
+  for (const [name, dict] of [['en', en], ['es', es], ['fr', fr]]) {
     const got = keys(dict).filter((k) => !k.startsWith('_meta')).sort();
     assert.deepEqual(got, dk, `${name}: Schluesselmenge weicht ab`);
     for (const k of dk) {
@@ -24,29 +25,36 @@ test('Locales: genau de/en/es, gleiche Schluesselmenge', () => {
   }
 });
 
-test('detectLocale: Systemsprache -> de/en/es, sonst de', () => {
+test('detectLocale: Systemsprache -> de/en/es/fr, sonst de', () => {
   assert.equal(detectLocale({ language: 'de-DE' }), 'de');
   assert.equal(detectLocale({ language: 'de' }), 'de');
   assert.equal(detectLocale({ language: 'en-US' }), 'en');
   assert.equal(detectLocale({ language: 'es-ES' }), 'es');
-  assert.equal(detectLocale({ language: 'fr-FR' }), 'de');
+  assert.equal(detectLocale({ language: 'fr-FR' }), 'fr');
+  assert.equal(detectLocale({ language: 'it-IT' }), 'de');
   assert.equal(detectLocale({}), 'de');
-  assert.equal(detectLocale({ languages: ['fr-FR', 'en-GB'] }), 'en');
+  assert.equal(detectLocale({ languages: ['it-IT', 'en-GB'] }), 'en');
+  assert.equal(detectLocale({ languages: ['it-IT', 'fr-CA'] }), 'fr');
   assert.equal(normalizeLocale('it'), 'de');
   assert.equal(normalizeLocale('es'), 'es');
+  assert.equal(normalizeLocale('fr'), 'fr');
 });
 
 test('t(): Pfad + Platzhalter + Fallbacks', () => {
   assert.equal(t('de', 'toolbar.modell'), 'Modell');
   assert.equal(t('en', 'toolbar.modell'), 'Model');
   assert.equal(t('es', 'toolbar.modell'), 'Modelo');
+  assert.equal(t('fr', 'toolbar.modell'), 'Modèle');
+  assert.equal(t('fr', 'sprache.name'), 'Français');
   assert.equal(t('de', 'freimodus.generiere', { term: 'X', modell: 'M' }), 'Generiere „X“ … (Modell M, Stream)');
+  assert.equal(t('fr', 'freimodus.generiere', { term: 'X', modell: 'M' }), 'Génération de « X » … (modèle M, flux)');
   assert.equal(t('en', 'freimodus.geladen', { titel: 'T', labels: 1, messungen: 2, aufgaben: 3 }), '“T” loaded: 1 labels, 2 measurements, 3 tasks.');
   assert.equal(t('it', 'toolbar.modell'), 'Modell');
   assert.equal(t('en', 'gibt.es.nicht'), 'gibt.es.nicht');
   for (const code of ['E-GEN-400', 'E-GEN-429', 'E-GEN-5XX', 'E-GEN-OFFLINE']) {
     assert.ok(t('en', `fehler.${code}`).length > 10, code);
     assert.ok(t('es', `fehler.${code}`).length > 10, code);
+    assert.ok(t('fr', `fehler.${code}`).length > 10, code);
   }
 });
 
@@ -57,6 +65,7 @@ test('localizeManifest: de kanonisch, en/es ueberschreiben Texte, Vektoren bleib
     i18n: {
       en: { title: 'Graphics card', labels: ['Fan'], measurements: [{ id: 'm1', text: 'Length: 10 mm' }], tasks: [{ id: 't1', prompt: 'Read it.', expected: '10' }] },
       es: { title: 'Tarjeta grafica', labels: ['Ventilador'] },
+      fr: { title: 'Carte graphique', labels: ['Ventilateur'], measurements: [{ id: 'm1', text: 'Longueur : 10 mm' }], tasks: [{ id: 't1', prompt: 'Lis-la.', expected: '10' }] },
     },
   };
   assert.equal(localizeManifest(man, 'de').title, 'Grafikkarte');
@@ -69,6 +78,12 @@ test('localizeManifest: de kanonisch, en/es ueberschreiben Texte, Vektoren bleib
   const ves = localizeManifest(man, 'es');
   assert.equal(ves.title, 'Tarjeta grafica');
   assert.equal(ves.measurements[0].text, 'Laenge: 10 mm');
-  assert.equal(localizeManifest(man, 'fr').title, 'Grafikkarte');
+  const vfr = localizeManifest(man, 'fr');
+  assert.equal(vfr.title, 'Carte graphique');
+  assert.deepEqual(vfr.labels, ['Ventilateur']);
+  assert.equal(vfr.measurements[0].text, 'Longueur : 10 mm');
+  assert.equal(vfr.tasks[0].prompt, 'Lis-la.');
+  assert.equal(localizeManifest({ title: 'Solo' }, 'fr').title, 'Solo', 'ohne Segment -> de');
+  assert.equal(localizeManifest(man, 'fr').title, 'Carte graphique');
   assert.equal(localizeManifest({ title: 'Solo' }, 'en').title, 'Solo');
 });

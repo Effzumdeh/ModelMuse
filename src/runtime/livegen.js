@@ -510,18 +510,22 @@ export function redactDiagnoseText(s) {
  * @param {string} [locale]
  */
 export function buildDiagnoseText(diag = {}, locale = 'de') {
-  const loc = ['de', 'en', 'es'].includes(locale) ? locale : 'de';
+  const loc = ['de', 'en', 'es', 'fr'].includes(locale) ? locale : 'de';
   const head = loc === 'en'
     ? 'ModelMuse diagnostics (redacted, no key).'
     : loc === 'es'
       ? 'ModelMuse diagnóstico (editado, sin clave).'
-      : 'ModelMuse Diagnose (redigiert, ohne Key).';
+      : loc === 'fr'
+        ? 'Diagnostic ModelMuse (expurgé, sans clé).'
+        : 'ModelMuse Diagnose (redigiert, ohne Key).';
   const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? String(v) : '');
   const dict = loc === 'en'
     ? { noLimit: '(not sent)', none: '(none)', noTemp: '(none)', yes: 'yes', no: 'no' }
     : loc === 'es'
       ? { noLimit: '(no enviado)', none: '(ninguno)', noTemp: '(ninguna)', yes: 'sí', no: 'no' }
-      : { noLimit: '(nicht gesendet)', none: '(keins)', noTemp: '(keine)', yes: 'ja', no: 'nein' };
+      : loc === 'fr'
+        ? { noLimit: '(non envoyé)', none: '(aucun)', noTemp: '(aucune)', yes: 'oui', no: 'non' }
+        : { noLimit: '(nicht gesendet)', none: '(keins)', noTemp: '(keine)', yes: 'ja', no: 'nein' };
   const lim = (r) => {
     const o = (r && typeof r === 'object') ? r : {};
     return {

@@ -11,12 +11,13 @@
     "track": { "type": "string", "enum": ["SI", "DuP", "AE", "free"] },
     "i18n": {
       "type": "object",
-      "description": "Teil 5: EN/ES-Uebersetzungen (UEBERSETZT, nicht neu generiert), Id-Deckung mit kanonischen Messungen/Aufgaben.",
+      "description": "Teil 5 (+FR 31.10.2026): EN/ES/FR-Uebersetzungen (UEBERSETZT, nicht neu generiert), Id-Deckung mit kanonischen Messungen/Aufgaben. en/es Pflicht, fr optional.",
       "additionalProperties": false,
       "required": ["en", "es"],
       "properties": {
         "en": { "$ref": "#/$defs/i18nLocale" },
-        "es": { "$ref": "#/$defs/i18nLocale" }
+        "es": { "$ref": "#/$defs/i18nLocale" },
+        "fr": { "$ref": "#/$defs/i18nLocale" }
       }
     },
     "objectives": {

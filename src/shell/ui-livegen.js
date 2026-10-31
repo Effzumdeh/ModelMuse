@@ -40,22 +40,25 @@ export const LIVE_KEY_SESSION = 'modelmuse-live-key';
  * @param {string} [locale]
  */
 export function keyHintFor(providerId, locale = 'de') {
-  const loc = ['de', 'en', 'es'].includes(locale) ? locale : 'de';
+  const loc = ['de', 'en', 'es', 'fr'].includes(locale) ? locale : 'de';
   const table = {
     'meta-muse': {
       de: 'Meta-Key (LLM_...) von dev.meta.ai — nur diese Sitzung.',
       en: 'Meta key (LLM_...) from dev.meta.ai — this session only.',
       es: 'Clave Meta (LLM_...) de dev.meta.ai — solo esta sesión.',
+      fr: 'Clé Meta (LLM_...) de dev.meta.ai — cette session uniquement.',
     },
     baseten: {
       de: 'Baseten-Key aus dem Baseten-Dashboard — nur diese Sitzung.',
       en: 'Baseten key from the Baseten dashboard — this session only.',
       es: 'Clave Baseten del panel de Baseten — solo esta sesión.',
+      fr: 'Clé Baseten du tableau de bord Baseten — cette session uniquement.',
     },
     openrouter: {
       de: 'OpenRouter-Key von https://openrouter.ai/keys — nur diese Sitzung (BYOK).',
       en: 'OpenRouter key from https://openrouter.ai/keys — this session only (BYOK).',
       es: 'Clave OpenRouter de https://openrouter.ai/keys — solo esta sesión (BYOK).',
+      fr: 'Clé OpenRouter de https://openrouter.ai/keys — cette session uniquement (BYOK).',
     },
   };
   return table[providerId]?.[loc] ?? '';
@@ -90,12 +93,12 @@ export function freeModelId(term) {
 /**
  * P1-kompakter Freimodus-Prompt zu einem freien Begriff.
  * @param {string} term
- * @param {string} [locale] Antwortsprache-Label (de/en/es); das Modul bleibt
- * sprachneutral (Strings als Daten), zusaetzlich meta_i18n mit EN/ES-Uebersetzungen.
+ * @param {string} [locale] Antwortsprache-Label (de/en/es/fr); das Modul bleibt
+ * sprachneutral (Strings als Daten), zusaetzlich meta_i18n mit EN/ES/FR-Uebersetzungen.
  */
 export function buildFreePrompt(term, locale = 'de') {
   const t = String(term).trim().slice(0, 80);
-  const loc = ['de', 'en', 'es'].includes(locale) ? locale : 'de';
+  const loc = ['de', 'en', 'es', 'fr'].includes(locale) ? locale : 'de';
   return [
     'P1 FREIMODUS (Three.js r186, Single-Page-Wrapper, Modell muse-spark-1.3-contributor).',
     `Begriff: ${t}. Baue das benannte Objekt/Web als 3D-Modell, zentriert am Ursprung, Bounding-Box in 3 m Wuerfel, reale Proportionen in Metern.`,
@@ -110,12 +113,12 @@ export function buildFreePrompt(term, locale = 'de') {
     'Optik: ACES, SRGB, Antialiasing, Hemisphere- + Key-Licht (Schatten), PBR-Materialien, castShadow/receiveShadow je Mesh (Linien ausgenommen). ' +
     'Renderer-Pflicht: new WebGLRenderer({antialias:true, preserveDrawingBuffer:true}) — preserveDrawingBuffer:true ist Pflicht (PNG-Export des Modells braucht den Buffer).',
     `Antwortsprache (locale): ${loc}. Labels im Code (addLabel-Texte) in dieser Sprache; KEINE Sprachlogik (kein if/locale-Verzweigen) im 3D-Code — Strings sind Daten.`,
-    'Zusaetzlich meta_i18n liefern: export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] } } ' +
+    'Zusaetzlich meta_i18n liefern: export const meta_i18n = { en: { title, parts: [...] }, es: { title, parts: [...] }, fr: { title, parts: [...] } } ' +
     'mit fachgerechten Uebersetzungen von Titel + parts (gleiche Anzahl/Reihenfolge wie meta.parts). Keine weiteren Sprachen, kein Code, nur Daten.',
     'Bestandteil-Erklaerungen (Pflicht, NUR Daten): meta enthaelt zusaetzlich explanations: [je EIN Satz pro Hauptbauteil aus parts — WAS es ist + WOFUER im Modell, 8-200 Zeichen, gleiche Anzahl/Reihenfolge wie parts, Sprache wie parts]. ' +
-    'meta_i18n enthaelt en.explanations + es.explanations als fachgerechte Uebersetzungen (gleiche Anzahl/Reihenfolge). Verify prueft Vorhandensein + Laengen-Deckung; fehlende Erklaerungen = Ablehnung.',
+    'meta_i18n enthaelt en.explanations + es.explanations + fr.explanations als fachgerechte Uebersetzungen (gleiche Anzahl/Reihenfolge). Verify prueft Vorhandensein + Laengen-Deckung; fehlende Erklaerungen = Ablehnung.',
     'update(patch): nur Sichtbarkeit (labels, measurements) und Kamera (overview/detail/front/top) schalten. ' +
-    'Bauteil-Registrierung (Pflicht): nach dem Szenenaufbau registerPartGroups(root, meta.parts) aufrufen — ordnet jedes Mesh per Namens-Matching einem Bauteil zu (Regel: Normalisierung de/en/es, Teil-Matching statt Exakt, laengster Treffer gewinnt; Meshes ohne Treffer -> Standard-Gruppe, bleibt sichtbar). ' +
+    'Bauteil-Registrierung (Pflicht): nach dem Szenenaufbau registerPartGroups(root, meta.parts) aufrufen — ordnet jedes Mesh per Namens-Matching einem Bauteil zu (Regel: Normalisierung de/en/es/fr, Teil-Matching statt Exakt, laengster Treffer gewinnt; Meshes ohne Treffer -> Standard-Gruppe, bleibt sichtbar). ' +
     'Selbst-Check: JEDES Bauteil aus parts muss >= 1 Mesh treffen (Eckfahne = alle 4 Fahnen, Linien = alle Linien). ' +
     'update(patch) wertet ZUSAETZLICH patch.parts.hidden aus: applyPartVisibility(root, patch.parts.hidden) — Bauteil-Geometrie je Index ausblenden, Standard-Gruppe bleibt sichtbar. ' +
     'dispose(): Schleife stoppen, Ressourcen freigeben, Element entfernen.',
@@ -164,15 +167,16 @@ export function extractMeasureHints(source) {
 /**
  * Didaktik-Manifest zum Freimodus-Modell: Labels je Hauptbauteil aus meta.parts,
  * Aufgaben je Niveau (0 Basis / 2 Aufbau / 1 Profi-Transfer).
- * Mehrsprachig (Teil 5): i18n-Segment aus meta_i18n (Modell liefert EN/ES als
- * Daten); fehlende Uebersetzungen fallen ehrlich auf Deutsch zurueck.
- * Bestandteil-Erklaerungen: aus meta.explanations + meta_i18n en/es.explanations
- * (jeweils gleiche Anzahl/Reihenfolge wie parts); nur bei Laengen-Deckung
- * uebernommen, sonst ehrlich weggelassen.
+ * Mehrsprachig (Teil 5, +FR 31.10.2026): i18n-Segment aus meta_i18n (Modell
+ * liefert EN/ES/FR als Daten); fehlende Uebersetzungen fallen ehrlich auf
+ * Deutsch zurueck.
+ * Bestandteil-Erklaerungen: aus meta.explanations + meta_i18n
+ * en/es/fr.explanations (jeweils gleiche Anzahl/Reihenfolge wie parts); nur
+ * bei Laengen-Deckung uebernommen, sonst ehrlich weggelassen.
  * @param {string} term
  * @param {{ title?: string, parts?: string[], explanations?: string[] }} meta
  * @param {string} source
- * @param {{ en?: { title?: string, parts?: string[], explanations?: string[] }, es?: { title?: string, parts?: string[], explanations?: string[] } }} [i18nHints]
+ * @param {{ en?: { title?: string, parts?: string[], explanations?: string[] }, es?: { title?: string, parts?: string[], explanations?: string[] }, fr?: { title?: string, parts?: string[], explanations?: string[] } }} [i18nHints]
  */
 export function buildFreeManifest(term, meta, source, i18nHints) {
   const parts = Array.isArray(meta?.parts) && meta.parts.length >= 3 ? meta.parts.slice(0, 8).map(String) : ['Bauteil A', 'Bauteil B', 'Bauteil C'];
@@ -184,24 +188,38 @@ export function buildFreeManifest(term, meta, source, i18nHints) {
   const firstNum = (NUM_RE.exec(measurements[0].text) ?? ['?'])[0];
   const title = typeof meta?.title === 'string' && meta.title.length >= 3 ? meta.title : `Freimodell ${String(term).slice(0, 40)}`;
   const i18n = {};
-  for (const loc of ['en', 'es']) {
+  const objectivesFor = {
+    en: (t, ps, m) => [`Trainees correctly name the main parts of ${t} (${ps.slice(0, 3).join(', ')}).`, `Trainees read the dimension “${m}” and assign it to the part.`],
+    es: (t, ps, m) => [`El alumnado nombra correctamente los componentes principales de ${t} (${ps.slice(0, 3).join(', ')}).`, `El alumnado lee la medida “${m}” y la asigna al componente.`],
+    fr: (t, ps, m) => [`Tu nommes correctement les composants principaux de ${t} (${ps.slice(0, 3).join(', ')}).`, `Tu lis la cote « ${m} » et tu l'attribues au composant.`],
+  };
+  const taskPromptsFor = {
+    en: (t, m) => [`Match: Which part carries the main function of ${t}?`, `Read the dimension (“${m}”) and name the number.`, `${t} shows a fault (one part fails): name two checkable causes and one remedy each.`],
+    es: (t, m) => [`Relacione: ¿qué componente tiene la función principal de ${t}?`, `Lea la medida (“${m}”) e indique el número.`, `${t} muestra un fallo (falla un componente): indique dos causas comprobables y una solución para cada una.`],
+    fr: (t, m) => [`Relie : quel composant porte la fonction principale de ${t} ?`, `Lis la cote (« ${m} ») et donne le nombre.`, `${t} montre une panne (un composant tombe en panne) : donne deux causes vérifiables et une solution pour chacune.`],
+  };
+  const taskExpectedFor = {
+    en: (p0) => [`Check ${p0} and secure the part connection`],
+    es: (p0) => [`Comprobar ${p0} y asegurar la conexión`],
+    fr: (p0) => [`Vérifie ${p0} et sécurise la connexion`],
+  };
+  for (const loc of ['en', 'es', 'fr']) {
     const h = i18nHints?.[loc];
     if (h && typeof h.title === 'string' && Array.isArray(h.parts) && h.parts.length === parts.length) {
       const expLoc = Array.isArray(h.explanations) && h.explanations.length === parts.length
         ? h.explanations.map(String)
         : null;
+      const tp = taskPromptsFor[loc](h.title, measurements[0].text);
       i18n[loc] = {
         title: h.title,
-        objectives: loc === 'en'
-          ? [`Trainees correctly name the main parts of ${h.title} (${h.parts.slice(0, 3).join(', ')}).`, `Trainees read the dimension “${measurements[0].text}” and assign it to the part.`]
-          : [`El alumnado nombra correctamente los componentes principales de ${h.title} (${h.parts.slice(0, 3).join(', ')}).`, `El alumnado lee la medida “${measurements[0].text}” y la asigna al componente.`],
+        objectives: objectivesFor[loc](h.title, h.parts, measurements[0].text),
         labels: h.parts.map(String),
         ...(expLoc ? { explanations: expLoc } : {}),
         measurements: measurements.map((m) => ({ id: m.id, text: m.text })),
         tasks: [
-          { id: 'frei-aufbau-1', prompt: loc === 'en' ? `Match: Which part carries the main function of ${h.title}?` : `Relacione: ¿qué componente tiene la función principal de ${h.title}?`, expected: h.parts[0] },
-          { id: 'frei-aufbau-2', prompt: loc === 'en' ? `Read the dimension (“${measurements[0].text}”) and name the number.` : `Lea la medida (“${measurements[0].text}”) e indique el número.`, expected: String(firstNum) },
-          { id: 'frei-profi-1', prompt: loc === 'en' ? `${h.title} shows a fault (one part fails): name two checkable causes and one remedy each.` : `${h.title} muestra un fallo (falla un componente): indique dos causas comprobables y una solución para cada una.`, expected: loc === 'en' ? `Check ${h.parts[0]} and secure the part connection` : `Comprobar ${h.parts[0]} y asegurar la conexión` },
+          { id: 'frei-aufbau-1', prompt: tp[0], expected: h.parts[0] },
+          { id: 'frei-aufbau-2', prompt: tp[1], expected: String(firstNum) },
+          { id: 'frei-profi-1', prompt: tp[2], expected: taskExpectedFor[loc](h.parts[0])[0] },
         ],
       };
     }
@@ -228,9 +246,9 @@ export function buildFreeManifest(term, meta, source, i18nHints) {
 
 /**
  * meta_i18n-Export aus generierter Quelle lesen (Daten, kein Code):
- * export const meta_i18n = { en: {...}, es: {...} }. Nur gueltig bei
+ * export const meta_i18n = { en: {...}, es: {...}, fr: {...} }. Nur gueltig bei
  * passender parts-Laenge (Pruefung in buildFreeManifest). Enthaelt auch
- * en/explanations + es/explanations, wenn das Modell sie mitliefert.
+ * en/es/fr-explanations, wenn das Modell sie mitliefert.
  * @param {string} source
  */
 export function extractMetaI18n(source) {

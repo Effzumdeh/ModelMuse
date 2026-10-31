@@ -2,7 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Koffein-Molekül', category: 'sonstiges', detailLevel: 2, parts: ['Puringeruest','Carbonylgruppe','Methylgruppe','Amidstickstoff','Ringschluss-Bindung','C=O-Doppelbindung'], units: 'm' };
-export const meta_i18n = { en: { title: 'Caffeine molecule', parts: ['Purine scaffold','Carbonyl group','Methyl group','Amide nitrogen','Ring-fusion bond','C=O double bond'] }, es: { title: 'Molécula de cafeína', parts: ['Estructura de purina','Grupo carbonilo','Grupo metilo','Nitrógeno amídico','Enlace de fusión','Doble enlace C=O'] } };
+export const meta_i18n = { en: { title: 'Caffeine molecule', parts: ['Purine scaffold','Carbonyl group','Methyl group','Amide nitrogen','Ring-fusion bond','C=O double bond'] }, es: { title: 'Molécula de cafeína', parts: ['Estructura de purina','Grupo carbonilo','Grupo metilo','Nitrógeno amídico','Enlace de fusión','Doble enlace C=O'] }, fr: { title: 'Molécule de caféine', parts: ['Squelette purique','Groupe carbonyle','Groupe méthyle','Azote amidique','Liaison de fusion','Double liaison C=O'] } };
 // Koffein C8H10N4O2, Massstab: 1 A = 10 mm (Modell in Metern, Texte in mm).
 // 24 Atome (8 C, 4 N, 2 O, 10 H), 25 Bindungen. Geometrie literaturbelegt
 // (r(C=O) = 1,206 A -> 12,1 mm; Molekuelspannweite 8,89 A -> 88,9 mm).

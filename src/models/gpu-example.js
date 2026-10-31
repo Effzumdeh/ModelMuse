@@ -2,7 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Graphics Card', category: 'hardware', detailLevel: 2, parts: ['PCB','GPU-Die','VRAM 1','VRAM 2','Luefter 1','Luefter 2','Heatpipe','Backplate','PCIe-x16-Stecker','Stromanschluss','Slotblende'], units: 'm' };
-export const meta_i18n = { en: { title: 'Graphics card', parts: ['GPU die', 'VRAM 1', 'VRAM 2', 'Fan 1', 'Fan 2', 'Heat pipe', 'Backplate', 'PCIe x16 connector', 'Power connector', 'Slot bracket with display ports'] }, es: { title: 'Tarjeta gráfica', parts: ['GPU', 'VRAM 1', 'VRAM 2', 'Ventilador 1', 'Ventilador 2', 'Tubo de calor', 'Placa trasera', 'Conector PCIe x16', 'Conector de alimentación', 'Chapa del slot con puertos de pantalla'] } };
+export const meta_i18n = { en: { title: 'Graphics card', parts: ['GPU die', 'VRAM 1', 'VRAM 2', 'Fan 1', 'Fan 2', 'Heat pipe', 'Backplate', 'PCIe x16 connector', 'Power connector', 'Slot bracket with display ports'] }, es: { title: 'Tarjeta gráfica', parts: ['GPU', 'VRAM 1', 'VRAM 2', 'Ventilador 1', 'Ventilador 2', 'Tubo de calor', 'Placa trasera', 'Conector PCIe x16', 'Conector de alimentación', 'Chapa del slot con puertos de pantalla'] }, fr: { title: 'Carte graphique', parts: ['Puce GPU', 'VRAM 1', 'VRAM 2', 'Ventilateur 1', 'Ventilateur 2', 'Caloduc', 'Plaque arrière', 'Connecteur PCIe x16', "Connecteur d'alimentation", 'Équerre avec ports écran'] } };
 export function init(container, params) {
 params = params || {};
 let dpr = params.dpr || 1;

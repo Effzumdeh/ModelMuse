@@ -1,9 +1,9 @@
 /**
- * Teil 5 — i18n-Beleg: je ein Screenshot pro Sprache (de/en/es) mit demselben
+ * Teil 5 (+FR 31.10.2026) — i18n-Beleg: je ein Screenshot pro Sprache (de/en/es/fr) mit demselben
  * Modell (gpu-example) — Labels + Aufgaben sichtbar in der jeweiligen Sprache.
  * Kein Key, kein Netz ausser localhost. Nutzt den gebauten dist/lab-player.html.
  * Aufruf: node.exe scripts/i18n-shots.mjs
- * Belege: dist/i18n-de.png, dist/i18n-en.png, dist/i18n-es.png
+ * Belege: dist/i18n-de.png, dist/i18n-en.png, dist/i18n-es.png, dist/i18n-fr.png
  */
 import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
@@ -37,7 +37,7 @@ try {
   // navigator.language-Default: je ein frischer Kontext (de-DE / en-US),
   // KEIN Umschalten — initiale #live-go muss der Systemsprache folgen.
   const defaults = {};
-  for (const [ctxLocale, erwartet] of [['de-DE', 'Modell generieren'], ['en-US', 'Generate model']]) {
+  for (const [ctxLocale, erwartet] of [['de-DE', 'Modell generieren'], ['en-US', 'Generate model'], ['fr-FR', 'Générer le modèle']]) {
     const ctx = await browser.newContext({ locale: ctxLocale, viewport: { width: 1280, height: 720 } });
     const dp = await ctx.newPage();
     await dp.goto(`http://127.0.0.1:${WEB_PORT}/dist/lab-player.html`);
@@ -51,7 +51,7 @@ try {
   }
   const defaultsOk = Object.values(defaults).every((d) => d.ok);
   if (!defaultsOk) process.exitCode = 2;
-  for (const loc of ['de', 'en', 'es']) {
+  for (const loc of ['de', 'en', 'es', 'fr']) {
     await page.selectOption('#lang-select', loc);
     await page.waitForTimeout(800);
     const shot = `dist/i18n-${loc}.png`;
@@ -75,7 +75,8 @@ try {
   await writeFileSafe('dist/i18n-shots.json', JSON.stringify({ defaults, defaultsOk, shots: out }, null, 2));
   // Umschalt-Check: keine Sprache darf deutsche Shell-Reste zeigen (ausser Eigennamen).
   const deGo = out.de.strings.go;
-  const ok = out.en.strings.go !== deGo && out.es.strings.go !== deGo && out.en.strings.go !== out.es.strings.go;
+  const ok = out.en.strings.go !== deGo && out.es.strings.go !== deGo && out.fr.strings.go !== deGo
+    && out.en.strings.go !== out.es.strings.go && out.en.strings.go !== out.fr.strings.go && out.es.strings.go !== out.fr.strings.go;
   console.log(`umschalt-check: ${ok ? 'OK (alle Sprachen verschieden)' : 'FEHLER (Texte identisch)'}`);
   if (!ok) process.exitCode = 2;
   console.log('I18N-SHOTS-OK');

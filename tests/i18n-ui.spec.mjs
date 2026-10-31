@@ -1,5 +1,5 @@
 /**
- * Teil 4 + 5: UI-Checks — Sprachumschaltung (de/en/es), Bauteil-Checkboxen,
+ * Teil 4 + 5 (+FR 31.10.2026): UI-Checks — Sprachumschaltung (de/en/es/fr), Bauteil-Checkboxen,
  * Overlay-Menues (Ansicht, 2D-Modus). Keine Keys, kein Netz ausser localhost.
  */
 import { test, expect } from '@playwright/test';
@@ -14,7 +14,7 @@ async function gotoPlayer(page) {
   );
 }
 
-test('Sprachumschalter: de/en/es aendert alle sichtbaren Shell-Strings', async ({ page }) => {
+test('Sprachumschalter: de/en/es/fr aendert alle sichtbaren Shell-Strings', async ({ page }) => {
   await gotoPlayer(page);
   const before = await page.textContent('#live-go');
   // Systemsprache dieses Runners ist de (oder Fallback de): Umschalten auf en.
@@ -32,6 +32,12 @@ test('Sprachumschalter: de/en/es aendert alle sichtbaren Shell-Strings', async (
   await expect(page.locator('#modify-go')).toHaveText('Revisar modelo');
   await expect(page.locator('label[for="live-term"]')).toHaveText('Término libre');
   await expect(page.locator('.part-head strong').first()).toContainText('Etiquetas (');
+  // Umschalten auf fr.
+  await page.selectOption('#lang-select', 'fr');
+  await expect(page.locator('#live-go')).toHaveText('Générer le modèle');
+  await expect(page.locator('#modify-go')).toHaveText('Retoucher le modèle');
+  await expect(page.locator('label[for="live-term"]')).toHaveText('Terme libre');
+  await expect(page.locator('.part-head strong').first()).toContainText('Étiquettes (');
   // Zurueck auf de.
   await page.selectOption('#lang-select', 'de');
   await expect(page.locator('#live-go')).toHaveText('Modell generieren');

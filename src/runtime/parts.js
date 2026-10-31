@@ -10,7 +10,7 @@
  *
  * Bauteil-Mesh-Zuordnung (kanonisch, seit Freimodus-Befund Fussballfeld
  * 31.10.2026): Label->Mesh laeuft ueber normalizePartName +
- * assignPartMeshes (Normalisierung de/en/es, Teil-Matching statt Exakt,
+ * assignPartMeshes (Normalisierung de/en/es/fr, Teil-Matching statt Exakt,
  * laengster Treffer gewinnt). Meshes ohne Treffer landen in der
  * Standard-Gruppe (Index labels.length, bleibt sichtbar) und werden als
  * Warnung ausgewiesen; Labels ohne Treffer meldet der Selbst-Check
@@ -55,11 +55,11 @@ export function toggleHidden(hidden, index) {
 export function partExplanations(manifest, locale = 'de') {
   const entries = partEntries(manifest);
   if (entries.length === 0) return [];
-  const loc = locale === 'en' || locale === 'es' ? locale : 'de';
+  const loc = locale === 'en' || locale === 'es' || locale === 'fr' ? locale : 'de';
   const base = Array.isArray(manifest?.explanations) ? manifest.explanations.map(String) : [];
   const seg = manifest?.i18n && typeof manifest.i18n === 'object' ? manifest.i18n[loc] : null;
   const locArr = seg && typeof seg === 'object' && Array.isArray(seg.explanations) ? seg.explanations.map(String) : [];
-  // de-Ansicht: kanonisch; en/es: Lokale, sonst kanonisch.
+  // de-Ansicht: kanonisch; en/es/fr: Lokale, sonst kanonisch.
   if (loc === 'de') return entries.map((e) => (typeof base[e.index] === 'string' ? base[e.index] : ''));
   return entries.map((e) => locArr[e.index] ?? base[e.index] ?? '');
 }
@@ -134,7 +134,7 @@ export function checkAllParts(source, manifest) {
 }
 
 /**
- * Kanonische Namens-Normalisierung de/en/es fuer die Bauteil-Mesh-
+ * Kanonische Namens-Normalisierung de/en/es/fr fuer die Bauteil-Mesh-
  * Zuordnung: klein, trimmen, Umlaut-Faltung (ä→a, ö→o, ü→u, ß→ss),
  * diakritische Zeichen via NFKD (é→e, ñ→n, á→a), Rest nicht-alphanumerisch
  * weg. «Eckfahne» == «eckfahne» == «ECK-FAHNE»; «línea» == «linea».
@@ -257,22 +257,24 @@ export function assignPartMeshes(labels, meshNames = [], opts = {}) {
 }
 
 /**
- * Diagnose-Zeilen zu Zuordnungs-Warnungen (de/en/es, ohne Secrets).
+ * Diagnose-Zeilen zu Zuordnungs-Warnungen (de/en/es/fr, ohne Secrets).
  * @param {Array<{ type: string, label?: string, mesh?: string }>} warnings
  * @param {string} [locale]
  * @returns {string[]}
  */
 export function formatPartWarnings(warnings, locale = 'de') {
-  const loc = ['de', 'en', 'es'].includes(locale) ? locale : 'de';
+  const loc = ['de', 'en', 'es', 'fr'].includes(locale) ? locale : 'de';
   const list = Array.isArray(warnings) ? warnings : [];
   return list.map((w) => {
     if (w && w.type === 'label-ohne-mesh') {
       if (loc === 'en') return `WARNING: part label "${w.label}" matches 0 meshes (toggle hides label only)`;
       if (loc === 'es') return `AVISO: la etiqueta "${w.label}" no corresponde a ninguna malla (el interruptor solo oculta la etiqueta)`;
+      if (loc === 'fr') return `AVERTISSEMENT : l'étiquette « ${w.label} » ne correspond à aucun maillage (l'interrupteur masque uniquement l'étiquette)`;
       return `WARNUNG: Part-Label „${w.label}“ trifft 0 Meshes (Toggle blendet nur Label aus)`;
     }
     if (loc === 'en') return `NOTE: mesh "${w?.mesh}" without match assigned to default group (stays visible)`;
     if (loc === 'es') return `NOTA: malla "${w?.mesh}" sin coincidencia asignada al grupo estándar (permanece visible)`;
+    if (loc === 'fr') return `NOTE : le maillage « ${w?.mesh} » sans correspondance est assigné au groupe standard (reste visible)`;
     return `Hinweis: Mesh „${w?.mesh}“ ohne Treffer der Standard-Gruppe zugeordnet (bleibt sichtbar)`;
   });
 }

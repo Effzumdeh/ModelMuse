@@ -109,4 +109,5 @@ test('Bestandteil-Erklaerungen: P1-2D/P1-v6/P2-Harness liefern Format, Verify-Re
   assert.ok(free.includes('explanations'), 'Freimodus-Prompt: explanations-Vertrag');
   assert.ok(free.includes('en.explanations'), 'Freimodus-Prompt: en.explanations');
   assert.ok(free.includes('es.explanations'), 'Freimodus-Prompt: es.explanations');
+  assert.ok(free.includes('fr.explanations'), 'Freimodus-Prompt: fr.explanations');
 });

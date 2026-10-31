@@ -124,13 +124,15 @@ test('assignPartMeshes: laengster Treffer gewinnt, Uebersetzungen helfen', () =>
   assert.deepEqual(t.warnings, []);
 });
 
-test('formatPartWarnings: de/en/es ohne Secrets', () => {
+test('formatPartWarnings: de/en/es/fr ohne Secrets', () => {
   const w = [{ type: 'label-ohne-mesh', label: 'Eckfahne' }, { type: 'mesh-ohne-treffer', mesh: 'zaun' }];
   const de = formatPartWarnings(w, 'de');
   assert.ok(de[0].startsWith('WARNUNG') && de[0].includes('Eckfahne'));
   assert.ok(de[1].includes('Standard-Gruppe'));
   assert.ok(formatPartWarnings(w, 'en')[0].startsWith('WARNING'));
   assert.ok(formatPartWarnings(w, 'es')[0].startsWith('AVISO'));
+  assert.ok(formatPartWarnings(w, 'fr')[0].startsWith('AVERTISSEMENT'));
+  assert.ok(formatPartWarnings(w, 'fr')[1].startsWith('NOTE'));
 });
 
 test('extractMeshIdentifiers: Variablen + .name-Literale', () => {

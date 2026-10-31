@@ -2,7 +2,7 @@ import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, InstancedMesh, Me
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { addLabel, addMeasurement } from 'wrapper-helpers';
 export const meta = { title: 'Brandenburger Tor (Berlin)', category: 'architektur', detailLevel: 2, parts: ['Säulenreihe','Gebälk','Attika','Quadriga','Mitteldurchfahrt','Seitenflügel'], units: 'm' };
-export const meta_i18n = { en: { title: 'Brandenburg Gate (Berlin)', parts: ['Colonnade', 'Entablature', 'Attic', 'Quadriga', 'Central passage', 'Side wing'] }, es: { title: 'Puerta de Brandeburgo (Berlín)', parts: ['Columnata', 'Entablamento', 'Ático', 'Cuadriga', 'Paso central', 'Ala lateral'] } };
+export const meta_i18n = { en: { title: 'Brandenburg Gate (Berlin)', parts: ['Colonnade', 'Entablature', 'Attic', 'Quadriga', 'Central passage', 'Side wing'] }, es: { title: 'Puerta de Brandeburgo (Berlín)', parts: ['Columnata', 'Entablamento', 'Ático', 'Cuadriga', 'Paso central', 'Ala lateral'] }, fr: { title: 'Porte de Brandebourg (Berlin)', parts: ['Colonnade', 'Entablement', 'Attique', 'Quadrige', 'Passage central', 'Aile latérale'] } };
 export function init(container, params){
 const p = params || {};
 let d = 1;

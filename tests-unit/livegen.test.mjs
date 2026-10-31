@@ -233,7 +233,7 @@ test('extractMeasureHints liest Messungen positional aus', () => {
   assert.equal(hints[0].unit, 'cm');
 });
 
-test('setLocale/getLocale/tt: Umschaltung en/es/de, Fallback de', async () => {
+test('setLocale/getLocale/tt: Umschaltung en/es/fr/de, Fallback de', async () => {
   const i18n = await import('../src/shell/i18n.js');
   i18n.setLocale('en');
   assert.equal(i18n.getLocale(), 'en');
@@ -241,6 +241,9 @@ test('setLocale/getLocale/tt: Umschaltung en/es/de, Fallback de', async () => {
   i18n.setLocale('es');
   assert.equal(i18n.tt('toolbar.modell'), 'Modelo');
   i18n.setLocale('fr');
+  assert.equal(i18n.getLocale(), 'fr');
+  assert.equal(i18n.tt('toolbar.modell'), 'Modèle');
+  i18n.setLocale('it');
   assert.equal(i18n.getLocale(), 'de');
   assert.equal(i18n.tt('toolbar.modell'), 'Modell');
   i18n.setLocale('de');
@@ -814,8 +817,11 @@ test('v23 buildDiagnoseText: alle Felder + Request-Echo, ~2KB-Cap, de/en/es, nie
     es: ['req_max_completion_tokens: (no enviado)', 'req_max_tokens: (no enviado)',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: sí',
       'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí'],
+    fr: ['req_max_completion_tokens: (non envoyé)', 'req_max_tokens: (non envoyé)',
+      'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: oui',
+      'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui'],
   };
-  for (const loc of ['de', 'en', 'es']) {
+  for (const loc of ['de', 'en', 'es', 'fr']) {
     const t = buildDiagnoseText(diag, loc);
     for (const bit of ['provider: baseten', 'model: meta-models/muse-spark-open-1026', 'via: direct', 'http: 200',
       'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v23',
@@ -829,7 +835,8 @@ test('v23 buildDiagnoseText: alle Felder + Request-Echo, ~2KB-Cap, de/en/es, nie
   assert.ok(buildDiagnoseText(diag, 'de').startsWith('ModelMuse Diagnose'), 'de-Kopf');
   assert.ok(buildDiagnoseText(diag, 'en').startsWith('ModelMuse diagnostics'), 'en-Kopf');
   assert.ok(buildDiagnoseText(diag, 'es').startsWith('ModelMuse diagnóstico'), 'es-Kopf');
-  assert.ok(buildDiagnoseText(diag, 'fr').startsWith('ModelMuse Diagnose'), 'unbekannt -> de');
+  assert.ok(buildDiagnoseText(diag, 'fr').startsWith('Diagnostic ModelMuse'), 'fr-Kopf');
+  assert.ok(buildDiagnoseText(diag, 'it').startsWith('ModelMuse Diagnose'), 'unbekannt -> de');
   const noRetry = buildDiagnoseText({ ...diag, retried: false, reqRetry: null }, 'de');
   assert.ok(!noRetry.includes('req_retry_'), 'ohne Retry keine Retry-Echo-Zeilen');
   assert.ok(noRetry.includes('req_400_fallback: ja'), 'Erstversuch-Echo bleibt');

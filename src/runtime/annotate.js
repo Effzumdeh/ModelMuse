@@ -224,7 +224,7 @@ export function clearAnnotations(root, scope = 'all') {
  * Ordnet jedes Mesh (isMesh/isInstancedMesh) unter root per Namens-Matching
  * einem Part-Label zu (o.name, sonst Material-Name) und stempelt
  * o.userData.partIndex. Teil-Matching statt Exakt (beide Richtungen,
- * ersatzweise Stammformen de/en/es), laengster Treffer gewinnt,
+ * ersatzweise Stammformen de/en/es/fr), laengster Treffer gewinnt,
  * Gleichstand ans erste Label. Meshes ohne
  * Treffer -> Standard-Gruppe (Index labels.length, bleibt sichtbar).
  * @param {object} root

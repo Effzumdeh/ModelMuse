@@ -121,7 +121,7 @@ export function verifyDidacticsLayer(manifest, source, soll) {
     // Bauteil-Mesh-Zuordnung (Selbst-Check): jedes Part-Label muss >= 1 Mesh
     // treffen, sonst WARNUNG in der Diagnose (immer pass — Warnung statt Rot;
     // ohne registerPartGroups neutral, labels-only graceful). Uebersetzungen
-    // aus dem Manifest-i18n (en/es labels, Laengen-Deckung) verbessern Treffer.
+    // aus dem Manifest-i18n (en/es/fr labels, Laengen-Deckung) verbessern Treffer.
     try {
       const labels = Array.isArray(manifest?.labels) ? manifest.labels.map(String) : [];
       const seg = (loc) => {
@@ -132,7 +132,8 @@ export function verifyDidacticsLayer(manifest, source, soll) {
       };
       const en = seg('en');
       const es = seg('es');
-      const translations = labels.map((_, i) => [en?.[i], es?.[i]].filter((v) => typeof v === 'string'));
+      const fr = seg('fr');
+      const translations = labels.map((_, i) => [en?.[i], es?.[i], fr?.[i]].filter((v) => typeof v === 'string'));
       const cov = checkPartMeshCoverage(String(source ?? ''), labels, { translations });
       layer.criteria.push(crit('S5-parts-coverage', cov.criterion.verdict, cov.criterion.expected, cov.criterion.actual));
     } catch {

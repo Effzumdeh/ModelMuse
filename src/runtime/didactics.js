@@ -98,36 +98,40 @@ export function validateManifest(manifest) {
       }
     }
   }
-  // Optionales i18n-Segment (Teil 5): EN/ES-Uebersetzungen, NICHT neu generiert.
-  // Id-Deckung mit kanonischen Messungen/Aufgaben wird geprueft.
+  // Optionales i18n-Segment (Teil 5, FR 31.10.2026: en/es Pflicht, fr optional
+  // aber streng-wenn-vorhanden — kuratierte Sechs + Neugenerierungen liefern fr).
+  // EN/ES/FR-Uebersetzungen, NICHT neu generiert, Id-Deckung mit kanonischen Messungen/Aufgaben.
   // Erklaerungen (wenn vorhanden): Laengen-Deckung zu labels, je 8-500 Zeichen.
   if ('i18n' in m && m.i18n !== undefined && m.i18n !== null) {
     const seg = /** @type {Record<string, unknown>} */ (m.i18n);
     const mIds = new Set((Array.isArray(m.measurements) ? m.measurements : []).map((x) => x?.id));
     const tIds = new Set((Array.isArray(m.tasks) ? m.tasks : []).map((x) => x?.id));
     const nLabels = Array.isArray(m.labels) ? m.labels.length : -1;
+    const checkSeg = (s) => !!s && typeof s === 'object'
+      && typeof s.title === 'string' && s.title.length >= 3
+      && Array.isArray(s.objectives) && s.objectives.length === (Array.isArray(m.objectives) ? m.objectives.length : -1)
+      && Array.isArray(s.labels) && s.labels.length === nLabels
+      && Array.isArray(s.measurements) && s.measurements.every((x) => mIds.has(x?.id) && typeof x?.text === 'string' && x.text.length >= 2)
+      && Array.isArray(s.tasks) && s.tasks.every((x) => tIds.has(x?.id) && typeof x?.prompt === 'string' && x.prompt.length >= 8 && typeof x?.expected === 'string' && x.expected.length >= 1)
+      && (s.explanations === undefined || (Array.isArray(s.explanations) && s.explanations.length === nLabels && s.explanations.every((x) => typeof x === 'string' && x.length >= 8 && x.length <= 500 && !/<\/script/i.test(x))));
     let i18nOk = typeof seg === 'object';
     for (const loc of ['en', 'es']) {
-      const s = seg[loc];
-      i18nOk &&= !!s && typeof s === 'object'
-        && typeof s.title === 'string' && s.title.length >= 3
-        && Array.isArray(s.objectives) && s.objectives.length === (Array.isArray(m.objectives) ? m.objectives.length : -1)
-        && Array.isArray(s.labels) && s.labels.length === nLabels
-        && Array.isArray(s.measurements) && s.measurements.every((x) => mIds.has(x?.id) && typeof x?.text === 'string' && x.text.length >= 2)
-        && Array.isArray(s.tasks) && s.tasks.every((x) => tIds.has(x?.id) && typeof x?.prompt === 'string' && x.prompt.length >= 8 && typeof x?.expected === 'string' && x.expected.length >= 1)
-        && (s.explanations === undefined || (Array.isArray(s.explanations) && s.explanations.length === nLabels && s.explanations.every((x) => typeof x === 'string' && x.length >= 8 && x.length <= 500 && !/<\/script/i.test(x))));
+      i18nOk &&= checkSeg(seg[loc]);
     }
+    if (seg.fr !== undefined) i18nOk &&= checkSeg(seg.fr);
     if (!i18nOk) invalid.push('i18n');
   }
   return { ok: missing.length === 0 && invalid.length === 0, missing, invalid, counts };
 }
 
 /**
- * Bestandteil-Erklaerungen: Vorhandensein je Lokale (de/en/es) mit
- * Laengen-Deckung zu labels. Release-Pflicht (Verify/Tests pruefen
- * Vorhandensein); validateManifest bleibt format-tolerant (optional).
+ * Bestandteil-Erklaerungen: Vorhandensein je Lokale (de/en/es/fr, FR seit
+ * 31.10.2026: kuratierte Sechs + Neugenerierungen) mit Laengen-Deckung zu
+ * labels. Release-Pflicht de/en/es fuer alle Manifeste, fr-Pflicht fuer die
+ * kuratierte Sechs (Verify/Tests pruefen Vorhandensein); validateManifest
+ * bleibt format-tolerant (optional).
  * @param {unknown} manifest
- * @returns {{ de: boolean, en: boolean, es: boolean, ok: boolean, detail: string }}
+ * @returns {{ de: boolean, en: boolean, es: boolean, fr: boolean, ok: boolean, detail: string }}
  */
 export function checkExplanationsPresence(manifest) {
   const valid = (arr, n) =>
@@ -140,10 +144,12 @@ export function checkExplanationsPresence(manifest) {
   const seg = m.i18n && typeof m.i18n === 'object' ? /** @type {Record<string, unknown>} */ (m.i18n) : {};
   const enSeg = seg.en && typeof seg.en === 'object' ? /** @type {Record<string, unknown>} */ (seg.en) : {};
   const esSeg = seg.es && typeof seg.es === 'object' ? /** @type {Record<string, unknown>} */ (seg.es) : {};
+  const frSeg = seg.fr && typeof seg.fr === 'object' ? /** @type {Record<string, unknown>} */ (seg.fr) : {};
   const en = valid(enSeg.explanations, n);
   const es = valid(esSeg.explanations, n);
+  const fr = valid(frSeg.explanations, n);
   const ok = n >= 3 && de && en && es;
-  return { de, en, es, ok, detail: ok ? `${n} Erklaerungen je Lokale` : `de=${de} en=${en} es=${es} (labels=${n})` };
+  return { de, en, es, fr, ok, detail: ok ? `${n} Erklaerungen je Lokale` : `de=${de} en=${en} es=${es} fr=${fr} (labels=${n})` };
 }
 
 /**
