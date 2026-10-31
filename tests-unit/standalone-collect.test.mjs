@@ -215,7 +215,7 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish/Usage/Retry/Build statt nur
   assert.match(msg, /finish=length/);
   assert.match(msg, /reasoning 198\/200/, 'Usage immer sichtbar (Budget- vs Thinking-Hypothese)');
   assert.match(msg, /Retry 1\/1/, 'Retry-Zaehler sichtbar');
-  assert.match(msg, /Build v25/, 'Build-Stempel sichtbar');
+  assert.match(msg, /Build v26/, 'Build-Stempel sichtbar');
   assert.ok(msg.length <= 200, 'passt in genNotice (slice 200)');
   app._lastRetry = 0;
   assert.match(app.emptyDetail(), /Retry 0\/1/, 'kein Retry ohne Budget-Retry');
@@ -244,15 +244,17 @@ test('v23-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Ext
   const count = (sub) => src.split(sub).length - 1;
   assert.equal(count('gbody.max_tokens'), 0, 'kein max_tokens gen (Modell nutzt eigenes Maximum)');
   assert.equal(count('mbody.max_tokens'), 0, 'kein max_tokens mod');
-  assert.equal(count('gbody.reasoning_effort="low"'), 1, 'Thinking-Budget gen (v22/v23: belegtes Minimum low)');
-  assert.equal(count('mbody.reasoning_effort="low"'), 1, 'Thinking-Budget mod');
+  assert.equal(count('gbody.reasoning_effort="xhigh"'), 1, 'Hoechstes belegtes Thinking-Budget gen (v26: xhigh, max rejected)');
+  assert.equal(count('gbody.reasoning_effort="low"'), 0, 'kein low mehr (v26: xhigh)');
+  assert.equal(count('mbody.reasoning_effort="xhigh"'), 1, 'Hoechstes belegtes Thinking-Budget mod');
+  assert.equal(count('mbody.reasoning_effort="low"'), 0, 'kein low mehr (v26: xhigh)');
   assert.equal(count('reasoning_effort="none"'), 0, 'kein unbelegtes none (Doku: rejected/gemapped)');
-  assert.equal(count('reasoning_effort'), 10, '2 Gates + 2 low + 4 Echo-Snapshots + 2 Echo-Labels');
+  assert.equal(count('reasoning_effort'), 10, '2 Gates + 2 xhigh + 4 Echo-Snapshots + 2 Echo-Labels');
   assert.equal(count('include_usage'), 2, 'Usage im Stream gen+mod');
   assert.equal(count('slimG'), 4, '400-Fallback gen (Flag+Check+Set+Echo)');
   assert.equal(count('slimM'), 4, '400-Fallback mod (Flag+Check+Set+Echo)');
   assert.ok(count('delete gbody.stream_options') === 1 && count('delete mbody.stream_options') === 1, 'Fallback strippt Extras (ohne Limit-Anteil)');
-  assert.equal(count('Kein Nachdenken, keine Einleitung'), 2, 'Prompt-Direktantwort generate+modify');
+  assert.equal(count('Kein Nachdenken, keine Einleitung'), 3, 'Prompt-Direktantwort generate+modify+2D');
   assert.equal(count('this._lastReq={'), 4, 'Request-Snapshots gen+mod (Erstversuch+Fallback)');
   assert.equal(count('_lastReqR'), 3, 'Request-Snapshots Retry gen+mod (+Diag-Lesen)');
 });
@@ -284,7 +286,8 @@ test('v25-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
   assert.equal(count('standalone-build v22'), 1, 'v22-Stempel (Historie) im HTML');
   assert.equal(count('standalone-build v23'), 1, 'v23-Stempel (Historie) im HTML');
   assert.equal(count('standalone-build v24'), 1, 'v24-Stempel (Historie) im HTML');
-  assert.equal(count('standalone-build v25'), 1, 'v25-Stempel im HTML');
+  assert.equal(count('standalone-build v25'), 1, 'v25-Stempel (Historie) im HTML');
+  assert.equal(count('standalone-build v26'), 1, 'v26-Stempel im HTML');
   assert.equal(count('buildTag:function'), 1, 'buildTag-Methode');
   assert.equal(count('staleHint:function'), 1, 'staleHint-Methode');
   assert.ok(count('Strg+F5') === 1, 'Hart-Neuladen-Hinweis');
@@ -293,7 +296,7 @@ test('v25-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
     const code = extractMethod(src, name);
     app[name] = eval(`(${code.replace(`${name}:function`, 'function')})`);
   }
-  assert.equal(app.buildTag(), 'v25');
+  assert.equal(app.buildTag(), 'v26');
   for (const name of ['collectChatText', 'readSseText', 'readChatText', 'emptyDetail', 'buildTag', 'staleHint']) {
     assert.notEqual(src.indexOf(`${name}:function`), -1, `${name} vorhanden`);
   }
@@ -351,7 +354,7 @@ test('v25-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', a
     app.lang = lang;
     const t = app.diagText();
     for (const bit of ['provider: baseten-direct', 'model: meta-models/muse-spark-open-1026', 'http: 200',
-      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v25',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v26',
       ...want[lang]]) {
       assert.ok(t.includes(bit), `${lang}: ${bit}`);
     }
@@ -374,7 +377,8 @@ test('v24-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () 
   assert.equal(count('standalone-build v22'), 1, 'v22-Stempel (Historie)');
   assert.equal(count('standalone-build v23'), 1, 'v23-Stempel (Historie)');
   assert.equal(count('standalone-build v24'), 1, 'v24-Stempel (Historie)');
-  assert.equal(count('standalone-build v25'), 1, 'v25-Stempel');
+  assert.equal(count('standalone-build v25'), 1, 'v25-Stempel (Historie)');
+  assert.equal(count('standalone-build v26'), 1, 'v26-Stempel');
   assert.equal(count('diagText:function'), 1, 'diagText-Methode');
   assert.equal(count('copyDiag:function'), 1, 'copyDiag-Methode');
   assert.equal(count('copyDiagBtn'), 4, 'Button-Label: 3 Locales + Template');
@@ -387,4 +391,75 @@ test('v24-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () 
     ['diagCopied:"Diagnostics copied (no key)."', 1, 'en-Bestaetigung'],
     ['diagCopied:"Diagnóstico copiado (sin clave)."', 1, 'es-Bestaetigung'],
   ]) assert.equal(count(sub), n, label);
+});
+
+/* v26: Bauteil-Erklaerungen de/en/es im Generate-Prompt + Disclaimer ersatzlos raus. */
+
+test('v26-Prompt: Erklaerungs-Vertrag de/en/es im Generate-Prompt (Aufbau wie Standard-Modelle)', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('Aufbau wie Standard-Modelle'), 2, 'Erklaerungs-Satz 2x (generate 3D + 2D)');
+  assert.ok(src.includes('meta enthaelt zusaetzlich explanations'), 'meta.explanations gefordert');
+  assert.ok(src.includes('en.explanations + es.explanations'), 'en/es.explanations gefordert');
+  assert.ok(src.includes('gleiche Anzahl/Reihenfolge wie parts'), 'Laengen-Deckung gefordert');
+  assert.equal(count('Zusaetzlich meta_i18n liefern'), 2, 'meta_i18n-Vertrag 3D + 2D');
+});
+
+test('v26-Disclaimer: Baseten-Hinweis ersatzlos entfernt (de/en/es)', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('Kein Proxy, kein muse.exe. Dein Key lebt nur mit deiner Zustimmung im sessionStorage.'), 0, 'de-Disclaimer raus (Meta-Variante bleibt)');
+  assert.equal(count('No proxy, no muse.exe. Your key lives only in sessionStorage with your consent.'), 0, 'en-Disclaimer raus');
+  assert.equal(count('Sin proxy, sin muse.exe. Tu clave solo vive en sessionStorage con tu permiso.'), 0, 'es-Disclaimer raus');
+  assert.equal(count('directHintMsg'), 0, 'Computed + Template raus');
+  assert.equal(count("this.t('directHint')"), 0, 'kein Verweis auf entfernten Key');
+  assert.equal(count("this.t('promptCopied')"), 1, 'copyPrompt zeigt promptCopied');
+  assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
+});
+
+test('v26-2D: Auto-Erkennung + 2D-Vertrag im Prompt + Modus in Status/Diagnose', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('diagramKind:function'), 1, 'Klassifizierer vorhanden');
+  assert.equal(count('buildFreePrompt2D:function'), 1, '2D-Promptbauer vorhanden');
+  assert.equal(count('FREIMODUS-2D'), 1, '2D-Prompt nur 1x');
+  assert.equal(count('is3d: false'), 1, '2D-Vertrag ohne 3D-Platzhalter');
+  assert.ok(!src.includes('meta.is3d entscheidet') && !src.includes('is3d deliber'), 'kein is3d-Deliberieren im 2D-Prompt');
+  assert.equal(count('" [2D]"'), 2, 'Modus im gen+mod-Status');
+  assert.equal(count('" [3D]"'), 2, 'Modus im gen+mod-Status');
+  assert.equal(count('this._lastMode'), 3, 'Modus merken gen+mod+diag');
+  assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
+});
+
+test('v26-Reasoning: max/xhigh mit Leitplanken, UI-Default folgt Maximum', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('xhighAllowed'), 6, 'Leitplanken-Methode + Verwendungen');
+  assert.equal(count('reasoningDefault'), 5, 'Default-Ableitung + Verwendungen');
+  assert.equal(count('genReasoning:"xhigh"'), 1, 'UI-Default xhigh (Baseten-Startprovider)');
+  assert.equal(count("this.t('promptCopied')"), 1, 'copyPrompt zeigt promptCopied');
+  assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
+});
+
+test('v27-Klassifizierer: Diagramm-Begriffe -> 2D, Hardware bleibt 3D', async () => {
+  const src = await html();
+  const code = extractMethod(src, 'diagramKind');
+  const app = { diagramKind: eval(`(${code.replace('diagramKind:function', 'function')})`) };
+  const kind = (term) => { const r = app.diagramKind(term); return r ? `${r.v}/${r.kind}` : '3D'; };
+  assert.equal(kind('Aktivitätsdiagramm'), 'mermaid/fluss', 'Live-Fall wird 2D');
+  assert.equal(kind('Flussdiagramm'), 'mermaid/fluss');
+  assert.equal(kind('Schaltplan'), 'svg/generic');
+  assert.equal(kind('Kennlinie'), 'chart/linie');
+  assert.equal(kind('pq-Formel'), 'katex/formel');
+  assert.equal(kind('Netzwerk-Topologie'), 'd3/netz');
+  assert.equal(kind('Sequenzdiagramm'), 'mermaid/sequenz');
+  assert.equal(kind('Use-Case-Modell'), 'mermaid/er');
+  assert.equal(kind('ERD-Diagramm'), 'mermaid/er');
+  assert.equal(kind('Tabellendiagramm'), 'mermaid/fluss', 'Tabelle als Diagramm-Auffang (2D, validierbar)');
+  assert.equal(kind('Handbohrmaschine'), '3D', 'Hardware bleibt 3D');
+  assert.equal(kind('Grafikkarte'), '3D', 'Hardware bleibt 3D');
+  assert.equal(kind('Prozessor'), '3D', 'CPU bleibt 3D (kein prozess-Substring)');
+  assert.equal(kind('Baumhaus'), '3D', 'kein baum-Substring');
+  assert.equal(kind('Netzteil'), '3D', 'kein netz-Fehlgriff');
+  assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
 });

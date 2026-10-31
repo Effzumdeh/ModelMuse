@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "build:standalone": "node scripts/build-standalone-v15a.mjs && node scripts/build-standalone-v16.mjs && node scripts/build-standalone-v17.mjs && node scripts/build-standalone-v18.mjs && node scripts/build-standalone-v19.mjs && node scripts/build-standalone-v20.mjs && node scripts/build-standalone-v21.mjs && node scripts/build-standalone-v22.mjs && node scripts/build-standalone-v23.mjs && node scripts/build-standalone-v24.mjs && node scripts/build-standalone-v25.mjs",
+    "build:standalone": "node scripts/build-standalone-v15a.mjs && node scripts/build-standalone-v16.mjs && node scripts/build-standalone-v17.mjs && node scripts/build-standalone-v18.mjs && node scripts/build-standalone-v19.mjs && node scripts/build-standalone-v20.mjs && node scripts/build-standalone-v21.mjs && node scripts/build-standalone-v22.mjs && node scripts/build-standalone-v23.mjs && node scripts/build-standalone-v24.mjs && node scripts/build-standalone-v25.mjs && node scripts/build-standalone-v26.mjs && node scripts/build-standalone-v27.mjs && node scripts/build-standalone-v28.mjs && node scripts/build-standalone-v29.mjs && node scripts/build-standalone-v30.mjs",
     "build:double": "node scripts/double-build.mjs",
     "render": "node scripts/render-single-file.mjs",
     "verify:static": "node scripts/verify-all.mjs --only=S1",

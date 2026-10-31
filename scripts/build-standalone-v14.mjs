@@ -1,6 +1,7 @@
 /**
  * Standalone builder v14 (2D-Alle-Varianten, GitHub-Pages-faehig):
- * Erweitert das v13-Showcase-Artefakt additiv um die fuenf 2D-Varianten.
+ * Erweitert das v13-Showcase-Artefakt additiv um die 2D-Variante chart
+ * (Wirkungsgradvergleich, einzige kuratierte 2D-Demo seit v29).
  * Laeuft NUR auf v13-Basis (Stamp vorhanden, showcase oder voll) und ist
  * idempotent (Zweitlauf meldet "bereits v14", exit 0).
  *
@@ -10,11 +11,11 @@
  * V2  META-Bloecke je Demo-Modell (is3d:false + diagram2d-Payload).
  * V3  LABS-Katalogeintraege je Demo (de/en/es, Tasks, Quiz, diagram2d).
  * V4  ES-Anreicherung + MEAS-Eintraege je Demo.
- * V5  __SOURCES um die 5 Demo-Quellen erweitern (Modify-/RegisterFree-Pfad).
+ * V5  __SOURCES um die Demo-Quellen erweitern (Modify-/RegisterFree-Pfad).
  * V6  loadLab/force2D: Varianten-Dispatch vor SVG-Fallback.
  * V7  registerFree: 2d-*-Imports zulassen (Prolog mit Vendor-Renderern,
  *     is3d:false, diagram2d-Persistenz) — Ueberarbeiten auch fuer 2D.
- * V8  v14-Stempel + Invarianten (Groesse < 600 KB, 5 LABS/META/diagram2d).
+ * V8  v14-Stempel + Invarianten (Groesse < 600 KB, 1 LABS/META/diagram2d).
  *
  * Aufruf: node scripts/build-standalone-v14.mjs [htmlDatei]
  */
@@ -23,7 +24,7 @@ import { twoDVariantOf, extractTwoDLiteral, TWOD_VARIANT_LITERAL } from '../src/
 
 const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const REPORT = process.argv[2] ? null : 'dist-standalone/build-standalone-v14-report.json';
-const DEMOS = ['demo-2d-svg', 'demo-2d-mermaid', 'demo-2d-chart', 'demo-2d-d3', 'demo-2d-katex'];
+const DEMOS = ['demo-2d-chart'];
 
 function must(cond, msg) {
   if (!cond) { console.error('build-v14: FEHLER ' + msg); process.exit(1); }
@@ -104,7 +105,7 @@ for (const id of DEMOS) {
   const anchor = 'const META = {};';
   must(s.split(anchor).length - 1 === 1, 'V2 META-Anker fehlt');
   s = s.replace(anchor, `${anchor}\n${blocks.join('\n')}`);
-  console.log('  V2: 5 META-Bloecke (is3d:false + diagram2d)');
+  console.log('  V2: 1 META-Block (is3d:false + diagram2d)');
 }
 
 // ---------- V3: LABS-Eintraege ----------
@@ -144,7 +145,7 @@ function labsEntry2D(id, man, variant, data) {
   const lastClose = s.lastIndexOf('{id:"gpu-example"');
   must(lastClose >= 0 && lastClose < s.indexOf(anchor), 'V3 Reihenfolge');
   s = s.replace(anchor, `,\n${entries.join(',\n')}\n];\n// V9: ES-Anreicherung`);
-  console.log('  V3: 5 LABS-Eintraege (is3d:false + diagram2d)');
+  console.log('  V3: 1 LABS-Eintrag (is3d:false + diagram2d)');
 }
 
 // ---------- V4: ES-Anreicherung + MEAS ----------
@@ -156,7 +157,7 @@ function labsEntry2D(id, man, variant, data) {
   const esTail = '"Chapa del slot con puertos de pantalla"]}};';
   must(s.split(esTail).length - 1 === 1, 'V4 ES-Ende fehlt');
   s = s.replace(esTail, `"Chapa del slot con puertos de pantalla"]},${esParts.join(',')}};`);
-  console.log('  V4a: ES-Anreicherung (5 Demos)');
+  console.log('  V4a: ES-Anreicherung (1 Demo)');
 }
 {
   const measParts = DEMOS.map((id) => {
@@ -167,7 +168,7 @@ function labsEntry2D(id, man, variant, data) {
   const measAnchor = '"gpu-example":"Kartenl\\u00e4nge: 267 mm"}';
   must(s.split(measAnchor).length - 1 === 1, 'V4 MEAS-Anker fehlt');
   s = s.replace(measAnchor, `"gpu-example":"Kartenl\\u00e4nge: 267 mm",${measParts.join(',')}}`);
-  console.log('  V4b: MEAS-Eintraege (5 Demos)');
+  console.log('  V4b: MEAS-Eintraege (1 Demo)');
 }
 
 // ---------- V5: __SOURCES ----------
@@ -177,7 +178,7 @@ function labsEntry2D(id, man, variant, data) {
   const add = DEMOS.map((id) => `"${id}":${JSON.stringify(demoData[id].src)}`).join(',');
   must(!/<\/script/i.test(add), 'V5 script-Ende in Quellen');
   s = s.replace(anchor, `window.__SOURCES = {${add},"arch-brandenburger-tor"`);
-  console.log('  V5: __SOURCES +5 Demo-Quellen (Modify-Pfad)');
+  console.log('  V5: __SOURCES +1 Demo-Quelle (Modify-Pfad)');
 }
 
 // ---------- V6: loadLab/force2D Varianten-Dispatch ----------
@@ -216,7 +217,7 @@ function labsEntry2D(id, man, variant, data) {
 {
   const stamp = '<!-- standalone-build v13 (GitHub-Pages-Auslieferung, kein Backend): Modelle aus src/models (Harness-verifiziert), 2D-Metamodule aus Manifesten, Provider Baseten-Direkt, via scripts/build-standalone-v13.mjs -->';
   must(s.split(stamp).length - 1 === 1, 'V8 Stempel-Anker fehlt');
-  s = s.replace(stamp, `${stamp}\n<!-- standalone-build v14 (2D-Alle-Varianten: svg/mermaid/chart/d3/katex als Vendor-IIFE + 5 Demo-Modelle, via scripts/build-standalone-v14.mjs) -->`);
+  s = s.replace(stamp, `${stamp}\n<!-- standalone-build v14 (2D-Variante: chart als Vendor-IIFE + Dispatcher + 1 Demo-Modell Wirkungsgradvergleich, via scripts/build-standalone-v14.mjs) -->`);
   console.log('  V8: v14-Stempel');
 }
 {
@@ -237,8 +238,8 @@ function labsEntry2D(id, man, variant, data) {
   for (const id of DEMOS) {
     must(cnt(`INIT['${id}'] = `) === 0, `tote INIT ${id}`);
   }
-  must(cnt('diagram2d:{"variant"') === 5, `diagram2d-LABS: ${cnt('diagram2d:{"variant"')}, erwartet 5`);
-  must(cnt('.diagram2d = {"variant"') === 5, `diagram2d-META: ${cnt('.diagram2d = {"variant"')}, erwartet 5`);
+  must(cnt('diagram2d:{"variant"') === 1, `diagram2d-LABS: ${cnt('diagram2d:{"variant"')}, erwartet 1`);
+  must(cnt('.diagram2d = {"variant"') === 1, `diagram2d-META: ${cnt('.diagram2d = {"variant"')}, erwartet 1`);
   must(s.length < 600000, `Datei zu gross: ${s.length}`);
   console.log('  Invarianten ok');
 }
@@ -251,7 +252,7 @@ if (REPORT) {
     createdAt: new Date().toISOString(),
     basis: 'v13-showcase',
     standalone: 'v14',
-    fixes: ['V1 Vendor-IIFE svg/mermaid/chart/d3/katex + Dispatcher', 'V2 META is3d:false + diagram2d', 'V3 LABS-Katalog 5 Demos', 'V4 ES/MEAS', 'V5 SOURCES +5', 'V6 loadLab/force2D Dispatch', 'V7 registerFree 2D', 'V8 Stempel + Invarianten'],
+    fixes: ['V1 Vendor-IIFE svg/mermaid/chart/d3/katex + Dispatcher', 'V2 META is3d:false + diagram2d', 'V3 LABS-Katalog 1 Demo (chart)', 'V4 ES/MEAS', 'V5 SOURCES +1', 'V6 loadLab/force2D Dispatch', 'V7 registerFree 2D', 'V8 Stempel + Invarianten'],
     counts: { zeichen: s.length, labs: DEMOS.map((id) => ({ id, labs: cnt(`{id:"${id}"`), meta: cnt(`META['${id}']`) })) },
   };
   await writeFile(REPORT, JSON.stringify(report, null, 2));

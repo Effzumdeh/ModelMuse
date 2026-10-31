@@ -107,4 +107,6 @@ test('Bestandteil-Erklaerungen: P1-2D/P1-v6/P2-Harness liefern Format, Verify-Re
   assert.ok(p2.includes('niemals entfernen'), 'P2: nie entfernen');
   const free = (await import('../src/shell/ui-livegen.js')).buildFreePrompt('Windrad', 'de');
   assert.ok(free.includes('explanations'), 'Freimodus-Prompt: explanations-Vertrag');
+  assert.ok(free.includes('en.explanations'), 'Freimodus-Prompt: en.explanations');
+  assert.ok(free.includes('es.explanations'), 'Freimodus-Prompt: es.explanations');
 });

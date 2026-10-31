@@ -1,7 +1,7 @@
 /**
  * Standalone-v13/v14/v15a/v16-Suite (einzige Auslieferung, GitHub-Pages-faehig).
  * Laedt dist-standalone/modelmuse-standalone.html ueber den Repo-Server
- * (CDN: Vue/three via unpkg), prueft Struktur (10 Modelle, Stift-Modify,
+ * (CDN: Vue/three via unpkg), prueft Struktur (6 Modelle, Stift-Modify,
  * Banner oben, Referenzbericht/Details/Modify-Block entfernt, universelles
  * Loeschen jeder Lab-ID (Stift -> Overlay -> Loeschen-Button, Leerzustand),
  * Baseten-Default) und rendert jedes Modell mit Screenshot
@@ -12,7 +12,7 @@ import { test, expect } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 
 const URL = '/dist-standalone/modelmuse-standalone.html';
-const ORDER = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example', 'demo-2d-svg', 'demo-2d-mermaid', 'demo-2d-chart', 'demo-2d-d3', 'demo-2d-katex'];
+const ORDER = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example', 'demo-2d-chart'];
 const IDS_3D = new Set(['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example']);
 
 async function ready(page) {
@@ -28,12 +28,12 @@ test.beforeAll(async () => {
   await mkdir('dist-standalone/shots', { recursive: true });
 });
 
-test('Boot: Titel v13/v14, 10 Modelle, 10 Stift-Buttons, keine Errors', async ({ page }) => {
+test('Boot: Titel v13/v14, 6 Modelle, 6 Stift-Buttons, keine Errors', async ({ page }) => {
   await ready(page);
   await expect(page).toHaveTitle(/v13-standalone/);
-  await expect(page.locator('aside h2')).toHaveText('Modelle (10)');
-  await expect(page.locator('aside li')).toHaveCount(10);
-  await expect(page.getByRole('button', { name: 'Überarbeiten', exact: true })).toHaveCount(10);
+  await expect(page.locator('aside h2')).toHaveText('Modelle (6)');
+  await expect(page.locator('aside li')).toHaveCount(6);
+  await expect(page.getByRole('button', { name: 'Überarbeiten', exact: true })).toHaveCount(6);
   // Default-Modell: erstes Lab aktiv, Buehne lebt.
   await page.waitForSelector('#viewport canvas, #viewport svg', { timeout: 60000 });
   await page.waitForTimeout(4000);
@@ -102,15 +102,23 @@ test('Provider-Wechsel Meta: Modelle + LLM-Hinweis + Reasoning-Gate + Key-Cache'
   expect(models).toEqual(['muse-spark-1.3-contributor', 'muse-spark-1.3', 'muse-wonder-1.0']);
   await expect(page.locator('#gen-key')).toHaveAttribute('placeholder', 'LLM_... (Meta API-Key, dev.meta.ai)');
   await expect(page.getByText('Meta-Key beginnt mit LLM_')).toBeVisible();
-  // Reasoning: bei -contributor deaktiviert, bei 1.3/wonder aktiv.
-  await expect(page.locator('#gen-reasoning')).toBeDisabled();
-  await expect(page.locator('#gen-reasoning')).toHaveValue('');
+  // Reasoning (v26 R0 mit Leitplanken): max nur bei 1.3/wonder (Option-Gate);
+  // -contributor und Baseten bekommen belegtes Maximum xhigh (Select aktiv).
+  await expect(page.locator('#gen-reasoning')).toBeEnabled();
+  await expect(page.locator('#gen-reasoning')).toHaveValue('xhigh');
+  await expect(page.locator('#gen-reasoning option[value="xhigh"]')).toBeEnabled();
+  await expect(page.locator('#gen-reasoning option[value="max"]')).toBeDisabled();
   await page.selectOption('#gen-model', 'muse-spark-1.3');
   await expect(page.locator('#gen-reasoning')).toBeEnabled();
+  await expect(page.locator('#gen-reasoning')).toHaveValue('max');
+  await expect(page.locator('#gen-reasoning option[value="max"]')).toBeEnabled();
   await page.selectOption('#gen-model', 'muse-wonder-1.0');
   await expect(page.locator('#gen-reasoning')).toBeEnabled();
+  await expect(page.locator('#gen-reasoning option[value="max"]')).toBeEnabled();
   await page.selectOption('#gen-model', 'muse-spark-1.3-contributor');
-  await expect(page.locator('#gen-reasoning')).toBeDisabled();
+  await expect(page.locator('#gen-reasoning')).toBeEnabled();
+  await expect(page.locator('#gen-reasoning')).toHaveValue('xhigh');
+  await expect(page.locator('#gen-reasoning option[value="max"]')).toBeDisabled();
   // Key-Cache je Provider (ohne Consent, offline, kein Upstream).
   await page.fill('#gen-key', 'LLM_meta-test-key-12345');
   await page.selectOption('#gen-provider', 'baseten-direct');
@@ -153,11 +161,11 @@ test('Stift-Modify: Overlay oeffnet mit Modell, Key-Abfrage ohne Key', async ({ 
   await expect(dlg).toHaveCount(0);
 });
 
-test('Loeschen-Button universell: fuer alle 10 Modelle im Overlay sichtbar', async ({ page }) => {
+test('Loeschen-Button universell: fuer alle 6 Modelle im Overlay sichtbar', async ({ page }) => {
   test.setTimeout(120000);
   await ready(page);
-  await expect(page.locator('aside li')).toHaveCount(10);
-  for (let i = 0; i < 10; i += 1) {
+  await expect(page.locator('aside li')).toHaveCount(6);
+  for (let i = 0; i < 6; i += 1) {
     await page.locator('aside li').nth(i).getByRole('button', { name: 'Überarbeiten' }).click();
     const dlg = page.locator('[role="dialog"]');
     await expect(dlg).toBeVisible();
@@ -170,15 +178,15 @@ test('Loeschen-Button universell: fuer alle 10 Modelle im Overlay sichtbar', asy
 test('Loeschen kuratiert: Built-in (Brandenburger Tor) mit Rueckfrage loeschbar, Fallback greift', async ({ page }) => {
   page.on('dialog', (d) => d.accept());
   await ready(page);
-  await expect(page.locator('aside h2')).toHaveText('Modelle (10)');
+  await expect(page.locator('aside h2')).toHaveText('Modelle (6)');
   await page.locator('aside li', { hasText: 'Brandenburger Tor' }).getByRole('button', { name: 'Überarbeiten' }).click();
   const dlg = page.locator('[role="dialog"]');
   await expect(dlg).toBeVisible();
   await expect(dlg.getByRole('button', { name: 'Löschen' })).toBeVisible();
   await dlg.getByRole('button', { name: 'Löschen' }).click();
   await expect(page.locator('aside li', { hasText: 'Brandenburger Tor' })).toHaveCount(0);
-  await expect(page.locator('aside li')).toHaveCount(9);
-  await expect(page.locator('aside h2')).toHaveText('Modelle (9)');
+  await expect(page.locator('aside li')).toHaveCount(5);
+  await expect(page.locator('aside h2')).toHaveText('Modelle (5)');
   // Fallback: erstes Rest-Modell aktiv, Buehne lebt.
   await expect(page.locator('section[aria-label="3D-Ansicht"] h2')).toContainText('PC-Arbeitsplatz');
   await page.waitForSelector('#viewport canvas, #viewport svg', { timeout: 60000 });
@@ -208,7 +216,7 @@ test('Loeschen eigen: free-Modell mit Rueckfrage loeschbar, localStorage-Cleanup
   );
   page.on('dialog', (d) => d.accept());
   await ready(page);
-  await expect(page.locator('aside h2')).toHaveText('Modelle (11)');
+  await expect(page.locator('aside h2')).toHaveText('Modelle (7)');
   // Eigenes Modell: Loeschen mit Rueckfrage entfernt State + Listeneintrag.
   await page.locator('aside li', { hasText: 'Test Loesch' }).getByRole('button', { name: 'Überarbeiten' }).click();
   const dlg = page.locator('[role="dialog"]');
@@ -216,18 +224,18 @@ test('Loeschen eigen: free-Modell mit Rueckfrage loeschbar, localStorage-Cleanup
   await expect(dlg.getByRole('button', { name: 'Löschen' })).toBeVisible();
   await dlg.getByRole('button', { name: 'Löschen' }).click();
   await expect(page.locator('aside li', { hasText: 'Test Loesch' })).toHaveCount(0);
-  await expect(page.locator('aside li')).toHaveCount(10);
-  await expect(page.locator('aside h2')).toHaveText('Modelle (10)');
+  await expect(page.locator('aside li')).toHaveCount(6);
+  await expect(page.locator('aside h2')).toHaveText('Modelle (6)');
   const stored = await page.evaluate((k) => localStorage.getItem(k), seedKey);
   expect(stored).toBeNull();
 });
 
-test('Leerzustand: alle 10 nacheinander loeschbar, Liste leer, Viewer-Hinweis, Generator nutzbar', async ({ page }) => {
+test('Leerzustand: alle 6 nacheinander loeschbar, Liste leer, Viewer-Hinweis, Generator nutzbar', async ({ page }) => {
   test.setTimeout(180000);
   page.on('dialog', (d) => d.accept());
   await ready(page);
-  await expect(page.locator('aside li')).toHaveCount(10);
-  for (let n = 10; n >= 1; n -= 1) {
+  await expect(page.locator('aside li')).toHaveCount(6);
+  for (let n = 6; n >= 1; n -= 1) {
     await expect(page.locator('aside li')).toHaveCount(n);
     await page.locator('aside li').first().getByRole('button', { name: 'Überarbeiten' }).click();
     await page.locator('[role="dialog"]').getByRole('button', { name: 'Löschen' }).click();
@@ -250,19 +258,19 @@ test('Leerzustand: alle 10 nacheinander loeschbar, Liste leer, Viewer-Hinweis, G
 test('Reload behaelt Loeschungen (kuratiert + free-* persistiert, W9)', async ({ page }) => {
   page.on('dialog', (d) => d.accept());
   await ready(page);
-  await expect(page.locator('aside li')).toHaveCount(10);
+  await expect(page.locator('aside li')).toHaveCount(6);
   await page.locator('aside li').first().getByRole('button', { name: 'Überarbeiten' }).click();
   await page.locator('[role="dialog"]').getByRole('button', { name: 'Löschen' }).click();
-  await expect(page.locator('aside li')).toHaveCount(9);
+  await expect(page.locator('aside li')).toHaveCount(5);
   await page.reload();
   await ready(page);
-  await expect(page.locator('aside li')).toHaveCount(9);
-  await expect(page.locator('aside h2')).toHaveText('Modelle (9)');
+  await expect(page.locator('aside li')).toHaveCount(5);
+  await expect(page.locator('aside h2')).toHaveText('Modelle (5)');
   const deleted = await page.evaluate(() => localStorage.getItem('modelmuse.deleted'));
   expect(JSON.parse(deleted)).toContain('arch-brandenburger-tor');
 });
 
-test('Alle 10 Modelle (5x 3D + 5x 2D v14): rendern + Screenshots', async ({ page }) => {
+test('Alle 6 Modelle (5x 3D + 1x 2D v14/chart): rendern + Screenshots', async ({ page }) => {
   test.setTimeout(300000);
   await ready(page);
   for (let i = 0; i < ORDER.length; i += 1) {
@@ -278,8 +286,8 @@ test('Alle 10 Modelle (5x 3D + 5x 2D v14): rendern + Screenshots', async ({ page
     await page.locator('#viewport').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `dist-standalone/shots/${id}.png` });
   }
-  // Buehne zeigt zuletzt die pq-Formel (KaTeX-Block, kein Canvas).
-  await expect(page.locator('#viewport .katex-block')).toHaveCount(1);
+  // Buehne zeigt zuletzt den Wirkungsgradvergleich (Chart rendert per Canvas-2D, SVG nur Fallback).
+  await expect(page.locator('#viewport canvas')).toHaveCount(1);
 });
 
 /**
@@ -342,7 +350,7 @@ test('Regression: Reasoning plus Content-Array wird gesammelt (kein Leere-Antwor
   await page.getByRole('button', { name: 'Generieren' }).click();
   await expect(page.locator('#gen-status')).toContainText('Modell bereit', { timeout: 60000 });
   await expect(page.locator('#gen-status')).toContainText('Regressionsquader');
-  await expect(page.locator('aside h2')).toHaveText('Modelle (11)');
+  await expect(page.locator('aside h2')).toHaveText('Modelle (7)');
 });
 
 test('Regression: leere Liste blendet Viewer aus, erstes Modell bringt ihn zurueck', async ({ page }) => {
@@ -358,7 +366,7 @@ test('Regression: leere Liste blendet Viewer aus, erstes Modell bringt ihn zurue
       ]),
     });
   });
-  for (let n = 10; n >= 1; n -= 1) {
+  for (let n = 6; n >= 1; n -= 1) {
     await expect(page.locator('aside li')).toHaveCount(n);
     await page.locator('aside li').first().getByRole('button', { name: 'Überarbeiten' }).click();
     await page.locator('[role="dialog"]').getByRole('button', { name: 'Löschen' }).click();

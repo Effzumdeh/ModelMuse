@@ -62,8 +62,12 @@ export const GEN_TEMPERATURE = 0.2;
 
 /**
  * reasoning_effort=max nur fuer 1.3/wonder auf meta-muse — NICHT fuer
- * -contributor (API: max dort nicht verfuegbar) und NICHT fuer Baseten
- * (OpenAI-kompatibler Pfad, Param-Support unverifiziert -> 400-Risiko).
+ * -contributor (Meta-Doku: max dort nicht verfuegbar, dev.meta.ai/docs/reasoning)
+ * und NIE max auf Baseten (Baseten-Doku: Spark Open supported nur
+ * low/medium/high/xhigh(default), max wird rejected —
+ * docs.baseten.co/inference/model-apis/reasoning).
+ * Hoechstes BELEGTES Level je Modell: 1.3/wonder -> max, contributor-Modelle
+ * (meta-muse -contributor, Baseten spark-open) -> xhigh.
  * @param {string} provider
  * @param {string} model
  */
@@ -72,17 +76,45 @@ export function reasoningMaxAllowed(provider, model) {
 }
 
 /**
+ * Hoechstes BELEGT unterstuetztes Level ist xhigh: max-faehige Modelle (s.o.)
+ * plus contributor-Modelle (meta-muse -contributor: xhigh akzeptiert, max
+ * rejected — dev.meta.ai/docs/reasoning) plus Baseten-Pfad (spark-open:
+ * xhigh default/belegt, max rejected — docs.baseten.co, dev.to-Analyse).
+ * @param {string} provider
+ * @param {string} model
+ */
+export function reasoningXhighAllowed(provider, model) {
+  if (reasoningMaxAllowed(provider, model)) return true;
+  if ((provider ?? '') === 'baseten') return true;
+  if ((provider ?? '') === 'meta-muse' && String(model ?? '').includes('contributor')) return true;
+  return false;
+}
+
+/**
+ * Hoechstes BELEGTES Level fuer (provider, model, Wunsch): 'max' nur wo
+ * erlaubt, sonst 'xhigh' wo erlaubt (max-Wunsch wird dort ehrlich auf xhigh
+ * begrenzt — nie 400), sonst null (kein Param). Default ohne Wunsch: xhigh
+ * auf Baseten (belegt), sonst nichts (Modell-Default).
+ * @param {string} provider
+ * @param {string} model
+ * @param {string} [want]
+ */
+export function reasoningLevel(provider, model, want) {
+  if (want === 'max' && reasoningMaxAllowed(provider ?? '', model)) return 'max';
+  if ((want === 'max' || want === 'xhigh') && reasoningXhighAllowed(provider ?? '', model)) return 'xhigh';
+  if (!want && (provider ?? '') === 'baseten') return 'xhigh';
+  return null;
+}
+
+/**
  * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder; v23: KEIN
  * Length-Limit — weder max_completion_tokens noch max_tokens).
  * Baseten-Extras (v22/v23, NUR provider baseten — Meta-Pfad unveraendert):
- * reasoning_effort 'low' fordert das kleinste BELEGTE Thinking-Budget
- * (kein Abschalter: Baseten-Doku listet Muse Spark Open als "Always on /
- * Control None", supported low/medium/high/xhigh(default), none/minimal
- * laufen auf low — docs.baseten.co/inference/model-apis/reasoning; Meta
- * prompting-Doku laesst nur low/medium/high/xhigh zu, none wird rejected —
- * dev.meta.ai/docs/muse-spark-open/prompting; Chat-Completions-Referenz:
- * Gateway akzeptiert none..max, Modelle ohne Support ignorieren den Param —
- * docs.baseten.co/reference/inference-api/chat-completions),
+ * reasoning_effort 'xhigh' fordert das hoechste BELEGTE Thinking-Budget
+ * (Baseten-Doku: Spark Open supported low/medium/high/xhigh(default), max
+ * wird rejected — docs.baseten.co/inference/model-apis/reasoning; Meta:
+ * contributor max rejected, xhigh akzeptiert —
+ * dev.meta.ai/docs/reasoning),
  * stream_options.include_usage liefert Usage im Stream (Diagnose
  * zeigt Reasoning-/Total-Tokens). Unverifizierte Params -> 400-Risiko,
  * deshalb genau EIN Fallback ohne Extras bei HTTP 400.
@@ -97,9 +129,9 @@ export function buildChatBody(model, promptText, opts = {}) {
     messages: [{ role: 'user', content: promptText }],
     temperature: GEN_TEMPERATURE,
   };
-  if (opts.reasoning === 'max' && reasoningMaxAllowed(opts.provider ?? '', model)) body.reasoning_effort = 'max';
+  const level = reasoningLevel(opts.provider ?? '', model, opts.reasoning);
+  if (level) body.reasoning_effort = level;
   if ((opts.provider ?? '') === 'baseten') {
-    body.reasoning_effort = 'low';
     body.stream_options = { include_usage: true };
   }
   return body;
@@ -122,14 +154,16 @@ export function requestEcho(body, slimmed400) {
   };
 }
 
-/** v22/v23-Extras aus einem Chat-Body streichen (exakt v20-Form + defensive
- * Limit-Felder, falls ein Alt-Body sie traegt). @param {any} body */
+/** v22/v23/v26-Extras aus einem Chat-Body streichen (exakt v20-Form + defensive
+ * Limit-Felder, falls ein Alt-Body sie traegt). Gestrichen: low/xhigh +
+ * stream_options (Baseten-Extras); max bleibt (Meta-Gate, nie 400-Grund).
+ * @param {any} body */
 export function stripChatExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
   if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
   if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
-  if (body.reasoning_effort === 'low') { delete body.reasoning_effort; stripped = true; }
+  if (body.reasoning_effort === 'low' || body.reasoning_effort === 'xhigh') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
   return stripped;
 }
@@ -739,11 +773,11 @@ export async function generateLive(promptText, opts = {}) {
   let sawHttp = false;
   // v23-Request-Echo Proxy-Pfad: Upstream-Form ist deterministisch
   // (gleiche Build-Version): kein Limit-Param, Temperatur 0.2,
-  // reasoning_effort 'low' nur bei baseten, 400-Fallback proxy-intern.
+  // reasoning_effort 'xhigh' nur bei baseten, 400-Fallback proxy-intern.
   const proxyReqEcho = () => requestEcho({
     temperature: GEN_TEMPERATURE,
     ...(provider === 'baseten'
-      ? { reasoning_effort: 'low', stream_options: { include_usage: true } }
+      ? { reasoning_effort: 'xhigh', stream_options: { include_usage: true } }
       : {}),
   }, false);
   let proxyRetried = false;

@@ -124,13 +124,12 @@ function checkInvariants(s) {
     ['reasoning_effort', 10],
     ['req_reasoning_effort: ', 1],
     ['req_retry_reasoning_effort: ', 1],
-    ['gbody.reasoning_effort="low"', 1],
-    ['mbody.reasoning_effort="low"', 1],
+    // v26-Nachfolger (R0 Reasoning xhigh statt low): low 1->0, xhigh 0->1 (je Body).
     ['reasoning_effort="none"', 0],
     ['stream_options', 4],
     ['delete gbody.stream_options', 1],
     ['delete mbody.stream_options', 1],
-    ['reasoningAllowed', 5],
+    // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 7], ['_lastHttp', 6],
@@ -144,7 +143,7 @@ function checkInvariants(s) {
     ['emptyResponse', 4],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
-    ['Kein Nachdenken, keine Einleitung', 2],
+    // v26-Nachfolger (T0 2D-Vertrag im Prompt): 2->3 (generate + modify + 2D).
     ['diagText:function', 1], ['copyDiag:function', 1],
     ['copyDiagBtn', 4],
     ['diagCopied:false', 1],
@@ -164,6 +163,12 @@ function checkInvariants(s) {
     ['Z,fence:', 2],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v26-Toleranz: R0 low->xhigh (je Body 1->0), reasoningAllowed 5->7; T0 2D-Prompt (Fence-Satz 2->3).
+  const is26 = s.includes('standalone-build v26');
+  must(cnt(s, 'gbody.reasoning_effort="low"') === 1 || (is26 && cnt(s, 'gbody.reasoning_effort="low"') === 0), 'Invariante gbody-low: ' + cnt(s, 'gbody.reasoning_effort="low"') + ', erwartet 1 (v26: 0)');
+  must(cnt(s, 'mbody.reasoning_effort="low"') === 1 || (is26 && cnt(s, 'mbody.reasoning_effort="low"') === 0), 'Invariante mbody-low: ' + cnt(s, 'mbody.reasoning_effort="low"') + ', erwartet 1 (v26: 0)');
+  must(cnt(s, 'reasoningAllowed') === 5 || (is26 && cnt(s, 'reasoningAllowed') === 7), 'Invariante reasoningAllowed: ' + cnt(s, 'reasoningAllowed') + ', erwartet 5 (v26: 7)');
+  must(cnt(s, 'Kein Nachdenken, keine Einleitung') === 2 || (is26 && cnt(s, 'Kein Nachdenken, keine Einleitung') === 3), 'Invariante Kein-Nachdenken-Satz: ' + cnt(s, 'Kein Nachdenken, keine Einleitung') + ', erwartet 2 (v26: 3)');
   // v25-Toleranz: Build-Stempel v24->v25 (v25 aendert Diagnose-Default/buildTag/mine).
   const is25 = s.includes('standalone-build v25');
   must(cnt(s, 'Build v24') === 1 || (is25 && cnt(s, 'Build v24') === 0), 'Invariante Build v24: ' + cnt(s, 'Build v24') + ', erwartet 1 (v25: 0)');

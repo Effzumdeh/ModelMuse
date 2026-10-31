@@ -177,7 +177,7 @@ function checkInvariants(s) {
     // v23-Nachfolger (Request-Echo): reasoning_effort 4->10 (exakt in v23).
     ['budgetRetryable', 3],
     ['stream_options', 4],
-    ['reasoningAllowed', 5],
+    // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3],
@@ -190,9 +190,12 @@ function checkInvariants(s) {
     ['emptyResponse', 4],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
-    ['Kein Nachdenken, keine Einleitung', 2],
+    // v26-Nachfolger (T0 2D-Vertrag im Prompt): 2->3 (generate + modify + 2D).
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v26-Toleranz: R0 Reasoning xhigh/max 5->7; T0 2D-Prompt ergaenzt Fence-Satz 2->3.
+  must(cnt(s, 'reasoningAllowed') === 5 || (s.includes('standalone-build v26') && cnt(s, 'reasoningAllowed') === 7), 'Invariante reasoningAllowed: ' + cnt(s, 'reasoningAllowed') + ', erwartet 5 (v26: 7)');
+  must(cnt(s, 'Kein Nachdenken, keine Einleitung') === 2 || (s.includes('standalone-build v26') && cnt(s, 'Kein Nachdenken, keine Einleitung') === 3), 'Invariante Kein-Nachdenken-Satz: ' + cnt(s, 'Kein Nachdenken, keine Einleitung') + ', erwartet 2 (v26: 3)');
   // v23-Toleranz: kein Length-Limit (4/2/2 -> 1/0/0), Request-Echo (reasoning 4->10).
   const is23 = s.includes('standalone-build v23');
   must(cnt(s, 'max_completion_tokens') === 4 || (is23 && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1)');

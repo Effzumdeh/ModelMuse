@@ -77,11 +77,14 @@ function checkInvariants(s) {
     ['role="dialog"', 2], ['id="gen-status"', 1],    ['showcase: 5 Modelle', 1],
     ['__FREE_GUARD_V18__', 1],
     ['Fortschritt', 0], ['fortschritt', 0],
-    ['explanations:{de:[', 10], ['openPartInfo', 2], ['closePartInfo', 2], ['partInfoIndex', 7],
+    // v29-Nachfolger (Modelliste 10->6): explanations 10->6 (exakt in v29).
+    ['openPartInfo', 2], ['closePartInfo', 2], ['partInfoIndex', 7],
     ['partInfoTitle', 5], ['partInfoAbout', 5], ['partExplanations', 2], ['partInfoMissing', 4],
     ['v-if="partInfoIndex!==null"', 1], ['genClose:"Cerrar"', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, `Invariante ${sub}: ${cnt(s, sub)}, erwartet ${want}`);
+  // v29-Toleranz: Modelliste 10->6 (4 Demos raus) — 6 nur mit v29-Stempel.
+  must(cnt(s, 'explanations:{de:[') === 10 || (s.includes('standalone-build v29') && cnt(s, 'explanations:{de:[') === 6), `Invariante explanations:{de:[ ${cnt(s, 'explanations:{de:[')}, erwartet 10 (v29: 6)`);
   const iBanner = s.indexOf('v-if="showOnboarding"');
   const iAside = s.indexOf('<aside');
   const iViewport = s.indexOf('id="viewport"');

@@ -94,7 +94,7 @@ function checkInvariants(s) {
     ['text/event-stream', 3], ['stream:true', 3],
     // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
     // Exakte v21-Werte prueft build-standalone-v21.mjs; hier nur Toleranz.
-    ['reasoningAllowed', 5],
+    // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3],
@@ -106,6 +106,8 @@ function checkInvariants(s) {
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v26-Toleranz: R0 Reasoning xhigh/max (Methode + selects + defaults + bodies) 5->7.
+  must(cnt(s, 'reasoningAllowed') === 5 || (s.includes('standalone-build v26') && cnt(s, 'reasoningAllowed') === 7), 'Invariante reasoningAllowed: ' + cnt(s, 'reasoningAllowed') + ', erwartet 5 (v26: 7)');
   // v19-Toleranz: Budget+Retry erhoeht diese Zaehler (pre-v19 | v19).
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
   // v22-Toleranz: Diagnose-Export (diagText liest _lastChatInfo/_lastHttp je +1).

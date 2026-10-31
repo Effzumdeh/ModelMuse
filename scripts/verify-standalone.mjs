@@ -29,7 +29,7 @@ const cnt = (sub) => s.split(sub).length - 1;
 const artifactBytes = Buffer.byteLength(s, 'utf8');
 const IDS_ALL = ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'chemie-koffein', 'gpu-example', 'free-handbohrmaschine'];
 const IDS_V15 = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example',
-  'demo-2d-svg', 'demo-2d-mermaid', 'demo-2d-chart', 'demo-2d-d3', 'demo-2d-katex'];
+  'demo-2d-chart'];
 
 /**
  * v15 Bestandteil-Info: je gebuendeltem LABS-Eintrag explanations de/en/es
@@ -119,7 +119,7 @@ function v15PartInfo(s, fail, ok) {
   eqV('partInfoAbout', 5, 'v15 partInfoAbout (3 I18N + aria + title)');
   eqV('partExplanations', 2, 'v15a partExplanations (computed + text)');
   eqV('partInfoMissing', 4, 'v15a partInfoMissing (3 I18N + Popup-Fallback)');
-  eqV('explanations:{de:[', 10, 'v15 LABS mit explanations');
+  eqV('explanations:{de:[', 6, 'v15 LABS mit explanations');
   eqV('v-if="partInfoIndex!==null"', 1, 'v15 Info-Popup v-if');
   eqV('ⓘ', 1, 'v15 Info-Kreis-i-Button');
   eqV('this.partsHidden=[];this.partInfoIndex=null;', 1, 'v15 selectLab-Reset');
@@ -295,7 +295,7 @@ if (isShowcase) {
   eqS('label:"Meta Muse"', 1, 'v17 Meta label');
   eqS('models:["muse-spark-1.3-contributor","muse-spark-1.3","muse-wonder-1.0"]', 1, 'v17 Meta models (exactly 3)');
   eqS('id="gen-reasoning"', 1, 'v17 reasoning select');
-  eqS('reasoningAllowed', 5, 'v17 reasoning gate (computed + selects + resets)');
+  eqS('reasoningAllowed', 7, 'v26 max-Gate (computed + selects + defaults + bodies)');
   eqS('text/event-stream', 3, 'v17 SSE streaming (generate + modify + reader)');
   eqS('stream:true', 3, 'v17 stream flag (bodies + SSE decoder)');
   eqS('max_output_tokens', 0, 'v17 no legacy token field');
@@ -312,37 +312,63 @@ if (isShowcase) {
   eqS('standalone-build v21', 1, 'v21 stamp (Thinking-Reduktion + Fallback)');
   eqS('standalone-build v22', 1, 'v22 stamp (Diagnose-Export + Thinking-Budget low)');
   eqS('standalone-build v23', 1, 'v23 stamp (kein Limit + Request-Echo + Prompt-Slim)');
-  eqS('reasoning_effort', 10, 'v23 reasoning param (2 Gates + 2 low + 4 Echo-Snapshots + 2 Echo-Labels)');
-  eqS('reasoning_effort="low"', 2, 'v23 belegtes Thinking-Minimum (nur baseten-direct)');
-  eqS('reasoning_effort="none"', 0, 'v23 kein unbelegtes none (Doku: rejected/gemapped)');
+  eqS('reasoning_effort', 10, 'v26 reasoning param (2 Gates + 2 xhigh + 4 Echo-Snapshots + 2 Echo-Labels)');
+  eqS('reasoning_effort="xhigh"', 2, 'v26 belegtes Maximum (Contributor + Baseten, nie max)');
+  eqS('reasoning_effort="low"', 0, 'v26 kein low mehr (xhigh)');
+  eqS('reasoning_effort="none"', 0, 'v26 kein unbelegtes none (Doku: rejected/gemapped)');
+  eqS('xhighAllowed', 6, 'v26 xhigh-Leitplanken (Methode + selects + defaults + bodies)');
+  eqS('reasoningDefault', 5, 'v26 UI-Default-Ableitung (Methode + resets + bodies)');
+  eqS('genReasoning:"xhigh"', 1, 'v26 UI-Default xhigh (Baseten-Startprovider)');
+  eqS('reasoningHigh', 4, 'v26 xhigh-Option (3 Locales + Template)');
   eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
   eqS('req_max_completion_tokens: ', 1, 'v23 Request-Echo Limit (generate-Diag)');
   eqS('req_max_tokens: ', 1, 'v23 Request-Echo Mirror (generate-Diag)');
   eqS('req_reasoning_effort: ', 1, 'v23 Request-Echo Thinking (generate-Diag)');
   eqS('req_400_fallback: ', 1, 'v23 Request-Echo Fallback (generate-Diag)');
   eqS('req_retry_reasoning_effort: ', 1, 'v23 Request-Echo Retry (generate-Diag)');
-  eqS('Build v25', 1, 'v25 build stamp in diagnosis');
+  eqS('Build v26', 1, 'v26 build stamp in diagnosis');
+  eqS('Build v25', 0, 'v25 build stamp ersetzt');
   eqS('Build v24', 0, 'v24 build stamp ersetzt');
   eqS('Build v23', 0, 'v23 build stamp ersetzt');
   eqS('Build v22', 0, 'v22 build stamp ersetzt');
+  eqS('standalone-build v30', 1, 'v30 stamp (R0-Call-Reparatur Computed-Properties)');
+  eqS('standalone-build v29', 1, 'v29 stamp (Modelliste 10->6 + Umbenennungen)');
+  eqS('standalone-build v28', 1, 'v28 stamp (2D-Klassifizierer Bindestrich-Padding)');
+  eqS('standalone-build v27', 1, 'v27 stamp (2D-Klassifizierer-Feinschliff)');
+  eqS('standalone-build v26', 1, 'v26 stamp (E0 Erklaerungen + D0 Disclaimer-raus + M0 Parts + T0 2D + R0 Reasoning)');
   eqS('standalone-build v25', 1, 'v25 stamp (Fence-Pflicht + tolerante Extraktion + Guard-nur-Code)');
   eqS('standalone-build v24', 1, 'v24 stamp (Import-Strip positionsunabhaengig + Validierung)');
   eqS('Fix3 Import-Strip v24', 1, 'v24 positionsunabhaengiger Import-Strip');
   eqS('import verblieben', 1, 'v24 Rest-Import-Validierung (klassifiziert)');
   eqS('Z,fence:', 2, 'v24 Status-Metriken (Content-Laenge + Fence, generate + modify)');
   eqS('__FREE_FENCE_V25__', 1, 'v25 Guard-nur-Code-Marker (Prosa nie scannen)');
-  eqS('```js-Codeblock', 2, 'v25 Fence-Pflicht im Prompt (generate + modify)');
+  eqS('```js-Codeblock', 3, 'v25+v26 Fence-Pflicht im Prompt (generate + modify + 2D)');
   eqS('keine Erklaerung, keine Fences', 0, 'v25 altes Fence-Verbot entfernt');
   eqS('var __m25=', 4, 'v25 tolerante Extraktion (generate + modify + Retry + Guard)');
   eqS('var __i25=', 4, 'v25 Import-Erhalt in Extraktion/Guard');
   eqS('var __t25=', 4, 'v25 Nachlauf-Prosa kappen (Extraktion + Guard)');
   eqS('init/meta fehlt (Antwort ohne', 1, 'v25 fruehes E-FREE-SHAPE statt Prosa-FORBID');
+  eqS('Aufbau wie Standard-Modelle', 2, 'v26 Erklaerungs-Vertrag de/en/es (generate 3D + 2D)');
+  eqS('Kein Proxy, kein muse.exe. Dein Key lebt nur mit deiner Zustimmung im sessionStorage.', 0, 'v26 Disclaimer de raus (Meta-Variante bleibt)');
+  eqS('No proxy, no muse.exe. Your key lives only in sessionStorage with your consent.', 0, 'v26 Disclaimer en raus');
+  eqS('Sin proxy, sin muse.exe. Tu clave solo vive en sessionStorage con tu permiso.', 0, 'v26 Disclaimer es raus');
+  eqS('directHintMsg', 0, 'v26 Disclaimer-Computed/Template raus');
+  eqS("this.t('directHint')", 0, 'v26 kein Verweis auf entfernten Key');
+  eqS("this.t('promptCopied')", 1, 'v26 copyPrompt-Status zeigt promptCopied');
+  eqS('E-FREE-META: parts (n=', 1, 'v26 Parts-Count mit Validierungsdetail');
+  eqS('Label fehlt: ', 1, 'v26 Parts-Labelabgleich mit Detail');
+  eqS('meta.parts=__parts;', 1, 'v26 Parts-Normalisierung');
+  eqS('for(var ki=0;ki<meta.parts.length;ki++)', 0, 'v26 alte strikte Parts-Schleife ersetzt');
+  eqS('diagramKind:function', 1, 'v26 2D-Auto-Klassifizierer');
+  eqS('buildFreePrompt2D:function', 1, 'v26 2D-Vertrag im Prompt');
+  eqS('FREIMODUS-2D', 1, 'v26 2D-Prompt');
+  eqS('is3d: false', 1, 'v26 2D-Vertrag ohne 3D-Platzhalter');
   eqS('Strg+F5', 1, 'v21 stale-build hint');
   eqS('diagText:function', 1, 'v22 diagnose text (redigiert, ohne Key)');
   eqS('copyDiag:function', 1, 'v22 diagnose copy (Clipboard + Fallback)');
   eqS('copyDiagBtn', 4, 'v22 copy button (3 locales + template)');
   eqS('@click="copyDiag"', 1, 'v22 copy button im Fehlerzustand');
-  eqS('this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 3, 'v17 reasoning gate+guards (never -contributor)');
+  eqS('this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 1, 'v26 max-Gate zentral in reasoningAllowed (nie -contributor)');
   eqS('logit_bias', 0, 'v17 no forbidden logits field');
   eqS('web_search_options', 0, 'v17 no forbidden search field');
   eqS('logprobs', 0, 'v17 no forbidden logprobs field');
@@ -370,33 +396,44 @@ if (isShowcase) {
   eqS('empty-stand: 0 Modelle', 0, 'Stale empty-stand marker');
   if (!s.includes('showcase: 5 Modelle')) fail('Showcase marker is missing.');
   else ok('Showcase marker is present');
-  // v14 (2D-Alle-Varianten): 5 Demo-Modelle + Vendor-IIFE + Dispatch + Payloads.
+  // v14 (2D-Demo): 1 Demo-Modell + Vendor-IIFE + Dispatch + Payloads (seit v29 nur chart).
   if (!s.includes('standalone-build v14')) fail('v14 stamp is missing (standalone-build v14).');
-  else ok('v14 stamp present (2D-Alle-Varianten)');
-  for (const id of ['demo-2d-svg', 'demo-2d-mermaid', 'demo-2d-chart', 'demo-2d-d3', 'demo-2d-katex']) {
+  else ok('v14 stamp present (2D-Demo chart)');
+  for (const id of ['demo-2d-chart']) {
     if (cnt(`{id:"${id}"`) < 1) fail(`v14 LABS entry missing: ${id}`);
     if (cnt(`META['${id}']`) < 1) fail(`v14 META entry missing: ${id}`);
     if (cnt(`INIT['${id}'] = `) !== 0) fail(`v14 2D must not have 3D-INIT: ${id}`);
   }
-  ok('5 v14 LABS + 5 v14 META entries found (is3d:false, keine INITs)');
+  ok('1 v14 LABS + 1 v14 META entry found (is3d:false, keine INITs)');
   for (const v of ['__V14SVG', '__V14MERMAID', '__V14CHART', '__V14D3', '__V14KATEX', '__renderVariant2D']) {
     if (cnt(v) < 3) fail(`v14 vendor/dispatcher missing: ${v}`);
   }
-  ok('5 v14 Vendor-IIFE + __renderVariant2D vorhanden');
-  if (cnt('diagram2d:{"variant"') !== 5) fail(`v14 LABS diagram2d-Payloads: ${cnt('diagram2d:{"variant"')}, erwartet 5`);
-  else ok('v14 diagram2d-Payloads: 5 LABS + 5 META');
+  ok('5 v14 Vendor-IIFE + __renderVariant2D vorhanden (fuer chart-Demo + 2D-Freimodus)');
+  if (cnt('diagram2d:{"variant"') !== 1) fail(`v14 LABS diagram2d-Payload: ${cnt('diagram2d:{"variant"')}, erwartet 1`);
+  else ok('v14 diagram2d-Payload: 1 LABS + 1 META');
   eqS('"2d-svg","2d-mermaid","2d-chart","2d-d3","2d-katex"', 1, 'registerFree 2d-Allowlist');
   // v15 (Bestandteil-Info): Stempel, explanations je LABS, Info-Button/Popup, Umbenennungen.
   if (!s.includes('standalone-build v15')) fail('v15 stamp is missing (standalone-build v15).');
   else ok('v15 stamp present (Bestandteil-Info)');
   v15PartInfo(s, fail, ok);
+  // v29 (Modelliste): 5x 3D + 1x 2D-chart kuratiert, Umbenennungen si-1/gpu.
+  eqS('PC-Arbeitsplatz (SI-1)', 0, 'v29 si-1 DE-Suffix weg');
+  eqS('PC workstation (SI-1)', 0, 'v29 si-1 EN-Suffix weg');
+  eqS('Puesto de PC (SI-1)', 0, 'v29 si-1 ES-Suffix weg');
+  eqS('Graphics Card', 0, 'v29 gpu DE-Titel ersetzt');
+  eqS('title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz"}', 1, 'v29 si-1 Titel de/en/es');
+  eqS('de:"Grafikkarte"', 1, 'v29 gpu DE-Titel Grafikkarte');
+  eqS('{id:"demo-2d-svg"', 0, 'v29 Wasserkocher-Demo raus');
+  eqS('{id:"demo-2d-mermaid"', 0, 'v29 Photosynthese-Demo raus');
+  eqS('{id:"demo-2d-d3"', 0, 'v29 Rechnernetz-Demo raus');
+  eqS('{id:"demo-2d-katex"', 0, 'v29 pq-Formel-Demo raus');
   if (artifactBytes > 600000) fail(`Artifact is too large: ${artifactBytes} bytes.`);
   else ok(`Artifact size ${artifactBytes} bytes (under 600 KB for GitHub Pages).`);
   if (failures.length > 0) {
     console.error(`verify-standalone: ABORT (showcase: ${failures.length} failures)`);
     process.exit(1);
   }
-  console.log('verify-standalone: OK (showcase verified: 5 3D-Erststart-Defaults + 5 2D-Demos v14, Baseten-Direkt BYOK)');
+  console.log('verify-standalone: OK (showcase verified: 5 3D-Erststart-Defaults + 1 2D-Demo v14 (chart), Baseten-Direkt BYOK)');
   process.exit(0);
 }
 const eq = (sub, want, label) => {

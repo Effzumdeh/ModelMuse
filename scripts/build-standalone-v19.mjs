@@ -68,7 +68,7 @@ function checkInvariants(s) {
     // (nur noch Echo-Label 'req_max_completion_tokens: '; exakt in v23).
     ['budgetRetryable', 3],
     // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
-    ['reasoningAllowed', 5],
+    // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3],
@@ -79,6 +79,8 @@ function checkInvariants(s) {
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v26-Toleranz: R0 Reasoning xhigh/max (Methode + selects + defaults + bodies) 5->7.
+  must(cnt(s, 'reasoningAllowed') === 5 || (s.includes('standalone-build v26') && cnt(s, 'reasoningAllowed') === 7), 'Invariante reasoningAllowed: ' + cnt(s, 'reasoningAllowed') + ', erwartet 5 (v26: 7)');
   // v23-Toleranz: kein Length-Limit (nur noch Echo-Label = 1).
   must(cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1)');
   // v20-Toleranz: Budget hoch (pre-v20 16384/32768 | v20 65536/131072).

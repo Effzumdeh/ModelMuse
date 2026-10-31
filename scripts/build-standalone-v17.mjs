@@ -159,9 +159,11 @@ function checkInvariants(s) {
     // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
     ['logit_bias', 0], ['web_search_options', 0], ['"stop"', 0], ['modalities', 0], ['logprobs', 0],
     ['dev.meta.ai', 10], ['LLM_...', 10],
-    ['keyMissingMeta', 4], ['keyInvalidMeta', 4], ['keyFormatMeta', 4], ['directHintMeta', 4],
+    ['keyMissingMeta', 4], ['keyInvalidMeta', 4], ['keyFormatMeta', 4],
+    // v26-Toleranz (D0 Disclaimer-raus): directHintMsg-Computed (mit 4.
+    // directHintMeta-Verweis) entfernt — ab v26 nur noch 3 (de/en/es).
     ['reasoningLabel', 4], ['reasoningStd', 4], ['reasoningMax', 4],
-    ['genProviderChanged', 2], ['genModelChanged', 2], ['reasoningAllowed', 5],
+    ['genProviderChanged', 2], ['genModelChanged', 2],
     ['aria-label="modify"', 0], ['id="mod-desc"', 0], ['@click="modify"', 0],
     ['id="mod-desc2"', 1], ['@click="openModify', 1], ['modify:async function', 1], ['submitModify:function', 1], ['closeModify:function', 1],
     ['deleteLab', 6], ['deleteConfirm', 4],
@@ -189,6 +191,10 @@ function checkInvariants(s) {
     ['Baseten direct', 0],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v26-Toleranz: D0 entfernte directHintMsg (4. directHintMeta-Verweis) -> 3 (de/en/es);
+  // R0 erhoehte reasoningAllowed 5->7 (Methode + selects + defaults + bodies).
+  must(cnt(s, 'directHintMeta') === 4 || (s.includes('standalone-build v26') && cnt(s, 'directHintMeta') === 3), 'Invariante directHintMeta: ' + cnt(s, 'directHintMeta') + ', erwartet 4 (v26: 3)');
+  must(cnt(s, 'reasoningAllowed') === 5 || (s.includes('standalone-build v26') && cnt(s, 'reasoningAllowed') === 7), 'Invariante reasoningAllowed: ' + cnt(s, 'reasoningAllowed') + ', erwartet 5 (v26: 7)');
   // v19-Toleranz: Budget+Retry erhoeht auf 4 (pre-v19: 2).
   // v23-Toleranz: kein Length-Limit (nur noch Echo-Label 'req_max_completion_tokens: ').
   must(cnt(s, 'max_completion_tokens') === 2 || cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 2 oder 4 (v23: 1)');

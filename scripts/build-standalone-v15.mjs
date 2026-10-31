@@ -18,7 +18,7 @@
  *     Computed partExplanations, selectLab-Reset.
  * T6  makeFreeLab: explanations-Passthrough aus meta/meta_i18n
  *     (KI-Modelle liefern Format aus P1/P2; graceful leere Arrays).
- * V7  v15-Stempel + Invarianten (Groesse < 600 KB, 10 LABS mit explanations,
+ * V7  v15-Stempel + Invarianten (Groesse < 600 KB, 6 LABS mit explanations,
  *     Marker, Umbenennungen).
  *
  * Aufruf: node scripts/build-standalone-v15.mjs [htmlDatei]
@@ -28,7 +28,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const REPORT = process.argv[2] ? null : 'dist-standalone/build-standalone-v15-report.json';
 const IDS = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example',
-  'demo-2d-svg', 'demo-2d-mermaid', 'demo-2d-chart', 'demo-2d-d3', 'demo-2d-katex'];
+  'demo-2d-chart'];
 
 function must(cond, msg) {
   if (!cond) { console.error('build-v15: FEHLER ' + msg); process.exit(1); }
@@ -228,7 +228,7 @@ for (const id of IDS) {
 
 // ---------- V7: Stempel + Invarianten ----------
 {
-  const stamp = '<!-- standalone-build v14 (2D-Alle-Varianten: svg/mermaid/chart/d3/katex als Vendor-IIFE + 5 Demo-Modelle, via scripts/build-standalone-v14.mjs) -->';
+  const stamp = '<!-- standalone-build v14 (2D-Variante: chart als Vendor-IIFE + Dispatcher + 1 Demo-Modell Wirkungsgradvergleich, via scripts/build-standalone-v14.mjs) -->';
   must(cnt(s, stamp) === 1, 'V7 Stempel-Anker fehlt');
   s = s.replace(stamp, `${stamp}\n<!-- standalone-build v15 (Bestandteil-Info: Info-Kreis-i-Button je Listeneintrag + Overlay-Popup + explanations de/en/es, via scripts/build-standalone-v15.mjs) -->`);
   console.log('  V7: v15-Stempel');
@@ -238,7 +238,7 @@ for (const id of IDS) {
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15', 1],
     ['PointLight(0xffffff, 900', 0], ['0x11141a', 0], ['envMapIntensity', 0],
     ['mapSize.set(2048', 0], ['openrouter', 0], ['OpenRouter', 0],
-    ['explanations:{de:[', 10], // 10 LABS-Eintraege
+    ['explanations:{de:[', 6], // 6 LABS-Eintraege (5x 3D + 1x 2D-chart, seit v29)
     ['explanations:{de:expDe', 1], // makeFreeLab-Passthrough
     ['openPartInfo', 2], // Template-Click + Methode
     ['closePartInfo', 2], // Template-Click + Methode
@@ -266,7 +266,7 @@ if (REPORT) {
     createdAt: new Date().toISOString(),
     basis: 'v14-showcase',
     standalone: 'v15',
-    fixes: ['E1 explanations de/en/es in 10 LABS (aus Manifesten)', 'T1 Bestandteil/Component/Componente (Titel+Notiz+Hints)', 'T2 Info-Kreis-i-Button je Eintrag', 'T3 Overlay-Popup role=dialog', 'T4 I18N-Keys', 'T5 Vue-Logik + selectLab-Reset', 'T6 makeFreeLab-Passthrough', 'V7 Stempel + Invarianten'],
+    fixes: ['E1 explanations de/en/es in 6 LABS (aus Manifesten)', 'T1 Bestandteil/Component/Componente (Titel+Notiz+Hints)', 'T2 Info-Kreis-i-Button je Eintrag', 'T3 Overlay-Popup role=dialog', 'T4 I18N-Keys', 'T5 Vue-Logik + selectLab-Reset', 'T6 makeFreeLab-Passthrough', 'V7 Stempel + Invarianten'],
     counts: {
       zeichen: s.length,
       labs: IDS.map((id) => ({ id, labs: cnt(s, `{id:"${id}"`), meta: cnt(s, `META['${id}']`) })),

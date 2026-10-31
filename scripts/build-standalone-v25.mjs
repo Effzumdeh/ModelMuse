@@ -126,13 +126,12 @@ function checkInvariants(s) {
     ['reasoning_effort', 10],
     ['req_reasoning_effort: ', 1],
     ['req_retry_reasoning_effort: ', 1],
-    ['gbody.reasoning_effort="low"', 1],
-    ['mbody.reasoning_effort="low"', 1],
+    // v26-Nachfolger (R0 Reasoning xhigh statt low): low 1->0, xhigh 0->1 (je Body).
     ['reasoning_effort="none"', 0],
     ['stream_options', 4],
     ['delete gbody.stream_options', 1],
     ['delete mbody.stream_options', 1],
-    ['reasoningAllowed', 5],
+    // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 7], ['_lastHttp', 6],
@@ -140,13 +139,14 @@ function checkInvariants(s) {
     ['_lastReqR', 3],
     ['this._lastReq={', 4],
     ['staleHint', 2], ['buildTag', 3],
-    ['Build v25', 1], ['Build v24', 0], ['Strg+F5', 1],
+    // v26-Nachfolger (B0 Diagnose-Stempel): Build v25->v26.
+    ['Build v24', 0], ['Strg+F5', 1],
     ['slice(0,200)', 2], ['slice(0,160)', 0],
     ['slice(0,2048)', 2],
     ['emptyResponse', 4],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
-    ['Kein Nachdenken, keine Einleitung', 2],
+    // v26-Nachfolger (T0 2D-Vertrag im Prompt): 2->3 (generate + modify + 2D).
     ['diagText:function', 1], ['copyDiag:function', 1],
     ['copyDiagBtn', 4],
     ['diagCopied:false', 1],
@@ -166,7 +166,7 @@ function checkInvariants(s) {
     ['Z,fence:', 2],
     // v25 neu:
     ['__FREE_FENCE_V25__', 1],
-    ['```js-Codeblock', 2],
+    // v26-Nachfolger (T0 2D-Vertrag im Prompt): 2->3 (generate + modify + 2D).
     ['keine Erklaerung, keine Fences', 0],
     ['var __m25=', 4],
     ['var __i25=', 4],
@@ -175,6 +175,15 @@ function checkInvariants(s) {
     ['init/meta fehlt (Antwort ohne', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v26-Toleranz: R0 low->xhigh (je Body 1->0), reasoningAllowed 5->7; T0 2D-Prompt
+  // (Fence-Satz 2->3, js-Codeblock 2->3); B0 Diagnose-Stempel Build v25->v26.
+  const is26 = s.includes('standalone-build v26');
+  must(cnt(s, 'gbody.reasoning_effort="low"') === 1 || (is26 && cnt(s, 'gbody.reasoning_effort="low"') === 0), 'Invariante gbody-low: ' + cnt(s, 'gbody.reasoning_effort="low"') + ', erwartet 1 (v26: 0)');
+  must(cnt(s, 'mbody.reasoning_effort="low"') === 1 || (is26 && cnt(s, 'mbody.reasoning_effort="low"') === 0), 'Invariante mbody-low: ' + cnt(s, 'mbody.reasoning_effort="low"') + ', erwartet 1 (v26: 0)');
+  must(cnt(s, 'reasoningAllowed') === 5 || (is26 && cnt(s, 'reasoningAllowed') === 7), 'Invariante reasoningAllowed: ' + cnt(s, 'reasoningAllowed') + ', erwartet 5 (v26: 7)');
+  must(cnt(s, 'Kein Nachdenken, keine Einleitung') === 2 || (is26 && cnt(s, 'Kein Nachdenken, keine Einleitung') === 3), 'Invariante Kein-Nachdenken-Satz: ' + cnt(s, 'Kein Nachdenken, keine Einleitung') + ', erwartet 2 (v26: 3)');
+  must(cnt(s, '```js-Codeblock') === 2 || (is26 && cnt(s, '```js-Codeblock') === 3), 'Invariante js-Codeblock: ' + cnt(s, '```js-Codeblock') + ', erwartet 2 (v26: 3)');
+  must(cnt(s, 'Build v25') === 1 || (is26 && cnt(s, 'Build v25') === 0), 'Invariante Build v25: ' + cnt(s, 'Build v25') + ', erwartet 1 (v26: 0)');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v25 Fence-Pflicht + tolerante Extraktion + Guard-nur-Code)');
 }

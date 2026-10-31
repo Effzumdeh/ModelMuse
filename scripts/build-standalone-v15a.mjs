@@ -81,7 +81,7 @@ if (s.includes('standalone-build v15a')) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1],
     ['PointLight(0xffffff, 900', 0], ['openrouter', 0], ['OpenRouter', 0],
-    ['explanations:{de:[', 10],
+    ['explanations:{de:[', 6], // 6 LABS (5x 3D + 1x 2D-chart, seit v29)
     ['openPartInfo', 2], ['closePartInfo', 2], ['partInfoIndex', 7],
     ['partInfoTitle', 5], ['partInfoAbout', 5], ['partExplanations', 2],
     ['partInfoMissing', 4],
