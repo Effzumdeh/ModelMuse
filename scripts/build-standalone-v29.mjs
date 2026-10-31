@@ -156,7 +156,7 @@ function checkInvariants(s) {
     ['standalone-build v21', 1], ['standalone-build v22', 1], ['standalone-build v23', 1],
     ['standalone-build v24', 1], ['standalone-build v25', 1], ['standalone-build v26', 1],
     ['standalone-build v27', 1], ['standalone-build v28', 1], ['standalone-build v29', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', 26], ['OpenRouter', 12],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
     ['text/event-stream', 2], ['stream:true', 3],
     ['__FREE_GUARD_V18__', 1], ['__FREE_FENCE_V25__', 1],
     ['showcase: 5 Modelle', 1],

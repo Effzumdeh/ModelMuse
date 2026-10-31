@@ -142,7 +142,7 @@ if (!s.includes('{{keyStoreMsg}}'))   rep(`{{directHintMsg}}</p>\n</div>`, `{{di
 function checkInvariants(s) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', 26], ['OpenRouter', 12],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
     ['Baseten (direkt)', 0], ['Baseten (direct)', 0], ['Baseten (directo)', 0],
     ['I18N.de.providerFixed="Baseten";', 1], ['I18N.en.providerFixed="Baseten";', 1], ['providerFixed:"Baseten"', 1],
     ["{{t('providerFixed')}}", 0],

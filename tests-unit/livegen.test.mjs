@@ -5,7 +5,7 @@ import {
   configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, hasLiveApiKey, liveGenStatus, extractModuleSource,
   directChatUrl, DIRECT_BASES, DIRECT_DEFAULT_MODEL, OPENROUTER_REFERER, OPENROUTER_TITLE, liveKeySessionKey,
   GEN_TEMPERATURE,
-  buildChatBody, isBudgetExhausted, reasoningMaxAllowed, reasoningXhighAllowed, reasoningLevel, requestEcho,
+  buildChatBody, isBudgetExhausted, reasoningMaxAllowed, reasoningXhighAllowed, reasoningLevel, reasoningEffortsFor, requestEcho,
 } from '../src/runtime/livegen.js';
 import {
   E_GEN_DE, germanMessage, buildFreePrompt, freeModelId, extractMeasureHints, buildFreeManifest, extractMetaI18n,
@@ -425,17 +425,39 @@ test('v26 reasoningLevel: max nur belegt, sonst xhigh, sonst nichts', () => {
   assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', undefined), 'xhigh', 'OpenRouter-Default xhigh (belegt, Modelle-API 31.10.2026)');
   assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', undefined), 'xhigh');
   assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', undefined), 'xhigh');
-  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'max'), 'xhigh', 'OpenRouter: max -> xhigh (nie 400)');
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'max'), 'max', 'v40: OpenRouter max belegt (live supported_efforts 31.10.2026, 400-Fallback bleibt)');
+  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', 'max'), 'max');
+  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', 'max'), 'max');
   assert.equal(reasoningLevel('unbekannt', 'm', 'max'), null);
   assert.equal(reasoningXhighAllowed('meta-muse', 'muse-spark-1.3'), true);
   assert.equal(reasoningXhighAllowed('meta-muse', 'muse-spark-1.3-contributor'), true);
   assert.equal(reasoningXhighAllowed('baseten', 'x'), true);
   assert.equal(reasoningXhighAllowed('openrouter', 'openai/gpt-6.1-sol'), true);
-  assert.equal(reasoningMaxAllowed('openrouter', 'openai/gpt-6.1-sol'), false, 'OpenRouter nie max per UI-Gate');
+  assert.equal(reasoningMaxAllowed('openrouter', 'openai/gpt-6.1-sol'), false, 'OpenRouter nie max per Meta-UI-Gate (reasoningEffortsFor traegt OpenRouter-max)');
   assert.equal(reasoningXhighAllowed('unbekannt', 'm'), false);
 });
 
-test('OpenRouter-Body: xhigh belegt, kein Limit, kein stream_options (400-Fallback bleibt)', () => {
+test('v40 reasoningEffortsFor: belegte Stufen je Modell (live /models 31.10.2026, 452 Modelle)', () => {
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'openai/gpt-6.1-sol'), ['max', 'xhigh', 'high', 'medium', 'low']);
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'meta/muse-spark-1.3'), ['max', 'xhigh', 'high', 'medium', 'low', 'minimal']);
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'anthropic/claude-opus-5.5'), ['max', 'xhigh', 'high', 'medium', 'low']);
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'openai/gpt-6.1-sol:exact'), ['max', 'xhigh', 'high', 'medium', 'low'], ':suffix-Variante');
+  assert.deepEqual(reasoningEffortsFor('meta-muse', 'muse-spark-1.3'), ['max', 'xhigh']);
+  assert.deepEqual(reasoningEffortsFor('meta-muse', 'muse-wonder-1.0'), ['max', 'xhigh']);
+  assert.deepEqual(reasoningEffortsFor('meta-muse', 'muse-spark-1.3-contributor'), ['xhigh']);
+  assert.deepEqual(reasoningEffortsFor('baseten', 'meta-models/muse-spark-open-1026'), ['xhigh']);
+  assert.deepEqual(reasoningEffortsFor('unbekannt', 'm'), []);
+  // Durchreichung belegter Zwischenstufen (nur OpenRouter), unbelegte -> null.
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'medium'), 'medium');
+  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', 'low'), 'low');
+  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', 'minimal'), 'minimal');
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'minimal'), null, 'minimal dort unbelegt -> Modell-Default (nie 400)');
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'none'), null, 'none mandatory -> nie senden (Modell-Default, nie 400)');
+  assert.equal(reasoningLevel('meta-muse', 'muse-spark-1.3-contributor', 'medium'), null, 'Contributor ohne belegte Zwischenstufe -> kein Param');
+  assert.equal(reasoningLevel('baseten', 'meta-models/muse-spark-open-1026', 'medium'), null);
+});
+
+test('OpenRouter-Body: Default xhigh belegt, max je Slug durchgereicht, kein Limit, kein stream_options (400-Fallback bleibt)', () => {
   for (const slug of ['openai/gpt-6.1-sol', 'meta/muse-spark-1.3', 'anthropic/claude-opus-5.5']) {
     const b = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter' });
     assert.equal(b.model, slug);
@@ -444,8 +466,14 @@ test('OpenRouter-Body: xhigh belegt, kein Limit, kein stream_options (400-Fallba
     assert.ok(!('stream_options' in b), `${slug}: kein unverifizierter Param`);
     assert.equal(b.temperature, 0.2);
   }
-  const capped = buildChatBody('openai/gpt-6.1-sol', 'Hallo Welt, lang genug', { provider: 'openrouter', reasoning: 'max' });
-  assert.equal(capped.reasoning_effort, 'xhigh', 'OpenRouter max-Wunsch -> xhigh (nie 400)');
+  for (const slug of ['openai/gpt-6.1-sol', 'meta/muse-spark-1.3', 'anthropic/claude-opus-5.5']) {
+    const m = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter', reasoning: 'max' });
+    assert.equal(m.reasoning_effort, 'max', `${slug}: max belegt (live supported_efforts 31.10.2026, 400-Fallback bleibt)`);
+  }
+  for (const [slug, lvl] of [['openai/gpt-6.1-sol', 'medium'], ['anthropic/claude-opus-5.5', 'low'], ['meta/muse-spark-1.3', 'minimal']]) {
+    const s = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter', reasoning: lvl });
+    assert.equal(s.reasoning_effort, lvl, `${slug}: belegte Zwischenstufe ${lvl} belegt`);
+  }
 });
 
 test('OpenRouter-Direkt: Bearer + Referer/Title, andere Anbieter ohne Extra-Header', async () => {
@@ -698,6 +726,9 @@ test('v23 stripChatExtras: entfernt Baseten-Extras + defensive Limit-Felder, mel
   assert.equal(stripChatExtras(b), true);
   assert.deepEqual(b, { model: 'm', temperature: 0.2 });
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'low' }), true, 'low bleibt Baseten-Extra (wird gestrippt)');
+  assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'medium' }), true, 'v40: belegte Zwischenstufe faellt unter 400-Fallback');
+  assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'high' }), true, 'v40: high gestrippt');
+  assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'minimal' }), true, 'v40: minimal gestrippt');
   assert.equal(stripChatExtras({ model: 'm' }), false, 'nichts zu strippen');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'max' }), false, 'max bleibt (Meta-Gate)');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'none' }), false, 'none ist kein Baseten-Extra (Doku: rejected)');

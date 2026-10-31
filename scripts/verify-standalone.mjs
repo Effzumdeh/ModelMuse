@@ -428,6 +428,9 @@ if (isShowcase) {
   eqS('teleIssueShow', 6, 'v38 Issue erst nach Danke (Data/Reset/Close/Copy/Template)');
   eqS('if(st==="jobDone"){return "";}', 1, 'v38 Queue: fertig ohne eigene Zeit');
   eqS('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 1, 'v38 ETA robust (Varianten + openrouter/unbekannt -> 240)');
+  eqS('standalone-build v40', 1, 'v40 Stempel (Reasoning-Stufen je Modell: max nur wo belegt)');
+  eqS('||this.genProvider==="openrouter";},', 1, 'v40 max-Gate += openrouter (reasoningAllowed, max dort belegt)');
+  eqS('this.genProvider==="openrouter"?"xhigh":"max"', 1, 'v40 Default openrouter xhigh (kein stilles max-Upgrade)');
   eqS('"OctahedronGeometry","OrthographicCamera","PCFShadowMap"', 1, 'v38 OrthographicCamera-Allowlist');
   eqS('OctahedronGeometry,OrthographicCamera,PCFShadowMap', 2, 'v38 OrthographicCamera-Prolog x2');
   eqS('standalone-build v29', 1, 'v29 stamp (Modelliste 10->6 + Umbenennungen)');

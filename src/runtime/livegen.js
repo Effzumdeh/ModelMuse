@@ -84,11 +84,54 @@ export const GEN_BUILD = 'v23';
 export const GEN_TEMPERATURE = 0.2;
 
 /**
+ * Belegte Reasoning-Stufen je Modell (v40, Stand 31.10.2026, live verifiziert
+ * via GET https://openrouter.ai/api/v1/models — 452 Modelle — plus Doku):
+ * - openrouter openai/gpt-6.1-sol: max/xhigh/high/medium/low, Default medium,
+ *   mandatory (kein none/minimal; reasoning + reasoning_effort belegt, KEIN
+ *   supports_max_tokens -> nur effort, kein max_tokens-Budget).
+ *   Doku: openrouter.ai/docs/guides/best-practices/reasoning-tokens
+ *   (Discovering per-model reasoning options) + GPT-6-Migrationsguide
+ *   (Sol akzeptiert none generell, aber 6.1-sol ist mandatory).
+ * - openrouter meta/muse-spark-1.3: max/xhigh/high/medium/low/minimal,
+ *   Default medium, mandatory (kein none).
+ * - openrouter anthropic/claude-opus-5.5: max/xhigh/high/medium/low,
+ *   Default high (live /models; Migrationsguide nennt medium als
+ *   Anthropic-Default ohne Param), mandatory (none/enabled:false -> 400;
+ *   reasoning.max_tokens wird akzeptiert, aber NICHT weitergeleitet —
+ *   adaptive thinking ohne Budget — deshalb nur effort).
+ *   Doku: openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/claude-5-5.
+ * - meta-muse 1.3/wonder: max/xhigh (Meta-Doku); -contributor: nur xhigh
+ *   (max dort rejected); baseten spark-open: nur xhigh (max rejected).
+ * Rueckgabe absteigend (hoechste Stufe zuerst, wie /models).
+ * @param {string} provider
+ * @param {string} model
+ * @returns {string[]}
+ */
+export function reasoningEffortsFor(provider, model) {
+  const m = String(model ?? '');
+  const short = m.includes('/') ? m.slice(m.lastIndexOf('/') + 1) : m;
+  const base = short.includes(':') ? short.slice(0, short.indexOf(':')) : short;
+  if ((provider ?? '') === 'openrouter') {
+    if (base === 'muse-spark-1.3') return ['max', 'xhigh', 'high', 'medium', 'low', 'minimal'];
+    if (base === 'gpt-6.1-sol' || base === 'opus-5.5') return ['max', 'xhigh', 'high', 'medium', 'low'];
+    return ['max', 'xhigh', 'high', 'medium', 'low'];
+  }
+  if ((provider ?? '') === 'meta-muse' && (model === 'muse-spark-1.3' || model === 'muse-wonder-1.0')) {
+    return ['max', 'xhigh'];
+  }
+  if ((provider ?? '') === 'meta-muse' && String(model ?? '').includes('contributor')) return ['xhigh'];
+  if ((provider ?? '') === 'baseten') return ['xhigh'];
+  return [];
+}
+
+/**
  * reasoning_effort=max nur fuer 1.3/wonder auf meta-muse — NICHT fuer
  * -contributor (Meta-Doku: max dort nicht verfuegbar, dev.meta.ai/docs/reasoning)
  * und NIE max auf Baseten (Baseten-Doku: Spark Open supported nur
  * low/medium/high/xhigh(default), max wird rejected —
  * docs.baseten.co/inference/model-apis/reasoning).
+ * OpenRouter: max ist BELEGT (alle 3 Slugs listen max in supported_efforts —
+ * live /models 31.10.2026) und wird durchgereicht (400-Fallback bleibt).
  * Hoechstes BELEGTES Level je Modell: 1.3/wonder -> max, contributor-Modelle
  * (meta-muse -contributor, Baseten spark-open) -> xhigh.
  * @param {string} provider
@@ -104,8 +147,8 @@ export function reasoningMaxAllowed(provider, model) {
  * rejected — dev.meta.ai/docs/reasoning) plus Baseten-Pfad (spark-open:
  * xhigh default/belegt, max rejected — docs.baseten.co, dev.to-Analyse)
  * plus OpenRouter-Pfad (alle 3 Slugs: reasoning_effort belegt inkl.
- * xhigh/max — OpenRouter-Modelle-API 31.10.2026; Default xhigh, max wird
- * ehrlich auf xhigh begrenzt, nie 400).
+ * xhigh/max — OpenRouter-Modelle-API 31.10.2026 + live supported_efforts;
+ * max wird durchgereicht, 400-Fallback bleibt).
  * @param {string} provider
  * @param {string} model
  */
@@ -118,17 +161,24 @@ export function reasoningXhighAllowed(provider, model) {
 }
 
 /**
- * Hoechstes BELEGTES Level fuer (provider, model, Wunsch): 'max' nur wo
- * erlaubt, sonst 'xhigh' wo erlaubt (max-Wunsch wird dort ehrlich auf xhigh
- * begrenzt — nie 400), sonst null (kein Param). Default ohne Wunsch: xhigh
- * auf Baseten + OpenRouter (belegt), sonst nichts (Modell-Default).
+ * Hoechstes BELEGTES Level fuer (provider, model, Wunsch): 'max' wo
+ * erlaubt (meta-muse 1.3/wonder + alle OpenRouter-Modelle — live
+ * supported_efforts 31.10.2026), sonst 'xhigh' wo erlaubt, sonst die
+ * gewuenschte Stufe falls sie in reasoningEffortsFor belegt ist
+ * (low/medium/high/minimal — nur OpenRouter), sonst null (kein Param).
+ * Default ohne Wunsch: xhigh auf Baseten + OpenRouter (belegt), sonst
+ * nichts (Modell-Default).
  * @param {string} provider
  * @param {string} model
  * @param {string} [want]
  */
 export function reasoningLevel(provider, model, want) {
-  if (want === 'max' && reasoningMaxAllowed(provider ?? '', model)) return 'max';
+  if (want === 'max' && (reasoningMaxAllowed(provider ?? '', model) || (provider ?? '') === 'openrouter')) {
+    const eff = reasoningEffortsFor(provider ?? '', model);
+    if (eff.includes('max')) return 'max';
+  }
   if ((want === 'max' || want === 'xhigh') && reasoningXhighAllowed(provider ?? '', model)) return 'xhigh';
+  if (typeof want === 'string' && want && reasoningEffortsFor(provider ?? '', model).includes(want)) return want;
   if (!want && ((provider ?? '') === 'baseten' || (provider ?? '') === 'openrouter')) return 'xhigh';
   return null;
 }
@@ -137,15 +187,19 @@ export function reasoningLevel(provider, model, want) {
  * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder; v23: KEIN
  * Length-Limit — weder max_completion_tokens noch max_tokens).
  * Baseten-Extras (v22/v23, NUR provider baseten — Meta-Pfad unveraendert):
- * reasoning_effort 'xhigh' fordert das hoechste BELEGTE Thinking-Budget
+ * 'xhigh' fordert das hoechste BELEGTE Thinking-Budget
  * (Baseten-Doku: Spark Open supported low/medium/high/xhigh(default), max
  * wird rejected — docs.baseten.co/inference/model-apis/reasoning; Meta:
  * contributor max rejected, xhigh akzeptiert —
  * dev.meta.ai/docs/reasoning),
  * stream_options.include_usage liefert Usage im Stream (Diagnose
  * zeigt Reasoning-/Total-Tokens). OpenRouter (NUR provider openrouter):
- * reasoning_effort 'xhigh' (belegt fuer alle 3 Slugs — OpenRouter-Modelle-API
- * 31.10.2026); KEIN stream_options (unverifiziert, kein Param-Risiko).
+ * reasoning_effort aus reasoningEffortsFor (belegt je Slug — live
+ * /models 31.10.2026: gpt-6.1-sol + opus-5.5 max/xhigh/high/medium/low,
+ * muse-spark-1.3 zusaetzlich minimal; Default xhigh); KEIN stream_options
+ * (unverifiziert, kein Param-Risiko); KEIN reasoning.max_tokens
+ * (supports_max_tokens bei keinem der 3 Slugs gesetzt, Budgets werden
+ * laut Claude-5.5-Migrationsguide nicht weitergeleitet).
  * Unverifizierte Params -> 400-Risiko,
  * deshalb genau EIN Fallback ohne Extras bei HTTP 400.
  * @param {string} model
@@ -184,16 +238,20 @@ export function requestEcho(body, slimmed400) {
   };
 }
 
-/** v22/v23/v26-Extras aus einem Chat-Body streichen (exakt v20-Form + defensive
- * Limit-Felder, falls ein Alt-Body sie traegt). Gestrichen: low/xhigh +
- * stream_options (Baseten-Extras); max bleibt (Meta-Gate, nie 400-Grund).
+/** v22/v23/v26/v40-Extras aus einem Chat-Body streichen (exakt v20-Form +
+ * defensive Limit-Felder, falls ein Alt-Body sie traegt). Gestrichen:
+ * low/medium/high/minimal/xhigh (belegte Stufen, aber Gateway-abhaengig —
+ * 400-Fallback) + stream_options (Baseten-Extras); max bleibt (Meta-Gate
+ * + OpenRouter-belegt, nie 400-Grund).
  * @param {any} body */
 export function stripChatExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
   if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
   if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
-  if (body.reasoning_effort === 'low' || body.reasoning_effort === 'xhigh') { delete body.reasoning_effort; stripped = true; }
+  if (body.reasoning_effort === 'low' || body.reasoning_effort === 'minimal'
+    || body.reasoning_effort === 'medium' || body.reasoning_effort === 'high'
+    || body.reasoning_effort === 'xhigh') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
   return stripped;
 }
@@ -772,8 +830,10 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
  * @param {string} promptText vollstaendiger P1-Prompt inkl. Thema
  * @param {{ seed?: number, onToken?: (t: string) => void, provider?: string, model?: string, reasoning?: string }} [opts]
  * provider/model: Optional — Defaults (meta-muse/muse-spark-1.3-contributor).
- * reasoning 'max': nur meta-muse + 1.3/wonder (nie -contributor/Baseten/OpenRouter:
- * max-Wunsch wird dort ehrlich auf xhigh begrenzt).
+ * reasoning: belegte Stufe je Modell (reasoningEffortsFor — v40 live
+ * verifiziert: meta-muse 1.3/wonder max, contributor/baseten xhigh,
+ * OpenRouter je Slug max/xhigh/high/medium/low (+minimal nur spark);
+ * unbelegte Stufe -> kein Param, 400-Fallback bleibt).
  * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser), Proxy nur als Fallback
  * bei Transport-Fehler (OpenRouter: NUR Direkt-Call — Proxy lehnt openrouter
  * mit E-GEN-404 + Hinweis ab); ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.

@@ -63,7 +63,7 @@ function applyGuardFix(s) {
 function checkInvariants(s) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', 26], ['OpenRouter', 12],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
     ['aria-label="modify"', 0], ['id="mod-desc"', 0], ['@click="modify"', 0],
     ['id="mod-desc2"', 1], ['@click="openModify', 1], ['modify:async function', 1], ['submitModify:function', 1], ['closeModify:function', 1],
     ['deleteLab', 6], ['deleteConfirm', 4],
