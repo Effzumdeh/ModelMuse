@@ -73,7 +73,7 @@ export function buildModifyPrompt(args) {
     source.slice(0, 60000),
     'FEHLERPROTOKOLL (zusaetzlich zum Wunsch zu reparieren):',
     proto,
-    `AUFTRAG: Setze GENAU den Aenderungswunsch um; repariere zusaetzlich alle protokollierten FAIL-Kriterien; bestandene Schichten unveraendert lassen. Labels im Code in Sprache (${loc}). Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences.`,
+    `AUFTRAG: Setze GENAU den Aenderungswunsch um; repariere zusaetzlich alle protokollierten FAIL-Kriterien; bestandene Schichten unveraendert lassen. Labels im Code in Sprache (${loc}). Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences. Kein Nachdenken, keine Einleitung — antworte direkt mit dem Modulcode.`,
   ].join('\n');
 }
 

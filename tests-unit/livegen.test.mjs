@@ -366,14 +366,19 @@ test('v19 Budget-Konstanten: 65536 initial, 131072 Retry, Temperatur 0.2', () =>
   assert.equal(GEN_TEMPERATURE, 0.2);
 });
 
-test('v19 buildChatBody: Budget + Temperatur, Reasoning-Gate (nie -contributor/Baseten)', () => {
+test('v21 buildChatBody: Budget + Temperatur + Baseten-Extras, Reasoning-Gate (nie -contributor)', () => {
   const base = buildChatBody('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', { provider: 'baseten' });
   assert.equal(base.max_completion_tokens, 65536);
+  assert.equal(base.max_tokens, 65536, 'max_tokens spiegelt Budget (Gateway liest evtl. nur max_tokens)');
+  assert.equal(base.reasoning_effort, 'none', 'direkte Antwort ohne Thinking anfordern');
+  assert.deepEqual(base.stream_options, { include_usage: true }, 'Usage im Stream fuer Diagnose');
   assert.equal(base.temperature, 0.2);
   assert.equal(base.stream, true);
-  assert.ok(!('reasoning_effort' in base), 'kein Reasoning-Param auf Baseten');
+  const noProv = buildChatBody('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug');
+  assert.ok(!('max_tokens' in noProv) && !('stream_options' in noProv), 'ohne Provider keine Extras');
   const contrib = buildChatBody('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
   assert.ok(!('reasoning_effort' in contrib), 'kein max bei -contributor');
+  assert.ok(!('max_tokens' in contrib), 'Meta-Pfad unveraendert (keine Extras)');
   const spark = buildChatBody('muse-spark-1.3', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
   assert.equal(spark.reasoning_effort, 'max', 'max nur 1.3/wonder auf meta-muse');
   const wonder = buildChatBody('muse-wonder-1.0', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
@@ -415,7 +420,9 @@ test('v19 Direkt: length+Reasoning-only -> 1 Retry mit 131072, dann Erfolg via d
   assert.equal(bodies[0].max_completion_tokens, 65536, 'erst 65536');
   assert.equal(bodies[1].max_completion_tokens, 131072, 'retry 131072');
   assert.equal(bodies[0].temperature, 0.2);
-  assert.ok(!('reasoning_effort' in bodies[0]) && !('reasoning_effort' in bodies[1]), 'nie Reasoning auf Baseten');
+  assert.equal(bodies[0].reasoning_effort, 'none', 'Thinking-Reduktion angefordert');
+  assert.equal(bodies[1].reasoning_effort, 'none');
+  assert.equal(bodies[1].max_tokens, 131072, 'Retry spiegelt Budget auch in max_tokens');
   assert.equal(gen.via, 'direct');
   assert.ok(gen.source.includes('export function init'));
 });
@@ -461,4 +468,104 @@ test('v19 Proxy: length+Reasoning-only -> 1 Retry mit 131072 im Proxy-Body', asy
   assert.equal(bodies[0].max_completion_tokens, 65536);
   assert.equal(bodies[1].max_completion_tokens, 131072);
   assert.equal(gen.via, 'proxy');
+});
+
+/* v21: gehärteter Reader (alle plausiblen Content-Felder) + Retry-Sichtbarkeit. */
+
+test('v21 collectChatText: delta.text, message.output_text, choice.output_text', async () => {
+  const { collectChatText } = await import('../src/runtime/livegen.js');
+  const info = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
+  assert.equal(collectChatText({ choices: [{ delta: { text: 'DT' } }] }, info), 'DT');
+  assert.equal(collectChatText({ choices: [{ message: { output_text: 'MO' } }] }, info), 'MO');
+  assert.equal(collectChatText({ choices: [{ message: { text: 'MT' } }] }, info), 'MT');
+  assert.equal(collectChatText({ choices: [{ text: 'CT' }] }, info), 'CT');
+  assert.equal(collectChatText({ choices: [{ output_text: 'CO' }] }, info), 'CO');
+  assert.equal(info.chunks, 5);
+});
+
+test('v21 collectChatText: Responses-output-Array, nested text.value, leeres delta verdeckt nichts', async () => {
+  const { collectChatText } = await import('../src/runtime/livegen.js');
+  const info = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
+  const out = { output: [{ type: 'message', content: [{ type: 'output_text', text: 'R1' }, { type: 'output_text', text: 'R2' }] }] };
+  assert.equal(collectChatText(out, info), 'R1R2');
+  assert.equal(collectChatText({ choices: [{ message: { content: [{ text: { value: 'NV' } }] } }] }, info), 'NV');
+  assert.equal(collectChatText({ choices: [{ delta: { content: '' }, message: { content: 'MB' } }] }, info), 'MB');
+  assert.equal(info.chunks, 3);
+});
+
+test('v21 collectChatText: reasoning-Parts kein Content, strukturiertes Reasoning zählt, refusal -> err', async () => {
+  const { collectChatText } = await import('../src/runtime/livegen.js');
+  const info = { chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' };
+  assert.equal(collectChatText({ choices: [{ message: { content: [{ type: 'reasoning', text: 'geheim' }] } }] }, info), '');
+  assert.equal(info.empty, 1);
+  assert.equal(collectChatText({ choices: [{ delta: { reasoning_content: [{ text: 'r' }] } }] }, info), '');
+  assert.equal(info.reason, 1, 'strukturiertes Reasoning zählt');
+  assert.equal(collectChatText({ choices: [{ delta: { reason: 'r' } }] }, info), '');
+  assert.equal(info.reason, 2, 'reason-Feld zählt');
+  assert.equal(collectChatText({ choices: [{ delta: {}, message: { refusal: 'policy-stop', content: null } }] }, info), '');
+  assert.equal(info.err, 'policy-stop');
+});
+
+test('v21 Diagnose: Retry 1/1 nach Budget-Retry, Retry 0/1 ohne Retry', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  const bodies = [];
+  let n = 0;
+  globalThis.fetch = async (_url, opts) => {
+    n += 1;
+    bodies.push(JSON.parse(opts?.body ?? '{}'));
+    if (n === 1) return lengthReasoningResponse();
+    return lengthReasoningResponse();
+  };
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err?.message ?? err), /Retry 1\/1/, 'Retry lief sichtbar');
+  assert.equal(n, 2, 'genau 1 Retry');
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  globalThis.fetch = async () => reasoningSseResponse([
+    { choices: [{ delta: { reasoning_content: 'Denke nach...' } }] },
+    { choices: [{ delta: {}, finish_reason: 'stop' }] },
+  ]);
+  const err2 = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err2?.message ?? err2), /Retry 0\/1/, 'kein Retry ohne length sichtbar');
+});
+
+test('v21 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras (nie schlechter als v20)', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  const bodies = [];
+  let n = 0;
+  globalThis.fetch = async (url, opts) => {
+    n += 1;
+    const b = JSON.parse(opts?.body ?? '{}');
+    bodies.push(b);
+    if (n === 1) {
+      assert.equal(b.reasoning_effort, 'none', 'erst mit Extras');
+      return { ok: false, status: 400 };
+    }
+    assert.ok(!('reasoning_effort' in b) && !('max_tokens' in b) && !('stream_options' in b), 'Fallback exakt v20-Form');
+    assert.equal(b.max_completion_tokens, 65536, 'Budget bleibt');
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
+  assert.equal(n, 2, 'genau 1 Fallback-Call');
+  assert.equal(gen.via, 'direct');
+  assert.ok(gen.source.includes('export function init'));
+});
+
+test('v21 Direkt: 400 ohne Extras (meta-muse) -> kein Fallback, direkt E-GEN-400', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let n = 0;
+  globalThis.fetch = async () => { n += 1; return { ok: false, status: 400 }; };
+  await assert.rejects(generateLive('Begriff Windkraftanlage lang genug', { provider: 'meta-muse', model: 'muse-spark-1.3-contributor' }), /E-GEN-400/);
+  assert.equal(n, 1, 'kein Fallback ohne Extras');
+});
+
+test('v21 stripChatExtras: entfernt nur v21-Extras, meldet ob gestrippt', async () => {
+  const { stripChatExtras } = await import('../src/runtime/livegen.js');
+  const b = { model: 'm', max_completion_tokens: 1, max_tokens: 1, reasoning_effort: 'none', stream_options: { include_usage: true } };
+  assert.equal(stripChatExtras(b), true);
+  assert.deepEqual(b, { model: 'm', max_completion_tokens: 1 });
+  assert.equal(stripChatExtras({ model: 'm', max_completion_tokens: 1 }), false, 'nichts zu strippen');
+  assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'max' }), false, 'max bleibt (Meta-Gate)');
+  assert.equal(stripChatExtras(null), false);
 });

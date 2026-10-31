@@ -33,6 +33,12 @@ test('Artefakt-Boot-Schutz: kein Doppelkomma, Methoden sauber verdrahtet', async
   const ed = src.indexOf('emptyDetail:function');
   const fs = src.indexOf('freeSlug:function', ed);
   assert.ok(ed > 0 && fs > ed, 'emptyDetail vor freeSlug');
+  // v21-Regression (31.10.2026): Streukomma auf eigener Zeile zwischen den
+  // Methoden (Separator `}` + Umbruch + `,`) brach den Vue-Boot mit
+  // `Unexpected token ','` -> rohe Mustaches. `},,` allein greift zu kurz.
+  const span = src.slice(ed, fs);
+  const loneComma = span.split('\n').findIndex((l) => l.replace(/[\r \t]/g, '') === ',');
+  assert.equal(loneComma, -1, 'Streukomma auf eigener Zeile zwischen emptyDetail und freeSlug');
 });
 
 /** Methode `name:function...{...}` per Klammer-Bilanz aus dem HTML loesen. */
@@ -196,9 +202,10 @@ test('JSON: content-Array und delta-Form werden gesammelt', async () => {
   assert.equal(b, 'D');
 });
 
-test('emptyDetail meldet Provider/Modell/HTTP/finish statt nur Leere Antwort', async () => {
+test('emptyDetail meldet Provider/Modell/HTTP/finish/Usage/Retry/Build statt nur Leere Antwort', async () => {
   const app = appFrom(await html());
   app._lastHttp = 200;
+  app._lastRetry = 1;
   app._lastChatInfo = { chunks: 0, empty: 5, reason: 3, finish: 'length', err: '', usage: 'reasoning 198/200 tokens' };
   const msg = app.emptyDetail();
   assert.match(msg, /Leere Antwort/);
@@ -206,7 +213,12 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish statt nur Leere Antwort', a
   assert.match(msg, /meta-models\/muse-spark-open-1026/);
   assert.match(msg, /HTTP 200/);
   assert.match(msg, /finish=length/);
-  assert.ok(msg.length <= 160, 'passt in genNotice (slice 160)');
+  assert.match(msg, /reasoning 198\/200/, 'Usage immer sichtbar (Budget- vs Thinking-Hypothese)');
+  assert.match(msg, /Retry 1\/1/, 'Retry-Zaehler sichtbar');
+  assert.match(msg, /Build v21/, 'Build-Stempel sichtbar');
+  assert.ok(msg.length <= 200, 'passt in genNotice (slice 200)');
+  app._lastRetry = 0;
+  assert.match(app.emptyDetail(), /Retry 0\/1/, 'kein Retry ohne Budget-Retry');
 });
 
 test('v19-Budget: 65536 initial + 131072-Retry mit Gate in generate+modify', async () => {
@@ -218,4 +230,64 @@ test('v19-Budget: 65536 initial + 131072-Retry mit Gate in generate+modify', asy
   assert.equal(count('max_completion_tokens:8000'), 0, 'altes 8000-Budget ersetzt');
   assert.equal(count('max_completion_tokens:16384'), 0, 'v19-Zwischenwert ersetzt');
   assert.equal(count('max_completion_tokens=32768'), 0, 'v19-Zwischenwert ersetzt');
+});
+
+/* v21: Thinking-Reduktion + 400-Fallback + gehärteter Reader + Diagnose. */
+
+test('v21-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Extras', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('gbody.max_tokens=65536'), 1, 'Extras gen');
+  assert.equal(count('mbody.max_tokens=65536'), 1, 'Extras mod');
+  assert.equal(count('gbody.reasoning_effort="none"'), 1, 'Thinking-Reduktion gen');
+  assert.equal(count('mbody.reasoning_effort="none"'), 1, 'Thinking-Reduktion mod');
+  assert.equal(count('reasoning_effort'), 4, '2 Gates + 2 none (v17-v20-Toleranz)');
+  assert.equal(count('include_usage'), 2, 'Usage im Stream gen+mod');
+  assert.equal(count('gbody.max_tokens=131072'), 1, 'Retry-Mirror gen');
+  assert.equal(count('mbody.max_tokens=131072'), 1, 'Retry-Mirror mod');
+  assert.equal(count('slimG'), 3, '400-Fallback gen (Flag+Check+Set)');
+  assert.equal(count('slimM'), 3, '400-Fallback mod (Flag+Check+Set)');
+  assert.ok(count('delete gbody.max_tokens') === 1 && count('delete gbody.stream_options') === 1, 'Fallback strippt Extras gen');
+  assert.ok(count('delete mbody.max_tokens') === 1 && count('delete mbody.stream_options') === 1, 'Fallback strippt Extras mod');
+  assert.equal(count('Kein Nachdenken, keine Einleitung'), 2, 'Prompt-Direktantwort generate+modify');
+});
+
+test('v21-Reader: neue Content-Felder, Reasoning nie Content, strukturiertes Reasoning zählt', async () => {
+  const app = appFrom(await html());
+  const info = () => ({ chunks: 0, empty: 0, reason: 0, finish: '', err: '', usage: '' });
+  let i = info();
+  assert.equal(app.collectChatText({ choices: [{ delta: { text: 'DT' } }] }, i), 'DT');
+  assert.equal(app.collectChatText({ choices: [{ message: { output_text: 'MO' } }] }, i), 'MO');
+  assert.equal(app.collectChatText({ choices: [{ text: 'CT' }] }, i), 'CT');
+  assert.equal(i.chunks, 3);
+  i = info();
+  assert.equal(app.collectChatText({ output: [{ type: 'message', content: [{ type: 'output_text', text: 'R1' }] }] }, i), 'R1');
+  assert.equal(app.collectChatText({ choices: [{ message: { content: [{ text: { value: 'NV' } }] } }] }, i), 'NV');
+  assert.equal(app.collectChatText({ choices: [{ delta: { content: '' }, message: { content: 'MB' } }] }, i), 'MB');
+  assert.equal(i.chunks, 3);
+  i = info();
+  assert.equal(app.collectChatText({ choices: [{ message: { content: [{ type: 'reasoning', text: 'geheim' }] } }] }, i), '');
+  assert.equal(app.collectChatText({ choices: [{ delta: { thinking: ['t1'] } }] }, i), '');
+  assert.equal(i.reason, 1, 'strukturiertes Thinking zählt');
+  assert.equal(app.collectChatText({ choices: [{ delta: {}, message: { refusal: 'policy', content: null } }] }, i), '');
+  assert.equal(i.err, 'policy');
+});
+
+test('v21-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('standalone-build v21'), 1, 'Build-Stempel im HTML');
+  assert.equal(count('buildTag:function'), 1, 'buildTag-Methode');
+  assert.equal(count('staleHint:function'), 1, 'staleHint-Methode');
+  assert.ok(count('Strg+F5') === 1, 'Hart-Neuladen-Hinweis');
+  const app = appFrom(await html());
+  for (const name of ['buildTag', 'staleHint']) {
+    const code = extractMethod(src, name);
+    app[name] = eval(`(${code.replace(`${name}:function`, 'function')})`);
+  }
+  assert.equal(app.buildTag(), 'v21');
+  for (const name of ['collectChatText', 'readSseText', 'readChatText', 'emptyDetail', 'buildTag', 'staleHint']) {
+    assert.notEqual(src.indexOf(`${name}:function`), -1, `${name} vorhanden`);
+  }
+  assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
 });

@@ -66,7 +66,8 @@ function checkInvariants(s) {
     // v20-Nachfolger (Budget hoch) ersetzt die Werte 16384/32768 durch
     // 65536/131072 — exakte Werte prueft build-standalone-v20.mjs.
     ['budgetRetryable', 3],
-    ['reasoning_effort', 2], ['reasoningAllowed', 5],
+    // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
+    ['reasoningAllowed', 5],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 6], ['_lastHttp', 5],
@@ -79,6 +80,8 @@ function checkInvariants(s) {
   for (const [sub, olds, news] of [['max_completion_tokens:16384', 2, 0], ['max_completion_tokens:65536', 0, 2], ['max_completion_tokens=32768', 2, 0], ['max_completion_tokens=131072', 0, 2]]) {
     must(cnt(s, sub) === olds || cnt(s, sub) === news, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + olds + ' oder ' + news);
   }
+  // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
+  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4, 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v19 Budget 16384 + Retry 32768)');
 }

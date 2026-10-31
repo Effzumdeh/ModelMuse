@@ -37,7 +37,9 @@ function checkInvariants(s) {
     ['max_completion_tokens:65536', 2],
     ['max_completion_tokens=131072', 2],
     ['budgetRetryable', 3],
-    ['reasoning_effort', 2], ['reasoningAllowed', 5],
+    // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
+    // Exakte v21-Werte prueft build-standalone-v21.mjs.
+    ['reasoningAllowed', 5],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 6], ['_lastHttp', 5],
@@ -46,6 +48,8 @@ function checkInvariants(s) {
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
+  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4, 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v20 Budget 65536 + Retry 131072)');
 }

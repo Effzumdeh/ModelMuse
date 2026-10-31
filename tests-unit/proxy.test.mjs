@@ -235,3 +235,62 @@ test('v19 Server: /generate leitet Budget an Upstream weiter (Stub-Upstream)', a
     process.env = keepEnv;
   }
 });
+
+/* v21: Baseten-Extras + 400-Fallback (simulierter Upstream, kein Netz). */
+
+test('v21 upstreamChatBody: Baseten-Extras nur mit provider=baseten', async () => {
+  const { upstreamChatBody: up, stripUpstreamExtras } = await import('../scripts/proxy.mjs');
+  const b = up('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', 65536, 'baseten');
+  assert.equal(b.max_completion_tokens, 65536);
+  assert.equal(b.max_tokens, 65536);
+  assert.equal(b.reasoning_effort, 'none');
+  assert.deepEqual(b.stream_options, { include_usage: true });
+  const m = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', 65536, 'meta-muse');
+  assert.ok(!('max_tokens' in m) && !('reasoning_effort' in m) && !('stream_options' in m), 'Meta-Pfad unveraendert');
+  const d = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug');
+  assert.ok(!('max_tokens' in d), 'ohne Provider keine Extras');
+  assert.equal(stripUpstreamExtras(b), true);
+  assert.ok(!('max_tokens' in b) && !('reasoning_effort' in b) && !('stream_options' in b), 'exakt v20-Form');
+  assert.equal(stripUpstreamExtras(m), false);
+  assert.equal(stripUpstreamExtras(null), false);
+});
+
+test('v21 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras', async () => {
+  const keepEnv = { ...process.env };
+  process.env.KEY_FILE = 'C:/nonexistent-definitiv-kein-key.json';
+  const seen = [];
+  const realFetch = globalThis.fetch;
+  let n = 0;
+  globalThis.fetch = async (_url, opts) => {
+    if (String(_url).includes('127.0.0.1')) return realFetch(_url, opts);
+    n += 1;
+    seen.push(JSON.parse(opts?.body ?? '{}'));
+    if (n === 1) return { ok: false, status: 400, body: { cancel: async () => {} } };
+    const enc = new TextEncoder();
+    const bytes = enc.encode('data: [DONE]\n');
+    return {
+      ok: true, status: 200,
+      body: { getReader() { let u = false; return { async read() { if (u) return { done: true, value: undefined }; u = true; return { done: false, value: bytes }; } }; } },
+    };
+  };
+  const { createProxyServer } = await import('../scripts/proxy.mjs');
+  const server = createProxyServer();
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const port = server.address().port;
+  try {
+    const r = await realFetch(`http://127.0.0.1:${port}/generate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer LLM_12345678_abcdefghijklmnop' },
+      body: JSON.stringify({ prompt: 'Begriff Windkraftanlage lang genug', provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }),
+    });
+    assert.equal(r.status, 200);
+    await r.text();
+    assert.equal(n, 2, 'genau 1 Slim-Fallback');
+    assert.equal(seen[0].reasoning_effort, 'none', 'erst mit Extras');
+    assert.ok(!('reasoning_effort' in seen[1]) && !('max_tokens' in seen[1]), 'Fallback ohne Extras');
+  } finally {
+    await new Promise((r) => server.close(r));
+    globalThis.fetch = realFetch;
+    process.env = keepEnv;
+  }
+});

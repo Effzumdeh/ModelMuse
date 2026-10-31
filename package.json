@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "build:standalone": "node scripts/build-standalone-v15a.mjs && node scripts/build-standalone-v16.mjs && node scripts/build-standalone-v17.mjs && node scripts/build-standalone-v18.mjs && node scripts/build-standalone-v19.mjs && node scripts/build-standalone-v20.mjs",
+    "build:standalone": "node scripts/build-standalone-v15a.mjs && node scripts/build-standalone-v16.mjs && node scripts/build-standalone-v17.mjs && node scripts/build-standalone-v18.mjs && node scripts/build-standalone-v19.mjs && node scripts/build-standalone-v20.mjs && node scripts/build-standalone-v21.mjs",
     "build:double": "node scripts/double-build.mjs",
     "render": "node scripts/render-single-file.mjs",
     "verify:static": "node scripts/verify-all.mjs --only=S1",
@@ -25,6 +25,7 @@
     "verify:dist": "node scripts/verify-dist.mjs",
     "verify:all": "node scripts/verify-all.mjs",
     "verify:standalone": "node scripts/verify-standalone.mjs",
+    "verify:render": "node scripts/verify-render.mjs",
     "baseline:update": "node scripts/baseline-update.mjs",
     "serve": "node scripts/serve.mjs",
     "test": "playwright test",

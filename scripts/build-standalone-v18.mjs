@@ -92,7 +92,9 @@ function checkInvariants(s) {
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 3], ['stream:true', 3],
-    ['reasoning_effort', 2], ['reasoningAllowed', 5],
+    // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
+    // Exakte v21-Werte prueft build-standalone-v21.mjs; hier nur Toleranz.
+    ['reasoningAllowed', 5],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3],
@@ -105,7 +107,8 @@ function checkInvariants(s) {
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   // v19-Toleranz: Budget+Retry erhoeht diese Zaehler (pre-v19 | v19).
-  for (const [sub, olds, news] of [['max_completion_tokens', 2, 4], ['_lastChatInfo', 5, 6], ['_lastHttp', 3, 5]]) {
+  // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
+  for (const [sub, olds, news] of [['max_completion_tokens', 2, 4], ['_lastChatInfo', 5, 6], ['_lastHttp', 3, 5], ['reasoning_effort', 2, 4]]) {
     must(cnt(s, sub) === olds || cnt(s, sub) === news, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + olds + ' oder ' + news);
   }
   must(s.length < 600000, 'Datei zu gross: ' + s.length);

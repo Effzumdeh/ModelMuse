@@ -66,6 +66,15 @@ export function reasoningMaxAllowed(provider, model) {
 
 /**
  * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder).
+ * Baseten-Extras (v21, NUR provider baseten — Meta-Pfad unveraendert):
+ * max_tokens spiegelt max_completion_tokens (falls das Gateway nur
+ * max_tokens liest — erklaert wirkungslose Budget-Erhoehungen),
+ * reasoning_effort 'none' fordert direkte Antwort ohne Thinking
+ * (Baseten-Doku: reasoning.* nur fuer gelistete Modelle garantiert;
+ * muse-spark-open-1026 ist nicht gelistet -> Verhalten unverifiziert),
+ * stream_options.include_usage liefert Usage im SSE-Stream (Diagnose
+ * zeigt Reasoning-/Total-Tokens). Unverifizierte Params -> 400-Risiko,
+ * deshalb genau EIN Fallback ohne Extras (exakt v20-Body) bei HTTP 400.
  * @param {string} model
  * @param {string} promptText
  * @param {{ provider?: string, reasoning?: string, maxTokens?: number }} [opts]
@@ -83,7 +92,22 @@ export function buildChatBody(model, promptText, opts = {}) {
     max_completion_tokens: maxTokens,
   };
   if (opts.reasoning === 'max' && reasoningMaxAllowed(opts.provider ?? '', model)) body.reasoning_effort = 'max';
+  if ((opts.provider ?? '') === 'baseten') {
+    body.max_tokens = maxTokens;
+    body.reasoning_effort = 'none';
+    body.stream_options = { include_usage: true };
+  }
   return body;
+}
+
+/** v21-Extras aus einem Chat-Body streichen (exakt v20-Form). @param {any} body */
+export function stripChatExtras(body) {
+  if (!body || typeof body !== 'object') return false;
+  let stripped = false;
+  if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
+  if (body.reasoning_effort === 'none') { delete body.reasoning_effort; stripped = true; }
+  if ('stream_options' in body) { delete body.stream_options; stripped = true; }
+  return stripped;
 }
 
 /**
@@ -149,12 +173,85 @@ function isTransportFailure(e) {
     || e?.name === 'AbortError' || e?.cause?.code === 'ECONNREFUSED' || e instanceof TypeError;
 }
 
+/** Content-Part-Helfer (Reasoning wird nie als Content gewertet). */
+/**
+ * Text aus einem Content-Part loesen (String, {text}, {text:{value}},
+ * {content} als String/Array). Reasoning-/Thinking-Parts gehoeren NICHT
+ * hierher (siehe joinContentParts).
+ * @param {unknown} p
+ */
+function partText(p) {
+  if (typeof p === 'string') return p;
+  if (p && typeof p === 'object') {
+    const o = /** @type {{ text?: unknown, content?: unknown }} */ (p);
+    if (typeof o.text === 'string') return o.text;
+    if (o.text && typeof o.text === 'object'
+      && typeof /** @type {{ value?: unknown }} */ (o.text).value === 'string') {
+      return /** @type {{ value: string }} */ (o.text).value;
+    }
+    if (typeof o.content === 'string') return o.content;
+    if (Array.isArray(o.content)) return joinContentParts(o.content);
+  }
+  return '';
+}
+
+/**
+ * Parts-Array zu Text verketten; Parts mit type reasoning/thinking werden
+ * uebersprungen (Denkarbeit ist kein Modul-Content).
+ * @param {unknown} arr
+ */
+function joinContentParts(arr) {
+  if (!Array.isArray(arr)) return '';
+  let out = '';
+  for (const p of arr) {
+    if (p && typeof p === 'object'
+      && (/** @type {{ type?: unknown }} */ (p).type === 'reasoning'
+        || /** @type {{ type?: unknown }} */ (p).type === 'thinking')) {
+      continue;
+    }
+    out += partText(p);
+  }
+  return out;
+}
+
+/**
+ * Reasoning-Nachweis (nur Diagnose-Zaehler): reasoning_content/reasoning/
+ * reason/thinking als nicht-leerer String ODER als Objekt/Array-Form
+ * (einige Gateways liefern Reasoning strukturiert statt als String).
+ * @param {unknown} v
+ */
+function hasReasoning(v) {
+  if (!v || typeof v !== 'object') return false;
+  const o = /** @type {{ reasoning_content?: unknown, reasoning?: unknown, reason?: unknown, thinking?: unknown }} */ (v);
+  const r = o.reasoning_content ?? o.reasoning ?? o.reason ?? o.thinking;
+  if (typeof r === 'string') return r.length > 0;
+  return r != null;
+}
+
+/**
+ * Erstes belegtes Content-Feld (leere Strings werden uebersprungen, damit
+ * ein leeres delta.content kein belegtes message.content verdeckt).
+ * @param {unknown[]} vals
+ */
+function firstContent(...vals) {
+  for (const v of vals) {
+    if (v == null) continue;
+    if (typeof v === 'string' && v.length === 0) continue;
+    return v;
+  }
+  return '';
+}
+
 /**
  * Ein Chat-Chunk (SSE-Event oder JSON-Antwort) -> sichtbarer Text.
- * Sammelt delta.content + message.content + text + output_text (String oder
- * Text-Parts-Array wie [{type:'text',text:...}]), ignoriert Reasoning-Felder
- * (reasoning_content/reasoning: nur gezaehlt, nie abgebrochen) und leere
- * choices. Gibt '' zurueck, wenn der Chunk nichts Sichtbares traegt.
+ * Sammelt delta.content + delta.text + message.content + message.output_text
+ * + message.text + choices[0].text/output_text + output_text/text +
+ * Responses-API-output-Array (String oder Text-Parts-Array wie
+ * [{type:'text',text:...}]), ignoriert Reasoning-Felder
+ * (reasoning_content/reasoning/reason/thinking: nur gezaehlt, nie
+ * abgebrochen, nie als Content gewertet — auch nicht als Parts mit
+ * type reasoning/thinking) und leere choices. Refusals landen in info.err.
+ * Gibt '' zurueck, wenn der Chunk nichts Sichtbares traegt.
  * Diagnose laeuft ueber `info` (Seitenkanal, nie geloggt mit Key-Inhalten).
  * @param {unknown} evt
  * @param {{ chunks: number, empty: number, reason: number, finish: string, err: string, usage: string }} [info]
@@ -172,8 +269,8 @@ export function collectChatText(evt, info) {
   const ch = (rec.choices && rec.choices[0]) || null;
   if (!ch) {
     if (Array.isArray(rec.choices)) st.empty += 1;
-    const fb = (typeof rec.output_text === 'string' && rec.output_text)
-      || (typeof rec.text === 'string' && rec.text) || '';
+    const fb = partText(rec.output_text) || joinContentParts(rec.output_text)
+      || partText(rec.text) || joinContentParts(rec.text) || joinContentParts(rec.output);
     if (fb) st.chunks += 1;
     return fb;
   }
@@ -181,37 +278,33 @@ export function collectChatText(evt, info) {
   if (fr) st.finish = String(fr);
   const d = ch.delta ?? null;
   const m = ch.message ?? null;
-  const hasReason = (d && (typeof d.reasoning_content === 'string' || typeof d.reason === 'string'))
-    || (m && (typeof m.reasoning_content === 'string' || typeof m.reason === 'string'));
-  if (hasReason) st.reason += 1;
-  const raw = (d && d.content != null) ? d.content
-    : (m && m.content != null) ? m.content
-    : (ch.text != null) ? ch.text
-    : (rec.output_text != null) ? rec.output_text
-    : (rec.text != null) ? rec.text : '';
-  let out = '';
-  if (typeof raw === 'string') out = raw;
-  else if (raw && typeof raw.text === 'string') out = raw.text;
-  else if (Array.isArray(raw)) {
-    for (const p of raw) {
-      if (typeof p === 'string') out += p;
-      else if (p && typeof p.text === 'string') out += p.text;
-    }
-  }
+  if (hasReasoning(d) || hasReasoning(m)) st.reason += 1;
+  if (m && typeof m.refusal === 'string' && m.refusal) st.err = String(m.refusal).slice(0, 80);
+  const raw = firstContent(
+    d?.content, d?.text,
+    m?.content, m?.output_text, m?.text,
+    ch.text, ch.output_text,
+    rec.output_text, rec.text, rec.output,
+  );
+  const out = partText(raw) || joinContentParts(raw);
   if (out) st.chunks += 1;
   else st.empty += 1;
   return out;
 }
 
-/** Kompakte Diagnose-Anreicherung fuer E-GEN-PARSE (Provider/Modell/Status/finish). */
-function emptyHint(info) {
+/** Kompakte Diagnose-Anreicherung fuer E-GEN-PARSE (Provider/Modell/Status/finish/Retry). */
+function emptyHint(info, retried) {
   const parts = [];
   if (info && info.finish) parts.push(`finish_reason=${info.finish}`);
   if (info && info.err) parts.push(String(info.err).slice(0, 60));
-  else if (info && info.reason > 0 && !(info.chunks > 0)) {
-    parts.push('nur Reasoning, kein sichtbarer Content (Budget teilen sich Reasoning+Content)');
-  } else if (info && info.usage) parts.push(String(info.usage));
-  else if (!(info && info.chunks > 0)) parts.push('0 Text-Chunks');
+  else {
+    if (info && info.reason > 0 && !(info.chunks > 0)) {
+      parts.push('nur Reasoning, kein sichtbarer Content (Budget teilen sich Reasoning+Content)');
+    } else if (!(info && info.chunks > 0)) parts.push('0 Text-Chunks');
+    // Usage immer zeigen (unterscheidet "Budget ignoriert" vs "Thinking fuellt alles").
+    if (info && info.usage) parts.push(String(info.usage).slice(0, 60));
+  }
+  parts.push(`Retry ${retried ? 1 : 0}/1`);
   return parts.length > 0 ? ` (${parts.join(', ')})` : '';
 }
 
@@ -332,19 +425,19 @@ export function extractModuleSource(rawText) {
  * @param {string} full
  * @param {string | null} finishReason
  * @param {'direct' | 'proxy'} via
- * @param {{ provider?: string, model?: string, status?: number, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string } }} [ctx]
+ * @param {{ provider?: string, model?: string, status?: number, retried?: boolean, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string } }} [ctx]
  */
 function finishModule(full, finishReason, via, ctx = {}) {
   const who = `${ctx.provider ?? '?'}/${ctx.model ?? '?'}`;
   const where = `(via ${via}, HTTP ${ctx.status ?? '?'}, ${who})`;
   if (!full || !full.trim()) {
-    throw Object.assign(new Error(`E-GEN-PARSE: leere Antwort ${where}${emptyHint(ctx.info)}`), { code: 'E-GEN-PARSE' });
+    throw Object.assign(new Error(`E-GEN-PARSE: leere Antwort ${where}${emptyHint(ctx.info, ctx.retried)}`), { code: 'E-GEN-PARSE' });
   }
   // E-S2-BOOT-Repair: fehlende benannte Imports (z.B. Scene) ergaenzen,
   // bevor Quelle gespeichert/gebootet wird (E2E-Befund 2026-10-27).
   const source = repairThreeImports(extractModuleSource(full));
   if (!source.includes('export const meta') || !source.includes('export function init')) {
-    throw Object.assign(new Error(`E-GEN-PARSE: kein Modul extrahierbar ${where}${emptyHint(ctx.info)}`), { code: 'E-GEN-PARSE' });
+    throw Object.assign(new Error(`E-GEN-PARSE: kein Modul extrahierbar ${where}${emptyHint(ctx.info, ctx.retried)}`), { code: 'E-GEN-PARSE' });
   }
   if (finishReason && finishReason !== 'stop') {
     const budget = finishReason === 'length'
@@ -365,15 +458,25 @@ function finishModule(full, finishReason, via, ctx = {}) {
 async function generateDirect(url, provider, model, promptText, opts, key) {
   const ctrl = new AbortController();
   try {
+    let slimmed = false;
     const once = async (maxTokens) => {
       const timer = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
-        const res = await fetch(url, {
+        const chatBody = buildChatBody(model, promptText, { provider, reasoning: opts.reasoning, maxTokens });
+        if (slimmed) stripChatExtras(chatBody);
+        const send = async (b) => fetch(url, {
           method: 'POST',
           headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key, accept: 'text/event-stream' },
-          body: JSON.stringify(buildChatBody(model, promptText, { provider, reasoning: opts.reasoning, maxTokens })),
+          body: JSON.stringify(b),
           signal: ctrl.signal,
         });
+        let res = await send(chatBody);
+        if (!res.ok && res.status === 400 && !slimmed && stripChatExtras(chatBody)) {
+          // v21: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut
+          // (nie schlechter als v20: ohne Extras gab es dasselbe 400).
+          slimmed = true;
+          res = await send(chatBody);
+        }
         if (!res.ok) {
           const code = classify(res.status);
           throw Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
@@ -385,10 +488,12 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
       }
     };
     let r = await once(GEN_MAX_COMPLETION_TOKENS);
+    let retried = false;
     if (isBudgetExhausted(r.full, r.finishReason, r.info)) {
+      retried = true;
       r = await once(GEN_RETRY_MAX_COMPLETION_TOKENS); // max 1 Retry
     }
-    return finishModule(r.full, r.finishReason, 'direct', { provider, model, status: r.status, info: r.info });
+    return finishModule(r.full, r.finishReason, 'direct', { provider, model, status: r.status, retried, info: r.info });
   } catch (e) {
     if (e && typeof e.code === 'string' && e.code.startsWith('E-GEN-')) throw e;
     throw Object.assign(new Error('E-GEN-DIREKT: Direkt-Call nicht moeglich (Netz/CORS/Timeout)'), { code: 'E-GEN-DIREKT' });
@@ -470,7 +575,7 @@ export async function generateLive(promptText, opts = {}) {
         attempt -= 1;
         continue;
       }
-      return finishModule(full, finishReason, 'proxy', { provider, model, status: res.status, info });
+      return finishModule(full, finishReason, 'proxy', { provider, model, status: res.status, retried: budgetRetried, info });
     } catch (e) {
       clearTimeout(timer);
       if (e && (e.code === 'E-GEN-PARSE' || e.code === 'E-GEN-400' || e.code === 'E-GEN-401' || e.code === 'E-GEN-402' || e.code === 'E-GEN-403' || e.code === 'E-GEN-404' || e.code === 'E-GEN-413')) {

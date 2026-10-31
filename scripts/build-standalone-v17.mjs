@@ -155,7 +155,8 @@ function checkInvariants(s) {
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['text/event-stream', 3], ['stream:true', 3],
     // v19-Nachfolger (Budget+Retry): max_completion_tokens 2->4 (exakt in v19).
-    ['max_output_tokens', 0], ['reasoning_effort', 2],
+    ['max_output_tokens', 0],
+    // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
     ['logit_bias', 0], ['web_search_options', 0], ['"stop"', 0], ['modalities', 0], ['logprobs', 0],
     ['dev.meta.ai', 10], ['LLM_...', 10],
     ['keyMissingMeta', 4], ['keyInvalidMeta', 4], ['keyFormatMeta', 4], ['directHintMeta', 4],
@@ -190,6 +191,8 @@ function checkInvariants(s) {
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   // v19-Toleranz: Budget+Retry erhoeht auf 4 (pre-v19: 2).
   must(cnt(s, 'max_completion_tokens') === 2 || cnt(s, 'max_completion_tokens') === 4, 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 2 oder 4');
+  // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
+  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4, 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (Provider-Umschalter, Streaming, Keys je Provider)');
 }

@@ -68,7 +68,7 @@ export function buildFreePrompt(term, locale = 'de') {
     'Bestandteil-Erklaerungen (Pflicht, NUR Daten): meta enthaelt zusaetzlich explanations: [je EIN Satz pro Hauptbauteil aus parts — WAS es ist + WOFUER im Modell, 8-200 Zeichen, gleiche Anzahl/Reihenfolge wie parts, Sprache wie parts]. ' +
     'meta_i18n enthaelt en.explanations + es.explanations als fachgerechte Uebersetzungen (gleiche Anzahl/Reihenfolge). Verify prueft Vorhandensein + Laengen-Deckung; fehlende Erklaerungen = Ablehnung.',
     'update(patch): nur Sichtbarkeit (labels max, measurements) und Kamera (overview/detail/front/top) schalten, nie neues Modell. dispose(): Schleife stoppen, Geometrien/Materialien/Renderer freigeben, Element entfernen.',
-    'Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences.',
+    'Liefere AUSSCHLIESSLICH den Modulcode, keine Erklaerung, keine Fences. Kein Nachdenken, keine Einleitung — antworte direkt mit dem Modulcode.',
   ].join('\n');
 }
 

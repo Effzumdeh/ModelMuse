@@ -157,15 +157,35 @@ export async function loadServerKey() {
   }
 }
 
-/** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Budget+Temperatur). */
-export function upstreamChatBody(model, prompt, maxTokens = UPSTREAM_MAX_COMPLETION_TOKENS) {
-  return {
+/** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Budget+Temperatur).
+ * v21-Extras NUR fuer Baseten (provider-Param): max_tokens spiegelt
+ * max_completion_tokens, reasoning_effort 'none' fordert direkte Antwort,
+ * stream_options.include_usage liefert Usage im Stream. Meta-Pfad (und
+ * unbekannte Provider) unveraendert — keine unverifizierten Params. */
+export function upstreamChatBody(model, prompt, maxTokens = UPSTREAM_MAX_COMPLETION_TOKENS, provider = undefined) {
+  const body = {
     model,
     stream: true,
     messages: [{ role: 'user', content: prompt }],
     temperature: UPSTREAM_TEMPERATURE,
     max_completion_tokens: normalizeMaxTokens(maxTokens),
   };
+  if (provider === 'baseten') {
+    body.max_tokens = normalizeMaxTokens(maxTokens);
+    body.reasoning_effort = 'none';
+    body.stream_options = { include_usage: true };
+  }
+  return body;
+}
+
+/** v21-Extras aus einem Upstream-Body streichen (exakt v20-Form). @param {any} body */
+export function stripUpstreamExtras(body) {
+  if (!body || typeof body !== 'object') return false;
+  let stripped = false;
+  if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
+  if (body.reasoning_effort === 'none') { delete body.reasoning_effort; stripped = true; }
+  if ('stream_options' in body) { delete body.stream_options; stripped = true; }
+  return stripped;
 }
 
 function sendJson(res, status, code, message) {
@@ -267,21 +287,42 @@ export function createProxyServer() {
       }
       const keySource = byokOk ? 'byok' : 'server';
       let upstream;
+      const upHeaders = {
+        'content-type': 'application/json',
+        authorization: 'Bearer ' + key,
+        accept: 'text/event-stream',
+      };
+      const upBody = upstreamChatBody(parsed.model, parsed.prompt, parsed.maxTokens, parsed.provider);
       try {
         // Baseten Model APIs: OpenAI-kompatibel, nur Bearer-Key (keine Zusatz-Header).
         upstream = await fetch(reg.base + reg.chatPath, {
           method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            authorization: 'Bearer ' + key,
-            accept: 'text/event-stream',
-          },
-          body: JSON.stringify(upstreamChatBody(parsed.model, parsed.prompt, parsed.maxTokens)),
+          headers: upHeaders,
+          body: JSON.stringify(upBody),
         });
       } catch (e) {
         console.log(`POST /generate -> 502 E-GEN-5XX (upstream-netz, key=${keySource})`);
         sendJson(res, 502, 'E-GEN-5XX', 'E-GEN-5XX: Upstream nicht erreichbar');
         return;
+      }
+      if (!upstream.ok && upstream.status === 400 && stripUpstreamExtras(upBody)) {
+        // v21: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut.
+        try {
+          await upstream.body?.cancel();
+        } catch {
+          /* ignorieren */
+        }
+        try {
+          upstream = await fetch(reg.base + reg.chatPath, {
+            method: 'POST',
+            headers: upHeaders,
+            body: JSON.stringify(upBody),
+          });
+        } catch (e) {
+          console.log(`POST /generate -> 502 E-GEN-5XX (upstream-netz slim, key=${keySource})`);
+          sendJson(res, 502, 'E-GEN-5XX', 'E-GEN-5XX: Upstream nicht erreichbar');
+          return;
+        }
       }
       if (!upstream.ok || !upstream.body) {
         const code = mapStatusToCode(upstream.status);

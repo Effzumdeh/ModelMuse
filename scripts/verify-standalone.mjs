@@ -305,7 +305,11 @@ if (isShowcase) {
   eqS('budgetRetryable', 3, 'v19 retry gate (helper + generate + modify)');
   eqS('standalone-build v19', 1, 'v19 stamp (Budget + Retry)');
   eqS('standalone-build v20', 1, 'v20 stamp (Budget hoch)');
-  eqS('reasoning_effort', 2, 'v17 reasoning param (guarded generate + modify)');
+  eqS('standalone-build v21', 1, 'v21 stamp (Thinking-Reduktion + Fallback)');
+  eqS('reasoning_effort', 4, 'v21 reasoning param (2 Gates + 2 none Baseten-Extras)');
+  eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
+  eqS('Build v21', 1, 'v21 build stamp in diagnosis');
+  eqS('Strg+F5', 1, 'v21 stale-build hint');
   eqS('this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 3, 'v17 reasoning gate+guards (never -contributor)');
   eqS('logit_bias', 0, 'v17 no forbidden logits field');
   eqS('web_search_options', 0, 'v17 no forbidden search field');
