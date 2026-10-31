@@ -27,7 +27,7 @@ test('v34-Stempel und Kette intakt', async () => {
 test('I: Win-Dock stapelt rechts (neueste unten, aeltere oben)', async () => {
   const s = await html();
   assert.ok(s.includes('win-dock v34'), 'Dock-Skript vorhanden');
-  assert.ok(s.includes('["gen-status","mod-status","part-info"]'), 'alle drei Fenster im Dock');
+  assert.ok(s.includes('["gen-status","mod-status","part-info","tele-status"]'), 'alle vier Fenster im Dock');
   assert.ok(s.includes('getBoundingClientRect'), 'nur sichtbare Fenster stapeln');
   assert.ok(s.includes('data-win-first'), 'Erst-Sehen-Reihenfolge (aeltere oben)');
   assert.ok(s.includes('ws[w].style.bottom'), 'Bottom-Offset pro Fenster');
@@ -39,8 +39,8 @@ test('I: je Fenster Minimieren-zu-Bubble + Schliessen', async () => {
   assert.equal(cnt(s, "toggleWinMin('gen')"), 1, 'Gen-Minimieren');
   assert.equal(cnt(s, "toggleWinMin('mod')"), 1, 'Mod-Minimieren');
   assert.equal(cnt(s, "toggleWinMin('part')"), 1, 'Part-Minimieren');
-  assert.equal(cnt(s, 'winMin:{gen:false,mod:false,part:false}'), 1, 'Minimiert-State');
-  assert.equal(cnt(s, '<div class="win-bar">'), 3, 'drei Win-Leisten');
+  assert.equal(cnt(s, 'winMin:{gen:false,mod:false,part:false,tele:false}'), 1, 'Minimiert-State (gen/mod/part/tele)');
+  assert.equal(cnt(s, '<div class="win-bar">'), 4, 'vier Win-Leisten (gen/mod/part/tele)');
   assert.ok(s.includes('@click="cancelGenerate();dismissGenNotice();"'), 'Gen-Close = Stopp + weg');
   assert.ok(s.includes('@click="closeModify"'), 'Mod-Close');
   assert.ok(s.includes('@click="closePartInfo"'), 'Part-Close');
@@ -49,7 +49,7 @@ test('I: je Fenster Minimieren-zu-Bubble + Schliessen', async () => {
 
 test('I: Alt-Vertraege bleiben (Dialoge, Queue, Timer)', async () => {
   const s = await html();
-  assert.equal(cnt(s, 'role="dialog"'), 2, 'weiter genau 2 Dialoge');
+  assert.equal(cnt(s, 'role="dialog"'), 3, 'genau 3 Dialoge (Tele + Modify + Bestandteil-Info)');
   assert.equal(cnt(s, 'enqueueGenerate'), 2, 'Queue bleibt');
   assert.equal(cnt(s, 'normExp:function'), 1, 'Erklaerungs-Haertung bleibt');
   assert.equal(cnt(s, 'etaSeconds:function'), 1, 'ETA-Tabelle bleibt');

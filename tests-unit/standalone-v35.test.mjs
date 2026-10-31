@@ -51,7 +51,7 @@ test('J: Alt-Vertraege bleiben (Timer, Dock, Haertung)', async () => {
   const s = await html();
   assert.equal(cnt(s, 'startModEta'), 2, 'Mod-Timer Start/Stopp bleiben');
   assert.equal(cnt(s, 'stopModEta'), 2, 'Mod-Timer Start/Stopp bleiben');
-  assert.equal(cnt(s, 'toggleWinMin('), 3, 'Dock bleibt');
+  assert.equal(cnt(s, 'toggleWinMin('), 4, 'Dock (gen + mod + part + tele)');
   assert.equal(cnt(s, 'normExp:function'), 1, 'Erklaerungs-Haertung bleibt');
   assert.equal(cnt(s, 'etaSeconds:function'), 1, 'ETA-Tabelle bleibt');
 });

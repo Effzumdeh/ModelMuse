@@ -132,7 +132,7 @@ function v15PartInfo(s, fail, ok) {
   eqV('Nutze die Bauteilliste.', 0, 'v15 keine Bauteilliste-Hints (de)');
   eqV('Use the parts list.', 0, 'v15 keine parts-list-Hints (en)');
   eqV('Usa la lista de piezas.', 0, 'v15 keine piezas-Hints (es)');
-  eqV('role="dialog"', 2, 'v15 Dialoge (Modify + Bestandteil-Info)');
+  eqV('role="dialog"', 3, 'v15+v37 Dialoge (Tele + Modify + Bestandteil-Info)');
 }
 const labsHits = IDS_ALL.reduce((n, id) => n + cnt(`{id:"${id}"`), 0);
 const initHits = IDS_ALL.reduce((n, id) => n + cnt(`INIT['${id}'] = `), 0);
@@ -335,7 +335,7 @@ if (isShowcase) {
   eqS('standalone-build v31', 1, 'v31 stamp (Eck-Overlay + ETA-Countdown + Auftrags-Queue)');
   // v31 (Eigentuemer A/B/C): Ueberarbeiten als Eck-Overlay wie Generieren,
   // ETA-Countdown mit Geduld-Hinweis de/en/es, Auftrags-Queue.
-  eqS('position:fixed;bottom:16px;right:16px', 2, 'v31 beide Overlays unten in der Ecke (gen + mod)');
+  eqS('position:fixed;bottom:16px;right:16px', 3, 'v31+v37 Overlays unten in der Ecke (gen + mod + tele)');
   eqS('id="mod-status"', 1, 'v31 Mod-Overlay mit eigener ID');
   eqS('@click="generate"', 0, 'v31 kein blockierender Generate-Handler mehr');
   eqS('@click="enqueueGenerate"', 1, 'v31 Queue-Einstieg am Generieren-Button');
@@ -344,10 +344,10 @@ if (isShowcase) {
   eqS('id="gen-jobs"', 1, 'v31 Auftragsliste im Gen-Overlay');
   eqS('genJobsTitle', 4, 'v31 Auftragstitel (3 Locales + Template)');
   eqS('genJobs:[]', 1, 'v31 Queue-State im Data-Block');
-  eqS('jobWaiting', 7, 'v31+v35 Auftragsstatus wartend (3 Locales + 2x enqueue + Pumpe + Stopp)');
-  eqS('jobRunning', 4, 'v31 Auftragsstatus laeuft (3 Locales + Pumpe)');
-  eqS('jobDone', 4, 'v31 Auftragsstatus fertig (3 Locales + Pumpe)');
-  eqS('jobError', 6, 'v31 Auftragsstatus Fehler (3 Locales + Pumpe x2 + Stopp)');
+  eqS('jobWaiting', 10, 'v31+v35+v37 Auftragsstatus wartend (3 Locales + 2x enqueue + Pumpe + Stopp + Tick + Zeittext x2)');
+  eqS('jobRunning', 7, 'v31+v37 Auftragsstatus laeuft (3 Locales + Pumpe + Tick + Zeittext + Stempel)');
+  eqS('jobDone', 13, 'v31+v37 Auftragsstatus fertig (3 Locales + Pumpe + Template x3 + Zeittext + Tick + Stempel + Hinweis x4)');
+  eqS('jobError', 9, 'v31+v37 Auftragsstatus Fehler (3 Locales + Pumpe x2 + Stopp + Zeittext + Tick + Prune)');
   eqS('genStopped', 4, 'v31 Stopp-Hinweis (3 Locales + Stopp-Methode)');
   eqS('genEtaText', 2, 'v31 Gen-Countdown (Computed + Template)');
   eqS('modEtaText', 2, 'v31 Mod-Countdown (Computed + Template)');
@@ -366,7 +366,7 @@ if (isShowcase) {
   eqS('ca. 4 Minuten', 2, 'v32 Lang-Countdown de (gen + mod)');
   eqS('about 4 minutes', 2, 'v32 Lang-Countdown en (gen + mod)');
   eqS('aprox. 4 minutos', 2, 'v32 Lang-Countdown es (gen + mod)');
-  eqS('etaSeconds:function', 1, 'v32 ETA-Tabelle (1.3+xhigh/max->240 s)');
+  eqS('etaSeconds:function', 1, 'v32+v37 ETA-Tabelle (1.3/wonder+xhigh/max->240 s)');
   eqS('*1000+120000', 2, 'v32 Abort folgt Tabelle (gen + mod)');
   eqS('},120000);', 0, 'v32 kein fixer 120-s-Abort mehr');
   eqS('standalone-build v33', 1, 'v33 stamp (Mesh-Text raus + Erklaerungs-Haertung)');
@@ -377,7 +377,7 @@ if (isShowcase) {
   eqS('normExp:function', 1, 'v33 Toleranz-Helper');
   eqS('standalone-build v34', 1, 'v34 stamp (Stapelung + Minimieren + Schliessen)');
   // v34 (I): Win-Dock, drei Leisten, Min/Close.
-  eqS('toggleWinMin(', 3, 'v34 Minimieren (gen + mod + part)');
+  eqS('toggleWinMin(', 4, 'v34+v37 Minimieren (gen + mod + part + tele)');
   eqS('id="part-info"', 1, 'v34 Part-Dialog adressierbar');
   eqS('win-dock v34', 1, 'v34 Stapel-Skript');
   eqS('cancelGenerate', 3, 'v34 Gen-Close (Stopp + Methode + Leiste)');
@@ -394,6 +394,19 @@ if (isShowcase) {
   // v36 (K): Startaufloesung + Modus.
   eqS('modelmuse.mode', 5, 'v36 Modus (4x persist + 1x restore)');
   eqS('localStorage.removeItem("modelmuse.lab")', 2, 'v36 stale Auswahl geraeumt');
+  eqS('standalone-build v37', 1, 'v37 stamp (Min-Zustand + ETA wonder + Telemetrie + Queue)');
+  // v37 (M/E/T/Q): zustandsabhaengige Min-Buttons, wonder-ETA, Telemetrie-Opt-in,
+  // Countdown je Auftrag, Erfolgs-Feedback, 30-s-/Modell-Oeffnen-Hygiene.
+  eqS("winMin.gen?'+':'–'", 1, 'v37 gen-Min zustandsabhaengig');
+  eqS('indexOf("wonder")', 1, 'v37 wonder in ETA-Tabelle');
+  eqS('id="tele-status"', 1, 'v37 Telemetrie-Fenster');
+  eqS('openTele:function', 1, 'v37 Telemetrie-Snapshot');
+  eqS('teleBlock:function', 1, 'v37 Telemetrie-Block (redigiert)');
+  eqS('https://github.com/Effzumdeh/ModelMuse/issues', 1, 'v37 Issue-Link');
+  eqS('jobTimeText(job,queueNow)', 1, 'v37 Countdown je Auftrag');
+  eqS("{{t('jobDoneHint')}}", 1, 'v37 Erfolgs-Hinweis in Queue');
+  eqS('Date.now()-30000', 1, 'v37 30-s-Hygiene');
+  eqS('sj.labId===id', 1, 'v37 Prune beim Modell-Oeffnen');
   eqS('standalone-build v29', 1, 'v29 stamp (Modelliste 10->6 + Umbenennungen)');
   eqS('standalone-build v28', 1, 'v28 stamp (2D-Klassifizierer Bindestrich-Padding)');
   eqS('standalone-build v27', 1, 'v27 stamp (2D-Klassifizierer-Feinschliff)');

@@ -47,7 +47,7 @@ test('K: Alt-Vertraege bleiben (Queue, Dock, Timer, Haertung)', async () => {
   const s = await html();
   assert.equal(cnt(s, 'enqueueModify'), 2, 'einheitliche Queue bleibt');
   assert.equal(cnt(s, 'pumpGenQueue'), 3, 'eine Pumpe bleibt');
-  assert.equal(cnt(s, 'toggleWinMin('), 3, 'Dock bleibt');
+  assert.equal(cnt(s, 'toggleWinMin('), 4, 'Dock bleibt (gen + mod + part + tele)');
   assert.equal(cnt(s, 'normExp:function'), 1, 'Erklaerungs-Haertung bleibt');
   assert.equal(cnt(s, 'etaSeconds:function'), 1, 'ETA-Tabelle bleibt');
   assert.equal(cnt(s, 'modify:async function(jobWish,jobLabId)'), 1, 'Auftrags-Modify bleibt');

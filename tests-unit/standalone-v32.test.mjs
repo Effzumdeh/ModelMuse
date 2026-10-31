@@ -81,7 +81,7 @@ test('F: v31-Vertrag bleibt (Countdown, Queue, Overlays)', async () => {
   assert.equal(cnt(s, '{{modEtaText}}'), 1, 'Mod-Countdown im Template');
   assert.equal(cnt(s, 'enqueueGenerate'), 2, 'Queue-Einstieg unveraendert');
   assert.equal(cnt(s, 'pumpGenQueue'), 3, 'Queue-Pumpe (v35: 2 Einreihungen, 1 Pumpe)');
-  assert.equal(cnt(s, 'position:fixed;bottom:16px;right:16px'), 2, 'Eck-Geometrie unveraendert');
+  assert.equal(cnt(s, 'position:fixed;bottom:16px;right:16px'), 3, 'Eck-Geometrie (gen + mod + tele)');
   assert.equal(cnt(s, 'modify:async function'), 1, 'Modify-Logik genau 1x');
   assert.equal(cnt(s, 'generate:async function(jobTerm)'), 1, 'Generate mit Auftrags-Term');
 });

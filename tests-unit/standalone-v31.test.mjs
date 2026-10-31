@@ -31,12 +31,12 @@ test('v31-Stempel und Kette intakt', async () => {
 test('A: Ueberarbeiten als Eck-Overlay wie Generieren', async () => {
   const s = await html();
   // Gleiche Eck-Geometrie in beiden Overlays (fixiert unten rechts).
-  assert.equal(cnt(s, 'position:fixed;bottom:16px;right:16px'), 2, 'gen + mod teilen die Eck-Geometrie');
+  assert.equal(cnt(s, 'position:fixed;bottom:16px;right:16px'), 3, 'gen + mod + tele teilen die Eck-Geometrie');
   // Mod-Overlay bleibt Dialog mit Titel 'Modell ueberarbeiten'.
   assert.ok(s.includes('id="mod-status"'), 'Mod-Overlay mit eigener ID');
   assert.ok(s.includes('I18N.de.modifyTitle="Modell \u00fcberarbeiten"'), 'de-Titel Modell ueberarbeiten');
   assert.ok(s.includes('{{t(\'modifyTitle\')}}'), 'Titel aus i18n-Key');
-  assert.equal(cnt(s, 'role="dialog"'), 2, 'weiter genau 2 Dialoge (Modify + Bestandteil-Info)');
+  assert.equal(cnt(s, 'role="dialog"'), 3, 'genau 3 Dialoge (Tele + Modify + Bestandteil-Info)');
 });
 
 test('B: ETA-Countdown mit Geduld-Hinweis de/en/es in beiden Overlays', async () => {
