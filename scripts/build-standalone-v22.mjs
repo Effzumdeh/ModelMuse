@@ -117,7 +117,8 @@ function checkInvariants(s) {
     // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
-    ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 7], ['_lastHttp', 6],
+    // v37-Nachfolger (Tele-Snapshot liest _lastChatInfo/_lastHttp je +1): 7->8, 6->7.
+    ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 8], ['_lastHttp', 7],
     // v23-Nachfolger: _lastRetry 6->7, Build v22->v23 (Toleranz unten).
     ['staleHint', 2], ['buildTag', 3],
     ['Build v21', 0], ['Strg+F5', 1],
@@ -131,7 +132,8 @@ function checkInvariants(s) {
     ['copyDiagBtn', 4],
     ['diagCopied:false', 1],
     ['reasonSample', 7],
-    ['usageReasoning', 3], ['usageCompletion', 3],
+    // v37-Nachfolger (Tele-Snapshot liest Usage-Reasoning/Completion je +2): 3->5.
+    ['usageReasoning', 5], ['usageCompletion', 5],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   // v26-Toleranz: R0 low->xhigh (je Body 1->0), reasoningAllowed 5->7; T0 2D-Prompt (Fence-Satz 2->3).
@@ -147,7 +149,8 @@ function checkInvariants(s) {
   must(cnt(s, 'max_completion_tokens:65536') === 2 || (is23 && cnt(s, 'max_completion_tokens:65536') === 0), 'Invariante max_completion_tokens:65536: ' + cnt(s, 'max_completion_tokens:65536') + ', erwartet 2 (v23: 0)');
   must(cnt(s, 'max_completion_tokens=131072') === 2 || (is23 && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
   must(cnt(s, 'reasoning_effort') === 4 || (is23 && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 4 (v23: 10)');
-  must(cnt(s, '_lastRetry') === 6 || (is23 && cnt(s, '_lastRetry') === 7), 'Invariante _lastRetry: ' + cnt(s, '_lastRetry') + ', erwartet 6 (v23: 7)');
+  // v37-Nachfolger (Tele-Snapshot liest _lastRetry +1): v23-Artefakt 7->8.
+  must(cnt(s, '_lastRetry') === 6 || (is23 && (cnt(s, '_lastRetry') === 7 || cnt(s, '_lastRetry') === 8)), 'Invariante _lastRetry: ' + cnt(s, '_lastRetry') + ', erwartet 6 (v23: 7, v37: 8)');
   must(cnt(s, 'Build v22') === 1 || (is23 && cnt(s, 'Build v22') === 0), 'Invariante Build v22: ' + cnt(s, 'Build v22') + ', erwartet 1 (v23: 0)');
   must(cnt(s, 'Build v23') === 0 || (is23 && cnt(s, 'Build v23') === 1), 'Invariante Build v23: ' + cnt(s, 'Build v23') + ', erwartet 0 (v23: 1)');
   for (const [sub, want] of [['gbody.max_tokens=65536', 1], ['mbody.max_tokens=65536', 1], ['gbody.max_tokens=131072', 1], ['mbody.max_tokens=131072', 1]]) {

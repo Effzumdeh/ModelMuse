@@ -132,8 +132,10 @@ function checkInvariants(s) {
     // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
-    ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 7], ['_lastHttp', 6],
-    ['_lastRetry', 7],
+    // v37-Nachfolger (Tele-Snapshot liest _lastChatInfo/_lastHttp je +1): 7->8, 6->7.
+    ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 8], ['_lastHttp', 7],
+    // v37-Nachfolger (Tele-Snapshot liest _lastRetry +1): 7->8.
+    ['_lastRetry', 8],
     ['_lastReqR', 3],
     ['this._lastReq={', 4],
     ['staleHint', 2], ['buildTag', 3],
@@ -148,7 +150,8 @@ function checkInvariants(s) {
     ['copyDiagBtn', 4],
     ['diagCopied:false', 1],
     ['reasonSample', 7],
-    ['usageReasoning', 3], ['usageCompletion', 3],
+    // v37-Nachfolger (Tele-Snapshot liest Usage-Reasoning/Completion je +2): 3->5.
+    ['usageReasoning', 5], ['usageCompletion', 5],
     ['req_max_completion_tokens: ', 1],
     ['req_max_tokens: ', 1],
     ['req_reasoning_effort: ', 1],

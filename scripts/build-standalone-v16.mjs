@@ -75,7 +75,8 @@ function checkInvariants(s) {
     ['detailsTitle', 0], ["{{t('detailsTitle')}}", 0], ['measurementsTitle', 0], ['labelsTitle', 0],
     ['v-if="showOnboarding"', 1],
     ['shrink-0 inline-flex items-center justify-center rounded-xl border', 1],
-    ['role="dialog"', 2], ['id="gen-status"', 1],    ['showcase: 5 Modelle', 1],
+    // v37-Nachfolger (Tele-Fenster): 2->3.
+    ['role="dialog"', 3], ['id="gen-status"', 1],    ['showcase: 5 Modelle', 1],
     ['__FREE_GUARD_V18__', 1],
     ['Fortschritt', 0], ['fortschritt', 0],
     // v29-Nachfolger (Modelliste 10->6): explanations 10->6 (exakt in v29).

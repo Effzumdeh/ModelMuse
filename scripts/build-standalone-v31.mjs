@@ -97,7 +97,7 @@ function checkInvariants(s) {
     ['standalone-build v30', 1],
     ['standalone-build v31', 1],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
-    ['modify:async function', 1], ['role="dialog"', 2], ['id="gen-status"', 1],
+    ['modify:async function', 1], ['role="dialog"', 3], ['id="gen-status"', 1],
     ['{id:"demo-2d-chart",track', 1], ['explanations:{de:[', 6],
     // v32-Nachfolger (ETA-Tabelle liest Default): 5->6.
     ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', 6],
@@ -109,10 +109,11 @@ function checkInvariants(s) {
     ['genEtaText', 2], ['modEtaText', 2],
     ['genJobsTitle', 4], ['genPatient', 8], ['modPatient', 8],
     // v35-Nachfolger (mod-Einreihung teilt Status): 6->7.
-    ['jobWaiting', 7], ['jobRunning', 4], ['jobDone', 4], ['jobError', 6],
+    // v37-Nachfolger (Tele-Fenster + Job-Eigenzeiten + Queue-Hygiene): 7/4/4/6->10/7/13/9.
+    ['jobWaiting', 10], ['jobRunning', 7], ['jobDone', 13], ['jobError', 9],
     ['genStopped', 4], ['genJobs:[]', 1],
     ['id="gen-jobs"', 1], ['id="mod-status"', 1],
-    ['position:fixed;bottom:16px;right:16px', 2],
+    ['position:fixed;bottom:16px;right:16px', 3],
     ['@click="generate"', 0], ['@click="enqueueGenerate"', 1],
     ['Hab noch einen Moment Geduld.', 2],
   ];

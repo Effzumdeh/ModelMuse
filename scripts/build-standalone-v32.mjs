@@ -98,7 +98,7 @@ function checkInvariants(s) {
     ['standalone-build v30', 1], ['standalone-build v31', 1],
     ['standalone-build v32', 1],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
-    ['modify:async function', 1], ['role="dialog"', 2], ['id="gen-status"', 1],
+    ['modify:async function', 1], ['role="dialog"', 3], ['id="gen-status"', 1],
     // v32-Texte je Sprache (Overtime + Gesamtzeit + 4-Minuten-Countdown).
     ['länger als erwartet', 2], ['longer than expected', 2], ['lento de lo esperado', 2],
     ['fertig nach {s} s', 2], ['done after {s} s', 2], ['listo tras {s} s', 2],
@@ -115,9 +115,9 @@ function checkInvariants(s) {
     // v31-Vertrag bleibt (v35: zwei Einreihungen teilen eine Pumpe / Status).
     ['enqueueGenerate', 2], ['pumpGenQueue', 3],
     ['genJobsTitle', 4], ['genStopped', 4],
-    ['jobWaiting', 7], ['jobRunning', 4], ['jobDone', 4], ['jobError', 6],
+    ['jobWaiting', 10], ['jobRunning', 7], ['jobDone', 13], ['jobError', 9],
     ['@click="generate"', 0], ['@click="enqueueGenerate"', 1],
-    ['position:fixed;bottom:16px;right:16px', 2],
+    ['position:fixed;bottom:16px;right:16px', 3],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   must(s.length < 600000, 'Datei zu gross: ' + s.length);

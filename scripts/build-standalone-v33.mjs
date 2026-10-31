@@ -102,7 +102,7 @@ function checkInvariants(s) {
     ['enqueueGenerate', 2], ['pumpGenQueue', 3],
     ['{{genEtaText}}', 1], ['{{modEtaText}}', 1],
     ['partExplanations', 2], ['partInfoMissing', 4],
-    ['role="dialog"', 2],
+    ['role="dialog"', 3],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   must(s.length < 600000, 'Datei zu gross: ' + s.length);

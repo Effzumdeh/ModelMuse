@@ -203,7 +203,8 @@ function checkInvariants(s) {
   must(cnt(s, 'max_completion_tokens=131072') === 2 || (is23 && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
   must(cnt(s, 'reasoning_effort') === 4 || (is23 && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 4 (v23: 10)');
   // v22-Toleranz: Diagnose-Export (pre-v22 | v22).
-  for (const [sub, vals] of [['_lastChatInfo', [6, 7]], ['_lastHttp', [5, 6]], ['_lastRetry', [5, 6, 7]], ['buildTag', [2, 3]], ['Build v21', [1, 0]], ['Build v22', [0, 1]]]) {
+  // v37-Nachfolger (Tele-Snapshot liest _lastChatInfo/_lastHttp/_lastRetry je +1): 7->8, 6->7, 7->8.
+  for (const [sub, vals] of [['_lastChatInfo', [6, 7, 8]], ['_lastHttp', [5, 6, 7]], ['_lastRetry', [5, 6, 7, 8]], ['buildTag', [2, 3]], ['Build v21', [1, 0]], ['Build v22', [0, 1]]]) {
     must(vals.includes(cnt(s, sub)), 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + vals.join(' oder '));
   }
   for (const [sub, want] of [['gbody.max_tokens=65536', 1], ['mbody.max_tokens=65536', 1], ['gbody.max_tokens=131072', 1], ['mbody.max_tokens=131072', 1]]) {

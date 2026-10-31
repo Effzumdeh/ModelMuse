@@ -58,8 +58,9 @@ function checkInvariants(s) {
   // v23-Toleranz: Request-Echo (2 + 2 + 4 + 2 = 10).
   must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4 || (s.includes('standalone-build v23') && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4 (v23: 10)');
   // v22-Toleranz: Diagnose-Export (pre-v22: 6/5 | v22: 7/6).
-  must(cnt(s, '_lastChatInfo') === 6 || cnt(s, '_lastChatInfo') === 7, 'Invariante _lastChatInfo: ' + cnt(s, '_lastChatInfo') + ', erwartet 6 oder 7');
-  must(cnt(s, '_lastHttp') === 5 || cnt(s, '_lastHttp') === 6, 'Invariante _lastHttp: ' + cnt(s, '_lastHttp') + ', erwartet 5 oder 6');
+  // v37-Nachfolger (Tele-Snapshot liest _lastChatInfo/_lastHttp je +1): 7->8, 6->7.
+  must(cnt(s, '_lastChatInfo') === 6 || cnt(s, '_lastChatInfo') === 7 || cnt(s, '_lastChatInfo') === 8, 'Invariante _lastChatInfo: ' + cnt(s, '_lastChatInfo') + ', erwartet 6, 7 oder 8');
+  must(cnt(s, '_lastHttp') === 5 || cnt(s, '_lastHttp') === 6 || cnt(s, '_lastHttp') === 7, 'Invariante _lastHttp: ' + cnt(s, '_lastHttp') + ', erwartet 5, 6 oder 7');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v20 Budget 65536 + Retry 131072)');
 }

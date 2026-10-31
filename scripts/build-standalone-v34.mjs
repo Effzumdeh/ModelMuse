@@ -82,7 +82,8 @@ function checkInvariants(s) {
     ['standalone-build v34', 1],
     ['showcase: 5 Modelle', 1],
     // I: Dock-Mechanik.
-    ['toggleWinMin(', 3], ['win-bar', 5], ['win-min', 4],
+    // v37-Nachfolger (Tele-Fenster): 3->4, 5->6, 4->5.
+    ['toggleWinMin(', 4], ['win-bar', 6], ['win-min', 5],
     ['id="part-info"', 1], ['win-dock v34', 1], ['data-win-first', 4],
     ['cancelGenerate', 3], ['dismissGenNotice', 5],
     ['closePartInfo', 3], ['closeModify', 3],
@@ -93,7 +94,7 @@ function checkInvariants(s) {
     ['länger als erwartet', 2], ['fertig nach {s} s', 2],
     ['etaSeconds:function', 1],
     // v31-Vertrag bleibt.
-    ['enqueueGenerate', 2], ['role="dialog"', 2],
+    ['enqueueGenerate', 2], ['role="dialog"', 3],
     ['{{genEtaText}}', 1], ['{{modEtaText}}', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);

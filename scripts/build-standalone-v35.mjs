@@ -92,14 +92,15 @@ function checkInvariants(s) {
     ['job.kindKey', 1],
     ['submitModify', 2], ['modify:async function(jobWish,jobLabId)', 1],
     // v34-Vertrag bleibt.
-    ['toggleWinMin(', 3], ['win-dock v34', 1], ['id="part-info"', 1],
+    // v37-Nachfolger (Tele-Fenster): 3->4.
+    ['toggleWinMin(', 4], ['win-dock v34', 1], ['id="part-info"', 1],
     // v33-Vertrag bleibt.
     ['mappingNote', 0], ['normExp:function', 1],
     // v32-Vertrag bleibt.
     ['etaSeconds:function', 1], ['länger als erwartet', 2],
     ['fertig nach {s} s', 2],
     // v31-Vertrag bleibt (v35: zwei Einreihungen teilen eine Pumpe).
-    ['enqueueGenerate', 2], ['pumpGenQueue', 3], ['role="dialog"', 2],
+    ['enqueueGenerate', 2], ['pumpGenQueue', 3], ['role="dialog"', 3],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
