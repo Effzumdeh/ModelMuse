@@ -332,6 +332,28 @@ if (isShowcase) {
   eqS('Build v23', 0, 'v23 build stamp ersetzt');
   eqS('Build v22', 0, 'v22 build stamp ersetzt');
   eqS('standalone-build v30', 1, 'v30 stamp (R0-Call-Reparatur Computed-Properties)');
+  eqS('standalone-build v31', 1, 'v31 stamp (Eck-Overlay + ETA-Countdown + Auftrags-Queue)');
+  // v31 (Eigentuemer A/B/C): Ueberarbeiten als Eck-Overlay wie Generieren,
+  // ETA-Countdown mit Geduld-Hinweis de/en/es, Auftrags-Queue.
+  eqS('position:fixed;bottom:16px;right:16px', 2, 'v31 beide Overlays unten in der Ecke (gen + mod)');
+  eqS('id="mod-status"', 1, 'v31 Mod-Overlay mit eigener ID');
+  eqS('@click="generate"', 0, 'v31 kein blockierender Generate-Handler mehr');
+  eqS('@click="enqueueGenerate"', 1, 'v31 Queue-Einstieg am Generieren-Button');
+  eqS('enqueueGenerate', 2, 'v31 enqueue-Methode (Template + Definition)');
+  eqS('pumpGenQueue', 2, 'v31 Queue-Pumpe (Aufruf + Definition)');
+  eqS('id="gen-jobs"', 1, 'v31 Auftragsliste im Gen-Overlay');
+  eqS('genJobsTitle', 4, 'v31 Auftragstitel (3 Locales + Template)');
+  eqS('genJobs:[]', 1, 'v31 Queue-State im Data-Block');
+  eqS('jobWaiting', 6, 'v31 Auftragsstatus wartend (3 Locales + enqueue + pumpe + stopp)');
+  eqS('jobRunning', 4, 'v31 Auftragsstatus laeuft (3 Locales + Pumpe)');
+  eqS('jobDone', 4, 'v31 Auftragsstatus fertig (3 Locales + Pumpe)');
+  eqS('jobError', 6, 'v31 Auftragsstatus Fehler (3 Locales + Pumpe x2 + Stopp)');
+  eqS('genStopped', 4, 'v31 Stopp-Hinweis (3 Locales + Stopp-Methode)');
+  eqS('genEtaText', 2, 'v31 Gen-Countdown (Computed + Template)');
+  eqS('modEtaText', 2, 'v31 Mod-Countdown (Computed + Template)');
+  eqS('genPatient', 8, 'v31 Gen-Geduld (3 Locales + State + Timer + Template x2)');
+  eqS('modPatient', 8, 'v31 Mod-Geduld (3 Locales + State + Timer + Template x2)');
+  eqS('Hab noch einen Moment Geduld.', 2, 'v31 Geduld-Hinweis de (gen + mod)');
   eqS('standalone-build v29', 1, 'v29 stamp (Modelliste 10->6 + Umbenennungen)');
   eqS('standalone-build v28', 1, 'v28 stamp (2D-Klassifizierer Bindestrich-Padding)');
   eqS('standalone-build v27', 1, 'v27 stamp (2D-Klassifizierer-Feinschliff)');

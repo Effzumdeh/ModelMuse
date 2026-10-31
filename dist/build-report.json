@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-29T14:09:29.098Z",
+  "createdAt": "2026-10-31T13:40:15.153Z",
   "versions": {
     "three": "0.186.1",
     "esbuild": "0.28.2",
@@ -34,11 +34,11 @@
     "threeBundle": 610955,
     "alpine": 55919,
     "helpers": 7827,
-    "shellJs": 68126,
-    "runtimeJs": 203585,
-    "shellJsTotal": 271711,
+    "shellJs": 73718,
+    "runtimeJs": 231189,
+    "shellJsTotal": 304907,
     "css": 8914,
-    "modelsTotal": 107622,
+    "modelsTotal": 113906,
     "modelFiles": [
       {
         "file": "ae-1.js",
@@ -61,20 +61,40 @@
         "bytes": 10489
       },
       {
+        "file": "demo-2d-chart-v2.js",
+        "bytes": 1234
+      },
+      {
         "file": "demo-2d-chart.js",
         "bytes": 1176
+      },
+      {
+        "file": "demo-2d-d3-v2.js",
+        "bytes": 1333
       },
       {
         "file": "demo-2d-d3.js",
         "bytes": 1465
       },
       {
+        "file": "demo-2d-katex-v2.js",
+        "bytes": 1166
+      },
+      {
         "file": "demo-2d-katex.js",
         "bytes": 1184
       },
       {
+        "file": "demo-2d-mermaid-v2.js",
+        "bytes": 1417
+      },
+      {
         "file": "demo-2d-mermaid.js",
         "bytes": 1316
+      },
+      {
+        "file": "demo-2d-svg-v2.js",
+        "bytes": 1134
       },
       {
         "file": "demo-2d-svg.js",
@@ -113,13 +133,13 @@
         "bytes": 10759
       }
     ],
-    "manifests": 58387,
-    "schemas": 7523,
-    "manifestsSchemas": 65910
+    "manifests": 97720,
+    "schemas": 8134,
+    "manifestsSchemas": 105854
   },
   "maxViolations": [],
-  "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
-  "artefaktSha256": null,
+  "buildHash": "c954573016d73bd5d70be3f38cdbdbf09bcaa9cb9c4ba5f2bd92d5d29c9287db",
+  "artefaktSha256": "7779665cfea61e8cd44a090fc11f537cf4f8e895fa9508623bc6f6e01338f954",
   "routes": {
     "p0": true,
     "p1_2d": true,
