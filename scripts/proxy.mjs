@@ -68,6 +68,28 @@ export const PROVIDERS = {
 
 export const DEFAULT_PROVIDER = 'meta-muse';
 
+/**
+ * Upstream-Budget (Befund 30.10.2026: Reasoning frisst das Default-Budget —
+ * HTTP 200, finish=length, kein Content; Eigentuemer-Vorgabe 31.10.2026:
+ * deutlich hoeher, Contributor guenstig). 65536 initial / 131072 Retry
+ * (1M-Kontext Muse Spark Open, dev.meta.ai/docs/muse-spark-open/deploy);
+ * Temperatur 0.2 = deterministische Code-Gen (wie Standalone v17+).
+ * Client darf pro Call mehr anfordern (Budget-Retry), Clamp 1000..131072
+ * schuetzt vor 400/caps.
+ */
+export const UPSTREAM_MAX_COMPLETION_TOKENS = 65536;
+export const UPSTREAM_TEMPERATURE = 0.2;
+
+/**
+ * Budget normalisieren (robust: ungueltig -> Default, nie Request-Abweisung).
+ * @param {unknown} value
+ */
+export function normalizeMaxTokens(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return UPSTREAM_MAX_COMPLETION_TOKENS;
+  return Math.min(Math.max(Math.round(n), 1000), 131072);
+}
+
 /** HTTP-Status -> E-GEN-Code (vgl. src/runtime/livegen.js classify). */
 export function mapStatusToCode(status) {
   if (status === 400) return 'E-GEN-400';
@@ -84,7 +106,7 @@ export function mapStatusToCode(status) {
 
 /**
  * Body-Pruefung (rein, ohne Key/Netz).
- * @returns {{ ok: true, prompt: string, provider: string, model: string } | { ok: false, code: string, message: string }}
+ * @returns {{ ok: true, prompt: string, provider: string, model: string, maxTokens: number } | { ok: false, code: string, message: string }}
  */
 export function parseGenerateBody(body) {
   if (!body || typeof body !== 'object') {
@@ -111,7 +133,8 @@ export function parseGenerateBody(body) {
   if (!reg.models.includes(model)) {
     return { ok: false, code: 'E-GEN-404', message: `E-GEN-404: Modell ${model} beim Anbieter ${provider} nicht registriert` };
   }
-  return { ok: true, prompt, provider, model };
+  const maxTokens = normalizeMaxTokens(body.max_completion_tokens ?? body.maxTokens);
+  return { ok: true, prompt, provider, model, maxTokens };
 }
 
 /** Key-Shape pruefen (Laenge/Whitespace), Wert nie loggen. */
@@ -134,12 +157,14 @@ export async function loadServerKey() {
   }
 }
 
-/** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE). */
-export function upstreamChatBody(model, prompt) {
+/** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Budget+Temperatur). */
+export function upstreamChatBody(model, prompt, maxTokens = UPSTREAM_MAX_COMPLETION_TOKENS) {
   return {
     model,
     stream: true,
     messages: [{ role: 'user', content: prompt }],
+    temperature: UPSTREAM_TEMPERATURE,
+    max_completion_tokens: normalizeMaxTokens(maxTokens),
   };
 }
 
@@ -251,7 +276,7 @@ export function createProxyServer() {
             authorization: 'Bearer ' + key,
             accept: 'text/event-stream',
           },
-          body: JSON.stringify(upstreamChatBody(parsed.model, parsed.prompt)),
+          body: JSON.stringify(upstreamChatBody(parsed.model, parsed.prompt, parsed.maxTokens)),
         });
       } catch (e) {
         console.log(`POST /generate -> 502 E-GEN-5XX (upstream-netz, key=${keySource})`);

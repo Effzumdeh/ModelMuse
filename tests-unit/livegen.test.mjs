@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import {
   configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, hasLiveApiKey, liveGenStatus, extractModuleSource,
   directChatUrl, DIRECT_BASES, DIRECT_DEFAULT_MODEL,
+  GEN_MAX_COMPLETION_TOKENS, GEN_RETRY_MAX_COMPLETION_TOKENS, GEN_TEMPERATURE,
+  buildChatBody, isBudgetExhausted, reasoningMaxAllowed,
 } from '../src/runtime/livegen.js';
 import {
   E_GEN_DE, germanMessage, buildFreePrompt, freeModelId, extractMeasureHints, buildFreeManifest, extractMetaI18n,
@@ -347,4 +349,116 @@ test('Leerer SSE-Stream (nur DONE) -> E-GEN-PARSE mit Provider/Modell', async ()
   assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
   assert.match(String(err?.message ?? err), /baseten/);
   assert.match(String(err?.message ?? err), /muse-spark-open-1026/);
+});
+
+/* v19: Budget + Auto-Retry (simulierte length-Reasoning-Antwort). */
+
+function lengthReasoningResponse() {
+  return reasoningSseResponse([
+    { choices: [{ delta: { reasoning_content: 'Denke nach...' } }], usage: { completion_tokens: 200, prompt_tokens: 22, total_tokens: 222, reasoning_tokens: 198 } },
+    { choices: [{ delta: {}, finish_reason: 'length' }] },
+  ]);
+}
+
+test('v19 Budget-Konstanten: 65536 initial, 131072 Retry, Temperatur 0.2', () => {
+  assert.equal(GEN_MAX_COMPLETION_TOKENS, 65536);
+  assert.equal(GEN_RETRY_MAX_COMPLETION_TOKENS, 131072);
+  assert.equal(GEN_TEMPERATURE, 0.2);
+});
+
+test('v19 buildChatBody: Budget + Temperatur, Reasoning-Gate (nie -contributor/Baseten)', () => {
+  const base = buildChatBody('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', { provider: 'baseten' });
+  assert.equal(base.max_completion_tokens, 65536);
+  assert.equal(base.temperature, 0.2);
+  assert.equal(base.stream, true);
+  assert.ok(!('reasoning_effort' in base), 'kein Reasoning-Param auf Baseten');
+  const contrib = buildChatBody('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
+  assert.ok(!('reasoning_effort' in contrib), 'kein max bei -contributor');
+  const spark = buildChatBody('muse-spark-1.3', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
+  assert.equal(spark.reasoning_effort, 'max', 'max nur 1.3/wonder auf meta-muse');
+  const wonder = buildChatBody('muse-wonder-1.0', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
+  assert.equal(wonder.reasoning_effort, 'max');
+  const clamped = buildChatBody('m', 'Hallo Welt, lang genug', { maxTokens: 999999 });
+  assert.equal(clamped.max_completion_tokens, 131072, 'Clamp schuetzt vor 400');
+});
+
+test('v19 reasoningMaxAllowed + isBudgetExhausted', () => {
+  assert.equal(reasoningMaxAllowed('meta-muse', 'muse-spark-1.3'), true);
+  assert.equal(reasoningMaxAllowed('meta-muse', 'muse-wonder-1.0'), true);
+  assert.equal(reasoningMaxAllowed('meta-muse', 'muse-spark-1.3-contributor'), false);
+  assert.equal(reasoningMaxAllowed('baseten', 'meta-models/muse-spark-open-1026'), false);
+  const exhausted = { chunks: 0, empty: 2, reason: 3, finish: 'length', err: '', usage: 'reasoning 198/200 tokens' };
+  assert.equal(isBudgetExhausted('', 'length', exhausted), true);
+  assert.equal(isBudgetExhausted('  ', 'length', exhausted), true);
+  assert.equal(isBudgetExhausted('', 'stop', exhausted), false, 'kein Retry bei stop');
+  assert.equal(isBudgetExhausted('export const meta = 1', 'length', exhausted), false, 'kein Retry bei Content');
+  assert.equal(isBudgetExhausted('', 'length', { ...exhausted, chunks: 1 }), false, 'kein Retry bei Teil-Content');
+  assert.equal(isBudgetExhausted('', 'length', { ...exhausted, reason: 0 }), false, 'kein Retry ohne Reasoning');
+  assert.equal(isBudgetExhausted('', 'length', null), false);
+  assert.equal(isBudgetExhausted('', null, exhausted), false);
+});
+
+test('v19 Direkt: length+Reasoning-only -> 1 Retry mit 131072, dann Erfolg via direct', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  const bodies = [];
+  let n = 0;
+  globalThis.fetch = async (url, opts) => {
+    n += 1;
+    bodies.push(JSON.parse(opts?.body ?? '{}'));
+    assert.equal(String(url), 'https://inference.baseten.co/v1/chat/completions');
+    if (n === 1) return lengthReasoningResponse();
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
+  assert.equal(n, 2, 'genau 1 Retry');
+  assert.equal(bodies[0].max_completion_tokens, 65536, 'erst 65536');
+  assert.equal(bodies[1].max_completion_tokens, 131072, 'retry 131072');
+  assert.equal(bodies[0].temperature, 0.2);
+  assert.ok(!('reasoning_effort' in bodies[0]) && !('reasoning_effort' in bodies[1]), 'nie Reasoning auf Baseten');
+  assert.equal(gen.via, 'direct');
+  assert.ok(gen.source.includes('export function init'));
+});
+
+test('v19 Direkt: doppeltes length -> E-GEN-PARSE nach genau 1 Retry', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let n = 0;
+  globalThis.fetch = async () => { n += 1; return lengthReasoningResponse(); };
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
+  assert.equal(n, 2, 'max 1 Retry, dann Fehlermeldung');
+});
+
+test('v19 Direkt: stop+Reasoning-only (leer) -> KEIN Retry (genau 1 Call)', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let n = 0;
+  globalThis.fetch = async () => {
+    n += 1;
+    return reasoningSseResponse([
+      { choices: [{ delta: { reasoning_content: 'Denke nach...' } }] },
+      { choices: [{ delta: {}, finish_reason: 'stop' }] },
+    ]);
+  };
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
+  assert.equal(n, 1, 'kein Retry ohne length');
+});
+
+test('v19 Proxy: length+Reasoning-only -> 1 Retry mit 131072 im Proxy-Body', async () => {
+  configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
+  const bodies = [];
+  let n = 0;
+  globalThis.fetch = async (_url, opts) => {
+    n += 1;
+    bodies.push(JSON.parse(opts?.body ?? '{}'));
+    if (n === 1) return lengthReasoningResponse();
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'meta-muse', model: 'muse-spark-1.3-contributor' });
+  assert.equal(n, 2, 'genau 1 Retry');
+  assert.equal(bodies[0].max_completion_tokens, 65536);
+  assert.equal(bodies[1].max_completion_tokens, 131072);
+  assert.equal(gen.via, 'proxy');
 });

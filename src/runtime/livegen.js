@@ -39,6 +39,66 @@ export const DIRECT_DEFAULT_MODEL = Object.freeze({
   baseten: 'meta-models/muse-spark-open-1026',
 });
 
+/**
+ * Ausgabe-Budget (Befund 30.10.2026: Reasoning frisst das Budget — HTTP 200,
+ * finish=length, nur Reasoning, kein Content; Eigentuemer-Vorgabe 31.10.2026:
+ * deutlich hoeher, Contributor ist guenstig). Meta-Doku: Reasoning-Tokens
+ * zaehlen gegen max_completion_tokens/max_tokens, Limit grosszuegig setzen
+ * (dev.meta.ai/docs/reasoning). 65536 initial / 131072 Retry (1M-Kontext
+ * Muse Spark Open, dev.meta.ai/docs/muse-spark-open/deploy); passt das Limit
+ * bei api.meta.ai nicht, meldet Upstream ehrlich HTTP 400 (E-GEN-400),
+ * nie stille Leere. Clamp 1000..131072 schuetzt vor 400/caps.
+ */
+export const GEN_MAX_COMPLETION_TOKENS = 65536;
+export const GEN_RETRY_MAX_COMPLETION_TOKENS = 131072;
+export const GEN_TEMPERATURE = 0.2;
+
+/**
+ * reasoning_effort=max nur fuer 1.3/wonder auf meta-muse — NICHT fuer
+ * -contributor (API: max dort nicht verfuegbar) und NICHT fuer Baseten
+ * (OpenAI-kompatibler Pfad, Param-Support unverifiziert -> 400-Risiko).
+ * @param {string} provider
+ * @param {string} model
+ */
+export function reasoningMaxAllowed(provider, model) {
+  return provider === 'meta-muse' && (model === 'muse-spark-1.3' || model === 'muse-wonder-1.0');
+}
+
+/**
+ * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder).
+ * @param {string} model
+ * @param {string} promptText
+ * @param {{ provider?: string, reasoning?: string, maxTokens?: number }} [opts]
+ */
+export function buildChatBody(model, promptText, opts = {}) {
+  const n = Number(opts.maxTokens ?? GEN_MAX_COMPLETION_TOKENS);
+  const maxTokens = Number.isFinite(n)
+    ? Math.min(Math.max(Math.round(n), 1000), 131072)
+    : GEN_MAX_COMPLETION_TOKENS;
+  const body = {
+    model,
+    stream: true,
+    messages: [{ role: 'user', content: promptText }],
+    temperature: GEN_TEMPERATURE,
+    max_completion_tokens: maxTokens,
+  };
+  if (opts.reasoning === 'max' && reasoningMaxAllowed(opts.provider ?? '', model)) body.reasoning_effort = 'max';
+  return body;
+}
+
+/**
+ * Budget-erschoepft (genau dann lohnt EIN Retry mit hoeherem Budget):
+ * leerer Text + finish length + nur Reasoning, kein sichtbarer Content.
+ * @param {string} full
+ * @param {string | null} finishReason
+ * @param {{ chunks: number, empty: number, reason: number, finish: string, err: string, usage: string } | null} info
+ */
+export function isBudgetExhausted(full, finishReason, info) {
+  return (!full || !String(full).trim())
+    && finishReason === 'length'
+    && !!info && !(info.chunks > 0) && info.reason > 0;
+}
+
 /** @param {string} provider */
 export function directChatUrl(provider) {
   const base = DIRECT_BASES[provider];
@@ -297,28 +357,39 @@ function finishModule(full, finishReason, via, ctx = {}) {
 
 /**
  * Direkt-Call: Browser -> Upstream (OpenAI-kompatibel, SSE), Key per BYOK.
- * Ein Versuch, keine Wiederholung: definitive HTTP-Fehler werfen E-GEN-*,
- * Transport-Fehler (Netz/CORS/Timeout) werfen E-GEN-DIREKT (Fallback-Signal).
+ * Budget GEN_MAX_COMPLETION_TOKENS; bei Budget-Erschoepfung (leer + finish
+ * length + nur Reasoning) max EIN Retry mit GEN_RETRY_MAX_COMPLETION_TOKENS.
+ * Definitive HTTP-Fehler werfen E-GEN-*, Transport-Fehler (Netz/CORS/Timeout)
+ * werfen E-GEN-DIREKT (Fallback-Signal).
  */
 async function generateDirect(url, provider, model, promptText, opts, key) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key, accept: 'text/event-stream' },
-      body: JSON.stringify({ model, stream: true, messages: [{ role: 'user', content: promptText }] }),
-      signal: ctrl.signal,
-    });
-    clearTimeout(timer);
-    if (!res.ok) {
-      const code = classify(res.status);
-      throw Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
+    const once = async (maxTokens) => {
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key, accept: 'text/event-stream' },
+          body: JSON.stringify(buildChatBody(model, promptText, { provider, reasoning: opts.reasoning, maxTokens })),
+          signal: ctrl.signal,
+        });
+        if (!res.ok) {
+          const code = classify(res.status);
+          throw Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
+        }
+        const { full, finishReason, info } = await readSseModule(res, opts.onToken);
+        return { full, finishReason, info, status: res.status };
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+    let r = await once(GEN_MAX_COMPLETION_TOKENS);
+    if (isBudgetExhausted(r.full, r.finishReason, r.info)) {
+      r = await once(GEN_RETRY_MAX_COMPLETION_TOKENS); // max 1 Retry
     }
-    const { full, finishReason, info } = await readSseModule(res, opts.onToken);
-    return finishModule(full, finishReason, 'direct', { provider, model, status: res.status, info });
+    return finishModule(r.full, r.finishReason, 'direct', { provider, model, status: r.status, info: r.info });
   } catch (e) {
-    clearTimeout(timer);
     if (e && typeof e.code === 'string' && e.code.startsWith('E-GEN-')) throw e;
     throw Object.assign(new Error('E-GEN-DIREKT: Direkt-Call nicht moeglich (Netz/CORS/Timeout)'), { code: 'E-GEN-DIREKT' });
   }
@@ -326,10 +397,13 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
 
 /**
  * @param {string} promptText vollstaendiger P1-Prompt inkl. Thema
- * @param {{ seed?: number, onToken?: (t: string) => void, provider?: string, model?: string }} [opts]
+ * @param {{ seed?: number, onToken?: (t: string) => void, provider?: string, model?: string, reasoning?: string }} [opts]
  * provider/model: Optional — Defaults (meta-muse/muse-spark-1.3-contributor).
+ * reasoning 'max': nur meta-muse + 1.3/wonder (nie -contributor/Baseten).
  * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser), Proxy nur als Fallback
  * bei Transport-Fehler; ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
+ * Budget GEN_MAX_COMPLETION_TOKENS, max EIN Retry mit hoeherem Budget bei
+ * Budget-Erschoepfung (leer + finish length + nur Reasoning).
  * @returns {Promise<GeneratedModule & { via: 'direct' | 'proxy' }>}
  */
 export async function generateLive(promptText, opts = {}) {
@@ -357,6 +431,8 @@ export async function generateLive(promptText, opts = {}) {
   let lastCode = 'E-GEN-5XX';
   let lastError = null;
   let sawHttp = false;
+  let budget = GEN_MAX_COMPLETION_TOKENS;
+  let budgetRetried = false;
   for (let attempt = 0; attempt <= 3; attempt += 1) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -367,7 +443,7 @@ export async function generateLive(promptText, opts = {}) {
       const res = await fetch(proxyUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ prompt: promptText, provider, model, seed: opts.seed ?? null, stream: true }),
+        body: JSON.stringify({ prompt: promptText, provider, model, seed: opts.seed ?? null, stream: true, max_completion_tokens: budget }),
         signal: ctrl.signal,
       });
       clearTimeout(timer);
@@ -385,6 +461,15 @@ export async function generateLive(promptText, opts = {}) {
       }
       const { full, finishReason, info } = await readSseModule(res, opts.onToken);
       sawHttp = true;
+      if (!budgetRetried && isBudgetExhausted(full, finishReason, info)) {
+        // Budget-Retry: Reasoning hat das Limit gefressen (leer + length +
+        // nur Reasoning) — EIN Retry mit hoeherem Budget, kein Transportversuch
+        // (attempt -= 1 gleicht das for-Inkrement aus, Flag begrenzt auf 1x).
+        budgetRetried = true;
+        budget = GEN_RETRY_MAX_COMPLETION_TOKENS;
+        attempt -= 1;
+        continue;
+      }
       return finishModule(full, finishReason, 'proxy', { provider, model, status: res.status, info });
     } catch (e) {
       clearTimeout(timer);

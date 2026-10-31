@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "build:standalone": "node scripts/build-standalone-v15a.mjs && node scripts/build-standalone-v16.mjs && node scripts/build-standalone-v17.mjs && node scripts/build-standalone-v18.mjs",
+    "build:standalone": "node scripts/build-standalone-v15a.mjs && node scripts/build-standalone-v16.mjs && node scripts/build-standalone-v17.mjs && node scripts/build-standalone-v18.mjs && node scripts/build-standalone-v19.mjs && node scripts/build-standalone-v20.mjs",
     "build:double": "node scripts/double-build.mjs",
     "render": "node scripts/render-single-file.mjs",
     "verify:static": "node scripts/verify-all.mjs --only=S1",

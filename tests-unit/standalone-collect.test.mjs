@@ -208,3 +208,14 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish statt nur Leere Antwort', a
   assert.match(msg, /finish=length/);
   assert.ok(msg.length <= 160, 'passt in genNotice (slice 160)');
 });
+
+test('v19-Budget: 65536 initial + 131072-Retry mit Gate in generate+modify', async () => {
+  const src = await html();
+  const count = (sub) => src.split(sub).length - 1;
+  assert.equal(count('max_completion_tokens:65536'), 2, 'Budget 65536 in generate + modify');
+  assert.equal(count('max_completion_tokens=131072'), 2, 'Retry-Budget 131072 in generate + modify');
+  assert.equal(count('budgetRetryable'), 3, 'Retry-Gate: Helper + 2 Calls');
+  assert.equal(count('max_completion_tokens:8000'), 0, 'altes 8000-Budget ersetzt');
+  assert.equal(count('max_completion_tokens:16384'), 0, 'v19-Zwischenwert ersetzt');
+  assert.equal(count('max_completion_tokens=32768'), 0, 'v19-Zwischenwert ersetzt');
+});

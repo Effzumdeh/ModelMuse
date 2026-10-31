@@ -298,8 +298,13 @@ if (isShowcase) {
   eqS('reasoningAllowed', 5, 'v17 reasoning gate (computed + selects + resets)');
   eqS('text/event-stream', 3, 'v17 SSE streaming (generate + modify + reader)');
   eqS('stream:true', 3, 'v17 stream flag (bodies + SSE decoder)');
-  eqS('max_completion_tokens', 2, 'v17 token cap (generate + modify)');
   eqS('max_output_tokens', 0, 'v17 no legacy token field');
+  { const n = cnt('max_completion_tokens'); if (n !== 2 && n !== 4) fail(`token cap count: ${n}; expected 2 (v17/v18) or 4 (v19 retry)`); else ok(`token cap occurrences = ${n}`); }
+  eqS('max_completion_tokens:65536', 2, 'v20 budget 65536 (generate + modify)');
+  eqS('max_completion_tokens=131072', 2, 'v20 retry budget 131072 (generate + modify)');
+  eqS('budgetRetryable', 3, 'v19 retry gate (helper + generate + modify)');
+  eqS('standalone-build v19', 1, 'v19 stamp (Budget + Retry)');
+  eqS('standalone-build v20', 1, 'v20 stamp (Budget hoch)');
   eqS('reasoning_effort', 2, 'v17 reasoning param (guarded generate + modify)');
   eqS('this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 3, 'v17 reasoning gate+guards (never -contributor)');
   eqS('logit_bias', 0, 'v17 no forbidden logits field');
