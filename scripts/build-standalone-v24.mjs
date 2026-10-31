@@ -138,7 +138,7 @@ function checkInvariants(s) {
     ['_lastReqR', 3],
     ['this._lastReq={', 4],
     ['staleHint', 2], ['buildTag', 3],
-    ['Build v24', 1], ['Build v23', 0], ['Strg+F5', 1],
+    ['Build v23', 0], ['Strg+F5', 1],
     ['slice(0,200)', 2], ['slice(0,160)', 0],
     ['slice(0,2048)', 2],
     ['emptyResponse', 4],
@@ -164,6 +164,10 @@ function checkInvariants(s) {
     ['Z,fence:', 2],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v25-Toleranz: Build-Stempel v24->v25 (v25 aendert Diagnose-Default/buildTag/mine).
+  const is25 = s.includes('standalone-build v25');
+  must(cnt(s, 'Build v24') === 1 || (is25 && cnt(s, 'Build v24') === 0), 'Invariante Build v24: ' + cnt(s, 'Build v24') + ', erwartet 1 (v25: 0)');
+  must(cnt(s, 'Build v25') === 0 || (is25 && cnt(s, 'Build v25') === 1), 'Invariante Build v25: ' + cnt(s, 'Build v25') + ', erwartet 0 (v25: 1)');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v24 Import-Strip + Validierung + Metriken)');
 }

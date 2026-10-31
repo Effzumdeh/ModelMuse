@@ -215,7 +215,7 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish/Usage/Retry/Build statt nur
   assert.match(msg, /finish=length/);
   assert.match(msg, /reasoning 198\/200/, 'Usage immer sichtbar (Budget- vs Thinking-Hypothese)');
   assert.match(msg, /Retry 1\/1/, 'Retry-Zaehler sichtbar');
-  assert.match(msg, /Build v24/, 'Build-Stempel sichtbar');
+  assert.match(msg, /Build v25/, 'Build-Stempel sichtbar');
   assert.ok(msg.length <= 200, 'passt in genNotice (slice 200)');
   app._lastRetry = 0;
   assert.match(app.emptyDetail(), /Retry 0\/1/, 'kein Retry ohne Budget-Retry');
@@ -278,12 +278,13 @@ test('v21-Reader: neue Content-Felder, Reasoning nie Content, strukturiertes Rea
   assert.equal(i.err, 'policy');
 });
 
-test('v24-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
+test('v25-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
   assert.equal(count('standalone-build v22'), 1, 'v22-Stempel (Historie) im HTML');
   assert.equal(count('standalone-build v23'), 1, 'v23-Stempel (Historie) im HTML');
-  assert.equal(count('standalone-build v24'), 1, 'v24-Stempel im HTML');
+  assert.equal(count('standalone-build v24'), 1, 'v24-Stempel (Historie) im HTML');
+  assert.equal(count('standalone-build v25'), 1, 'v25-Stempel im HTML');
   assert.equal(count('buildTag:function'), 1, 'buildTag-Methode');
   assert.equal(count('staleHint:function'), 1, 'staleHint-Methode');
   assert.ok(count('Strg+F5') === 1, 'Hart-Neuladen-Hinweis');
@@ -292,7 +293,7 @@ test('v24-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
     const code = extractMethod(src, name);
     app[name] = eval(`(${code.replace(`${name}:function`, 'function')})`);
   }
-  assert.equal(app.buildTag(), 'v24');
+  assert.equal(app.buildTag(), 'v25');
   for (const name of ['collectChatText', 'readSseText', 'readChatText', 'emptyDetail', 'buildTag', 'staleHint']) {
     assert.notEqual(src.indexOf(`${name}:function`), -1, `${name} vorhanden`);
   }
@@ -319,7 +320,7 @@ test('v22-Reader: Usage-Zahlen + reasonSample (2KB-Cap) im Info-Seitenkanal', as
   assert.ok(String(app._lastChatInfo.reasonSample).includes('Denke nach'), 'Reasoning-Auszug fuer Diagnose');
 });
 
-test('v24-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', async () => {
+test('v25-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', async () => {
   const src = await html();
   const app = appFrom(await html());
   const code = extractMethod(src, 'diagText');
@@ -350,7 +351,7 @@ test('v24-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', a
     app.lang = lang;
     const t = app.diagText();
     for (const bit of ['provider: baseten-direct', 'model: meta-models/muse-spark-open-1026', 'http: 200',
-      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v24',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v25',
       ...want[lang]]) {
       assert.ok(t.includes(bit), `${lang}: ${bit}`);
     }
@@ -372,7 +373,8 @@ test('v24-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () 
   const count = (sub) => src.split(sub).length - 1;
   assert.equal(count('standalone-build v22'), 1, 'v22-Stempel (Historie)');
   assert.equal(count('standalone-build v23'), 1, 'v23-Stempel (Historie)');
-  assert.equal(count('standalone-build v24'), 1, 'v24-Stempel');
+  assert.equal(count('standalone-build v24'), 1, 'v24-Stempel (Historie)');
+  assert.equal(count('standalone-build v25'), 1, 'v25-Stempel');
   assert.equal(count('diagText:function'), 1, 'diagText-Methode');
   assert.equal(count('copyDiag:function'), 1, 'copyDiag-Methode');
   assert.equal(count('copyDiagBtn'), 4, 'Button-Label: 3 Locales + Template');
