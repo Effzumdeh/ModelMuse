@@ -190,9 +190,11 @@ function checkInvariants(s) {
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   // v19-Toleranz: Budget+Retry erhoeht auf 4 (pre-v19: 2).
-  must(cnt(s, 'max_completion_tokens') === 2 || cnt(s, 'max_completion_tokens') === 4, 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 2 oder 4');
+  // v23-Toleranz: kein Length-Limit (nur noch Echo-Label 'req_max_completion_tokens: ').
+  must(cnt(s, 'max_completion_tokens') === 2 || cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 2 oder 4 (v23: 1)');
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
-  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4, 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4');
+  // v23-Toleranz: Request-Echo-Snapshots + Echo-Labels (2 + 2 + 4 + 2 = 10).
+  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4 || (s.includes('standalone-build v23') && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4 (v23: 10)');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (Provider-Umschalter, Streaming, Keys je Provider)');
 }

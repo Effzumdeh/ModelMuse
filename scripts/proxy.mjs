@@ -69,26 +69,11 @@ export const PROVIDERS = {
 export const DEFAULT_PROVIDER = 'meta-muse';
 
 /**
- * Upstream-Budget (Befund 30.10.2026: Reasoning frisst das Default-Budget —
- * HTTP 200, finish=length, kein Content; Eigentuemer-Vorgabe 31.10.2026:
- * deutlich hoeher, Contributor guenstig). 65536 initial / 131072 Retry
- * (1M-Kontext Muse Spark Open, dev.meta.ai/docs/muse-spark-open/deploy);
- * Temperatur 0.2 = deterministische Code-Gen (wie Standalone v17+).
- * Client darf pro Call mehr anfordern (Budget-Retry), Clamp 1000..131072
- * schuetzt vor 400/caps.
+ * Upstream-Request-Form (v23): KEIN Length-Limit — weder max_completion_tokens
+ * noch max_tokens (Eigentuemer-Vorgabe 31.10.2026: Modell nutzt eigenes
+ * Maximum). Temperatur 0.2 = deterministische Code-Gen.
  */
-export const UPSTREAM_MAX_COMPLETION_TOKENS = 65536;
 export const UPSTREAM_TEMPERATURE = 0.2;
-
-/**
- * Budget normalisieren (robust: ungueltig -> Default, nie Request-Abweisung).
- * @param {unknown} value
- */
-export function normalizeMaxTokens(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return UPSTREAM_MAX_COMPLETION_TOKENS;
-  return Math.min(Math.max(Math.round(n), 1000), 131072);
-}
 
 /** HTTP-Status -> E-GEN-Code (vgl. src/runtime/livegen.js classify). */
 export function mapStatusToCode(status) {
@@ -105,8 +90,9 @@ export function mapStatusToCode(status) {
 }
 
 /**
- * Body-Pruefung (rein, ohne Key/Netz).
- * @returns {{ ok: true, prompt: string, provider: string, model: string, maxTokens: number } | { ok: false, code: string, message: string }}
+ * Body-Pruefung (rein, ohne Key/Netz). v23: Limit-Felder werden ignoriert
+ * (nie an Upstream gereicht — Modell nutzt eigenes Maximum).
+ * @returns {{ ok: true, prompt: string, provider: string, model: string } | { ok: false, code: string, message: string }}
  */
 export function parseGenerateBody(body) {
   if (!body || typeof body !== 'object') {
@@ -133,8 +119,7 @@ export function parseGenerateBody(body) {
   if (!reg.models.includes(model)) {
     return { ok: false, code: 'E-GEN-404', message: `E-GEN-404: Modell ${model} beim Anbieter ${provider} nicht registriert` };
   }
-  const maxTokens = normalizeMaxTokens(body.max_completion_tokens ?? body.maxTokens);
-  return { ok: true, prompt, provider, model, maxTokens };
+  return { ok: true, prompt, provider, model };
 }
 
 /** Key-Shape pruefen (Laenge/Whitespace), Wert nie loggen. */
@@ -157,35 +142,36 @@ export async function loadServerKey() {
   }
 }
 
-/** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Budget+Temperatur).
- * v22-Extras NUR fuer Baseten (provider-Param): max_tokens spiegelt
- * max_completion_tokens, reasoning_effort 'low' fordert das kleinste BELEGTE
- * Thinking-Budget (Baseten-Doku: Muse Spark Open "Always on / Control None",
+/** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Temperatur).
+ * v23: KEIN Length-Limit (weder max_completion_tokens noch max_tokens).
+ * v22/v23-Extras NUR fuer Baseten (provider-Param):
+ * reasoning_effort 'low' fordert das kleinste BELEGTE Thinking-Budget
+ * (Baseten-Doku: Muse Spark Open "Always on / Control None",
  * supported low/medium/high/xhigh(default) — docs.baseten.co/inference/
  * model-apis/reasoning; Meta: nur low/medium/high/xhigh, none rejected —
  * dev.meta.ai/docs/muse-spark-open/prompting),
  * stream_options.include_usage liefert Usage im Stream. Meta-Pfad (und
  * unbekannte Provider) unveraendert — keine unverifizierten Params. */
-export function upstreamChatBody(model, prompt, maxTokens = UPSTREAM_MAX_COMPLETION_TOKENS, provider = undefined) {
+export function upstreamChatBody(model, prompt, provider = undefined) {
   const body = {
     model,
     stream: true,
     messages: [{ role: 'user', content: prompt }],
     temperature: UPSTREAM_TEMPERATURE,
-    max_completion_tokens: normalizeMaxTokens(maxTokens),
   };
   if (provider === 'baseten') {
-    body.max_tokens = normalizeMaxTokens(maxTokens);
     body.reasoning_effort = 'low';
     body.stream_options = { include_usage: true };
   }
   return body;
 }
 
-/** v22-Extras aus einem Upstream-Body streichen (exakt v20-Form). @param {any} body */
+/** v22/v23-Extras aus einem Upstream-Body streichen (defensive Limit-Felder
+ * inklusive, falls ein Alt-Call sie traegt). @param {any} body */
 export function stripUpstreamExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
+  if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
   if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
   if (body.reasoning_effort === 'low') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
@@ -296,7 +282,7 @@ export function createProxyServer() {
         authorization: 'Bearer ' + key,
         accept: 'text/event-stream',
       };
-      const upBody = upstreamChatBody(parsed.model, parsed.prompt, parsed.maxTokens, parsed.provider);
+      const upBody = upstreamChatBody(parsed.model, parsed.prompt, parsed.provider);
       try {
         // Baseten Model APIs: OpenAI-kompatibel, nur Bearer-Key (keine Zusatz-Header).
         upstream = await fetch(reg.base + reg.chatPath, {
@@ -310,7 +296,8 @@ export function createProxyServer() {
         return;
       }
       if (!upstream.ok && upstream.status === 400 && stripUpstreamExtras(upBody)) {
-        // v22: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut.
+        // v22/v23: Gateway lehnt unverifizierte Extras ab -> Body ohne
+        // Extras erneut.
         try {
           await upstream.body?.cancel();
         } catch {

@@ -60,3 +60,25 @@ verfuegbar (BYOK-only), daher Doku statt Echt-Call.
 - Diagnose-Export per Copy-Button (redigiert, ohne Key) liefert dem User
   die Rohdaten: Provider/Modell/HTTP/finish/Usage-Zahlen
   (reasoning+completion)/Retry/Build + Rohantwort ~2KB.
+
+## 6. Nachtrag v23 (31.10.2026, Eigentuemer-Vorgabe: kein Length-Limit)
+
+- **Kein belegter Thinking-Cap fuer Muse Spark Open**: Das
+  `reasoning`-Objekt (`reasoning.max_tokens`, caps Reasoning allein) wird
+  laut Chat-Completions-Referenz/OpenAPI-Spec **nur auf DeepSeek V4 Flash
+  0731 enforced, alle anderen Modelle ignorieren es**
+  (docs.baseten.co/reference/inference-api/chat-completions:
+  "other models ignore it"); Muse Spark Open bleibt "Always on / Control
+  None" (docs.baseten.co/inference/model-apis/reasoning). Deshalb wurde
+  **kein Cap eingebaut** (unbelegt), sondern: (a) **gar kein Length-Limit
+  mehr gesendet** (weder `max_completion_tokens` noch `max_tokens`, in
+  keinem Pfad: livegen direkt+proxy, Standalone generate+modify,
+  Erstversuch+Retry; Retry-Regel unveraendert: genau 1x nur bei
+  leer+length+nur Reasoning, mit unveraendertem Body), (b)
+  **Request-Echo in der Diagnose** (je Versuch: tatsächlich gesendete
+  Limit-/Thinking-Params + Temperatur + ob 400-Fallback griff; belegt
+  "nicht gesendet"), (c) **Prompt-Verschlankung** (nur generate-Prompt:
+  Licht&IBL-Details und update/dispose gekuerzt, alle Vertragsregeln +
+  "Kein Nachdenken"-Direktantwort bleiben), damit weniger Thinking noetig
+  ist. `reasoning_effort: 'low'` + 400-Fallback bleiben (kleinstes belegtes
+  Budget, nur Baseten-Pfad).

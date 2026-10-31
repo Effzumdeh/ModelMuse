@@ -109,7 +109,9 @@ function checkInvariants(s) {
   // v19-Toleranz: Budget+Retry erhoeht diese Zaehler (pre-v19 | v19).
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
   // v22-Toleranz: Diagnose-Export (diagText liest _lastChatInfo/_lastHttp je +1).
-  for (const [sub, vals] of [['max_completion_tokens', [2, 4]], ['_lastChatInfo', [5, 6, 7]], ['_lastHttp', [3, 5, 6]], ['reasoning_effort', [2, 4]]]) {
+  // v23-Toleranz: kein Length-Limit (max_completion_tokens nur noch Echo-Label = 1),
+  // Request-Echo-Snapshots + Echo-Labels (reasoning_effort = 10).
+  for (const [sub, vals] of [['max_completion_tokens', [2, 4, 1]], ['_lastChatInfo', [5, 6, 7]], ['_lastHttp', [3, 5, 6]], ['reasoning_effort', [2, 4, 10]]]) {
     must(vals.includes(cnt(s, sub)), 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + vals.join(' oder '));
   }
   must(s.length < 600000, 'Datei zu gross: ' + s.length);

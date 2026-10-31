@@ -116,7 +116,8 @@ test('routeGeneration: Erfolgspfad + Kappung + 2D-Typ', async () => {
   assert.ok(seen.prompt.startsWith('P0:\nRC-Tiefpass: '), 'Template ersetzt');
   assert.ok(seen.prompt.length <= tpl.length + ROUTER_FACHTEXT_MAX, 'Fachtext gekappt');
   assert.equal(seen.stream, false);
-  assert.equal(seen.max_tokens, 300);
+  assert.ok(!('max_tokens' in seen), 'v23: kein Length-Limit (Modell nutzt eigenes Maximum)');
+  assert.ok(!('max_completion_tokens' in seen), 'v23: kein Length-Limit');
   assert.equal(seen.temperature, 0);
 });
 

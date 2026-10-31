@@ -42,23 +42,22 @@ export const DIRECT_DEFAULT_MODEL = Object.freeze({
 /**
  * Diagnose-Build-Stempel (wird in Fehlermeldungen + kopierter Diagnose
  * mitgefuehrt, damit Support Faelle Build-Versionen zuordnen kann).
- * v22: Baseten-Thinking belegt nicht abschaltbar (Doku: reasoning low statt
- * none) + Diagnose-Export (Copy-Button, redigiert, ohne Key).
+ * v23: KEIN Length-Limit in Requests (Eigentuemer-Vorgabe 31.10.2026: weder
+ * max_completion_tokens noch max_tokens — Modell nutzt eigenes Maximum) +
+ * Request-Echo in der Diagnose (je Versuch).
  */
-export const GEN_BUILD = 'v22';
+export const GEN_BUILD = 'v23';
 
 /**
- * Ausgabe-Budget (Befund 30.10.2026: Reasoning frisst das Budget — HTTP 200,
- * finish=length, nur Reasoning, kein Content; Eigentuemer-Vorgabe 31.10.2026:
- * deutlich hoeher, Contributor ist guenstig). Meta-Doku: Reasoning-Tokens
- * zaehlen gegen max_completion_tokens/max_tokens, Limit grosszuegig setzen
- * (dev.meta.ai/docs/reasoning). 65536 initial / 131072 Retry (1M-Kontext
- * Muse Spark Open, dev.meta.ai/docs/muse-spark-open/deploy); passt das Limit
- * bei api.meta.ai nicht, meldet Upstream ehrlich HTTP 400 (E-GEN-400),
- * nie stille Leere. Clamp 1000..131072 schuetzt vor 400/caps.
+ * KEIN Length-Limit (Eigentuemer-Vorgabe 31.10.2026, v23): Weder
+ * max_completion_tokens noch max_tokens werden gesendet — in keinem Pfad
+ * (direkt/proxy, generate/modify, Retry). Das Modell nutzt sein eigenes
+ * Maximum; ein zu kleines Limit wurde live belegt vom Reasoning komplett
+ * verbraucht (HTTP 200, finish=length, nur Reasoning, kein Content).
+ * Der EINZIGE Retry bleibt: genau 1x bei leer + length + nur Reasoning,
+ * mit unveraendertem Body (kein Budget-Plus).
+ * Temperatur 0.2 = deterministische Code-Gen.
  */
-export const GEN_MAX_COMPLETION_TOKENS = 65536;
-export const GEN_RETRY_MAX_COMPLETION_TOKENS = 131072;
 export const GEN_TEMPERATURE = 0.2;
 
 /**
@@ -73,10 +72,9 @@ export function reasoningMaxAllowed(provider, model) {
 }
 
 /**
- * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder).
- * Baseten-Extras (v22, NUR provider baseten — Meta-Pfad unveraendert):
- * max_tokens spiegelt max_completion_tokens (falls das Gateway nur
- * max_tokens liest — erklaert wirkungslose Budget-Erhoehungen),
+ * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder; v23: KEIN
+ * Length-Limit — weder max_completion_tokens noch max_tokens).
+ * Baseten-Extras (v22/v23, NUR provider baseten — Meta-Pfad unveraendert):
  * reasoning_effort 'low' fordert das kleinste BELEGTE Thinking-Budget
  * (kein Abschalter: Baseten-Doku listet Muse Spark Open als "Always on /
  * Control None", supported low/medium/high/xhigh(default), none/minimal
@@ -87,36 +85,49 @@ export function reasoningMaxAllowed(provider, model) {
  * docs.baseten.co/reference/inference-api/chat-completions),
  * stream_options.include_usage liefert Usage im Stream (Diagnose
  * zeigt Reasoning-/Total-Tokens). Unverifizierte Params -> 400-Risiko,
- * deshalb genau EIN Fallback ohne Extras (exakt v20-Body) bei HTTP 400.
+ * deshalb genau EIN Fallback ohne Extras bei HTTP 400.
  * @param {string} model
  * @param {string} promptText
- * @param {{ provider?: string, reasoning?: string, maxTokens?: number }} [opts]
+ * @param {{ provider?: string, reasoning?: string }} [opts]
  */
 export function buildChatBody(model, promptText, opts = {}) {
-  const n = Number(opts.maxTokens ?? GEN_MAX_COMPLETION_TOKENS);
-  const maxTokens = Number.isFinite(n)
-    ? Math.min(Math.max(Math.round(n), 1000), 131072)
-    : GEN_MAX_COMPLETION_TOKENS;
   const body = {
     model,
     stream: true,
     messages: [{ role: 'user', content: promptText }],
     temperature: GEN_TEMPERATURE,
-    max_completion_tokens: maxTokens,
   };
   if (opts.reasoning === 'max' && reasoningMaxAllowed(opts.provider ?? '', model)) body.reasoning_effort = 'max';
   if ((opts.provider ?? '') === 'baseten') {
-    body.max_tokens = maxTokens;
     body.reasoning_effort = 'low';
     body.stream_options = { include_usage: true };
   }
   return body;
 }
 
-/** v22-Extras aus einem Chat-Body streichen (exakt v20-Form). @param {any} body */
+/** v23-Request-Echo aus einem Chat-Body: was wurde TATSAECHLICH gesendet
+ * (Limit-Felder sind seit v23 nie gesetzt — Echo belegt das) + ob der
+ * 400-Fallback griff. Key-frei (nur Param-Namen/Werte, nie Credentials).
+ * @param {any} body
+ * @param {boolean} slimmed400
+ */
+export function requestEcho(body, slimmed400) {
+  const b = body && typeof body === 'object' ? body : {};
+  return {
+    maxCompletionTokens: ('max_completion_tokens' in b) ? b.max_completion_tokens : null,
+    maxTokens: ('max_tokens' in b) ? b.max_tokens : null,
+    reasoningEffort: (typeof b.reasoning_effort === 'string') ? b.reasoning_effort : null,
+    temperature: (typeof b.temperature === 'number') ? b.temperature : null,
+    fallback400: !!slimmed400,
+  };
+}
+
+/** v22/v23-Extras aus einem Chat-Body streichen (exakt v20-Form + defensive
+ * Limit-Felder, falls ein Alt-Body sie traegt). @param {any} body */
 export function stripChatExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
+  if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
   if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
   if (body.reasoning_effort === 'low') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
@@ -371,7 +382,9 @@ export function redactDiagnoseText(s) {
 /**
  * Baut den kopierbaren Diagnose-Text (stabile Feldnamen, lokalisierte Kopfzeile,
  * Rohantwort auf ~2KB gekuerzt, IMMER redigiert — nie ein Key im Clipboard).
- * @param {{ provider?: unknown, model?: unknown, via?: unknown, status?: unknown, finish?: unknown, usage?: unknown, usageReasoning?: unknown, usageCompletion?: unknown, retried?: unknown, build?: unknown, rawSnippet?: unknown }} [diag]
+ * v23: Request-Echo (tatsaechlich gesendete Limit-/Thinking-Params je Versuch
+ * + 400-Fallback) — belegt, dass kein Length-Limit gesendet wurde.
+ * @param {{ provider?: unknown, model?: unknown, via?: unknown, status?: unknown, finish?: unknown, usage?: unknown, usageReasoning?: unknown, usageCompletion?: unknown, retried?: unknown, build?: unknown, rawSnippet?: unknown, req?: unknown, reqRetry?: unknown }} [diag]
  * @param {string} [locale]
  */
 export function buildDiagnoseText(diag = {}, locale = 'de') {
@@ -382,6 +395,22 @@ export function buildDiagnoseText(diag = {}, locale = 'de') {
       ? 'ModelMuse diagnóstico (editado, sin clave).'
       : 'ModelMuse Diagnose (redigiert, ohne Key).';
   const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? String(v) : '');
+  const dict = loc === 'en'
+    ? { noLimit: '(not sent)', none: '(none)', noTemp: '(none)', yes: 'yes', no: 'no' }
+    : loc === 'es'
+      ? { noLimit: '(no enviado)', none: '(ninguno)', noTemp: '(ninguna)', yes: 'sí', no: 'no' }
+      : { noLimit: '(nicht gesendet)', none: '(keins)', noTemp: '(keine)', yes: 'ja', no: 'nein' };
+  const lim = (r) => {
+    const o = (r && typeof r === 'object') ? r : {};
+    return {
+      maxC: (typeof o.maxCompletionTokens === 'number' && Number.isFinite(o.maxCompletionTokens)) ? String(o.maxCompletionTokens) : dict.noLimit,
+      maxT: (typeof o.maxTokens === 'number' && Number.isFinite(o.maxTokens)) ? String(o.maxTokens) : dict.noLimit,
+      eff: (typeof o.reasoningEffort === 'string' && o.reasoningEffort) ? o.reasoningEffort : dict.none,
+      temp: (typeof o.temperature === 'number' && Number.isFinite(o.temperature)) ? String(o.temperature) : dict.noTemp,
+      fb: o.fallback400 ? dict.yes : dict.no,
+    };
+  };
+  const req = lim(diag.req);
   const lines = [
     head,
     `provider: ${diag.provider ?? '?'}`,
@@ -393,9 +422,20 @@ export function buildDiagnoseText(diag = {}, locale = 'de') {
     `usage_reasoning_tokens: ${num(diag.usageReasoning)}`,
     `usage_completion_tokens: ${num(diag.usageCompletion)}`,
     `retry: ${(diag.retried ? 1 : 0)}/1`,
+    `req_max_completion_tokens: ${req.maxC}`,
+    `req_max_tokens: ${req.maxT}`,
+    `req_reasoning_effort: ${req.eff}`,
+    `req_temperature: ${req.temp}`,
+    `req_400_fallback: ${req.fb}`,
     `build: ${diag.build ?? GEN_BUILD}`,
     `raw_snippet_2k: ${String(diag.rawSnippet ?? '').slice(0, 2048)}`,
   ];
+  if (diag.retried && diag.reqRetry && typeof diag.reqRetry === 'object') {
+    const rr = lim(diag.reqRetry);
+    lines.splice(lines.length - 2, 0,
+      `req_retry_reasoning_effort: ${rr.eff}`,
+      `req_retry_400_fallback: ${rr.fb}`);
+  }
   return redactDiagnoseText(lines.join('\n'));
 }
 
@@ -415,6 +455,7 @@ export function errorDiagnose(e) {
     provider: '?', model: '?', via: '?', status: '?',
     finish: '', usage: '', usageReasoning: null, usageCompletion: null,
     retried: false, build: GEN_BUILD, rawSnippet: msg.slice(0, 2048),
+    req: requestEcho({}, false), reqRetry: null,
   };
 }
 
@@ -545,7 +586,7 @@ export function extractModuleSource(rawText) {
  * @param {string} full
  * @param {string | null} finishReason
  * @param {'direct' | 'proxy'} via
- * @param {{ provider?: string, model?: string, status?: number, retried?: boolean, rawSnippet?: string, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string, usageReasoning?: number | null, usageCompletion?: number | null, reasonSample?: string } }} [ctx]
+ * @param {{ provider?: string, model?: string, status?: number, retried?: boolean, rawSnippet?: string, req?: { maxCompletionTokens: number | null, maxTokens: number | null, reasoningEffort: string | null, temperature: number | null, fallback400: boolean } | null, reqRetry?: { maxCompletionTokens: number | null, maxTokens: number | null, reasoningEffort: string | null, temperature: number | null, fallback400: boolean } | null, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string, usageReasoning?: number | null, usageCompletion?: number | null, reasonSample?: string } }} [ctx]
  */
 function finishModule(full, finishReason, via, ctx = {}) {
   const who = `${ctx.provider ?? '?'}/${ctx.model ?? '?'}`;
@@ -562,6 +603,8 @@ function finishModule(full, finishReason, via, ctx = {}) {
     retried: !!ctx.retried,
     build: GEN_BUILD,
     rawSnippet: String(ctx.rawSnippet ?? full ?? '').slice(0, 2048),
+    req: ctx.req ?? requestEcho({}, false),
+    reqRetry: ctx.reqRetry ?? null,
   });
   if (!full || !full.trim()) {
     const err = Object.assign(new Error(`E-GEN-PARSE: leere Antwort ${where}${emptyHint(ctx.info, ctx.retried)}`), { code: 'E-GEN-PARSE' });
@@ -589,8 +632,9 @@ function finishModule(full, finishReason, via, ctx = {}) {
 
 /**
  * Direkt-Call: Browser -> Upstream (OpenAI-kompatibel, SSE), Key per BYOK.
- * Budget GEN_MAX_COMPLETION_TOKENS; bei Budget-Erschoepfung (leer + finish
- * length + nur Reasoning) max EIN Retry mit GEN_RETRY_MAX_COMPLETION_TOKENS.
+ * v23: KEIN Length-Limit (Modell nutzt eigenes Maximum); bei
+ * Budget-Erschoepfung (leer + finish length + nur Reasoning) max EIN Retry
+ * mit UNVERAENDERTEM Body. Request-Echo je Versuch landet in err.diagnose.
  * Definitive HTTP-Fehler werfen E-GEN-*, Transport-Fehler (Netz/CORS/Timeout)
  * werfen E-GEN-DIREKT (Fallback-Signal).
  */
@@ -598,10 +642,11 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
   const ctrl = new AbortController();
   try {
     let slimmed = false;
-    const once = async (maxTokens) => {
+    const attempts = [];
+    const once = async () => {
       const timer = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
-        const chatBody = buildChatBody(model, promptText, { provider, reasoning: opts.reasoning, maxTokens });
+        const chatBody = buildChatBody(model, promptText, { provider, reasoning: opts.reasoning });
         if (slimmed) stripChatExtras(chatBody);
         const send = async (b) => fetch(url, {
           method: 'POST',
@@ -611,28 +656,43 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
         });
         let res = await send(chatBody);
         if (!res.ok && res.status === 400 && !slimmed && stripChatExtras(chatBody)) {
-          // v22: Gateway lehnt unverifizierte Extras ab -> exakt v20-Body erneut
-          // (nie schlechter als v20: ohne Extras gab es dasselbe 400).
+          // v22/v23: Gateway lehnt unverifizierte Extras ab -> Body ohne
+          // Extras erneut (nie schlechter als ohne Extras: ohne gab es
+          // dasselbe 400).
           slimmed = true;
           res = await send(chatBody);
         }
         if (!res.ok) {
           const code = classify(res.status);
-          throw Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
+          const req = requestEcho(chatBody, slimmed);
+          attempts.push(req);
+          const err = Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
+          err.diagnose = {
+            provider, model, via: 'direct', status: res.status,
+            finish: '', usage: '', usageReasoning: null, usageCompletion: null,
+            retried: false, build: GEN_BUILD, rawSnippet: '',
+            req, reqRetry: null,
+          };
+          throw err;
         }
         const { full, finishReason, info, rawSnippet } = await readSseModule(res, opts.onToken);
+        attempts.push(requestEcho(chatBody, slimmed));
         return { full, finishReason, info, rawSnippet, status: res.status };
       } finally {
         clearTimeout(timer);
       }
     };
-    let r = await once(GEN_MAX_COMPLETION_TOKENS);
+    let r = await once();
     let retried = false;
     if (isBudgetExhausted(r.full, r.finishReason, r.info)) {
       retried = true;
-      r = await once(GEN_RETRY_MAX_COMPLETION_TOKENS); // max 1 Retry
+      r = await once(); // max 1 Retry, gleicher Body (kein Limit-Param)
     }
-    return finishModule(r.full, r.finishReason, 'direct', { provider, model, status: r.status, retried, info: r.info, rawSnippet: r.rawSnippet });
+    return finishModule(r.full, r.finishReason, 'direct', {
+      provider, model, status: r.status, retried, info: r.info, rawSnippet: r.rawSnippet,
+      req: attempts[0] ?? requestEcho({}, false),
+      reqRetry: retried ? (attempts[attempts.length - 1] ?? null) : null,
+    });
   } catch (e) {
     if (e && typeof e.code === 'string' && e.code.startsWith('E-GEN-')) throw e;
     throw Object.assign(new Error('E-GEN-DIREKT: Direkt-Call nicht moeglich (Netz/CORS/Timeout)'), { code: 'E-GEN-DIREKT' });
@@ -646,8 +706,10 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
  * reasoning 'max': nur meta-muse + 1.3/wonder (nie -contributor/Baseten).
  * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser), Proxy nur als Fallback
  * bei Transport-Fehler; ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
- * Budget GEN_MAX_COMPLETION_TOKENS, max EIN Retry mit hoeherem Budget bei
- * Budget-Erschoepfung (leer + finish length + nur Reasoning).
+ * v23: KEIN Length-Limit im Proxy-Body (Modell nutzt eigenes Maximum);
+ * max EIN Retry mit UNVERAENDERTEM Body bei Budget-Erschoepfung
+ * (leer + finish length + nur Reasoning). Request-Echo (Proxy-Upstream-Form,
+ * deterministisch aus Provider/Modell, gleiche Build-Version) in Diagnose.
  * @returns {Promise<GeneratedModule & { via: 'direct' | 'proxy' }>}
  */
 export async function generateLive(promptText, opts = {}) {
@@ -675,8 +737,16 @@ export async function generateLive(promptText, opts = {}) {
   let lastCode = 'E-GEN-5XX';
   let lastError = null;
   let sawHttp = false;
-  let budget = GEN_MAX_COMPLETION_TOKENS;
-  let budgetRetried = false;
+  // v23-Request-Echo Proxy-Pfad: Upstream-Form ist deterministisch
+  // (gleiche Build-Version): kein Limit-Param, Temperatur 0.2,
+  // reasoning_effort 'low' nur bei baseten, 400-Fallback proxy-intern.
+  const proxyReqEcho = () => requestEcho({
+    temperature: GEN_TEMPERATURE,
+    ...(provider === 'baseten'
+      ? { reasoning_effort: 'low', stream_options: { include_usage: true } }
+      : {}),
+  }, false);
+  let proxyRetried = false;
   for (let attempt = 0; attempt <= 3; attempt += 1) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -687,7 +757,7 @@ export async function generateLive(promptText, opts = {}) {
       const res = await fetch(proxyUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ prompt: promptText, provider, model, seed: opts.seed ?? null, stream: true, max_completion_tokens: budget }),
+        body: JSON.stringify({ prompt: promptText, provider, model, seed: opts.seed ?? null, stream: true }),
         signal: ctrl.signal,
       });
       clearTimeout(timer);
@@ -705,16 +775,17 @@ export async function generateLive(promptText, opts = {}) {
       }
       const { full, finishReason, info, rawSnippet } = await readSseModule(res, opts.onToken);
       sawHttp = true;
-      if (!budgetRetried && isBudgetExhausted(full, finishReason, info)) {
-        // Budget-Retry: Reasoning hat das Limit gefressen (leer + length +
-        // nur Reasoning) — EIN Retry mit hoeherem Budget, kein Transportversuch
+      if (!proxyRetried && isBudgetExhausted(full, finishReason, info)) {
+        // Reasoning-only + length — EIN Retry mit UNVERAENDERTEM Body
         // (attempt -= 1 gleicht das for-Inkrement aus, Flag begrenzt auf 1x).
-        budgetRetried = true;
-        budget = GEN_RETRY_MAX_COMPLETION_TOKENS;
+        proxyRetried = true;
         attempt -= 1;
         continue;
       }
-      return finishModule(full, finishReason, 'proxy', { provider, model, status: res.status, retried: budgetRetried, info, rawSnippet });
+      return finishModule(full, finishReason, 'proxy', {
+        provider, model, status: res.status, retried: proxyRetried, info, rawSnippet,
+        req: proxyReqEcho(), reqRetry: proxyRetried ? proxyReqEcho() : null,
+      });
     } catch (e) {
       clearTimeout(timer);
       if (e && (e.code === 'E-GEN-PARSE' || e.code === 'E-GEN-400' || e.code === 'E-GEN-401' || e.code === 'E-GEN-402' || e.code === 'E-GEN-403' || e.code === 'E-GEN-404' || e.code === 'E-GEN-413')) {
@@ -852,7 +923,6 @@ export async function routeGeneration(fachtext, opts = {}) {
         provider: typeof opts.provider === 'string' && opts.provider ? opts.provider : undefined,
         model: typeof opts.model === 'string' && opts.model ? opts.model : undefined,
         stream: false,
-        max_tokens: 300,
         temperature: 0,
       }),
       signal: ctrl.signal,

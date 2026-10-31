@@ -173,11 +173,9 @@ function checkInvariants(s) {
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 3], ['stream:true', 3],
-    ['max_completion_tokens', 4],
-    ['max_completion_tokens:65536', 2],
-    ['max_completion_tokens=131072', 2],
+    // v23-Nachfolger (kein Length-Limit): 4->1 / 2->0 (exakt in v23).
+    // v23-Nachfolger (Request-Echo): reasoning_effort 4->10 (exakt in v23).
     ['budgetRetryable', 3],
-    ['reasoning_effort', 4],
     ['stream_options', 4],
     ['reasoningAllowed', 5],
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
@@ -195,14 +193,19 @@ function checkInvariants(s) {
     ['Kein Nachdenken, keine Einleitung', 2],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v23-Toleranz: kein Length-Limit (4/2/2 -> 1/0/0), Request-Echo (reasoning 4->10).
+  const is23 = s.includes('standalone-build v23');
+  must(cnt(s, 'max_completion_tokens') === 4 || (is23 && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1)');
+  must(cnt(s, 'max_completion_tokens:65536') === 2 || (is23 && cnt(s, 'max_completion_tokens:65536') === 0), 'Invariante max_completion_tokens:65536: ' + cnt(s, 'max_completion_tokens:65536') + ', erwartet 2 (v23: 0)');
+  must(cnt(s, 'max_completion_tokens=131072') === 2 || (is23 && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
+  must(cnt(s, 'reasoning_effort') === 4 || (is23 && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 4 (v23: 10)');
   // v22-Toleranz: Diagnose-Export (pre-v22 | v22).
-  for (const [sub, vals] of [['_lastChatInfo', [6, 7]], ['_lastHttp', [5, 6]], ['_lastRetry', [5, 6]], ['buildTag', [2, 3]], ['Build v21', [1, 0]], ['Build v22', [0, 1]]]) {
+  for (const [sub, vals] of [['_lastChatInfo', [6, 7]], ['_lastHttp', [5, 6]], ['_lastRetry', [5, 6, 7]], ['buildTag', [2, 3]], ['Build v21', [1, 0]], ['Build v22', [0, 1]]]) {
     must(vals.includes(cnt(s, sub)), 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + vals.join(' oder '));
   }
-  must(cnt(s, 'gbody.max_tokens=65536') === 1, 'Extras-Anker gen');
-  must(cnt(s, 'mbody.max_tokens=65536') === 1, 'Extras-Anker mod');
-  must(cnt(s, 'gbody.max_tokens=131072') === 1, 'Retry-Mirror gen');
-  must(cnt(s, 'mbody.max_tokens=131072') === 1, 'Retry-Mirror mod');
+  for (const [sub, want] of [['gbody.max_tokens=65536', 1], ['mbody.max_tokens=65536', 1], ['gbody.max_tokens=131072', 1], ['mbody.max_tokens=131072', 1]]) {
+    must(cnt(s, sub) === want || (is23 && cnt(s, sub) === 0), 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want + ' (v23: 0)');
+  }
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v21 Thinking-Reduktion + Fallback + Reader + Diagnose)');
 }

@@ -108,11 +108,9 @@ function checkInvariants(s) {
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 3], ['stream:true', 3],
-    ['max_completion_tokens', 4],
-    ['max_completion_tokens:65536', 2],
-    ['max_completion_tokens=131072', 2],
+    // v23-Nachfolger (kein Length-Limit): 4->1 / 2->0 (exakt in v23).
+    // v23-Nachfolger (Request-Echo): reasoning_effort 4->10 (exakt in v23).
     ['budgetRetryable', 3],
-    ['reasoning_effort', 4],
     ['gbody.reasoning_effort="low"', 1],
     ['mbody.reasoning_effort="low"', 1],
     ['reasoning_effort="none"', 0],
@@ -121,9 +119,9 @@ function checkInvariants(s) {
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
     ['dev.meta.ai', 10],
     ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 7], ['_lastHttp', 6],
-    ['_lastRetry', 6],
+    // v23-Nachfolger: _lastRetry 6->7, Build v22->v23 (Toleranz unten).
     ['staleHint', 2], ['buildTag', 3],
-    ['Build v22', 1], ['Build v21', 0], ['Strg+F5', 1],
+    ['Build v21', 0], ['Strg+F5', 1],
     ['slice(0,200)', 2], ['slice(0,160)', 0],
     ['slice(0,2048)', 2],
     ['emptyResponse', 4],
@@ -137,10 +135,19 @@ function checkInvariants(s) {
     ['usageReasoning', 3], ['usageCompletion', 3],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
-  must(cnt(s, 'gbody.max_tokens=65536') === 1, 'Extras-Anker gen');
-  must(cnt(s, 'mbody.max_tokens=65536') === 1, 'Extras-Anker mod');
-  must(cnt(s, 'gbody.max_tokens=131072') === 1, 'Retry-Mirror gen');
-  must(cnt(s, 'mbody.max_tokens=131072') === 1, 'Retry-Mirror mod');
+  // v23-Toleranz: kein Length-Limit (4/2/2 -> 1/0/0), Request-Echo
+  // (reasoning 4->10, _lastRetry 6->7, Build v22->v23).
+  const is23 = s.includes('standalone-build v23');
+  must(cnt(s, 'max_completion_tokens') === 4 || (is23 && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1)');
+  must(cnt(s, 'max_completion_tokens:65536') === 2 || (is23 && cnt(s, 'max_completion_tokens:65536') === 0), 'Invariante max_completion_tokens:65536: ' + cnt(s, 'max_completion_tokens:65536') + ', erwartet 2 (v23: 0)');
+  must(cnt(s, 'max_completion_tokens=131072') === 2 || (is23 && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
+  must(cnt(s, 'reasoning_effort') === 4 || (is23 && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 4 (v23: 10)');
+  must(cnt(s, '_lastRetry') === 6 || (is23 && cnt(s, '_lastRetry') === 7), 'Invariante _lastRetry: ' + cnt(s, '_lastRetry') + ', erwartet 6 (v23: 7)');
+  must(cnt(s, 'Build v22') === 1 || (is23 && cnt(s, 'Build v22') === 0), 'Invariante Build v22: ' + cnt(s, 'Build v22') + ', erwartet 1 (v23: 0)');
+  must(cnt(s, 'Build v23') === 0 || (is23 && cnt(s, 'Build v23') === 1), 'Invariante Build v23: ' + cnt(s, 'Build v23') + ', erwartet 0 (v23: 1)');
+  for (const [sub, want] of [['gbody.max_tokens=65536', 1], ['mbody.max_tokens=65536', 1], ['gbody.max_tokens=131072', 1], ['mbody.max_tokens=131072', 1]]) {
+    must(cnt(s, sub) === want || (is23 && cnt(s, sub) === 0), 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want + ' (v23: 0)');
+  }
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v22 Diagnose-Export + Thinking-Budget low)');
 }

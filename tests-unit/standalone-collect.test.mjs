@@ -215,42 +215,46 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish/Usage/Retry/Build statt nur
   assert.match(msg, /finish=length/);
   assert.match(msg, /reasoning 198\/200/, 'Usage immer sichtbar (Budget- vs Thinking-Hypothese)');
   assert.match(msg, /Retry 1\/1/, 'Retry-Zaehler sichtbar');
-  assert.match(msg, /Build v22/, 'Build-Stempel sichtbar');
+  assert.match(msg, /Build v23/, 'Build-Stempel sichtbar');
   assert.ok(msg.length <= 200, 'passt in genNotice (slice 200)');
   app._lastRetry = 0;
   assert.match(app.emptyDetail(), /Retry 0\/1/, 'kein Retry ohne Budget-Retry');
 });
 
-test('v19-Budget: 65536 initial + 131072-Retry mit Gate in generate+modify', async () => {
+test('v23 kein Length-Limit in generate+modify (Erstversuch + Retry + Fallback)', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('max_completion_tokens:65536'), 2, 'Budget 65536 in generate + modify');
-  assert.equal(count('max_completion_tokens=131072'), 2, 'Retry-Budget 131072 in generate + modify');
-  assert.equal(count('budgetRetryable'), 3, 'Retry-Gate: Helper + 2 Calls');
+  assert.equal(count('temperature:0.2,max_completion_tokens'), 0, 'kein max_completion_tokens im Erst-Body');
+  assert.equal(count('max_completion_tokens:65536'), 0, 'kein 65536-Erst-Budget');
+  assert.equal(count('max_completion_tokens=131072'), 0, 'kein 131072-Retry-Budget');
+  assert.equal(count('max_tokens=65536'), 0, 'kein max_tokens-Mirror');
+  assert.equal(count('max_tokens=131072'), 0, 'kein max_tokens-Retry-Mirror');
+  assert.equal(count('delete gbody.max_tokens'), 0, 'kein Limit-Strip noetig (gen)');
+  assert.equal(count('delete mbody.max_tokens'), 0, 'kein Limit-Strip noetig (mod)');
   assert.equal(count('max_completion_tokens:8000'), 0, 'altes 8000-Budget ersetzt');
   assert.equal(count('max_completion_tokens:16384'), 0, 'v19-Zwischenwert ersetzt');
   assert.equal(count('max_completion_tokens=32768'), 0, 'v19-Zwischenwert ersetzt');
+  assert.equal(count('budgetRetryable'), 3, 'Retry-Gate: Helper + 2 Calls (Regel unveraendert: 1x nur bei leer+length+nur Reasoning)');
 });
 
 /* v21: Thinking-Reduktion + 400-Fallback + gehärteter Reader + Diagnose. */
 
-test('v21-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Extras', async () => {
+test('v23-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Extras, nie Limit', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('gbody.max_tokens=65536'), 1, 'Extras gen');
-  assert.equal(count('mbody.max_tokens=65536'), 1, 'Extras mod');
-  assert.equal(count('gbody.reasoning_effort="low"'), 1, 'Thinking-Budget gen (v22: belegtes Minimum low)');
+  assert.equal(count('gbody.max_tokens'), 0, 'kein max_tokens gen (Modell nutzt eigenes Maximum)');
+  assert.equal(count('mbody.max_tokens'), 0, 'kein max_tokens mod');
+  assert.equal(count('gbody.reasoning_effort="low"'), 1, 'Thinking-Budget gen (v22/v23: belegtes Minimum low)');
   assert.equal(count('mbody.reasoning_effort="low"'), 1, 'Thinking-Budget mod');
   assert.equal(count('reasoning_effort="none"'), 0, 'kein unbelegtes none (Doku: rejected/gemapped)');
-  assert.equal(count('reasoning_effort'), 4, '2 Gates + 2 low Baseten-Extras (v17-v22-Toleranz)');
+  assert.equal(count('reasoning_effort'), 10, '2 Gates + 2 low + 4 Echo-Snapshots + 2 Echo-Labels');
   assert.equal(count('include_usage'), 2, 'Usage im Stream gen+mod');
-  assert.equal(count('gbody.max_tokens=131072'), 1, 'Retry-Mirror gen');
-  assert.equal(count('mbody.max_tokens=131072'), 1, 'Retry-Mirror mod');
-  assert.equal(count('slimG'), 3, '400-Fallback gen (Flag+Check+Set)');
-  assert.equal(count('slimM'), 3, '400-Fallback mod (Flag+Check+Set)');
-  assert.ok(count('delete gbody.max_tokens') === 1 && count('delete gbody.stream_options') === 1, 'Fallback strippt Extras gen');
-  assert.ok(count('delete mbody.max_tokens') === 1 && count('delete mbody.stream_options') === 1, 'Fallback strippt Extras mod');
+  assert.equal(count('slimG'), 4, '400-Fallback gen (Flag+Check+Set+Echo)');
+  assert.equal(count('slimM'), 4, '400-Fallback mod (Flag+Check+Set+Echo)');
+  assert.ok(count('delete gbody.stream_options') === 1 && count('delete mbody.stream_options') === 1, 'Fallback strippt Extras (ohne Limit-Anteil)');
   assert.equal(count('Kein Nachdenken, keine Einleitung'), 2, 'Prompt-Direktantwort generate+modify');
+  assert.equal(count('this._lastReq={'), 4, 'Request-Snapshots gen+mod (Erstversuch+Fallback)');
+  assert.equal(count('_lastReqR'), 3, 'Request-Snapshots Retry gen+mod (+Diag-Lesen)');
 });
 
 test('v21-Reader: neue Content-Felder, Reasoning nie Content, strukturiertes Reasoning zählt', async () => {
@@ -274,10 +278,11 @@ test('v21-Reader: neue Content-Felder, Reasoning nie Content, strukturiertes Rea
   assert.equal(i.err, 'policy');
 });
 
-test('v21-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
+test('v23-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('standalone-build v22'), 1, 'Build-Stempel im HTML');
+  assert.equal(count('standalone-build v22'), 1, 'v22-Stempel (Historie) im HTML');
+  assert.equal(count('standalone-build v23'), 1, 'v23-Stempel im HTML');
   assert.equal(count('buildTag:function'), 1, 'buildTag-Methode');
   assert.equal(count('staleHint:function'), 1, 'staleHint-Methode');
   assert.ok(count('Strg+F5') === 1, 'Hart-Neuladen-Hinweis');
@@ -286,7 +291,7 @@ test('v21-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
     const code = extractMethod(src, name);
     app[name] = eval(`(${code.replace(`${name}:function`, 'function')})`);
   }
-  assert.equal(app.buildTag(), 'v22');
+  assert.equal(app.buildTag(), 'v23');
   for (const name of ['collectChatText', 'readSseText', 'readChatText', 'emptyDetail', 'buildTag', 'staleHint']) {
     assert.notEqual(src.indexOf(`${name}:function`), -1, `${name} vorhanden`);
   }
@@ -313,7 +318,7 @@ test('v22-Reader: Usage-Zahlen + reasonSample (2KB-Cap) im Info-Seitenkanal', as
   assert.ok(String(app._lastChatInfo.reasonSample).includes('Denke nach'), 'Reasoning-Auszug fuer Diagnose');
 });
 
-test('v22-Diagnose: diagText redigiert, alle Felder, ~2KB-Cap', async () => {
+test('v23-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', async () => {
   const src = await html();
   const app = appFrom(await html());
   const code = extractMethod(src, 'diagText');
@@ -327,11 +332,25 @@ test('v22-Diagnose: diagText redigiert, alle Felder, ~2KB-Cap', async () => {
     usage: 'reasoning 198/200 tokens', usageReasoning: 198, usageCompletion: 200,
     reasonSample: 'Denke nach... Authorization: Bearer HACKME12345678 ' + 'y'.repeat(5000),
   };
+  app._lastReq = { re: 'low', te: 0.2, fb: true };
+  app._lastReqR = { re: null, te: 0.2, fb: true };
+  const want = {
+    de: ['req_max_completion_tokens: (nicht gesendet)', 'req_max_tokens: (nicht gesendet)',
+      'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: ja',
+      'req_retry_reasoning_effort: (keins)', 'req_retry_400_fallback: ja'],
+    en: ['req_max_completion_tokens: (not sent)', 'req_max_tokens: (not sent)',
+      'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: yes',
+      'req_retry_reasoning_effort: (none)', 'req_retry_400_fallback: yes'],
+    es: ['req_max_completion_tokens: (no enviado)', 'req_max_tokens: (no enviado)',
+      'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: sí',
+      'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí'],
+  };
   for (const lang of ['de', 'en', 'es']) {
     app.lang = lang;
     const t = app.diagText();
     for (const bit of ['provider: baseten-direct', 'model: meta-models/muse-spark-open-1026', 'http: 200',
-      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v22']) {
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v23',
+      ...want[lang]]) {
       assert.ok(t.includes(bit), `${lang}: ${bit}`);
     }
     const rawLine = t.split('\n').find((l) => l.startsWith('raw_snippet_2k: '));
@@ -339,13 +358,19 @@ test('v22-Diagnose: diagText redigiert, alle Felder, ~2KB-Cap', async () => {
     assert.ok(!t.includes('HACKME12345678'), `${lang}: kein Key im Clipboard-Text`);
     assert.ok(t.includes('[REDACTED]'), `${lang}: Redaktionsmarker`);
   }
+  app._lastRetry = 0;
+  app.lang = 'de';
+  const noRetry = app.diagText();
+  assert.ok(!noRetry.includes('req_retry_'), 'ohne Retry keine Retry-Echo-Zeilen');
+  assert.ok(noRetry.includes('req_400_fallback: ja'), 'Erstversuch-Echo bleibt');
   assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
 });
 
-test('v22-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () => {
+test('v23-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('standalone-build v22'), 1, 'v22-Stempel');
+  assert.equal(count('standalone-build v22'), 1, 'v22-Stempel (Historie)');
+  assert.equal(count('standalone-build v23'), 1, 'v23-Stempel');
   assert.equal(count('diagText:function'), 1, 'diagText-Methode');
   assert.equal(count('copyDiag:function'), 1, 'copyDiag-Methode');
   assert.equal(count('copyDiagBtn'), 4, 'Button-Label: 3 Locales + Template');

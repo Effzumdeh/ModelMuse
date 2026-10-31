@@ -299,20 +299,30 @@ if (isShowcase) {
   eqS('text/event-stream', 3, 'v17 SSE streaming (generate + modify + reader)');
   eqS('stream:true', 3, 'v17 stream flag (bodies + SSE decoder)');
   eqS('max_output_tokens', 0, 'v17 no legacy token field');
-  { const n = cnt('max_completion_tokens'); if (n !== 2 && n !== 4) fail(`token cap count: ${n}; expected 2 (v17/v18) or 4 (v19 retry)`); else ok(`token cap occurrences = ${n}`); }
-  eqS('max_completion_tokens:65536', 2, 'v20 budget 65536 (generate + modify)');
-  eqS('max_completion_tokens=131072', 2, 'v20 retry budget 131072 (generate + modify)');
+  { const n = cnt('temperature:0.2,max_completion_tokens'); if (n !== 0) fail(`v23 no limit in Erst-Body: ${n}; expected 0`); else ok('v23 no max_completion_tokens in Erst-Body = 0'); }
+  eqS('max_completion_tokens:65536', 0, 'v23 kein 65536-Erst-Budget (generate + modify)');
+  eqS('max_completion_tokens=131072', 0, 'v23 kein 131072-Retry-Budget (generate + modify)');
+  eqS('max_tokens=65536', 0, 'v23 kein max_tokens-Mirror (generate + modify)');
+  eqS('max_tokens=131072', 0, 'v23 kein max_tokens-Retry-Mirror (generate + modify)');
+  eqS('delete gbody.max_tokens', 0, 'v23 kein Limit-Strip mehr noetig (gen)');
+  eqS('delete mbody.max_tokens', 0, 'v23 kein Limit-Strip mehr noetig (mod)');
   eqS('budgetRetryable', 3, 'v19 retry gate (helper + generate + modify)');
   eqS('standalone-build v19', 1, 'v19 stamp (Budget + Retry)');
   eqS('standalone-build v20', 1, 'v20 stamp (Budget hoch)');
   eqS('standalone-build v21', 1, 'v21 stamp (Thinking-Reduktion + Fallback)');
   eqS('standalone-build v22', 1, 'v22 stamp (Diagnose-Export + Thinking-Budget low)');
-  eqS('reasoning_effort', 4, 'v22 reasoning param (2 Gates + 2 low Baseten-Extras)');
-  eqS('reasoning_effort="low"', 2, 'v22 belegtes Thinking-Minimum (nur baseten-direct)');
-  eqS('reasoning_effort="none"', 0, 'v22 kein unbelegtes none (Doku: rejected/gemapped)');
+  eqS('standalone-build v23', 1, 'v23 stamp (kein Limit + Request-Echo + Prompt-Slim)');
+  eqS('reasoning_effort', 10, 'v23 reasoning param (2 Gates + 2 low + 4 Echo-Snapshots + 2 Echo-Labels)');
+  eqS('reasoning_effort="low"', 2, 'v23 belegtes Thinking-Minimum (nur baseten-direct)');
+  eqS('reasoning_effort="none"', 0, 'v23 kein unbelegtes none (Doku: rejected/gemapped)');
   eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
-  eqS('Build v22', 1, 'v22 build stamp in diagnosis');
-  eqS('Build v21', 0, 'v21 build stamp ersetzt');
+  eqS('req_max_completion_tokens: ', 1, 'v23 Request-Echo Limit (generate-Diag)');
+  eqS('req_max_tokens: ', 1, 'v23 Request-Echo Mirror (generate-Diag)');
+  eqS('req_reasoning_effort: ', 1, 'v23 Request-Echo Thinking (generate-Diag)');
+  eqS('req_400_fallback: ', 1, 'v23 Request-Echo Fallback (generate-Diag)');
+  eqS('req_retry_reasoning_effort: ', 1, 'v23 Request-Echo Retry (generate-Diag)');
+  eqS('Build v23', 1, 'v23 build stamp in diagnosis');
+  eqS('Build v22', 0, 'v22 build stamp ersetzt');
   eqS('Strg+F5', 1, 'v21 stale-build hint');
   eqS('diagText:function', 1, 'v22 diagnose text (redigiert, ohne Key)');
   eqS('copyDiag:function', 1, 'v22 diagnose copy (Clipboard + Fallback)');

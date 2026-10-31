@@ -33,9 +33,7 @@ function checkInvariants(s) {
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 3], ['stream:true', 3],
-    ['max_completion_tokens', 4],
-    ['max_completion_tokens:65536', 2],
-    ['max_completion_tokens=131072', 2],
+    // v23-Nachfolger (kein Length-Limit): 4->1 / 2->0 (exakt in v23).
     ['budgetRetryable', 3],
     // v21-Nachfolger (Thinking-Reduktion): reasoning_effort 2->4 (exakt in v21).
     // Exakte v21-Werte prueft build-standalone-v21.mjs.
@@ -50,8 +48,13 @@ function checkInvariants(s) {
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v23-Toleranz: kein Length-Limit (Werte 4/2/2 -> 1/0/0; exakt in v23).
+  must(cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1)');
+  must(cnt(s, 'max_completion_tokens:65536') === 2 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens:65536') === 0), 'Invariante max_completion_tokens:65536: ' + cnt(s, 'max_completion_tokens:65536') + ', erwartet 2 (v23: 0)');
+  must(cnt(s, 'max_completion_tokens=131072') === 2 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
-  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4, 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4');
+  // v23-Toleranz: Request-Echo (2 + 2 + 4 + 2 = 10).
+  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4 || (s.includes('standalone-build v23') && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4 (v23: 10)');
   // v22-Toleranz: Diagnose-Export (pre-v22: 6/5 | v22: 7/6).
   must(cnt(s, '_lastChatInfo') === 6 || cnt(s, '_lastChatInfo') === 7, 'Invariante _lastChatInfo: ' + cnt(s, '_lastChatInfo') + ', erwartet 6 oder 7');
   must(cnt(s, '_lastHttp') === 5 || cnt(s, '_lastHttp') === 6, 'Invariante _lastHttp: ' + cnt(s, '_lastHttp') + ', erwartet 5 oder 6');
