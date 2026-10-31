@@ -321,8 +321,13 @@ if (isShowcase) {
   eqS('req_reasoning_effort: ', 1, 'v23 Request-Echo Thinking (generate-Diag)');
   eqS('req_400_fallback: ', 1, 'v23 Request-Echo Fallback (generate-Diag)');
   eqS('req_retry_reasoning_effort: ', 1, 'v23 Request-Echo Retry (generate-Diag)');
-  eqS('Build v23', 1, 'v23 build stamp in diagnosis');
+  eqS('Build v24', 1, 'v24 build stamp in diagnosis');
+  eqS('Build v23', 0, 'v23 build stamp ersetzt');
   eqS('Build v22', 0, 'v22 build stamp ersetzt');
+  eqS('standalone-build v24', 1, 'v24 stamp (Import-Strip positionsunabhaengig + Validierung)');
+  eqS('Fix3 Import-Strip v24', 1, 'v24 positionsunabhaengiger Import-Strip');
+  eqS('import verblieben', 1, 'v24 Rest-Import-Validierung (klassifiziert)');
+  eqS('Z,fence:', 2, 'v24 Status-Metriken (Content-Laenge + Fence, generate + modify)');
   eqS('Strg+F5', 1, 'v21 stale-build hint');
   eqS('diagText:function', 1, 'v22 diagnose text (redigiert, ohne Key)');
   eqS('copyDiag:function', 1, 'v22 diagnose copy (Clipboard + Fallback)');

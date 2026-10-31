@@ -123,7 +123,8 @@ function checkInvariants(s) {
     ['_lastReqR', 3],
     ['this._lastReq={', 4],
     ['staleHint', 2], ['buildTag', 3],
-    ['Build v23', 1], ['Build v22', 0], ['Strg+F5', 1],
+    // v24-Nachfolger: Build v23->v24 (Toleranz unten).
+    ['Build v22', 0], ['Strg+F5', 1],
     ['slice(0,200)', 2], ['slice(0,160)', 0],
     ['slice(0,2048)', 2],
     ['emptyResponse', 4],
@@ -144,6 +145,10 @@ function checkInvariants(s) {
     ['req_retry_400_fallback: ', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v24-Toleranz: Build-Stempel v23->v24.
+  const is24 = s.includes('standalone-build v24');
+  must(cnt(s, 'Build v23') === 1 || (is24 && cnt(s, 'Build v23') === 0), 'Invariante Build v23: ' + cnt(s, 'Build v23') + ', erwartet 1 (v24: 0)');
+  must(cnt(s, 'Build v24') === 0 || (is24 && cnt(s, 'Build v24') === 1), 'Invariante Build v24: ' + cnt(s, 'Build v24') + ', erwartet 0 (v24: 1)');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v23 kein Limit + Request-Echo + Prompt-Slim)');
 }
