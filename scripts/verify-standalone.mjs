@@ -431,6 +431,23 @@ if (isShowcase) {
   eqS('standalone-build v40', 1, 'v40 Stempel (Reasoning-Stufen je Modell: max nur wo belegt)');
   eqS('||this.genProvider==="openrouter";},', 1, 'v40 max-Gate += openrouter (reasoningAllowed, max dort belegt)');
   eqS('this.genProvider==="openrouter"?"xhigh":"max"', 1, 'v40 Default openrouter xhigh (kein stilles max-Upgrade)');
+  eqS('standalone-build v41', 1, 'v41 Stempel (Export-Menue unten links: GLB/PNG/SVG je Modus)');
+  // v41 (E): Export-Menue unten links + Host-Exportlogik + I18N de/en/es.
+  eqS('id="export-menu"', 1, 'v41 Export-Menue unten links (Template)');
+  eqS('toggleExportMenu:function', 1, 'v41 Menue-Methode');
+  eqS('exportGLB:async function', 1, 'v41 GLB-Methode');
+  eqS('exportPNG:async function', 1, 'v41 PNG-Methode');
+  eqS('exportSVG:async function', 1, 'v41 SVG-Methode');
+  eqS('window.__viewer.exportSceneGLB = async function', 1, 'v41 GLB hostseitig');
+  eqS('three/addons/exporters/GLTFExporter.js', 1, 'v41 GLTF-Importmap (0 Bytes)');
+  eqS('onlyVisible: true', 1, 'v41 Part-Ausblendung wirkt');
+  eqS('userData.labelText', 2, 'v41 Labels als GLB-extras (Guard + Stempel)');
+  eqS('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"', 5, 'v41 xmlns in allen 5 Inline-Tags');
+  eqS('saveModel:', 3, 'v41 I18N saveModel de/en/es');
+  eqS('saveGlb:', 3, 'v41 I18N saveGlb de/en/es');
+  eqS('savePng:', 3, 'v41 I18N savePng de/en/es');
+  eqS('saveSvg:', 3, 'v41 I18N saveSvg de/en/es');
+  eqS('OctahedronGeometry, OrthographicCamera, PCFShadowMap', 1, 'v41 E8 Destructure-Luecke (registerFree funktionsfaehig)');
   eqS('"OctahedronGeometry","OrthographicCamera","PCFShadowMap"', 1, 'v38 OrthographicCamera-Allowlist');
   eqS('OctahedronGeometry,OrthographicCamera,PCFShadowMap', 2, 'v38 OrthographicCamera-Prolog x2');
   eqS('standalone-build v29', 1, 'v29 stamp (Modelliste 10->6 + Umbenennungen)');

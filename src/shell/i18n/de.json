@@ -85,7 +85,7 @@
     "importieren": ".js importieren",
     "ansehen": "Ansehen",
     "ueberarbeiten": "Überarbeiten",
-    "export": "Export",
+    "exportQuellcode": "Export",
     "loeschen": "Löschen",
     "bereit": "Bibliothek bereit.",
     "geladen": "„{titel}“ geladen.",
@@ -101,6 +101,16 @@
     "nurSpeicher": "Nur Speicher — kein Session-Storage.",
     "keinModell": "kein Modell geladen",
     "inModify": "„{id}“ ins Modify-Panel geladen — Änderung beschreiben und starten."
+  },
+  "modellExport": {
+    "speichern": "Speichern",
+    "glb": "GLB (3D-Modell)",
+    "png": "PNG (aktuelle Ansicht)",
+    "svg": "SVG (Vektor)",
+    "gespeichert": "{datei} gespeichert.",
+    "fehler": "Speichern fehlgeschlagen: {detail}",
+    "keinModell": "Kein Modell geladen.",
+    "keinSvg": "Für diese Ansicht gibt es kein SVG."
   },
   "player": {
     "registryFehler": "Registry-Fehler: {detail}",

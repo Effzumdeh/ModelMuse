@@ -226,7 +226,7 @@ export function buildMermaidSvg(spec) {
   const parsed = parseMermaid(s.source ?? '');
   const esc = escMermaidXml;
   const title = String(s.title ?? '').slice(0, 48);
-  let out = '<svg viewBox="0 0 640 360" width="100%" height="100%" role="img">'
+  let out = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="100%" height="100%" role="img">'
     + '<rect x="0" y="0" width="640" height="360" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>'
     + `<text x="40" y="30" fill="#0f172a" font-size="16" font-weight="bold">${esc(title)}</text>`;
   const n = parsed.nodes.length;

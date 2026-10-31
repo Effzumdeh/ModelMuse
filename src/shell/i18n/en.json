@@ -85,7 +85,7 @@
     "importieren": "Import .js",
     "ansehen": "View",
     "ueberarbeiten": "Revise",
-    "export": "Export",
+    "exportQuellcode": "Export",
     "loeschen": "Delete",
     "bereit": "Library ready.",
     "geladen": "“{titel}” loaded.",
@@ -101,6 +101,16 @@
     "nurSpeicher": "Memory only — no session storage.",
     "keinModell": "no model loaded",
     "inModify": "“{id}” loaded into the revise panel — describe the change and start."
+  },
+  "modellExport": {
+    "speichern": "Save",
+    "glb": "GLB (3D model)",
+    "png": "PNG (current view)",
+    "svg": "SVG (vector)",
+    "gespeichert": "{datei} saved.",
+    "fehler": "Save failed: {detail}",
+    "keinModell": "No model loaded.",
+    "keinSvg": "No SVG available for this view."
   },
   "player": {
     "registryFehler": "Registry error: {detail}",

@@ -72,7 +72,7 @@ export function mountLibrary(els) {
           say(tt('bibliothek.ladefehler', { detail: String((err && err.message) || err).slice(0, 160) }), true);
         }
       });
-      mk(tt('bibliothek.export'), (entry) => {
+      mk(tt('bibliothek.exportQuellcode'), (entry) => {
         const { filename, text } = exportEntry(els.lib, String(entry.id));
         downloadFile(filename, text);
         say(tt('bibliothek.exportiert', { datei: filename }));

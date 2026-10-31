@@ -85,7 +85,7 @@
     "importieren": "Importar .js",
     "ansehen": "Ver",
     "ueberarbeiten": "Revisar",
-    "export": "Exportar",
+    "exportQuellcode": "Exportar",
     "loeschen": "Eliminar",
     "bereit": "Biblioteca lista.",
     "geladen": "«{titel}» cargado.",
@@ -101,6 +101,16 @@
     "nurSpeicher": "Solo memoria — sin session storage.",
     "keinModell": "ningún modelo cargado",
     "inModify": "«{id}» cargado en el panel de revisión — describa el cambio e inicie."
+  },
+  "modellExport": {
+    "speichern": "Guardar",
+    "glb": "GLB (modelo 3D)",
+    "png": "PNG (vista actual)",
+    "svg": "SVG (vector)",
+    "gespeichert": "{datei} guardado.",
+    "fehler": "Error al guardar: {detail}",
+    "keinModell": "Ningún modelo cargado.",
+    "keinSvg": "No hay SVG para esta vista."
   },
   "player": {
     "registryFehler": "Error de registro: {detail}",

@@ -122,7 +122,7 @@ export function buildGraphSvg(spec) {
       pos.set(nd.id, { x: Math.round(320 + 190 * Math.cos(a)), y: Math.round(175 + 105 * Math.sin(a)) });
     });
   }
-  let out = '<svg viewBox="0 0 640 360" width="100%" height="100%" role="img">'
+  let out = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="100%" height="100%" role="img">'
     + '<defs><marker id="d3a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0f172a"/></marker></defs>'
     + '<rect x="0" y="0" width="640" height="360" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>'
     + `<text x="40" y="30" fill="#0f172a" font-size="16" font-weight="bold">${esc(title)}</text>`

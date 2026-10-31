@@ -24,7 +24,7 @@ export function escXml(v) {
 }
 
 function head(title) {
-  return `<svg viewBox="0 0 640 360" width="100%" height="100%" role="img">`
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="100%" height="100%" role="img">`
     + `<rect x="0" y="0" width="640" height="360" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>`
     + `<text x="40" y="30" fill="#0f172a" font-size="16" font-weight="bold">${escXml(String(title ?? '').slice(0, 48))}</text>`;
 }
@@ -157,7 +157,7 @@ export function isWellformedSvg(svg) {
     const src = String(svg ?? '');
     if (!/<svg[\s>]/.test(src) || !/<\/svg\s*>/.test(src)) return false;
     if (/<script[\s>]/i.test(src)) return false;
-    if (/(https?:|data:text\/html|javascript:)/i.test(src)) return false;
+    if (/(https?:(?!\/\/www\.w3\.org\/2000\/svg)|data:text\/html|javascript:)/i.test(src)) return false;
     const opens = src.match(/<(rect|circle|polygon|line|path|ellipse|text|g|defs|marker|svg)\b[^/]*>/g) ?? [];
     const selfClosed = opens.filter((t) => /\/>$/.test(t)).length;
     const closes = (src.match(/<\/(rect|circle|polygon|line|path|ellipse|text|g|defs|marker|svg)>/g) ?? []).length;

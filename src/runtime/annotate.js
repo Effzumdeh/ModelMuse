@@ -95,6 +95,7 @@ export function addLabel(root, text, position, opts = {}) {
   const id = opts.id ?? `label-${b.labels.size + 1}`;
   sprite.userData.helperId = id;
   sprite.userData.helperLevel = opts.level ?? 'aufbau';
+  sprite.userData.labelText = text;
   if (opts.leader !== false) {
     const geo = new BufferGeometry().setFromPoints([
       new Vector3(position[0], position[1], position[2]),
@@ -166,6 +167,7 @@ export function addMeasurement(root, from, to, label, opts = {}) {
   const id = opts.id ?? `measure-${bucket(root).measurements.size + 1}`;
   group.userData.helperId = id;
   group.userData.helperLevel = opts.level ?? 'aufbau';
+  group.userData.measureText = label;
   root.add(group);
   bucket(root).measurements.add(group);
   return {
