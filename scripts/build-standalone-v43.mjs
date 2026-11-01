@@ -27,6 +27,12 @@
  *     in-place (Historie bleibt erhalten, kein neuer Eintrag).
  * H5  Stempel v43 + Invarianten (Alt-Zaehler unveraendert, 600-KB-Toleranz) + Syntax-Gate.
  *
+ * Hinweis (v44-Nachfolger, 01.11.2026): v44 entfernt den Zurueck-Button +
+ * backHistory-Handler und ersetzt das histRestore-Label durch histBtnText
+ * (Ausgewaehlt-Markierung). checkInvariants() unten erkennt den v44-Stempel
+ * und erwartet dann 0 fuer die vier abgeloesten UI-/Methoden-Zaehler; der
+ * v43-Transformpfad ist unveraendert.
+ *
  * Aufruf: node scripts/build-standalone-v43.mjs [htmlDatei]
  */
 import { readFile, writeFile } from 'node:fs/promises';
@@ -138,6 +144,9 @@ const HIST_UI_BUTTON = '\r\n<button type="button" @click="backHistory" class="in
 const HIST_UI_LIST = '\r\n<p class="mt-2 text-sm font-medium">{{t(\'histTitle\')}}</p><ul class="mt-1 space-y-1"><li v-for="h in histList()" :key="h.v" class="flex items-center justify-between gap-2 text-sm"><span>{{histEntryText(h)}}</span><button type="button" @click="restoreHistoryVersion(h.v)" class="inline-flex items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-700 px-3 min-h-[44px] text-xs font-semibold">{{t(\'histRestore\')}}</button></li><li v-if="!histList().length" class="text-xs text-slate-500 dark:text-slate-400">{{t(\'histEmpty\')}}</li></ul>';
 
 function checkInvariants(s) {
+  // v44-Nachfolger: Zurueck-Button + backHistory-Handler + histRestore-Label
+  // sind abgeloest (Ausgewaehlt-Markierung via histBtnText) -> Zaehler 0.
+  const hasV44 = s.includes('standalone-build v44');
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1],
     ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
@@ -182,14 +191,15 @@ function checkInvariants(s) {
     ['histBaseId:function', 1], ['histKey:function', 1], ['histLoad:function', 1],
     ['histSave:function', 1], ['histAppend:function', 1], ['histRecord:function', 1],
     ['histList:function', 1], ['histEntryText:function', 1],
-    ['restoreHistoryVersion:async function', 1], ['backHistory:function', 1],
+    ['restoreHistoryVersion:async function', 1], ['backHistory:function', hasV44 ? 0 : 1],
     // H2/H4 (v43): Tick-State + Bumps (Data + openModify + append + restore).
     ['modHistTick:0,', 1], ['this.modHistTick=(this.modHistTick||0)+1;', 3],
-    // H3 (v43): History-UI (Button + Liste + Restore).
-    ['@click="backHistory"', 1], ['@click="restoreHistoryVersion(h.v)"', 1],
+    // H3 (v43): History-UI (Button + Verlauf) — v44: Zurueck raus (0),
+    // histRestore-Label durch histBtnText ersetzt (0).
+    ['@click="backHistory"', hasV44 ? 0 : 1], ['@click="restoreHistoryVersion(h.v)"', 1],
     ['v-for="h in histList()"', 1],
-    ["{{t('histBack')}}", 1], ["{{t('histTitle')}}", 1],
-    ["{{t('histRestore')}}", 1], ["{{t('histEmpty')}}", 1],
+    ["{{t('histBack')}}", hasV44 ? 0 : 1], ["{{t('histTitle')}}", 1],
+    ["{{t('histRestore')}}", hasV44 ? 0 : 1], ["{{t('histEmpty')}}", 1],
     // H4 (v43): Record-Hook im Modify-Erfolg genau 1x.
     ['this.histRecord(src,', 1],
   ];

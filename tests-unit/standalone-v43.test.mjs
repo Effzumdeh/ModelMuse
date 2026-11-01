@@ -2,12 +2,13 @@
  * v43-Regression: Versionshistorie ins Standalone-Release.
  * Prueft das GEBAUTE Artefakt dist-standalone/modelmuse-standalone.html:
  *  H1 I18N-History-Keys (7 Keys x de/en/es/fr, Wortlaut Dev-Shell),
- *  H2 History-Helper (10 Vue-Methoden) + Tick-State,
- *  H3 History-UI (Zurueck-Button, Verlaufstitel, V-Liste, Wiederherstellen),
+ *  H2 History-Helper (Vue-Methoden) + Tick-State,
+ *  H3 History-UI — seit v44 (Historie gestrafft) OHNE Zurueck-Button, mit
+ *      Ausgewaehlt-Markierung (Details siehe tests-unit/standalone-v44.test.mjs),
  *  H4 Verdrahtung (openModify-Tick, Record-Hook),
  *  H5 Kette intakt (Stempel v13..v43, 600-KB-Toleranz),
  *  H6 Verhalten: ausgelieferte Helper im Bundle (extrahiert, Stub-Kontext)
- *      V1..VX-Nummerierung, Familien-Key, Deckel 10, Restore/Back.
+ *      V1..VX-Nummerierung, Familien-Key, Deckel 10, Restore in-place.
  * Ablauf: erst bauen (npm run build:standalone), dann Tests.
  */
 import { test } from 'node:test';
@@ -98,7 +99,7 @@ async function loadHelpers(storage) {
   const s = await html();
   const H = stubContext(storage);
   for (const name of ['histBaseId', 'histKey', 'histLoad', 'histSave', 'histAppend',
-    'histRecord', 'histList', 'histEntryText', 'restoreHistoryVersion', 'backHistory']) {
+    'histRecord', 'histList', 'histEntryText', 'restoreHistoryVersion']) {
     H[name] = extractMethod(s, name);
   }
   return { s, H };
@@ -158,25 +159,29 @@ test('H2/H4: Helper-Methoden + Tick-State + Hooks genau 1x', async () => {
   for (const name of ['histBaseId:function', 'histKey:function', 'histLoad:function',
     'histSave:function', 'histAppend:function', 'histRecord:function',
     'histList:function', 'histEntryText:function',
-    'restoreHistoryVersion:async function', 'backHistory:function']) {
+    'restoreHistoryVersion:async function']) {
     assert.equal(cnt(s, name), 1, 'Methode genau 1x: ' + name);
   }
+  // v44: Zurueck-Button + backHistory-Handler entfernt (Restore via V-Liste).
+  assert.equal(cnt(s, 'backHistory:function'), 0, 'backHistory-Handler entfernt');
   assert.equal(cnt(s, 'modHistTick:0,'), 1, 'Tick-State genau 1x');
   assert.equal(cnt(s, 'this.modHistTick=(this.modHistTick||0)+1;'), 3, 'Tick-Bumps (openModify + append + restore)');
   assert.equal(cnt(s, 'this.histRecord(src,'), 1, 'Record-Hook im Modify-Erfolg');
   assert.equal(cnt(s, '"modelmuse-history-v1:"+'), 1, 'History-Namespace genau 1x');
 });
 
-test('H3: History-UI im Modify-Overlay', async () => {
+test('H3: History-UI im Modify-Overlay (v44: ohne Zurueck-Button)', async () => {
   const s = await html();
-  assert.equal(cnt(s, '@click="backHistory"'), 1, 'Zurueck-Button genau 1x');
+  // v44 (Historie gestrafft): Zurueck-Button redundant zur V-Liste -> raus.
+  assert.equal(cnt(s, '@click="backHistory"'), 0, 'Zurueck-Button entfernt');
+  assert.equal(cnt(s, "{{t('histBack')}}"), 0, 'Zurueck-Label entfernt');
   assert.equal(cnt(s, '@click="restoreHistoryVersion(h.v)"'), 1, 'Wiederherstellen-Button genau 1x');
   assert.equal(cnt(s, 'v-for="h in histList()"'), 1, 'V-Liste genau 1x');
-  assert.equal(cnt(s, "{{t('histBack')}}"), 1, 'Zurueck-Label');
   assert.equal(cnt(s, "{{t('histTitle')}}"), 1, 'Verlaufstitel');
-  assert.equal(cnt(s, "{{t('histRestore')}}"), 1, 'Wiederherstellen-Label');
   assert.equal(cnt(s, "{{t('histEmpty')}}"), 1, 'Leer-Hinweis');
   assert.ok(s.includes('{{histEntryText(h)}}'), 'Versionseintrag V{nr} · Datum · Titel');
+  // v44: aktives Label via histBtnText (Ausgewaehlt-Markierung, Details in v44-Test).
+  assert.equal(cnt(s, "{{t('histRestore')}}"), 0, 'Restore-Label durch histBtnText ersetzt');
 });
 
 test('H6: Verhalten V1..VX (leer -> V1 Vorgaenger + V2 Ergebnis)', async () => {
@@ -195,7 +200,7 @@ test('H6: Verhalten V1..VX (leer -> V1 Vorgaenger + V2 Ergebnis)', async () => {
   });
 });
 
-test('H6: Verhalten Deckel 10 + Tore + Restore/Back', async () => {
+test('H6: Verhalten Deckel 10 + Tore + Restore in-place', async () => {
   const storage = memoryStorage();
   const { H } = await loadHelpers(storage);
   await withGlobals(storage, async () => {
@@ -214,14 +219,5 @@ test('H6: Verhalten Deckel 10 + Tore + Restore/Back', async () => {
     assert.equal(H.histLoad().length, 10, 'kein neuer Eintrag bei Restore');
     assert.ok(String(H.modStatus).includes('(V3)'), 'Status mit Versionsnummer');
     assert.equal(H.modStatusBad, false, 'Restore ok');
-    // Back bei <2 Versionen -> Hinweis statt Absturz.
-    const lean = memoryStorage();
-    const leanH = (await loadHelpers(lean)).H;
-    await withGlobals(lean, async () => {
-      leanH.histAppend(SRC_A, 'Bank');
-      leanH.backHistory();
-      assert.equal(leanH.modStatus, 'kein-zurueck', 'Back-Hinweis');
-      assert.equal(leanH.modStatusBad, true, 'Back-Fehlerzustand');
-    });
   });
 });

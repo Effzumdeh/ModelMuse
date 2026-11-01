@@ -427,7 +427,6 @@ async function boot() {
       statusBox: $('modify-status'),
       modelBox: $('modify-model'),
       historyBox: $('modify-history'),
-      backButton: /** @type {HTMLButtonElement} */ ($('modify-back')),
       player,
       getCurrent: () => {
         const c = curModel();

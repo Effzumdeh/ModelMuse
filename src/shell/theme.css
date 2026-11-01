@@ -97,6 +97,9 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .lab-history-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; }
 .hist-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 6px 0; font-size: 14px; }
 .hist-btn { font-size: 13px; padding: 5px 8px; }
+/* Aktive Version: "Ausgewaehlt" statt "Wiederherstellen" — nur sie unterscheidet sich. */
+.hist-btn.is-active { background: var(--ok); border-color: var(--ok); color: #06130b; font-weight: 700; }
+.hist-btn.is-active:disabled { opacity: 1; cursor: default; }
 .hist-empty { font-size: 13px; opacity: .75; padding: 4px 0; }
 .lab-detail { white-space: pre-wrap; font-size: 12px; max-height: 260px; overflow: auto; background: #0d141d; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
 .sr-only {

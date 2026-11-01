@@ -108,11 +108,11 @@ for (const f of await readdir(`${ROOT}/src/schema`)) {
 
 // 3. Datei-Max-Pruefung (Bauplan Dateitabelle).
 const maxTable = {
-  'src/shell/index.html': 13000, // Historie (01.11.2026): 12000 -> 13000, Zurueck-Button + Historienliste im Modify-Panel
+  'src/shell/index.html': 13000, // Historie (01.11.2026, v44 gestrafft): 12000 -> 13000, Historienliste im Modify-Panel (ohne Zurueck-Button, aktive Version Ausgewaehlt-Markierung)
   'src/shell/main.js': 21000, // Teil 6 (28.10.2026): 18000 -> 21000, Theme/Onboarding/Suche-Verdrahtung
     'src/shell/ui-providers.js': 7000,
     'src/shell/ui-library.js': 8000,
-    'src/shell/ui-modify.js': 17000, // Historie (01.11.2026): 10000 -> 17000, V1..VX-Verlauf je Lab-Familie (localStorage, Deckel 10) + Zurueck-Button + Historienliste mit Wiederherstellen (de/en/es/fr); v22 (31.10.2026): 9000 -> 10000, Diagnose-Copy-Button (wie Freimodus); Slim-Generator (28.10.2026): neu, Modify-Flow (P2 als Modify)
+    'src/shell/ui-modify.js': 17000, // Historie (01.11.2026, v44 gestrafft): 10000 -> 17000, V1..VX-Verlauf je Lab-Familie (localStorage, Deckel 10) + Historienliste mit Ausgewaehlt-Markierung der aktiven Version (de/en/es/fr); v22 (31.10.2026): 9000 -> 10000, Diagnose-Copy-Button (wie Freimodus); Slim-Generator (28.10.2026): neu, Modify-Flow (P2 als Modify)
     'src/runtime/providers.js': 7000,
     'src/runtime/session-library.js': 8000,
     'src/runtime/scoreboard.js': 6000, 'src/shell/store.js': 8000,

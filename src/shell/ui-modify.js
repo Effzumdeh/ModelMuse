@@ -83,7 +83,7 @@ export function buildModifyPrompt(args) {
 /**
  * Bindet das Modify-Formular. Proxy/Key kommen aus dem Generieren-Panel
  * (getProxy), Keys bleiben nur im Speicher (livegen-Modul), nie in Logs.
- * @param {{ promptInput: HTMLInputElement, goButton: HTMLButtonElement, statusBox: HTMLElement, modelBox: HTMLElement, player: { load: (ref: unknown) => Promise<unknown> }, getCurrent: () => ({ id: string, title: string, source: string, manifest: unknown, report: { layers?: unknown[], iteration?: number } | null }) | null, getProxy: () => { url: string, key: string }, getTarget?: () => ({ providerId: string, modelId: string } | null), existsId?: (id: string) => boolean, onReloaded?: (entry: { id: string, title: string, source: string, manifest: unknown }) => void, onRestored?: (entry: { id: string, title: string, source: string, manifest: unknown }) => void, historyBox?: HTMLElement | null, backButton?: HTMLButtonElement | null, historyStorage?: { getItem: (k: string) => string | null, setItem: (k: string, v: string) => void, removeItem: (k: string) => void } | null, p2Template?: string, locale?: string }} els
+ * @param {{ promptInput: HTMLInputElement, goButton: HTMLButtonElement, statusBox: HTMLElement, modelBox: HTMLElement, player: { load: (ref: unknown) => Promise<unknown> }, getCurrent: () => ({ id: string, title: string, source: string, manifest: unknown, report: { layers?: unknown[], iteration?: number } | null }) | null, getProxy: () => { url: string, key: string }, getTarget?: () => ({ providerId: string, modelId: string } | null), existsId?: (id: string) => boolean, onReloaded?: (entry: { id: string, title: string, source: string, manifest: unknown }) => void, onRestored?: (entry: { id: string, title: string, source: string, manifest: unknown }) => void, historyBox?: HTMLElement | null, historyStorage?: { getItem: (k: string) => string | null, setItem: (k: string, v: string) => void, removeItem: (k: string) => void } | null, p2Template?: string, locale?: string }} els
  */
 export function mountModify(els) {
   let iteration = 0;
@@ -139,6 +139,10 @@ export function mountModify(els) {
         return;
       }
       const loc = els.locale ?? 'de';
+      let curSrc = null;
+      try {
+        curSrc = els.getCurrent?.()?.source ?? null;
+      } catch { curSrc = null; }
       for (const snap of [...versions].reverse()) {
         const li = document.createElement('li');
         li.className = 'hist-row';
@@ -153,8 +157,18 @@ export function mountModify(els) {
         btn.type = 'button';
         btn.className = 'lab-btn hist-btn';
         btn.dataset.version = String(snap.v);
-        btn.textContent = tt('modify.wiederherstellen');
-        btn.addEventListener('click', () => { void restoreVersion(snap.v); });
+        // Aktive Version (angezeigte Quelle == Snapshot): "Ausgewaehlt",
+        // andere Buttonfarbe (CSS .is-active), kein Klick. Nur sie unterscheidet sich.
+        const isActive = typeof curSrc === 'string' && curSrc.length > 0 && snap.source === curSrc;
+        if (isActive) {
+          btn.classList.add('is-active');
+          btn.textContent = tt('modify.ausgewaehlt');
+          btn.disabled = true;
+          btn.setAttribute('aria-current', 'true');
+        } else {
+          btn.textContent = tt('modify.wiederherstellen');
+          btn.addEventListener('click', () => { void restoreVersion(snap.v); });
+        }
         li.appendChild(btn);
         box.appendChild(li);
       }
@@ -192,20 +206,6 @@ export function mountModify(els) {
   const copyBtn = typeof document !== 'undefined' ? document.getElementById('modify-diagnose-copy') : null;
   wireDiagnoseCopy(copyBtn, () => lastDiagnose);
   paintHistory();
-  if (els.backButton) {
-    els.backButton.addEventListener('click', () => {
-      try {
-        const versions = loadHistory(histStore, histLabId());
-        if (versions.length < 2) {
-          say(tt(versions.length === 0 ? 'modify.keineHistorie' : 'modify.keinZurueck'), true);
-          return;
-        }
-        void restoreVersion(versions[versions.length - 2].v);
-      } catch {
-        say(tt('modify.keinZurueck'), true);
-      }
-    });
-  }
   els.goButton.addEventListener('click', async () => {
     const wish = els.promptInput.value.trim();
     if (wish.length < 2) {
