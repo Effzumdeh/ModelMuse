@@ -50,7 +50,8 @@ test('Entfernte Bloecke: keine Ziele/Niveau/Modus/Track/Lernfeld-Anzeigen, kein 
   ]) {
     expect(body, `kein entferntes UI-Wort: ${wort}`).not.toContain(wort);
   }
-  expect(body).not.toMatch(/openrouter/i);
+  // v38/27d68d6: OpenRouter ist absichtlich Drittprovider (direkt) — kein entfernter Block mehr.
+  expect(body).toMatch(/openrouter/i);
   expect(body).toContain('Baseten');
 });
 
@@ -77,13 +78,14 @@ test('Banner oben: Onboarding steht direkt unter der Menueleiste, ueber Liste un
   await expect(page.getByText('Willkommen bei ModelMuse')).toHaveCount(0);
 });
 
-test('Provider-Umschalter: genau 2 Optionen, Default Baseten ohne (direkt)', async ({ page }) => {
+test('Provider-Umschalter: 3 Optionen (v38/27d68d6: +OpenRouter direkt), Default Baseten ohne (direkt)', async ({ page }) => {
   await ready(page);
   const prov = page.locator('#gen-provider');
   await expect(prov).toBeVisible();
-  await expect(prov.locator('option')).toHaveCount(2);
+  await expect(prov.locator('option')).toHaveCount(3);
   await expect(prov).toHaveValue('baseten-direct');
   await expect(prov.locator('option[value="baseten-direct"]')).toHaveText('Baseten');
+  await expect(prov.locator('option[value="openrouter"]')).toHaveText('OpenRouter');
   await expect(prov.locator('option[value="meta-muse"]')).toHaveText('Meta Muse');
   await expect(page.locator('#gen-model')).toHaveValue('meta-models/muse-spark-open-1026');
   await expect(page.locator('#gen-key')).toHaveAttribute('placeholder', 'Baseten-API-Key');

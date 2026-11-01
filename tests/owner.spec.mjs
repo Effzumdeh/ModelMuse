@@ -38,9 +38,10 @@ test('Key-Prefill aus localStorage + Consent-Sync (W8)', async ({ page }) => {
 });
 
 test('Leerzustand ohne Suche zeigt Generator-Hinweis (W10)', async ({ page }) => {
+  // 5af137e: kuratierte Liste hat 6 Modelle (standalone.spec konform) — W10 lief mit 10er-Annahme ins Leere.
   page.on('dialog', (d) => d.accept());
   await ready(page);
-  for (let n = 10; n >= 1; n -= 1) {
+  for (let n = 6; n >= 1; n -= 1) {
     await expect(page.locator('aside li')).toHaveCount(n);
     await page.locator('aside li').first().getByRole('button', { name: 'Überarbeiten' }).click();
     await page.locator('[role="dialog"]').getByRole('button', { name: 'Löschen' }).click();

@@ -1,6 +1,6 @@
 {
-  "createdAt": "2026-10-30T19:28:07.755Z",
-  "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+  "createdAt": "2026-11-01T12:00:51.394Z",
+  "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
   "routes": {
     "p0": true,
     "p1_2d": true,
@@ -85,7 +85,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1489 Zeichen SVG"
+              "actual": "1524 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -106,7 +106,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 4
+          "durationMs": 3
         },
         {
           "layer": "S3",
@@ -198,6 +198,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 1
@@ -205,8 +211,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.710Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.350Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -274,7 +280,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "2077 Zeichen SVG"
+              "actual": "2112 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -295,7 +301,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -387,15 +393,21 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         }
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.715Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.354Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -463,7 +475,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1917 Zeichen SVG"
+              "actual": "1952 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -484,7 +496,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -576,6 +588,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -583,8 +601,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.716Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.355Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -609,7 +627,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "9630 Bytes (green)"
+              "actual": "9775 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -759,6 +777,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -766,8 +790,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.718Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.359Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "3d"
       },
@@ -791,7 +815,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "10489 Bytes (green)"
+              "actual": "10654 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -941,6 +965,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -948,8 +978,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.722Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.362Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "3d"
       },
@@ -973,7 +1003,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "1176 Bytes (green)"
+              "actual": "1284 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -1016,7 +1046,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "2697 Zeichen SVG-Vorschau"
+              "actual": "2732 Zeichen SVG-Vorschau"
             },
             {
               "id": "S2-2d-pixel",
@@ -1073,7 +1103,7 @@
               "id": "S4-2d-module",
               "verdict": "pass",
               "expected": "<= 34000 Bytes",
-              "actual": "1176 Bytes"
+              "actual": "1284 Bytes"
             }
           ],
           "durationMs": 0
@@ -1129,6 +1159,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -1136,8 +1172,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.725Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.365Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-chart Datenpfad"
@@ -1177,7 +1213,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
@@ -1205,7 +1241,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "2696 Zeichen SVG-Vorschau"
+              "actual": "2731 Zeichen SVG-Vorschau"
             },
             {
               "id": "S2-2d-pixel",
@@ -1226,7 +1262,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -1318,6 +1354,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -1325,8 +1367,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.726Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.366Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-chart Datenpfad"
@@ -1366,7 +1408,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
@@ -1394,7 +1436,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "2373 Zeichen SVG"
+              "actual": "2408 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -1507,6 +1549,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -1514,8 +1562,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.728Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.368Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-d3 Datenpfad"
@@ -1583,7 +1631,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1837 Zeichen SVG"
+              "actual": "1872 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -1696,6 +1744,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -1703,8 +1757,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.729Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.369Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-d3 Datenpfad"
@@ -1744,7 +1798,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -1885,6 +1939,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -1892,8 +1952,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.731Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.371Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-katex Datenpfad"
@@ -1982,7 +2042,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S3",
@@ -2074,6 +2134,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -2081,8 +2147,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.732Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.372Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-katex Datenpfad"
@@ -2150,7 +2216,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "2408 Zeichen SVG"
+              "actual": "2443 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -2263,6 +2329,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -2270,8 +2342,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.736Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.376Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-mermaid Datenpfad"
@@ -2339,7 +2411,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "2705 Zeichen SVG"
+              "actual": "2740 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -2452,6 +2524,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -2459,8 +2537,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.737Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.378Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-mermaid Datenpfad"
@@ -2528,7 +2606,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1574 Zeichen SVG"
+              "actual": "1609 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -2549,7 +2627,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S3",
@@ -2641,6 +2719,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -2648,8 +2732,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.738Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.378Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -2717,7 +2801,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1919 Zeichen SVG"
+              "actual": "1954 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -2830,6 +2914,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -2837,8 +2927,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.739Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.379Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -2906,7 +2996,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1554 Zeichen SVG"
+              "actual": "1589 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -2927,7 +3017,7 @@
               "actual": "sauber"
             }
           ],
-          "durationMs": 0
+          "durationMs": 1
         },
         {
           "layer": "S3",
@@ -3019,6 +3109,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -3026,8 +3122,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.739Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.380Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -3095,7 +3191,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "2012 Zeichen SVG"
+              "actual": "2047 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -3208,6 +3304,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -3215,8 +3317,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.740Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.381Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -3256,7 +3358,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
@@ -3284,7 +3386,7 @@
               "id": "S2-2d-parse-svg",
               "verdict": "pass",
               "expected": "Vendor-Render wohlgeformt",
-              "actual": "1683 Zeichen SVG"
+              "actual": "1718 Zeichen SVG"
             },
             {
               "id": "S2-2d-pixel",
@@ -3397,6 +3499,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -3404,8 +3512,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.741Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.381Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "2d",
         "reason": "2d-svg Datenpfad"
@@ -3430,7 +3538,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "10386 Bytes (green)"
+              "actual": "10509 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -3445,7 +3553,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 2
         },
         {
           "layer": "S2",
@@ -3580,6 +3688,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -3587,8 +3701,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.744Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.385Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "3d"
       },
@@ -3612,7 +3726,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "22428 Bytes (green)"
+              "actual": "22649 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -3627,7 +3741,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 2
+          "durationMs": 1
         },
         {
           "layer": "S2",
@@ -3681,7 +3795,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 22428 Bytes vs Beleg 20892 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 22649 Bytes vs Beleg 20892 Bytes)"
             }
           ],
           "durationMs": 0
@@ -3700,13 +3814,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 22428 Bytes vs Beleg 20892 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 22649 Bytes vs Beleg 20892 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 22428 Bytes vs Beleg 20892 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 22649 Bytes vs Beleg 20892 Bytes)"
             }
           ],
           "durationMs": 0
@@ -3762,6 +3876,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -3769,8 +3889,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.748Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.389Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "3d"
       },
@@ -3794,7 +3914,7 @@
               "id": "S1-size",
               "verdict": "pass",
               "expected": "<= 2000000 Bytes",
-              "actual": "16183 Bytes (green)"
+              "actual": "16295 Bytes (green)"
             },
             {
               "id": "S1-imports",
@@ -3863,7 +3983,7 @@
               "id": "S3-skip",
               "verdict": "skip",
               "expected": "Messung mit passendem Beleg",
-              "actual": "Beleg aelter als Modellquelle (Quelle 16183 Bytes vs Beleg 15423 Bytes)"
+              "actual": "Beleg aelter als Modellquelle (Quelle 16295 Bytes vs Beleg 15423 Bytes)"
             }
           ],
           "durationMs": 0
@@ -3882,13 +4002,13 @@
               "id": "S4-triangles",
               "verdict": "skip",
               "expected": "<= 150000 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 16183 Bytes vs Beleg 15423 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 16295 Bytes vs Beleg 15423 Bytes)"
             },
             {
               "id": "S4-drawcalls",
               "verdict": "skip",
               "expected": "<= 400 (renderer.info)",
-              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 16183 Bytes vs Beleg 15423 Bytes)"
+              "actual": "kein gueltiger Beleg, nicht uebernommen: Beleg aelter als Modellquelle (Quelle 16295 Bytes vs Beleg 15423 Bytes)"
             }
           ],
           "durationMs": 0
@@ -3944,6 +4064,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -3951,8 +4077,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.751Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.391Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "3d"
       },
@@ -3991,7 +4117,7 @@
               "actual": "ok"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S2",
@@ -4034,7 +4160,7 @@
               "actual": "14 Meshes statisch (Mesh 8 + Instanced 6)"
             }
           ],
-          "durationMs": 1
+          "durationMs": 0
         },
         {
           "layer": "S3",
@@ -4126,6 +4252,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -4133,8 +4265,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.753Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.393Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "3d"
       },
@@ -4308,6 +4440,12 @@
               "verdict": "pass",
               "expected": "kein Lernziel-/Aufgabentext im Modulcode",
               "actual": "sauber"
+            },
+            {
+              "id": "S5-parts-coverage",
+              "verdict": "pass",
+              "expected": "jedes Part-Label trifft >= 1 Mesh (sonst WARNUNG)",
+              "actual": "keine Bauteil-Registrierung (nur Labels, graceful — parts.hidden ungenutzt)"
             }
           ],
           "durationMs": 0
@@ -4315,8 +4453,8 @@
       ],
       "verdict": "gelb",
       "failed": [],
-      "createdAt": "2026-10-30T19:28:07.754Z",
-      "buildHash": "cdd08f99a5817d69cbbb0b40c247ba820cf050fd3bfe3d67b0210ea7d59fbac5",
+      "createdAt": "2026-11-01T12:00:51.394Z",
+      "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
       "route": {
         "mode": "3d"
       },

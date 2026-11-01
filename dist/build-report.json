@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-31T13:40:15.153Z",
+  "createdAt": "2026-11-01T12:00:24.619Z",
   "versions": {
     "three": "0.186.1",
     "esbuild": "0.28.2",
@@ -31,14 +31,14 @@
     "budget2dModuleBytes": 34000
   },
   "measured": {
-    "threeBundle": 610955,
+    "threeBundle": 610980,
     "alpine": 55919,
-    "helpers": 7827,
-    "shellJs": 73718,
-    "runtimeJs": 231189,
-    "shellJsTotal": 304907,
-    "css": 8914,
-    "modelsTotal": 113906,
+    "helpers": 12698,
+    "shellJs": 86941,
+    "runtimeJs": 260937,
+    "shellJsTotal": 347878,
+    "css": 9822,
+    "modelsTotal": 114780,
     "modelFiles": [
       {
         "file": "ae-1.js",
@@ -54,11 +54,11 @@
       },
       {
         "file": "arch-brandenburger-tor.js",
-        "bytes": 9630
+        "bytes": 9775
       },
       {
         "file": "chemie-koffein.js",
-        "bytes": 10489
+        "bytes": 10654
       },
       {
         "file": "demo-2d-chart-v2.js",
@@ -66,7 +66,7 @@
       },
       {
         "file": "demo-2d-chart.js",
-        "bytes": 1176
+        "bytes": 1284
       },
       {
         "file": "demo-2d-d3-v2.js",
@@ -114,15 +114,15 @@
       },
       {
         "file": "free-handbohrmaschine.js",
-        "bytes": 10386
+        "bytes": 10509
       },
       {
         "file": "gpu-example.js",
-        "bytes": 22428
+        "bytes": 22649
       },
       {
         "file": "si-1.js",
-        "bytes": 16183
+        "bytes": 16295
       },
       {
         "file": "si-2.js",
@@ -133,13 +133,13 @@
         "bytes": 10759
       }
     ],
-    "manifests": 97720,
-    "schemas": 8134,
-    "manifestsSchemas": 105854
+    "manifests": 107483,
+    "schemas": 8230,
+    "manifestsSchemas": 115713
   },
   "maxViolations": [],
-  "buildHash": "c954573016d73bd5d70be3f38cdbdbf09bcaa9cb9c4ba5f2bd92d5d29c9287db",
-  "artefaktSha256": "7779665cfea61e8cd44a090fc11f537cf4f8e895fa9508623bc6f6e01338f954",
+  "buildHash": "f553d3798d65c02ad1cfc912fbcb48e6b29b9f8e4cdbf5bf1c10dbee9641bce3",
+  "artefaktSha256": "3563681c356afd157f6b21a2a3e47106c7f4cc891e95b88ebfdbb076e20b62a1",
   "routes": {
     "p0": true,
     "p1_2d": true,
