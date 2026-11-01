@@ -104,7 +104,7 @@ function checkInvariants(s) {
     // K: Kosten-/Dauer-Schaetzung intakt (v39-Nachfolger).
     ['id="gen-estimate"', 1], ['{{estimateText}}', 1],
     ['estimatePrice:function', 1], ['estimateText:function', 1],
-    ['genEstimate', 5],
+    ['genEstimate', (s.includes('standalone-build v42') ? 6 : 5)],
     // Alt-Gates: alle Zaehler unveraendert (nur Gate-Bodies geaendert, keine Literale).
     ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', 6],
     ['reasoning_effort', 10],

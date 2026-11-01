@@ -57,7 +57,7 @@ test('O: Keys je Anbieter + Fehlertexte mit Key-Hinweis', async () => {
   assert.equal(cnt(s, 'modelmuse-key-openrouter'), 3, 'eigener OpenRouter-Key (load/location/save)');
   assert.ok(!s.includes('modelmuse-key-openrouter Baseten'), 'keine Key-Vermischung');
   for (const k of ['keyMissingOpenrouter', 'keyInvalidOpenrouter', 'keyFormatOpenrouter']) {
-    assert.equal(cnt(s, k), 4, `${k} de/en/es + Auswahl`);
+    assert.equal(cnt(s, k), 5, `${k} de/en/es/fr + Auswahl`);
   }
   assert.ok(s.includes('openrouter.ai/keys'), 'Key-Hinweis zeigt auf openrouter.ai/keys');
   assert.ok(s.includes("genProvider===\"openrouter\"?\"OpenRouter-Key (openrouter.ai/keys)\""), 'Placeholder je Anbieter');

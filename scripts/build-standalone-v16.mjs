@@ -63,10 +63,10 @@ function applyGuardFix(s) {
 function checkInvariants(s) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1], ['standalone-build v15a', 1], ['standalone-build v16', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
     ['aria-label="modify"', 0], ['id="mod-desc"', 0], ['@click="modify"', 0],
     ['id="mod-desc2"', 1], ['@click="openModify', 1], ['modify:async function', 1], ['submitModify:function', 1], ['closeModify:function', 1],
-    ['deleteLab', 6], ['deleteConfirm', 4],
+    ['deleteLab', (s.includes('standalone-build v42') ? 7 : 6)], ['deleteConfirm', (s.includes('standalone-build v42') ? 5 : 4)],
     ['v-if="activeLab.id&&activeLab.id.indexOf(\'free-\')===0"', 0],
     ['lab.id.indexOf("free-")!==0){return;}', 0],
     // v36-Nachfolger (K3): stale Auswahl wird geraeumt.
@@ -82,7 +82,7 @@ function checkInvariants(s) {
     // v29-Nachfolger (Modelliste 10->6): explanations 10->6 (exakt in v29).
     // v34-Nachfolger (Win-Leiste): closePartInfo 2->3, partInfoTitle 5->6.
     ['openPartInfo', 2], ['closePartInfo', 3], ['partInfoIndex', 7],
-    ['partInfoTitle', 6], ['partInfoAbout', 5], ['partExplanations', 2], ['partInfoMissing', 4],
+    ['partInfoTitle', (s.includes('standalone-build v42') ? 7 : 6)], ['partInfoAbout', (s.includes('standalone-build v42') ? 6 : 5)], ['partExplanations', 2], ['partInfoMissing', (s.includes('standalone-build v42') ? 5 : 4)],
     ['v-if="partInfoIndex!==null"', 1], ['genClose:"Cerrar"', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, `Invariante ${sub}: ${cnt(s, sub)}, erwartet ${want}`);

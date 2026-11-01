@@ -156,7 +156,7 @@ function checkInvariants(s) {
     ['standalone-build v21', 1], ['standalone-build v22', 1], ['standalone-build v23', 1],
     ['standalone-build v24', 1], ['standalone-build v25', 1], ['standalone-build v26', 1],
     ['standalone-build v27', 1], ['standalone-build v28', 1], ['standalone-build v29', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
     ['text/event-stream', 2], ['stream:true', 3],
     ['__FREE_GUARD_V18__', 1], ['__FREE_FENCE_V25__', 1],
     ['showcase: 5 Modelle', 1],
@@ -170,7 +170,7 @@ function checkInvariants(s) {
     ["META['demo-2d-mermaid']", 0], ["META['demo-2d-d3']", 0], ["META['demo-2d-katex']", 0],
     ['meta_demo_2d_chart', 2], ['meta_demo_2d_svg', 0],
     ['meta_demo_2d_mermaid', 0], ['meta_demo_2d_d3', 0], ['meta_demo_2d_katex', 0],
-    ['"demo-2d-chart":{title', 1], ['"demo-2d-svg":{title', 0],
+    ['"demo-2d-chart":{title', (s.includes('standalone-build v42') ? 2 : 1)], ['"demo-2d-svg":{title', 0],
     ['"demo-2d-mermaid":{title', 0], ['"demo-2d-d3":{title', 0], ['"demo-2d-katex":{title', 0],
     ['"demo-2d-chart":"', 2], ['"demo-2d-svg":"', 0],
     ['"demo-2d-mermaid":"', 0], ['"demo-2d-d3":"', 0], ['"demo-2d-katex":"', 0],
@@ -179,14 +179,15 @@ function checkInvariants(s) {
     // Umbenennungen: alte Titel weg, neue belegt.
     ['PC-Arbeitsplatz (SI-1)', 0], ['PC workstation (SI-1)', 0], ['Puesto de PC (SI-1)', 0],
     ['Graphics Card', 0],
-    ['title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz"}', 1],
+    ['title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz"}', (s.includes('standalone-build v42') ? 0 : 1)],
+    ['title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz",fr:"Poste PC (SI-1)"}', (s.includes('standalone-build v42') ? 1 : 0)],
     ['de:"Grafikkarte"', 1],
     // Vendor-IIFE + Freimodus bleiben (chart-Demo + generierte 2D-Modelle).
     ['__V14SVG', 3], ['__V14MERMAID', 3], ['__V14CHART', 3], ['__V14D3', 3], ['__V14KATEX', 3],
     ['__renderVariant2D', 3],
     // v26-v28 Spotchecks (unveraendert).
     ['diagramKind:function', 1], ['buildFreePrompt2D:function', 1], ['FREIMODUS-2D', 1],
-    ['genReasoning:"xhigh"', 1], ['xhighAllowed', 6], ['directHintMeta', 3],
+    ['genReasoning:"xhigh"', 1], ['xhighAllowed', 6], ['directHintMeta', (s.includes('standalone-build v42') ? 4 : 3)],
     ['Aufbau wie Standard-Modelle', 2],
     ['Build v26', 1], ['Build v25', 0],
   ];

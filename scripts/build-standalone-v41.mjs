@@ -95,8 +95,8 @@ function checkInvariants(s) {
     ['standalone-build v39', 1], ['standalone-build v40', 1],
     ['standalone-build v41', 1],
     // E: I18N-Keys je Sprache genau 1x.
-    ['saveModel:', 3], ['saveGlb:', 3], ['savePng:', 3], ['saveSvg:', 3],
-    ['saveOk:', 3], ['saveErr:', 3], ['saveNone:', 3], ['saveNoSvg:', 3],
+    ['saveModel:', (s.includes('standalone-build v42') ? 4 : 3)], ['saveGlb:', (s.includes('standalone-build v42') ? 4 : 3)], ['savePng:', (s.includes('standalone-build v42') ? 4 : 3)], ['saveSvg:', (s.includes('standalone-build v42') ? 4 : 3)],
+    ['saveOk:', (s.includes('standalone-build v42') ? 4 : 3)], ['saveErr:', (s.includes('standalone-build v42') ? 4 : 3)], ['saveNone:', (s.includes('standalone-build v42') ? 4 : 3)], ['saveNoSvg:', (s.includes('standalone-build v42') ? 4 : 3)],
     // E: Menue-Template + Vue-Anbindung genau 1x.
     ['id="export-menu"', 1], ['toggleExportMenu:function', 1],
     ['exportGLB:async function', 1], ['exportPNG:async function', 1],

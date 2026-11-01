@@ -237,7 +237,7 @@ for (const id of IDS) {
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15', 1],
     ['PointLight(0xffffff, 900', 0], ['0x11141a', 0], ['envMapIntensity', 0],
-    ['mapSize.set(2048', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
+    ['mapSize.set(2048', 0], ['openrouter', (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
     ['explanations:{de:[', 6], // 6 LABS-Eintraege (5x 3D + 1x 2D-chart, seit v29)
     ['explanations:{de:expDe', 1], // makeFreeLab-Passthrough
     ['openPartInfo', 2], // Template-Click + Methode

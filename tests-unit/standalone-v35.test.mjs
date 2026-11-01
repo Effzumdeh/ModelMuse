@@ -39,8 +39,8 @@ test('J: ein Auftragstyp, eine Pumpe, kein Direkt-Call', async () => {
 
 test('J: Statusliste mit Art-Badge, Ergebnis ersetzt Modell', async () => {
   const s = await html();
-  assert.equal(cnt(s, 'jobGen'), 4, 'Neu-Badge (3 Locales + Einreihung)');
-  assert.equal(cnt(s, 'jobMod'), 4, 'Ueberarbeiten-Badge (3 Locales + Einreihung)');
+  assert.equal(cnt(s, 'jobGen'), 5, 'Neu-Badge (4 Locales + Einreihung)');
+  assert.equal(cnt(s, 'jobMod'), 5, 'Ueberarbeiten-Badge (4 Locales + Einreihung)');
   assert.equal(cnt(s, 'job.kindKey'), 1, 'Badge im Template');
   assert.ok(s.includes('genBusy||genNotice||genPumping'), 'Fenster bei Pumpe sichtbar');
   assert.ok(s.includes('window.__viewer.registerFree(lab.id'), 'Ergebnis ersetzt bearbeitetes Modell');

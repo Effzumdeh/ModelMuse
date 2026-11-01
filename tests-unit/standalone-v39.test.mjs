@@ -53,12 +53,13 @@ test('K: Dauer aus ETA-Tabelle, Preis aus Telemetrie', async () => {
   assert.ok(s.includes('lastIndexOf("/")'), 'Vendor-Prefix gestrippt');
 });
 
-test('K: Hinweis de/en/es (Schaetzung aus Telemetrie)', async () => {
+test('K: Hinweis de/en/es/fr (Schaetzung aus Telemetrie)', async () => {
   const s = await html();
   assert.ok(s.includes('Schätzung aus Telemetrie'), 'de-Hinweis');
   assert.ok(s.includes('Estimate from telemetry'), 'en-Hinweis');
   assert.ok(s.includes('Estimaci'), 'es-Hinweis');
-  assert.equal(cnt(s, 'genEstimate'), 5, 'genEstimate de+en+es+2 Referenzen');
+  assert.ok(s.includes('estimation par t'), 'fr-Hinweis');
+  assert.equal(cnt(s, 'genEstimate'), 6, 'genEstimate de+en+es+fr+2 Referenzen');
 });
 
 test('K: Reaktivitaet (Provider/Modell/Sprache)', async () => {

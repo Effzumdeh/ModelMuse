@@ -66,17 +66,19 @@ test('E3/E4: PNG-Screenshot + SVG mit xmlns-Fix', async () => {
   assert.equal(cnt(s, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"'), 5, 'xmlns in allen 5 Inline-Tags');
 });
 
-test('E5: I18N-Keys de/en/es (kein clash mit Quellcode-Export)', async () => {
+test('E5: I18N-Keys de/en/es/fr (kein clash mit Quellcode-Export)', async () => {
   const s = await html();
   for (const k of ['saveModel:', 'saveGlb:', 'savePng:', 'saveSvg:', 'saveOk:', 'saveErr:', 'saveNone:', 'saveNoSvg:']) {
-    assert.equal(cnt(s, k), 3, k + ' je Sprache');
+    assert.equal(cnt(s, k), 4, k + ' je Sprache');
   }
   assert.ok(s.includes('saveModel:"Speichern"'), 'de Speichern');
   assert.ok(s.includes('saveModel:"Save"'), 'en Save');
   assert.ok(s.includes('saveModel:"Guardar"'), 'es Guardar');
+  assert.ok(s.includes('saveModel:"Enregistrer"'), 'fr Enregistrer');
   assert.ok(s.includes('GLB (3D-Modell)'), 'de GLB');
   assert.ok(s.includes('GLB (3D model)'), 'en GLB');
   assert.ok(s.includes('GLB (modelo 3D)'), 'es GLB');
+  assert.ok(s.includes('GLB (mod\\u00e8le 3D)'), 'fr GLB');
 });
 
 test('E8: v38-Destructure-Luecke geschlossen (registerFree funktionsfaehig)', async () => {

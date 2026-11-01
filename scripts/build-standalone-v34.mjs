@@ -87,9 +87,9 @@ function checkInvariants(s) {
     ['id="part-info"', 1], ['win-dock v34', 1], ['data-win-first', 4],
     ['cancelGenerate', 3], ['dismissGenNotice', 5],
     ['closePartInfo', 3], ['closeModify', 3],
-    ['partInfoTitle', 6],
+    ['partInfoTitle', (s.includes('standalone-build v42') ? 7 : 6)],
     // v33-Vertrag bleibt.
-    ['mappingNote', 0], ['normExp:function', 1], ['this.normExp(', 3],
+    ['mappingNote', 0], ['normExp:function', 1], ['this.normExp(', (s.includes('standalone-build v42') ? 4 : 3)],
     // v32-Vertrag bleibt.
     ['länger als erwartet', 2], ['fertig nach {s} s', 2],
     ['etaSeconds:function', 1],

@@ -113,7 +113,7 @@ function checkInvariants(s) {
     ['directHeaders:function', 1], ['headers:this.directHeaders()', 6],
     ['HTTP-Referer', 1], ['X-Title', 1],
     ['modelmuse-key-openrouter', 3],
-    ['keyMissingOpenrouter', 4], ['keyInvalidOpenrouter', 4], ['keyFormatOpenrouter', 4],
+    ['keyMissingOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyInvalidOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyFormatOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)],
     ["{{t('teleThanks')}}", 1], ['teleThanksTimer', 10], ['teleIssueShow', 6],
     // E: robuste ETA-Tabelle + entdoppelte Queue.
     ['indexOf("wonder")', 1],
@@ -127,7 +127,7 @@ function checkInvariants(s) {
     // Q: Queue je Auftrag (Countdown nur aktiv) + Hygiene.
     ['jobTimeText:function', 1], ['jobTimeText(job,queueNow)', 1],
     ['queuedAt:Date.now()', 2], ['job.startedAt=Date.now()', 1],
-    ['jobQueue', 5], ['jobDoneHint', 4],
+    ['jobQueue', (s.includes('standalone-build v42') ? 6 : 5)], ['jobDoneHint', (s.includes('standalone-build v42') ? 5 : 4)],
     ['queueTickStart:function', 1], ['queueTickStop', 2],
     ['doneAt', 3], ['jj.labId=labId', 1], ['sj.labId===id', 1],
     // Alt-Vertraege (v37-Nachfolger: exakte v37-Strings ersetzt, s.o.).
@@ -138,10 +138,10 @@ function checkInvariants(s) {
     ['id="tele-status"', 1], ['"tele-status"', 2],
     ['openTele:function', 1], ["openTele('gen'", 1], ["openTele('mod'", 1],
     ['teleBlock:function', 1], ['copyTele:function', 1], ['closeTele', 3],
-    ['teleTitle', 4], ['teleAsk', 4], ['teleYes', 4], ['teleNo', 4],
-    ['teleRate', 4], ['teleCommentPh', 4],
-    ['teleCopyMsg', 5], ['teleCopied', 8], ['teleCopyFail', 4],
-    ['teleIssueLink', 4], ["{{t('teleIssue')}}", 1], ['.teleIssue=', 2], ['teleIssue:"', 1],
+    ['teleTitle', (s.includes('standalone-build v42') ? 5 : 4)], ['teleAsk', (s.includes('standalone-build v42') ? 5 : 4)], ['teleYes', (s.includes('standalone-build v42') ? 5 : 4)], ['teleNo', (s.includes('standalone-build v42') ? 5 : 4)],
+    ['teleRate', (s.includes('standalone-build v42') ? 5 : 4)], ['teleCommentPh', (s.includes('standalone-build v42') ? 5 : 4)],
+    ['teleCopyMsg', 5], ['teleCopied', (s.includes('standalone-build v42') ? 9 : 8)], ['teleCopyFail', (s.includes('standalone-build v42') ? 5 : 4)],
+    ['teleIssueLink', (s.includes('standalone-build v42') ? 5 : 4)], ["{{t('teleIssue')}}", 1], ['.teleIssue=', 2], ['teleIssue:"', (s.includes('standalone-build v42') ? 2 : 1)],
     ['https://github.com/Effzumdeh/ModelMuse/issues', 1],
     ['prompt_4k', 1], ['dauer_s', 1], ['bewertung:', 1],
   ];

@@ -29,7 +29,7 @@ function checkInvariants(s) {
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1],
     ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
     ['standalone-build v18', 1], ['standalone-build v19', 1], ['standalone-build v20', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 2], ['stream:true', 3],
@@ -39,11 +39,11 @@ function checkInvariants(s) {
     // Exakte v21-Werte prueft build-standalone-v21.mjs.
     // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
-    ['dev.meta.ai', 10],
+    ['dev.meta.ai', (s.includes('standalone-build v42') ? 13 : 10)],
     ['collectChatText', 4], ['emptyDetail', 3],
     // v22-Nachfolger (Diagnose-Export): diagText liest _lastChatInfo/_lastHttp
     // je +1 (exakt in v22: 7/6). Exakte v22-Werte prueft build-standalone-v22.mjs.
-    ['emptyResponse', 4],
+    ['emptyResponse', (s.includes('standalone-build v42') ? 5 : 4)],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
   ];

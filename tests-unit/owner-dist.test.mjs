@@ -33,7 +33,7 @@ test('W2 Toggles nur Overlay, W7 Pill raus, W11 Beispiel raus', () => {
   eq('flex items-center gap-2 text-sm min-h-[44px] cursor-pointer"><input type="checkbox" v-model="showMeasures"', 1);
   eq("{{t('viewerBadge')}}", 0);
   eq("{{t('exampleLoad')}}", 0);
-  eq('exampleLoad', 3);
+  eq('exampleLoad', 4);
 });
 
 test('W3/W4/W6 Bloecke raus', () => {
@@ -56,14 +56,14 @@ test('W5 GeneratorHint neu (de/en/es)', () => {
 
 test('W8 Key-Persistenz (Marker + I18N)', () => {
   eq('modelmuse.keys', 8);
-  eq('keyStoredSession', 4);
-  eq('keyStoredLocal', 4);
+  eq('keyStoredSession', 5);
+  eq('keyStoredLocal', 5);
   eq('keyStoreMsg', 2);
-  eq('keyStoredSession', 4);
+  eq('keyStoredSession', 5);
 });
 
 test('W9 deleted-Persistenz, W10 emptyLibrary', () => {
   eq('modelmuse.deleted', 5); // v36 K1: Startaufloesung respektiert Loeschungen
-  eq('emptyLibrary', 4);
+  eq('emptyLibrary', 5);
   assert.ok(s.includes("{{search?t('noResults'):t('emptyLibrary')}}"));
 });

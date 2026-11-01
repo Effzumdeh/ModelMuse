@@ -593,7 +593,7 @@ cutOnce(`<div><h4 class="font-bold mb-1">{{t('curriculumTitle')}}</h4><p class="
   const cnt = (sub) => s.split(sub).length - 1;
   const inv = [
     ['PointLight(0xffffff, 900', 0], ['0x11141a', 0], ['envMapIntensity', 0],
-    ['mapSize.set(2048', 0], ['PCFSoftShadowMap', 5], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
+    ['mapSize.set(2048', 0], ['PCFSoftShadowMap', 5], ['openrouter', (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
     ['{{lab.track}}', 0], ['{{activeLab.track}}', 0], ['curriculum_ref.badge}}</span>', 0],
     ['curriculum_ref.lf', 0], ['curriculum_ref.arp', 0],
     ["{{t(\"learnMode\")}}", 0], ["{{t('level')}}", 0], ['goalOne', 0], ['learnMode', 0],

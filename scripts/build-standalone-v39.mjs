@@ -96,7 +96,7 @@ function checkInvariants(s) {
     ['openai/gpt-6.1-sol', 1], ['meta/muse-spark-1.3', 1], ['anthropic/claude-opus-5.5', 1],
     ['directHeaders:function', 1], ['headers:this.directHeaders()', 6],
     ['modelmuse-key-openrouter', 3],
-    ['keyMissingOpenrouter', 4], ['keyInvalidOpenrouter', 4], ['keyFormatOpenrouter', 4],
+    ['keyMissingOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyInvalidOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyFormatOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)],
     ["{{t('teleThanks')}}", 1], ['teleThanksTimer', 10], ['teleIssueShow', 6],
     // E: ETA-Tabelle robust + Queue entdoppelt (unveraendert).
     ['indexOf(\"wonder\")', 1],
@@ -108,7 +108,7 @@ function checkInvariants(s) {
     // K: Kosten-/Dauer-Schaetzung (neu).
     ['id=\"gen-estimate\"', 1], ['{{estimateText}}', 1],
     ['estimatePrice:function', 1], ['estimateText:function', 1],
-    ['genEstimate', 5],
+    ['genEstimate', (s.includes('standalone-build v42') ? 6 : 5)],
     ['ct=0.6', 1], ['ct=78', 1], ['ct=39', 1], ['ct=16.5', 1],
     ['includes("open")', 1],
     ['this.estimatePrice()', 1], ['I18N[L]&&I18N[L].genEstimate', 1],

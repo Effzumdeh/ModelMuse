@@ -91,8 +91,9 @@ function checkInvariants(s) {
     ['mappingNote', 0], ['mappingText', 0], ['Meshes zugeordnet', 0],
     ['Bauteil-Zuordnung', 0], ['Part mapping', 0],
     // H: tolerante Erklaerungs-Zuordnung.
-    ['normExp:function', 1], ['this.normExp(', 3],
-    ['explanations:{de:expDe||[],en:expEn||[],es:expEs||[]}', 1],
+    ['normExp:function', 1], ['this.normExp(', (s.includes('standalone-build v42') ? 4 : 3)],
+    ['explanations:{de:expDe||[],en:expEn||[],es:expEs||[]}', (s.includes('standalone-build v42') ? 0 : 1)],
+    ['explanations:{de:expDe||[],en:expEn||[],es:expEs||[],fr:expFr||[]}', (s.includes('standalone-build v42') ? 1 : 0)],
     // v32-Vertrag bleibt.
     ['länger als erwartet', 2], ['fertig nach {s} s', 2],
     ['etaSeconds:function', 1], ['*1000+120000', 2],
@@ -101,7 +102,7 @@ function checkInvariants(s) {
     // v31-Vertrag bleibt (v35: zwei Einreihungen teilen eine Pumpe).
     ['enqueueGenerate', 2], ['pumpGenQueue', 3],
     ['{{genEtaText}}', 1], ['{{modEtaText}}', 1],
-    ['partExplanations', 2], ['partInfoMissing', 4],
+    ['partExplanations', 2], ['partInfoMissing', (s.includes('standalone-build v42') ? 5 : 4)],
     ['role="dialog"', 3],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);

@@ -84,7 +84,7 @@ function checkInvariants(s) {
     ['standalone-build v35', 1],
     ['showcase: 5 Modelle', 1],
     // J: einheitliche Queue (gen + mod, eine Pumpe).
-    ['jobGen', 4], ['jobMod', 4],
+    ['jobGen', (s.includes('standalone-build v42') ? 5 : 4)], ['jobMod', (s.includes('standalone-build v42') ? 5 : 4)],
     ['enqueueModify', 2], ['modify(job.wish,job.labId)', 1],
     ["kind:'mod'", 1], ["kind:'gen'", 1],
     [':disabled="modBusy"', 0],

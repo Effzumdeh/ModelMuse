@@ -32,9 +32,9 @@ const IDS_V15 = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handb
   'demo-2d-chart'];
 
 /**
- * v15 Bestandteil-Info: je gebuendeltem LABS-Eintrag explanations de/en/es
+ * v15 Bestandteil-Info: je gebuendeltem LABS-Eintrag explanations de/en/es/fr
  * (Laengen-Deckung zu labels, je Text 8-500 Zeichen), Info-Button/Popup-Marker,
- * Umbenennungen Bestandteil/Component/Componente.
+ * Umbenennungen Bestandteil/Component/Componente/Composant.
  */
 function v15PartInfo(s, fail, ok) {
   const brace = (src, openIdx) => {
@@ -99,13 +99,13 @@ function v15PartInfo(s, fail, ok) {
     // labels:{de:[...]}: Laengen-Deckung zu diesem Array.
     const n = Array.isArray(labels) ? labels.length : -1;
     let entryOk = true;
-    for (const loc of ['de', 'en', 'es']) {
+    for (const loc of ['de', 'en', 'es', 'fr']) {
       const arr = jsonArr(expBlock, `${loc}:`);
       const good = Array.isArray(arr) && arr.length === n && n >= 3
         && arr.every((x) => typeof x === 'string' && x.length >= 8 && x.length <= 500);
       if (!good) { fail(`v15 explanations ${loc} misaligned: ${id} (labels=${n})`); entryOk = false; }
     }
-    if (entryOk) ok(`v15 explanations de/en/es: ${id} (${n} je Lokale)`);
+    if (entryOk) ok(`v15+v42 explanations de/en/es/fr: ${id} (${n} je Lokale)`);
   }
   const eqV = (sub, want, label) => {
     const n = s.split(sub).length - 1;
@@ -115,10 +115,10 @@ function v15PartInfo(s, fail, ok) {
   eqV('openPartInfo', 2, 'v15 openPartInfo (Template + Methode)');
   eqV('closePartInfo', 3, 'v15+v34 closePartInfo (2x Template + Methode)');
   eqV('partInfoIndex', 7, 'v15 partInfoIndex (data/reset/open/close/3x Template)');
-  eqV('partInfoTitle', 6, 'v15+v34 partInfoTitle (3 I18N + aria + h3 + Win-Leiste)');
-  eqV('partInfoAbout', 5, 'v15 partInfoAbout (3 I18N + aria + title)');
+  eqV('partInfoTitle', 7, 'v15+v34+v42 partInfoTitle (4 I18N + aria + h3 + Win-Leiste)');
+  eqV('partInfoAbout', 6, 'v15+v42 partInfoAbout (4 I18N + aria + title)');
   eqV('partExplanations', 2, 'v15a partExplanations (computed + text)');
-  eqV('partInfoMissing', 4, 'v15a partInfoMissing (3 I18N + Popup-Fallback)');
+  eqV('partInfoMissing', 5, 'v15a+v42 partInfoMissing (4 I18N + Popup-Fallback)');
   eqV('explanations:{de:[', 6, 'v15 LABS mit explanations');
   eqV('v-if="partInfoIndex!==null"', 1, 'v15 Info-Popup v-if');
   eqV('ⓘ', 1, 'v15 Info-Kreis-i-Button');
@@ -126,6 +126,7 @@ function v15PartInfo(s, fail, ok) {
   eqV('partsTitle:"Bestandteile"', 1, 'v15 de-Titel Bestandteil');
   eqV('partsTitle:"Components"', 1, 'v15 en-Titel Component');
   eqV('partsTitle:"Componentes"', 1, 'v15 es-Titel Componente');
+  eqV('partsTitle:"Composants"', 1, 'v42 fr-Titel Composant');
   eqV('partsTitle:"Bauteile"', 0, 'v15 kein Bauteil-Titel (de)');
   eqV('partsTitle:"Parts"', 0, 'v15 kein Parts-Titel (en)');
   eqV('partsTitle:"Piezas"', 0, 'v15 kein Piezas-Titel (es)');
@@ -252,9 +253,9 @@ if (isShowcase) {
   eqS('HTTP-Referer', 1, 'v38 OpenRouter-Attribution (nur OpenRouter)');
   eqS('X-Title', 1, 'v38 OpenRouter-Titel (nur OpenRouter)');
   eqS('directHeaders:function', 1, 'v38 Header-Methode');
-  eqS('keyMissingOpenrouter', 4, 'v38 Key-Hinweis de/en/es + Auswahl');
-  eqS('keyInvalidOpenrouter', 4, 'v38 401-Hinweis de/en/es + Auswahl');
-  eqS('keyFormatOpenrouter', 4, 'v38 Format-Hinweis de/en/es + Template');
+  eqS('keyMissingOpenrouter', 5, 'v38 Key-Hinweis de/en/es/fr + Auswahl');
+  eqS('keyInvalidOpenrouter', 5, 'v38 401-Hinweis de/en/es/fr + Auswahl');
+  eqS('keyFormatOpenrouter', 5, 'v38 Format-Hinweis de/en/es/fr + Template');
   if (cnt('meta-models/muse-spark-open-1026') < 2) fail('Baseten model is missing.');
   else ok('Baseten model: muse-spark-open-1026');
   if (s.includes('127.0.0.1:8787') || s.includes('localhost:8787')) fail('Standalone references the local proxy port.');
@@ -282,8 +283,8 @@ if (isShowcase) {
   eqS('id="mod-desc2"', 1, 'v16 overlay modify textarea');
   eqS('@click="modify"', 0, 'v16 main modify button');
   eqS('modify:async function', 1, 'v16 modify logic kept');
-  eqS('deleteLab', 6, 'v16 delete affordance (template + method + 3 locales)');
-  eqS('deleteConfirm', 4, 'v16 delete confirm (call + 3 locales)');
+  eqS('deleteLab', 7, 'v16 delete affordance (template + method + 4 locales)');
+  eqS('deleteConfirm', 5, 'v16 delete confirm (call + 4 locales)');
   eqS('@click="deleteLab"', 1, 'v16 universal delete button');
   eqS("v-if=\"activeLab.id&&activeLab.id.indexOf('free-')===0\"", 0, 'v16 no free-* gate in overlay');
   eqS('lab.id.indexOf("free-")!==0){return;}', 0, 'v16 no free-* guard in deleteLab');
@@ -298,7 +299,7 @@ if (isShowcase) {
   eqS('Baseten (directo)', 0, 'v17 no parenthesized Baseten label (es)');
   eqS('I18N.de.providerFixed="Baseten";', 1, 'v17 provider label (de)');
   eqS('I18N.en.providerFixed="Baseten";', 1, 'v17 provider label (en)');
-  eqS('providerFixed:"Baseten"', 1, 'v17 provider label (es)');
+  eqS('providerFixed:"Baseten"', 2, 'v17+v42 provider label (es + fr)');
   eqS("{{t('providerFixed')}}", 0, 'v17 no static provider badge (dynamic label)');
   eqS('id="gen-provider"', 1, 'v17 provider select');
   eqS('id:"baseten-direct"', 1, 'v17 Baseten provider ID');
@@ -331,7 +332,7 @@ if (isShowcase) {
   eqS('xhighAllowed', 6, 'v26 xhigh-Leitplanken (Methode + selects + defaults + bodies)');
   eqS('reasoningDefault', 6, 'v26+v32 UI-Default-Ableitung (Methode + resets + bodies + ETA-Tabelle)');
   eqS('genReasoning:"xhigh"', 1, 'v26 UI-Default xhigh (Baseten-Startprovider)');
-  eqS('reasoningHigh', 4, 'v26 xhigh-Option (3 Locales + Template)');
+  eqS('reasoningHigh', 5, 'v26+v42 xhigh-Option (4 Locales + Template)');
   eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
   eqS('req_max_completion_tokens: ', 1, 'v23 Request-Echo Limit (generate-Diag)');
   eqS('req_max_tokens: ', 1, 'v23 Request-Echo Mirror (generate-Diag)');
@@ -354,17 +355,17 @@ if (isShowcase) {
   eqS('enqueueGenerate', 2, 'v31 enqueue-Methode (Template + Definition)');
   eqS('pumpGenQueue', 3, 'v31+v35 Queue-Pumpe (2 Einreihungen + Definition)');
   eqS('id="gen-jobs"', 1, 'v31 Auftragsliste im Gen-Overlay');
-  eqS('genJobsTitle', 4, 'v31 Auftragstitel (3 Locales + Template)');
+  eqS('genJobsTitle', 5, 'v31 Auftragstitel (4 Locales + Template)');
   eqS('genJobs:[]', 1, 'v31 Queue-State im Data-Block');
-  eqS('jobWaiting', 10, 'v31+v35+v37 Auftragsstatus wartend (3 Locales + 2x enqueue + Pumpe + Stopp + Tick + Zeittext x2)');
-  eqS('jobRunning', 7, 'v31+v37 Auftragsstatus laeuft (3 Locales + Pumpe + Tick + Zeittext + Stempel)');
-  eqS('jobDone', 13, 'v31+v37 Auftragsstatus fertig (3 Locales + Pumpe + Template x3 + Zeittext + Tick + Stempel + Hinweis x4)');
-  eqS('jobError', 9, 'v31+v37 Auftragsstatus Fehler (3 Locales + Pumpe x2 + Stopp + Zeittext + Tick + Prune)');
-  eqS('genStopped', 4, 'v31 Stopp-Hinweis (3 Locales + Stopp-Methode)');
+  eqS('jobWaiting', 11, 'v31+v35+v37+v42 Auftragsstatus wartend (4 Locales + 2x enqueue + Pumpe + Stopp + Tick + Zeittext x2)');
+  eqS('jobRunning', 8, 'v31+v37+v42 Auftragsstatus laeuft (4 Locales + Pumpe + Tick + Zeittext + Stempel)');
+  eqS('jobDone', 15, 'v31+v37+v42 Auftragsstatus fertig (4 Locales + Pumpe + Template x3 + Zeittext + Tick + Stempel + Hinweis x4 + Hint-Key)');
+  eqS('jobError', 10, 'v31+v37+v42 Auftragsstatus Fehler (4 Locales + Pumpe x2 + Stopp + Zeittext + Tick + Prune)');
+  eqS('genStopped', 5, 'v31 Stopp-Hinweis (4 Locales + Stopp-Methode)');
   eqS('genEtaText', 2, 'v31 Gen-Countdown (Computed + Template)');
   eqS('modEtaText', 2, 'v31 Mod-Countdown (Computed + Template)');
-  eqS('genPatient', 8, 'v31 Gen-Geduld (3 Locales + State + Timer + Template x2)');
-  eqS('modPatient', 8, 'v31 Mod-Geduld (3 Locales + State + Timer + Template x2)');
+  eqS('genPatient', 9, 'v31 Gen-Geduld (4 Locales + State + Timer + Template x2)');
+  eqS('modPatient', 9, 'v31 Mod-Geduld (4 Locales + State + Timer + Template x2)');
   eqS('Hab noch einen Moment Geduld.', 2, 'v31 Geduld-Hinweis de (gen + mod)');
   eqS('standalone-build v32', 1, 'v32 stamp (Overtime + Gesamtzeit + ETA-Tabelle)');
   // v32 (D/E/F): Overtime de/en/es, Gesamtzeit de/en/es, 4-Min-Texte,
@@ -443,10 +444,44 @@ if (isShowcase) {
   eqS('onlyVisible: true', 1, 'v41 Part-Ausblendung wirkt');
   eqS('userData.labelText', 2, 'v41 Labels als GLB-extras (Guard + Stempel)');
   eqS('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"', 5, 'v41 xmlns in allen 5 Inline-Tags');
-  eqS('saveModel:', 3, 'v41 I18N saveModel de/en/es');
-  eqS('saveGlb:', 3, 'v41 I18N saveGlb de/en/es');
-  eqS('savePng:', 3, 'v41 I18N savePng de/en/es');
-  eqS('saveSvg:', 3, 'v41 I18N saveSvg de/en/es');
+  eqS('saveModel:', 4, 'v41+v42 I18N saveModel de/en/es/fr');
+  eqS('saveGlb:', 4, 'v41+v42 I18N saveGlb de/en/es/fr');
+  eqS('savePng:', 4, 'v41+v42 I18N savePng de/en/es/fr');
+  eqS('saveSvg:', 4, 'v41+v42 I18N saveSvg de/en/es/fr');
+  eqS('standalone-build v42', 1, 'v42 stamp (FR-Portierung: Button + I18N.fr + LABS/META fr + Prompts 4-sprachig)');
+  // v42 (F): FR-Button + fr-Dict + UI-Fallbacks + Prompts + LABS/META fr.
+  eqS('>FR</button>', 1, 'v42 FR-Button in der Kopfzeile');
+  eqS("setLang('fr')", 1, 'v42 FR-Umschaltung');
+  eqS('I18N.fr={', 1, 'v42 fr-Dict (135 Keys)');
+  eqS('viewerBadge:"Mod\\u00e8les v13-standalone"', 1, 'v42 fr-Badge');
+  eqS('partsTitle:"Composants"', 1, 'v42 fr-Bestandteil-Titel');
+  eqS('(locale==="en"||locale==="es"||locale==="fr")?locale:"de"', 1, 'v42 3D-Prompt loc-Gate fr');
+  eqS("locale==='fr')?locale:'de'", 1, 'v42 2D-Prompt loc-Gate fr');
+  eqS('fr: { title, parts: [...] }', 2, 'v42 meta_i18n-Vertrag en/es/fr (3D + 2D)');
+  eqS('en.explanations + es.explanations + fr.explanations als', 2, 'v42 explanations-Vertrag en/es/fr');
+  eqS('var titleFr=', 1, 'v42 makeFreeLab titleFr');
+  eqS('var partsFr=', 1, 'v42 makeFreeLab partsFr');
+  eqS('var expFr=', 1, 'v42 makeFreeLab expFr');
+  eqS('var measTextFr=', 1, 'v42 makeFreeLab measTextFr');
+  eqS('var FR={', 1, 'v42 FR-Anreicherung (Map + fr-Fallbacks)');
+  eqS('plus lent que pr\\u00e9vu', 2, 'v42 Overtime fr (gen + mod)');
+  eqS('pr\\u00eat apr\\u00e8s {s} s', 2, 'v42 Gesamtzeit fr (gen + mod)');
+  eqS('env. 4 minutes', 2, 'v42 Lang-Countdown fr (gen + mod)');
+  eqS('Patiente encore un moment.', 2, 'v42 Geduld-Hinweis fr (gen + mod)');
+  eqS('ModelMuse diagnostic (édité, sans clé).', 1, 'v42 diagText fr');
+  eqS('ModelMuse télémétrie (volontaire, sans clé).', 1, 'v42 teleBlock fr');
+  for (const [frTitle, label] of [
+    [',fr:"Porte de Brandebourg (Berlin)"}', 'arch'],
+    [',fr:"Poste PC (SI-1)"}', 'si-1'],
+    [',fr:"Molécule de caféine"}', 'koffein'],
+    [',fr:"Perceuse manuelle"}', 'bohrmaschine'],
+    [',fr:"Carte graphique"}', 'gpu'],
+    ['"fr":"Comparaison de rendement"}', 'chart'],
+  ]) eqS(frTitle, 1, `v42 LABS-Titel fr (${label})`);
+  eqS('Quel composant appartient à', 6, 'v42 LABS-Quiz fr (6 kuratierte)');
+  eqS('Aucun de ceux-ci', 7, 'v42 Quiz-Option fr (6 kuratierte + makeFreeLab)');
+  eqS('figure dans la liste.', 7, 'v42 Quiz-Rationale fr (6 kuratierte + makeFreeLab)');
+  eqS(', fr: { title:', 5, 'v42 meta_i18n-Konstanten fr (5 Modelle)');
   eqS('OctahedronGeometry, OrthographicCamera, PCFShadowMap', 1, 'v41 E8 Destructure-Luecke (registerFree funktionsfaehig)');
   eqS('"OctahedronGeometry","OrthographicCamera","PCFShadowMap"', 1, 'v38 OrthographicCamera-Allowlist');
   eqS('OctahedronGeometry,OrthographicCamera,PCFShadowMap', 2, 'v38 OrthographicCamera-Prolog x2');
@@ -484,7 +519,7 @@ if (isShowcase) {
   eqS('Strg+F5', 1, 'v21 stale-build hint');
   eqS('diagText:function', 1, 'v22 diagnose text (redigiert, ohne Key)');
   eqS('copyDiag:function', 1, 'v22 diagnose copy (Clipboard + Fallback)');
-  eqS('copyDiagBtn', 4, 'v22 copy button (3 locales + template)');
+  eqS('copyDiagBtn', 5, 'v22 copy button (4 locales + template)');
   eqS('@click="copyDiag"', 1, 'v22 copy button im Fehlerzustand');
   eqS('this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 1, 'v26 max-Gate zentral in reasoningAllowed (nie -contributor)');
   eqS('logit_bias', 0, 'v17 no forbidden logits field');
@@ -492,10 +527,10 @@ if (isShowcase) {
   eqS('logprobs', 0, 'v17 no forbidden logprobs field');
   eqS('modalities', 0, 'v17 no forbidden modalities field');
   eqS('"stop"', 0, 'v17 no forbidden stop field');
-  eqS('dev.meta.ai', 10, 'v17 dashboard links (Meta hints + placeholder)');
-  eqS('keyMissingMeta', 4, 'v17 Meta key-missing text (3 locales + selector)');
-  eqS('keyInvalidMeta', 4, 'v17 Meta 401 text (3 locales + selector)');
-  eqS('keyFormatMeta', 4, 'v17 Meta LLM_ hint (3 locales + template)');
+  eqS('dev.meta.ai', 13, 'v17+v42 dashboard links (Meta hints + placeholder, 4x keyFormat + 4x keyMissing + 4x keyInvalid + Template)');
+  eqS('keyMissingMeta', 5, 'v17 Meta key-missing text (4 locales + selector)');
+  eqS('keyInvalidMeta', 5, 'v17 Meta 401 text (4 locales + selector)');
+  eqS('keyFormatMeta', 5, 'v17 Meta LLM_ hint (4 locales + template)');
   eqS('genProviderChanged', 2, 'v17 provider switch (binding + method)');
   eqS('genModelChanged', 2, 'v17 model switch (binding + method)');
   eqS('verifyBadges', 0, 'v16 reference report computed');
@@ -539,7 +574,7 @@ if (isShowcase) {
   eqS('PC workstation (SI-1)', 0, 'v29 si-1 EN-Suffix weg');
   eqS('Puesto de PC (SI-1)', 0, 'v29 si-1 ES-Suffix weg');
   eqS('Graphics Card', 0, 'v29 gpu DE-Titel ersetzt');
-  eqS('title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz"}', 1, 'v29 si-1 Titel de/en/es');
+  eqS('title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz",fr:"Poste PC (SI-1)"}', 1, 'v29+v42 si-1 Titel de/en/es/fr');
   eqS('de:"Grafikkarte"', 1, 'v29 gpu DE-Titel Grafikkarte');
   eqS('{id:"demo-2d-svg"', 0, 'v29 Wasserkocher-Demo raus');
   eqS('{id:"demo-2d-mermaid"', 0, 'v29 Photosynthese-Demo raus');

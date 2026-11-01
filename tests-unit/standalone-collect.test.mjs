@@ -349,8 +349,11 @@ test('v25-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', a
     es: ['req_max_completion_tokens: (no enviado)', 'req_max_tokens: (no enviado)',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: sí',
       'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí'],
+    fr: ['req_max_completion_tokens: (non envoyé)', 'req_max_tokens: (non envoyé)',
+      'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: oui',
+      'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui'],
   };
-  for (const lang of ['de', 'en', 'es']) {
+  for (const lang of ['de', 'en', 'es', 'fr']) {
     app.lang = lang;
     const t = app.diagText();
     for (const bit of ['provider: baseten-direct', 'model: meta-models/muse-spark-open-1026', 'http: 200',
@@ -371,7 +374,7 @@ test('v25-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', a
   assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');
 });
 
-test('v24-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () => {
+test('v24-Diagnose: Copy-Button + Methoden + i18n de/en/es/fr vorhanden', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
   assert.equal(count('standalone-build v22'), 1, 'v22-Stempel (Historie)');
@@ -381,15 +384,15 @@ test('v24-Diagnose: Copy-Button + Methoden + i18n de/en/es vorhanden', async () 
   assert.equal(count('standalone-build v26'), 1, 'v26-Stempel');
   assert.equal(count('diagText:function'), 1, 'diagText-Methode');
   assert.equal(count('copyDiag:function'), 1, 'copyDiag-Methode');
-  assert.equal(count('copyDiagBtn'), 4, 'Button-Label: 3 Locales + Template');
+  assert.equal(count('copyDiagBtn'), 5, 'Button-Label: 4 Locales + Template');
   assert.equal(count('@click="copyDiag"'), 1, 'Button nur im Fehlerzustand (genStatusBad)');
   assert.equal(count('v-if="genStatusBad"'), 1, 'Button nur im Fehlerzustand');
   for (const [sub, n, label] of [
     ['copyDiagBtn:"Diagnose kopieren"', 1, 'de-Label'], ['copyDiagBtn:"Copy diagnostics"', 1, 'en-Label'],
-    ['copyDiagBtn:"Copiar diagnóstico"', 1, 'es-Label'],
+    ['copyDiagBtn:"Copiar diagnóstico"', 1, 'es-Label'], ['copyDiagBtn:"Copier le diagnostic"', 1, 'fr-Label'],
     ['diagCopied:"Diagnose kopiert (ohne Key)."', 1, 'de-Bestaetigung'],
     ['diagCopied:"Diagnostics copied (no key)."', 1, 'en-Bestaetigung'],
-    ['diagCopied:"Diagnóstico copiado (sin clave)."', 1, 'es-Bestaetigung'],
+    ['diagCopied:"Diagnóstico copiado (sin clave)."', 1, 'es-Bestaetigung'], ['diagCopied:"Diagnostic copi', 1, 'fr-Bestaetigung'],
   ]) assert.equal(count(sub), n, label);
 });
 

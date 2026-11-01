@@ -107,11 +107,11 @@ function checkInvariants(s) {
     ['enqueueGenerate', 2], ['pumpGenQueue', 3],
     ['startGenEta', 2], ['stopGenEta', 2], ['startModEta', 2], ['stopModEta', 2],
     ['genEtaText', 2], ['modEtaText', 2],
-    ['genJobsTitle', 4], ['genPatient', 8], ['modPatient', 8],
+    ['genJobsTitle', (s.includes('standalone-build v42') ? 5 : 4)], ['genPatient', (s.includes('standalone-build v42') ? 9 : 8)], ['modPatient', (s.includes('standalone-build v42') ? 9 : 8)],
     // v35-Nachfolger (mod-Einreihung teilt Status): 6->7.
     // v37-Nachfolger (Tele-Fenster + Job-Eigenzeiten + Queue-Hygiene): 7/4/4/6->10/7/13/9.
-    ['jobWaiting', 10], ['jobRunning', 7], ['jobDone', 13], ['jobError', 9],
-    ['genStopped', 4], ['genJobs:[]', 1],
+    ['jobWaiting', (s.includes('standalone-build v42') ? 11 : 10)], ['jobRunning', (s.includes('standalone-build v42') ? 8 : 7)], ['jobDone', (s.includes('standalone-build v42') ? 15 : 13)], ['jobError', (s.includes('standalone-build v42') ? 10 : 9)],
+    ['genStopped', (s.includes('standalone-build v42') ? 5 : 4)], ['genJobs:[]', 1],
     ['id="gen-jobs"', 1], ['id="mod-status"', 1],
     ['position:fixed;bottom:16px;right:16px', 3],
     ['@click="generate"', 0], ['@click="enqueueGenerate"', 1],

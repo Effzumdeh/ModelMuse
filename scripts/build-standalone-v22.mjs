@@ -104,7 +104,7 @@ function checkInvariants(s) {
     ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
     ['standalone-build v18', 1], ['standalone-build v19', 1], ['standalone-build v20', 1],
     ['standalone-build v21', 1], ['standalone-build v22', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v40') ? 28 : 26)], ['OpenRouter', (s.includes('standalone-build v40') ? 13 : 12)],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 2], ['stream:true', 3],
@@ -116,7 +116,7 @@ function checkInvariants(s) {
     ['stream_options', 4],
     // v26-Nachfolger (Reasoning xhigh/max mit Leitplanken): reasoningAllowed 5->7.
     ['modelmuse-key-baseten-direct', 3], ['modelmuse-key-meta-muse', 3], ['modelmuse-proxy-key', 1],
-    ['dev.meta.ai', 10],
+    ['dev.meta.ai', (s.includes('standalone-build v42') ? 13 : 10)],
     // v37-Nachfolger (Tele-Snapshot liest _lastChatInfo/_lastHttp je +1): 7->8, 6->7.
     ['collectChatText', 4], ['emptyDetail', 3], ['_lastChatInfo', 8], ['_lastHttp', 7],
     // v23-Nachfolger: _lastRetry 6->7, Build v22->v23 (Toleranz unten).
@@ -124,12 +124,12 @@ function checkInvariants(s) {
     ['Build v21', 0], ['Strg+F5', 1],
     ['slice(0,200)', 2], ['slice(0,160)', 0],
     ['slice(0,2048)', 2],
-    ['emptyResponse', 4],
+    ['emptyResponse', (s.includes('standalone-build v42') ? 5 : 4)],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
     // v26-Nachfolger (T0 2D-Vertrag im Prompt): 2->3 (generate + modify + 2D).
     ['diagText:function', 1], ['copyDiag:function', 1],
-    ['copyDiagBtn', 4],
+    ['copyDiagBtn', (s.includes('standalone-build v42') ? 5 : 4)],
     ['diagCopied:false', 1],
     ['reasonSample', 7],
     // v37-Nachfolger (Tele-Snapshot liest Usage-Reasoning/Completion je +2): 3->5.

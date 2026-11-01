@@ -40,10 +40,11 @@ test('G: Mesh-Text ersatzlos entfernt, Overlay-Rest intakt', async () => {
 test('H: tolerante Erklaerungs-Zuordnung (normExp)', async () => {
   const s = await html();
   assert.equal(cnt(s, 'normExp:function'), 1, 'normExp-Helper 1x');
-  assert.equal(cnt(s, 'this.normExp('), 3, 'de/en/es ueber normExp');
+  assert.equal(cnt(s, 'this.normExp('), 4, 'de/en/es/fr ueber normExp');
   assert.ok(s.includes('var expDe=this.normExp(meta&&meta.explanations,parts.length,null)'), 'de tolerant');
   assert.ok(s.includes('var expEn=this.normExp(metaI18n&&metaI18n.en&&metaI18n.en.explanations,parts.length,expDe)'), 'en tolerant mit de-Fallback');
   assert.ok(s.includes('var expEs=this.normExp(metaI18n&&metaI18n.es&&metaI18n.es.explanations,parts.length,expDe)'), 'es tolerant mit de-Fallback');
+  assert.ok(s.includes('var expFr=this.normExp(metaI18n&&metaI18n.fr&&metaI18n.fr.explanations,parts.length,expDe)'), 'fr tolerant mit de-Fallback');
   // Kein Alles-oder-Nichts mehr (expDe=null fiel auf [] zurueck).
   assert.equal(cnt(s, '?meta.explanations.slice():null'), 0, 'kein Totalausfall de mehr');
   assert.equal(cnt(s, 'explanations.length===parts.length)?metaI18n.en.explanations.slice():(expDe||[]).slice()'), 0, 'kein Totalausfall en mehr');
