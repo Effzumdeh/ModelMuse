@@ -60,3 +60,8 @@ playwright-report/
 # Release-Artefakt bewusst versioniert — trotz benachbarter dist-standalone-Ignores nie ignorieren
 !dist-standalone/modelmuse-standalone.html
 # Hinweis: README-verlinkte STANDALONE-REPORT-*.md / SHOWCASE-REPORT-*.md und docs/routing-shots/ bleiben bewusst lokal/regenerierbar (Regeln oben), kein Negation-Tracking
+# Eigentuemer-Vorgabe 2026-11-01: keine privaten/schweren Inhalte nach GitHub —
+# Erklaervideo-Arbeitsstand + MP4s + KI-Recherche-Notizen bleiben lokal (nichts davon stagen)
+docs/.erklaervideo-work/
+docs/*.mp4
+docs/export-formate-recherche-*.md

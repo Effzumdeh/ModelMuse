@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ModelMuse – Ayuda (Español)</title>
+<style>
+:root{color-scheme:light dark}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;line-height:1.6;color:#0f172a;background:#fff}
+@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#0f172a}}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 64px}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:2px solid #4f46e5;padding-bottom:12px}
+.brand{font-weight:800;font-size:1.3rem}
+.brand span{color:#4f46e5}
+nav.lang a{margin:0 4px;padding:6px 12px;border-radius:8px;text-decoration:none;background:#eef2ff;color:#1e1b4b;font-weight:600}
+nav.lang a[aria-current="page"]{background:#4f46e5;color:#fff}
+@media(prefers-color-scheme:dark){nav.lang a{background:#1e293b;color:#e2e8f0}}
+h1{font-size:1.8rem;margin:1.2em 0 .4em}
+h2{font-size:1.3rem;margin:1.6em 0 .4em;color:#4f46e5}
+table{border-collapse:collapse;width:100%;margin:.6em 0}
+th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;font-size:.95rem}
+th{background:#eef2ff}
+@media(prefers-color-scheme:dark){th,td{border-color:#334155}th{background:#1e293b}}
+figure{margin:1.2em 0}
+figure img{max-width:100%;border:1px solid #cbd5e1;border-radius:12px}
+figcaption{font-size:.9rem;color:#64748b}
+kbd{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:1px 6px;font-size:.9em}
+@media(prefers-color-scheme:dark){kbd{background:#1e293b;border-color:#334155}}
+footer{margin-top:3em;border-top:1px solid #cbd5e1;padding-top:12px;font-size:.9rem}
+footer a{color:#4f46e5}
+.note{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin:1em 0}
+@media(prefers-color-scheme:dark){.note{background:#052e16;border-color:#166534}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="brand">ModelMuse <span>Ayuda</span></div>
+<nav class="lang" aria-label="Idioma">
+<a href="de.html">Deutsch</a><a href="en.html">English</a><a href="es.html" aria-current="page">Español</a><a href="fr.html">Français</a>
+</nav>
+</header>
+<p><a href="/">← Volver a la app</a></p>
+<h1>Usar ModelMuse – guía rápida</h1>
+<p>ModelMuse es una <strong>app estática de una sola página</strong> para ver y crear modelos educativos 3D y 2D directamente en el navegador. No hay backend ni instalación: basta un único archivo HTML. Necesita conexión a internet al arrancar (las bibliotecas 3D/de interfaz y la fuente se cargan desde CDN; las APIs de proveedores necesitan red).</p>
+<figure>
+<img src="shots/app-es.png" alt="Captura de la app ModelMuse en español: biblioteca, visor 3D y generador">
+<figcaption>La app en español: biblioteca a la izquierda, visor 3D en el centro, generador y panel de revisión a la derecha.</figcaption>
+</figure>
+<h2>1. Funciones principales</h2>
+<ul>
+<li><strong>6 laboratorios integrados:</strong> 5 × 3D (<kbd>si-1</kbd>, <kbd>gpu-example</kbd>, <kbd>free-handbohrmaschine</kbd>, <kbd>chemie-koffein</kbd>, <kbd>arch-brandenburger-tor</kbd>) más 1 demo 2D (<kbd>demo-2d-chart</kbd>). Cada lab explica sus componentes en tres idiomas (alemán, inglés, español).</li>
+<li><strong>Visor 3D interactivo:</strong> rotar/acercar, mostrar u ocultar componentes, overlay de información con explicaciones.</li>
+<li><strong>Renderizadores 2D:</strong> SVG, estilo Mermaid, gráficos, estilo D3 y estilo KaTeX – los términos de diagramas se derivan automáticamente a la vista 2D.</li>
+<li><strong>Ventanas acopladas:</strong> generar, cola, revisar e info de componente aparecen como overlays apilables y se pueden minimizar.</li>
+<li><strong>Biblioteca de sesión:</strong> ver, adoptar, importar, exportar y eliminar tus modelos – con historial (V1 … VX, máx. 10 versiones).</li>
+</ul>
+<h2>2. Generar modelos</h2>
+<ol>
+<li>Elige proveedor y modelo; introduce una clave API si se requiere (solo sesión, ver § 3).</li>
+<li>Escribe una descripción (p. ej. «taladro manual, medio seccionado») y pulsa <strong>Generar</strong>.</li>
+<li>Mientras un trabajo está en curso, se pueden enviar más trabajos – cada uno llega como modelo propio a la biblioteca.</li>
+<li>Debajo de la selección de modelo, una <strong>estimación de coste/duración</strong> en vivo con promedios de telemetría muestra qué esperar.</li>
+</ol>
+<h2>3. Proveedores y claves (trae tu propia clave)</h2>
+<table>
+<tr><th>Proveedor</th><th>Vía</th><th>Modelos</th><th>Clave</th></tr>
+<tr><td>Meta Muse</td><td>Harness CLI <kbd>muse</kbd> (comando activo y documentado)</td><td><kbd>muse-spark-1.3-contributor</kbd> (predeterminado), <kbd>muse-spark-1.3</kbd></td><td>Sin campo de clave en la UI – la autenticación va por la CLI, nunca por logs, archivos o chat</td></tr>
+<tr><td>Baseten</td><td>Llamada directa desde el navegador; proxy local (<kbd>scripts/proxy.mjs</kbd>) solo como fallback ante problemas de red/CORS</td><td><kbd>meta-models/muse-spark-open-1026</kbd> (Muse Spark Open)</td><td>Tu propia clave de Baseten, solo sesión, nunca clave de servidor</td></tr>
+<tr><td>OpenRouter</td><td>Solo llamada directa (sin vía proxy)</td><td><kbd>openai/gpt-6.1-sol</kbd>, <kbd>meta/muse-spark-1.3</kbd>, <kbd>anthropic/claude-opus-5.5</kbd></td><td>Tu propia clave de OpenRouter (<kbd>openrouter.ai/keys</kbd>), solo sesión</td></tr>
+</table>
+<div class="note"><strong>Privacidad:</strong> las claves viven solo en memoria o – con consentimiento explícito – en <kbd>sessionStorage</kbd>. Nunca se escriben en el repositorio; la telemetría y los diagnósticos jamás contienen claves.</div>
+<p><strong>Profundidad de razonamiento:</strong> <kbd>Standard</kbd> / <kbd>xhigh</kbd> / <kbd>max</kbd> – <kbd>max</kbd> solo donde está documentado (1.3/wonder en Meta Muse, los tres slugs de OpenRouter); <kbd>xhigh</kbd> es el tope para modelos Contributor y la vía Baseten. Nunca se envían parámetros de presupuesto de tokens – intencionalmente no hay límite de longitud.</p>
+<h2>4. Cola con ETA</h2>
+<p>Generar y revisar comparten <strong>una sola cola</strong>. Cada combinación proveedor/modelo/razonamiento tiene una ETA (60&nbsp;s por defecto, 240&nbsp;s para configuraciones pesadas y nuevos modelos de OpenRouter). La cuenta atrás sigue corriendo tras la ETA («más lento de lo esperado · +{s} s»), informa la duración total y aborta en ETA&nbsp;+&nbsp;120&nbsp;s.</p>
+<h2>5. Exportar</h2>
+<ul>
+<li><strong>Vistas 3D:</strong> GLB (textos de etiquetas/cotas conservados como extras <kbd>userData</kbd>) y captura PNG de la vista actual.</li>
+<li><strong>Vistas 2D:</strong> SVG (con corrección <kbd>xmlns</kbd>) y PNG.</li>
+<li><strong>Biblioteca de sesión:</strong> exportar la fuente del modelo con cabecera de procedencia (sin claves).</li>
+</ul>
+<h2>6. Telemetría (voluntaria) y diagnóstico</h2>
+<p>Tras una generación exitosa, un diálogo pregunta si compartir un <strong>bloque de telemetría</strong> (modelo, proveedor, razonamiento, prompt, códigos de uso/HTTP, duración – claves eliminadas, solo memoria, nunca persistente). Con valoración de estrellas y comentario, el bloque se puede copiar y reportar como issue mediante un botón-enlace. Además, <strong>copiar diagnóstico</strong> copia el diagnóstico depurado (modo, razonamiento, estado HTTP, uso de tokens incl. tokens de razonamiento, flag de reintento) – seguro para bug reports.</p>
+<h2>7. Límites</h2>
+<ul>
+<li><strong>Un solo archivo, pero no offline:</strong> sin red (CDN/proveedores) la app no arranca – revisa la conexión y recarga.</li>
+<li><strong>WebGL2 obligatorio para 3D:</strong> sin WebGL2 hay una vista 2D de reserva (lista de piezas con medidas, marcada como auto-verificada con limitaciones).</li>
+<li><strong>Las estimaciones son estimaciones:</strong> los pronósticos de coste/duración son promedios de telemetría, no garantías.</li>
+</ul>
+<footer>
+<a href="/">← Volver a la app</a> · Ayuda de ModelMuse · <a href="de.html">Deutsch</a> · <a href="en.html">English</a> · <a href="fr.html">Français</a>
+</footer>
+</div>
+</body>
+</html>

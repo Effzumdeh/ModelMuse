@@ -181,6 +181,7 @@
     "hell": "Light"
   },
   "fuss": {
-    "notiz": "Lab player · generation directly in the browser (session-only key) or via local proxy fallback · history stays local."
+    "notiz": "Lab player · generation directly in the browser (session-only key) or via local proxy fallback · history stays local.",
+    "hilfe": "Need help?"
   }
 }

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ModelMuse – Help (English)</title>
+<style>
+:root{color-scheme:light dark}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;line-height:1.6;color:#0f172a;background:#fff}
+@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#0f172a}}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 64px}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:2px solid #4f46e5;padding-bottom:12px}
+.brand{font-weight:800;font-size:1.3rem}
+.brand span{color:#4f46e5}
+nav.lang a{margin:0 4px;padding:6px 12px;border-radius:8px;text-decoration:none;background:#eef2ff;color:#1e1b4b;font-weight:600}
+nav.lang a[aria-current="page"]{background:#4f46e5;color:#fff}
+@media(prefers-color-scheme:dark){nav.lang a{background:#1e293b;color:#e2e8f0}}
+h1{font-size:1.8rem;margin:1.2em 0 .4em}
+h2{font-size:1.3rem;margin:1.6em 0 .4em;color:#4f46e5}
+table{border-collapse:collapse;width:100%;margin:.6em 0}
+th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;font-size:.95rem}
+th{background:#eef2ff}
+@media(prefers-color-scheme:dark){th,td{border-color:#334155}th{background:#1e293b}}
+figure{margin:1.2em 0}
+figure img{max-width:100%;border:1px solid #cbd5e1;border-radius:12px}
+figcaption{font-size:.9rem;color:#64748b}
+kbd{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:1px 6px;font-size:.9em}
+@media(prefers-color-scheme:dark){kbd{background:#1e293b;border-color:#334155}}
+footer{margin-top:3em;border-top:1px solid #cbd5e1;padding-top:12px;font-size:.9rem}
+footer a{color:#4f46e5}
+.note{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin:1em 0}
+@media(prefers-color-scheme:dark){.note{background:#052e16;border-color:#166534}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="brand">ModelMuse <span>Help</span></div>
+<nav class="lang" aria-label="Language">
+<a href="de.html">Deutsch</a><a href="en.html" aria-current="page">English</a><a href="es.html">Español</a><a href="fr.html">Français</a>
+</nav>
+</header>
+<p><a href="/">← Back to the app</a></p>
+<h1>Using ModelMuse – quick guide</h1>
+<p>ModelMuse is a <strong>static single-page app</strong> for viewing and creating 3D and 2D educational models directly in the browser. There is no backend and no install step: a single HTML file is enough. It needs an internet connection at startup (3D/UI libraries and the font load from CDNs; provider APIs need network).</p>
+<figure>
+<img src="shots/app-en.png" alt="Screenshot of the ModelMuse app in English: lab library, 3D viewer and generator">
+<figcaption>The app in English: lab library on the left, 3D viewer in the center, generator and revise panel on the right.</figcaption>
+</figure>
+<h2>1. Feature overview</h2>
+<ul>
+<li><strong>6 built-in labs:</strong> 5 × 3D (<kbd>si-1</kbd>, <kbd>gpu-example</kbd>, <kbd>free-handbohrmaschine</kbd>, <kbd>chemie-koffein</kbd>, <kbd>arch-brandenburger-tor</kbd>) plus 1 × 2D demo (<kbd>demo-2d-chart</kbd>). Each lab explains its components trilingually (German, English, Spanish).</li>
+<li><strong>Interactive 3D viewer:</strong> rotate/zoom, toggle components, info overlay with explanations.</li>
+<li><strong>2D renderers:</strong> SVG, Mermaid-style, chart, D3-style and KaTeX-style – diagram terms are routed to the 2D view automatically.</li>
+<li><strong>Docked windows:</strong> generate, queue, revise and component-info appear as stackable overlays and can be minimized.</li>
+<li><strong>Session library:</strong> view, adopt, import, export and delete your own models – with history (V1 … VX, max. 10 versions).</li>
+</ul>
+<h2>2. Generating models</h2>
+<ol>
+<li>Pick a provider and model; enter an API key if required (session only, see § 3).</li>
+<li>Type a description (e.g. “hand drill, half sectioned”) and press <strong>Generate</strong>.</li>
+<li>While one job runs, further jobs can be submitted – each lands as its own model in the library.</li>
+<li>Below the model selection, a live <strong>cost/duration estimate</strong> from telemetry averages shows what to expect.</li>
+</ol>
+<h2>3. Providers &amp; keys (bring your own key)</h2>
+<table>
+<tr><th>Provider</th><th>Path</th><th>Models</th><th>Key handling</th></tr>
+<tr><td>Meta Muse</td><td><kbd>muse</kbd> CLI harness (active, documented command)</td><td><kbd>muse-spark-1.3-contributor</kbd> (default), <kbd>muse-spark-1.3</kbd></td><td>No key field in the UI – authentication runs via the CLI, never through logs, files or chat</td></tr>
+<tr><td>Baseten</td><td>Direct browser call; local proxy (<kbd>scripts/proxy.mjs</kbd>) only as fallback for network/CORS issues</td><td><kbd>meta-models/muse-spark-open-1026</kbd> (Muse Spark Open)</td><td>Your own Baseten key, session only, never a server key</td></tr>
+<tr><td>OpenRouter</td><td>Direct call only (no proxy path)</td><td><kbd>openai/gpt-6.1-sol</kbd>, <kbd>meta/muse-spark-1.3</kbd>, <kbd>anthropic/claude-opus-5.5</kbd></td><td>Your own OpenRouter key (<kbd>openrouter.ai/keys</kbd>), session only</td></tr>
+</table>
+<div class="note"><strong>Privacy:</strong> keys live only in memory or – with explicit consent – in <kbd>sessionStorage</kbd>. They are never written to the repository; telemetry and diagnostics never contain key material.</div>
+<p><strong>Reasoning depth:</strong> <kbd>Standard</kbd> / <kbd>xhigh</kbd> / <kbd>max</kbd> – <kbd>max</kbd> only where documented (1.3/wonder on Meta Muse, all three OpenRouter slugs); <kbd>xhigh</kbd> caps Contributor models and the Baseten path. No token-budget parameters are ever sent – there is intentionally no length limit.</p>
+<h2>4. Queue with ETA</h2>
+<p>Generate and revise share <strong>one queue</strong>. Each provider/model/reasoning combination has an ETA (60&nbsp;s default, 240&nbsp;s for heavy configurations and new OpenRouter models). The countdown ticks down, keeps counting past the ETA (“longer than expected · +{s} s”), reports the total duration and aborts at ETA&nbsp;+&nbsp;120&nbsp;s.</p>
+<h2>5. Exporting</h2>
+<ul>
+<li><strong>3D views:</strong> GLB (label/measurement texts preserved as <kbd>userData</kbd> extras) and PNG screenshot of the current view.</li>
+<li><strong>2D views:</strong> SVG (with <kbd>xmlns</kbd> fix) and PNG.</li>
+<li><strong>Session library:</strong> export model source with a provenance header (no key material).</li>
+</ul>
+<h2>6. Telemetry (voluntary) &amp; diagnostics</h2>
+<p>After a successful generation, a dialog asks whether to share a <strong>telemetry block</strong> (model, provider, reasoning, prompt, usage/HTTP codes, duration – keys redacted, memory only, never persisted). With a star rating and comment, the block can be copied and reported as an issue via a link button. Independently, <strong>copy diagnostics</strong> copies the redacted run diagnostics (mode, reasoning, HTTP status, token usage incl. reasoning tokens, retry flag) – safe for bug reports.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>Single file, but not offline:</strong> without network (CDN/providers) the app cannot start – check the connection and reload.</li>
+<li><strong>WebGL2 required for 3D:</strong> without WebGL2 there is a 2D fallback view (parts list with dimensions, marked auto-checked with limitations).</li>
+<li><strong>Estimates are estimates:</strong> cost/duration forecasts are telemetry averages, not guarantees.</li>
+</ul>
+<footer>
+<a href="/">← Back to the app</a> · ModelMuse help · <a href="de.html">Deutsch</a> · <a href="es.html">Español</a> · <a href="fr.html">Français</a>
+</footer>
+</div>
+</body>
+</html>

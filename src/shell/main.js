@@ -95,6 +95,8 @@ async function boot() {
   applyLocale(getLocale());
   const langSel = /** @type {HTMLSelectElement | null} */ (document.getElementById('lang-select'));
   if (langSel) langSel.value = getLocale();
+  const helpLinkInit = /** @type {HTMLAnchorElement | null} */ (document.getElementById('help-link'));
+  if (helpLinkInit) helpLinkInit.setAttribute('href', `docs/help/${getLocale()}.html`);
   createLabStore(Alpine);
   const store = Alpine.store('lab');
   const webgl2 = hasWebGL2();
@@ -279,6 +281,8 @@ async function boot() {
   const repaintAll = () => {
     applyLocale(getLocale());
     if (langSel) langSel.value = getLocale();
+    const helpLink = /** @type {HTMLAnchorElement | null} */ (document.getElementById('help-link'));
+    if (helpLink) helpLink.setAttribute('href', `docs/help/${getLocale()}.html`);
     paintThemeBtn();
     try { providerCtl?.repaint?.(); } catch { /* Panel bleibt */ }
     const last = reportsById.get(curModel()?.id ?? store.modelId);

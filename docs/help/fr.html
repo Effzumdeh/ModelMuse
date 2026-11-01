@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ModelMuse – Aide (Français)</title>
+<style>
+:root{color-scheme:light dark}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;line-height:1.6;color:#0f172a;background:#fff}
+@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#0f172a}}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 64px}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-bottom:2px solid #4f46e5;padding-bottom:12px}
+.brand{font-weight:800;font-size:1.3rem}
+.brand span{color:#4f46e5}
+nav.lang a{margin:0 4px;padding:6px 12px;border-radius:8px;text-decoration:none;background:#eef2ff;color:#1e1b4b;font-weight:600}
+nav.lang a[aria-current="page"]{background:#4f46e5;color:#fff}
+@media(prefers-color-scheme:dark){nav.lang a{background:#1e293b;color:#e2e8f0}}
+h1{font-size:1.8rem;margin:1.2em 0 .4em}
+h2{font-size:1.3rem;margin:1.6em 0 .4em;color:#4f46e5}
+table{border-collapse:collapse;width:100%;margin:.6em 0}
+th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;font-size:.95rem}
+th{background:#eef2ff}
+@media(prefers-color-scheme:dark){th,td{border-color:#334155}th{background:#1e293b}}
+figure{margin:1.2em 0}
+figure img{max-width:100%;border:1px solid #cbd5e1;border-radius:12px}
+figcaption{font-size:.9rem;color:#64748b}
+kbd{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:1px 6px;font-size:.9em}
+@media(prefers-color-scheme:dark){kbd{background:#1e293b;border-color:#334155}}
+footer{margin-top:3em;border-top:1px solid #cbd5e1;padding-top:12px;font-size:.9rem}
+footer a{color:#4f46e5}
+.note{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin:1em 0}
+@media(prefers-color-scheme:dark){.note{background:#052e16;border-color:#166534}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="brand">ModelMuse <span>Aide</span></div>
+<nav class="lang" aria-label="Langue">
+<a href="de.html">Deutsch</a><a href="en.html">English</a><a href="es.html">Español</a><a href="fr.html" aria-current="page">Français</a>
+</nav>
+</header>
+<p><a href="/">← Retour à l'app</a></p>
+<h1>Utiliser ModelMuse – guide rapide</h1>
+<p>ModelMuse est une <strong>app statique en un seul fichier</strong> pour voir et créer des modèles pédagogiques 3D et 2D directement dans le navigateur. Pas de backend, pas d'installation : un seul fichier HTML suffit. Une connexion internet est requise au démarrage (bibliothèques 3D/UI et police via CDN ; les API des fournisseurs exigent du réseau).</p>
+<figure>
+<img src="shots/app-fr.png" alt="Capture de l'app ModelMuse en français : bibliothèque, visionneuse 3D et générateur">
+<figcaption>L'app en français : bibliothèque à gauche, visionneuse 3D au centre, générateur et panneau de retouche à droite.</figcaption>
+</figure>
+<h2>1. Aperçu des fonctions</h2>
+<ul>
+<li><strong>6 labos intégrés :</strong> 5 × 3D (<kbd>si-1</kbd>, <kbd>gpu-example</kbd>, <kbd>free-handbohrmaschine</kbd>, <kbd>chemie-koffein</kbd>, <kbd>arch-brandenburger-tor</kbd>) plus 1 démo 2D (<kbd>demo-2d-chart</kbd>). Chaque labo explique ses composants en trois langues (allemand, anglais, espagnol).</li>
+<li><strong>Visionneuse 3D interactive :</strong> pivot/zoom, afficher ou masquer des composants, overlay d'info avec explications.</li>
+<li><strong>Moteurs 2D :</strong> SVG, style Mermaid, graphique, style D3 et style KaTeX – les termes de diagrammes sont routés automatiquement vers la vue 2D.</li>
+<li><strong>Fenêtres ancrées :</strong> génération, file d'attente, retouche et info composant apparaissent en overlays empilables et réductibles.</li>
+<li><strong>Bibliothèque de session :</strong> voir, adopter, importer, exporter et supprimer tes modèles – avec historique (V1 … VX, 10 versions max).</li>
+</ul>
+<h2>2. Générer des modèles</h2>
+<ol>
+<li>Choisis un fournisseur et un modèle ; saisis une clé API si requise (session uniquement, voir § 3).</li>
+<li>Saisis une description (p. ex. « perceuse, à moitié en coupe ») puis <strong>Générer</strong>.</li>
+<li>Pendant qu'une tâche tourne, d'autres tâches peuvent être soumises – chacune arrive comme modèle à part dans la bibliothèque.</li>
+<li>Sous la sélection du modèle, une <strong>estimation coût/durée</strong> en direct issue des moyennes de télémétrie indique à quoi t'attendre.</li>
+</ol>
+<h2>3. Fournisseurs et clés (apporte ta propre clé)</h2>
+<table>
+<tr><th>Fournisseur</th><th>Voie</th><th>Modèles</th><th>Clé</th></tr>
+<tr><td>Meta Muse</td><td>Harnais CLI <kbd>muse</kbd> (commande active et documentée)</td><td><kbd>muse-spark-1.3-contributor</kbd> (défaut), <kbd>muse-spark-1.3</kbd></td><td>Pas de champ de clé dans l'UI – l'authentification passe par la CLI, jamais par logs, fichiers ou chat</td></tr>
+<tr><td>Baseten</td><td>Appel direct depuis le navigateur ; proxy local (<kbd>scripts/proxy.mjs</kbd>) uniquement en repli en cas de souci réseau/CORS</td><td><kbd>meta-models/muse-spark-open-1026</kbd> (Muse Spark Open)</td><td>Ta propre clé Baseten, session uniquement, jamais une clé serveur</td></tr>
+<tr><td>OpenRouter</td><td>Appel direct uniquement (pas de voie proxy)</td><td><kbd>openai/gpt-6.1-sol</kbd>, <kbd>meta/muse-spark-1.3</kbd>, <kbd>anthropic/claude-opus-5.5</kbd></td><td>Ta propre clé OpenRouter (<kbd>openrouter.ai/keys</kbd>), session uniquement</td></tr>
+</table>
+<div class="note"><strong>Confidentialité :</strong> les clés ne vivent qu'en mémoire ou – avec ton accord explicite – dans <kbd>sessionStorage</kbd>. Elles ne sont jamais écrites dans le dépôt ; télémétrie et diagnostics ne contiennent jamais de clé.</div>
+<p><strong>Profondeur de réflexion :</strong> <kbd>Standard</kbd> / <kbd>xhigh</kbd> / <kbd>max</kbd> – <kbd>max</kbd> uniquement là où c'est documenté (1.3/wonder sur Meta Muse, les trois slugs OpenRouter) ; <kbd>xhigh</kbd> plafonne les modèles Contributor et la voie Baseten. Aucun paramètre de budget de tokens n'est jamais envoyé – il n'y a volontairement aucune limite de longueur.</p>
+<h2>4. File d'attente avec ETA</h2>
+<p>Génération et retouche partagent <strong>une seule file</strong>. Chaque combinaison fournisseur/modèle/raisonnement a une ETA (60&nbsp;s par défaut, 240&nbsp;s pour les configs lourdes et les nouveaux modèles OpenRouter). Le compte à rebours continue après l'ETA (« plus lent que prévu · +{s} s »), annonce la durée totale et abandonne à ETA&nbsp;+&nbsp;120&nbsp;s.</p>
+<h2>5. Exporter</h2>
+<ul>
+<li><strong>Vues 3D :</strong> GLB (textes d'étiquettes/cotes conservés en extras <kbd>userData</kbd>) et capture PNG de la vue actuelle.</li>
+<li><strong>Vues 2D :</strong> SVG (avec correctif <kbd>xmlns</kbd>) et PNG.</li>
+<li><strong>Bibliothèque de session :</strong> exporter la source du modèle avec en-tête de provenance (sans clé).</li>
+</ul>
+<h2>6. Télémétrie (volontaire) et diagnostic</h2>
+<p>Après une génération réussie, un dialogue propose de partager un <strong>bloc de télémétrie</strong> (modèle, fournisseur, raisonnement, prompt, codes usage/HTTP, durée – clés expurgées, mémoire uniquement, jamais persisté). Avec note en étoiles et commentaire, le bloc se copie puis se signale comme issue via un bouton-lien. Par ailleurs, <strong>copier le diagnostic</strong> copie le diagnostic expurgé (mode, raisonnement, statut HTTP, usage de tokens dont tokens de raisonnement, flag de retry) – sûr pour les bug reports.</p>
+<h2>7. Limites</h2>
+<ul>
+<li><strong>Un seul fichier, mais pas hors-ligne :</strong> sans réseau (CDN/fournisseurs), l'app ne démarre pas – vérifie ta connexion et recharge.</li>
+<li><strong>WebGL2 requis pour la 3D :</strong> sans WebGL2, une vue 2D de repli (liste des pièces avec cotes, marquée auto-vérifiée avec limitation).</li>
+<li><strong>Les estimations restent des estimations :</strong> les prévisions coût/durée sont des moyennes de télémétrie, pas des garanties.</li>
+</ul>
+<footer>
+<a href="/">← Retour à l'app</a> · Aide ModelMuse · <a href="de.html">Deutsch</a> · <a href="en.html">English</a> · <a href="es.html">Español</a>
+</footer>
+</div>
+</body>
+</html>

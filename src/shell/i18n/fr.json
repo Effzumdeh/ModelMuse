@@ -181,6 +181,7 @@
     "hell": "Clair"
   },
   "fuss": {
-    "notiz": "Lab-Player · génération directement dans le navigateur (clé de session uniquement) ou via repli proxy local · historique local dans le navigateur."
+    "notiz": "Lab-Player · génération directement dans le navigateur (clé de session uniquement) ou via repli proxy local · historique local dans le navigateur.",
+    "hilfe": "Besoin d'aide ?"
   }
 }

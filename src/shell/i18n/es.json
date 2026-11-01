@@ -181,6 +181,7 @@
     "hell": "Claro"
   },
   "fuss": {
-    "notiz": "Reproductor · generación directa en el navegador (clave solo de sesión) o vía proxy local · historial local."
+    "notiz": "Reproductor · generación directa en el navegador (clave solo de sesión) o vía proxy local · historial local.",
+    "hilfe": "¿Necesitas ayuda?"
   }
 }

@@ -181,6 +181,7 @@
     "hell": "Hell"
   },
   "fuss": {
-    "notiz": "Lab-Player · Generierung direkt im Browser (Key nur Sitzung) oder via lokalem Proxy-Fallback · Verlauf lokal im Browser."
+    "notiz": "Lab-Player · Generierung direkt im Browser (Key nur Sitzung) oder via lokalem Proxy-Fallback · Verlauf lokal im Browser.",
+    "hilfe": "Brauchst du Hilfe?"
   }
 }

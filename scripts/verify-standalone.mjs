@@ -11,6 +11,9 @@
  * Exit 0 means every check passed; exit 1 means at least one check failed.
  */
 import { readFile } from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const FILE = process.argv[2] ?? 'dist-standalone/modelmuse-standalone.html';
 const failures = [];
@@ -30,6 +33,44 @@ const artifactBytes = Buffer.byteLength(s, 'utf8');
 const IDS_ALL = ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'chemie-koffein', 'gpu-example', 'free-handbohrmaschine'];
 const IDS_V15 = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example',
   'demo-2d-chart'];
+
+// v45: lokalisierter Hilfe-Link in der Fusszeile + koexistierende Docs-Ablage.
+// Steht vor der Empty-/Showcase-/Standard-Verzweigung, gilt also fuer jede Variante.
+{
+  const eq45 = (sub, want, label) => {
+    const n = cnt(sub);
+    if (n === want) ok(`${label} = ${n}`);
+    else fail(`${label}: ${n}; expected ${want}`);
+  };
+  eq45('footerHelp:', 4, 'Hilfe-Link-Texte footerHelp (de/en/es/fr)');
+  eq45("{{t('footerHelp')}}", 1, 'Hilfe-Link-Template in der Fusszeile');
+  eq45("'help/'+lang+'.html'", 1, 'Sprachabhaengiges Hilfe-Ziel (help/de|en|es|fr.html)');
+  for (const [code, text] of [
+    ['de', 'Brauchst du Hilfe?'], ['en', 'Need help?'],
+    ['es', '¿Necesitas ayuda?'], ['fr', "Besoin d'aide ?"],
+  ]) {
+    if (!s.includes(`footerHelp:"${text}"`)) fail(`footerHelp-Text fehlt: ${code}`);
+    else ok(`footerHelp-Text vorhanden: ${code}`);
+  }
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+  const sections = {
+    de: ['Generator', 'Provider', 'Export', 'Telemetrie'],
+    en: ['Generating', 'Providers', 'Exporting', 'Telemetry'],
+    es: ['Generar', 'Proveedor', 'Exportar', 'Telemetría'],
+    fr: ['Générer', 'Fournisseur', 'Exporter', 'Télémétrie'],
+  };
+  for (const code of ['de', 'en', 'es', 'fr']) {
+    const p = join(repoRoot, 'docs', 'help', `${code}.html`);
+    if (!existsSync(p)) { fail(`Docs-Ablage fehlt: docs/help/${code}.html`); continue; }
+    const doc = readFileSync(p, 'utf8');
+    let docOk = true;
+    for (const section of sections[code]) {
+      if (!doc.includes(section)) { fail(`docs/help/${code}.html: Abschnitt fehlt: ${section}`); docOk = false; }
+    }
+    if (!doc.includes(`shots/app-${code}.png`)) { fail(`docs/help/${code}.html: Screenshot-Einbindung fehlt`); docOk = false; }
+    if (docOk) ok(`Docs-Ablage vorhanden: docs/help/${code}.html`);
+  }
+}
 
 /**
  * v15 Bestandteil-Info: je gebuendeltem LABS-Eintrag explanations de/en/es/fr

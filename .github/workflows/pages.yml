@@ -40,6 +40,11 @@ jobs:
         run: |
           mkdir -p _site
           cp dist-standalone/modelmuse-standalone.html _site/index.html
+          # Docs-Ablage: mehrsprachige Anwenderdoku koexistiert mit der App
+          # (App: /index.html, Hilfe: /help/{de,en,es,fr}.html + shots/).
+          mkdir -p _site/help
+          cp docs/help/de.html docs/help/en.html docs/help/es.html docs/help/fr.html docs/help/index.html _site/help/
+          cp -r docs/help/shots _site/help/shots
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
