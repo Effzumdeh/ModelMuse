@@ -163,7 +163,14 @@
     "geladen": "„{titel}“ geladen ({id}).",
     "fehler": "Modify-Fehler: {detail}",
     "pruefungRot": "Modellprüfung: {detail}",
-    "reserve": "Iteration 3 nur manuell — kein automatischer Repair ({id})."
+    "reserve": "Iteration 3 nur manuell — kein automatischer Repair ({id}).",
+    "zurueck": "Zurück zur vorherigen Version",
+    "verlaufTitel": "Verlauf (lokal, max. 10 Versionen)",
+    "wiederherstellen": "Wiederherstellen",
+    "versionEintrag": "V{nr} · {datum} · {titel}",
+    "keineHistorie": "Noch keine Versionen — nach der ersten Überarbeitung steht hier V1.",
+    "keinZurueck": "Keine vorherige Version vorhanden.",
+    "wiederhergestellt": "„{titel}“ (V{nr}) wiederhergestellt."
   },
   "onboarding": {
     "text": "Willkommen! Links ein Lab wählen, im Freimodus mit eigenem Key (nur Sitzung) direkt generieren — ganz ohne Proxy.",

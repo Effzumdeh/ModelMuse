@@ -7,6 +7,7 @@
 import { configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, errorDiagnose, liveKeySessionKey } from '../runtime/livegen.js';
 import { germanMessageWithHint } from './ui-livegen.js';
 import { extractMeta, formatP2Protocol } from '../runtime/verify.js';
+import { baseLabId, loadHistory, recordModify, getVersion } from '../runtime/model-history.js';
 import { tt } from './i18n.js';
 import { wireDiagnoseCopy, showDiagnoseButton, hideDiagnoseButton } from './ui-diagnose.js';
 
@@ -82,10 +83,31 @@ export function buildModifyPrompt(args) {
 /**
  * Bindet das Modify-Formular. Proxy/Key kommen aus dem Generieren-Panel
  * (getProxy), Keys bleiben nur im Speicher (livegen-Modul), nie in Logs.
- * @param {{ promptInput: HTMLInputElement, goButton: HTMLButtonElement, statusBox: HTMLElement, modelBox: HTMLElement, player: { load: (ref: unknown) => Promise<unknown> }, getCurrent: () => ({ id: string, title: string, source: string, manifest: unknown, report: { layers?: unknown[], iteration?: number } | null }) | null, getProxy: () => { url: string, key: string }, getTarget?: () => ({ providerId: string, modelId: string } | null), existsId?: (id: string) => boolean, onReloaded?: (entry: { id: string, title: string, source: string, manifest: unknown }) => void, p2Template?: string, locale?: string }} els
+ * @param {{ promptInput: HTMLInputElement, goButton: HTMLButtonElement, statusBox: HTMLElement, modelBox: HTMLElement, player: { load: (ref: unknown) => Promise<unknown> }, getCurrent: () => ({ id: string, title: string, source: string, manifest: unknown, report: { layers?: unknown[], iteration?: number } | null }) | null, getProxy: () => { url: string, key: string }, getTarget?: () => ({ providerId: string, modelId: string } | null), existsId?: (id: string) => boolean, onReloaded?: (entry: { id: string, title: string, source: string, manifest: unknown }) => void, onRestored?: (entry: { id: string, title: string, source: string, manifest: unknown }) => void, historyBox?: HTMLElement | null, backButton?: HTMLButtonElement | null, historyStorage?: { getItem: (k: string) => string | null, setItem: (k: string, v: string) => void, removeItem: (k: string) => void } | null, p2Template?: string, locale?: string }} els
  */
 export function mountModify(els) {
   let iteration = 0;
+  /** Verlauf-Storage: explizit injiziert oder Browser-localStorage, sonst Gedächtnis. */
+  const histStore = els.historyStorage ?? (() => {
+    try {
+      if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') return localStorage;
+    } catch { /* blockiert */ }
+    const mem = new Map();
+    return {
+      getItem: (k) => (mem.has(k) ? mem.get(k) : null),
+      setItem: (k, v) => { mem.set(k, String(v)); },
+      removeItem: (k) => { mem.delete(k); },
+    };
+  })();
+  /** Aktuelle Familien-ID (ohne -modN) für die Historie. */
+  const histLabId = () => {
+    try {
+      const cur = els.getCurrent?.();
+      return baseLabId(cur?.id ?? 'modell');
+    } catch {
+      return 'modell';
+    }
+  };
   const paintModel = () => {
     try {
       const cur = els.getCurrent?.();
@@ -100,10 +122,90 @@ export function mountModify(els) {
     els.statusBox.textContent = msg;
     els.statusBox.dataset.state = bad ? 'fehler' : 'ok';
   };
+  /**
+   * Historienliste (V1..VX) ins Overlay malen. Rein lesend aus localStorage.
+   */
+  const paintHistory = () => {
+    const box = els.historyBox;
+    if (!box || typeof document === 'undefined') return;
+    try {
+      box.innerHTML = '';
+      const versions = loadHistory(histStore, histLabId());
+      if (versions.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'hist-empty';
+        li.textContent = tt('modify.keineHistorie');
+        box.appendChild(li);
+        return;
+      }
+      const loc = els.locale ?? 'de';
+      for (const snap of [...versions].reverse()) {
+        const li = document.createElement('li');
+        li.className = 'hist-row';
+        let datum = snap.ts;
+        try {
+          datum = new Date(snap.ts).toLocaleString(loc);
+        } catch { /* ISO bleibt */ }
+        const label = document.createElement('span');
+        label.textContent = tt('modify.versionEintrag', { nr: snap.v, datum, titel: snap.title || snap.ts });
+        li.appendChild(label);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'lab-btn hist-btn';
+        btn.dataset.version = String(snap.v);
+        btn.textContent = tt('modify.wiederherstellen');
+        btn.addEventListener('click', () => { void restoreVersion(snap.v); });
+        li.appendChild(btn);
+        box.appendChild(li);
+      }
+    } catch { /* Verlauf ist Best-effort, Modify bleibt nutzbar */ }
+  };
+  /**
+   * Version V als aktuelle Ansicht laden (in-place, Historie bleibt erhalten).
+   * @param {number} v
+   */
+  const restoreVersion = async (v) => {
+    const cur = els.getCurrent?.();
+    if (!cur) {
+      say(tt('modify.keinModell'), true);
+      return;
+    }
+    const snap = getVersion(loadHistory(histStore, histLabId()), v);
+    if (!snap) {
+      say(tt('modify.keinZurueck'), true);
+      return;
+    }
+    say(tt('modify.generiere', { id: cur.id }));
+    try {
+      const manifest = mergeManifest(cur.manifest, extractMeta(snap.source) ?? { title: snap.title, parts: [] });
+      await els.player.load({ id: cur.id, kind: 'session', source: snap.source, manifest });
+      els.onRestored?.({ id: cur.id, title: snap.title || cur.title, source: snap.source, manifest });
+      paintModel();
+      paintHistory();
+      say(tt('modify.wiederhergestellt', { titel: snap.title || cur.title, nr: snap.v }));
+    } catch (e) {
+      say(tt('modify.pruefungRot', { detail: String((e && e.message) || e).slice(0, 200) }), true);
+    }
+  };
   // Diagnose-Export (v22): wie Freimodus — nur im Fehlerzustand sichtbar.
   let lastDiagnose = null;
   const copyBtn = typeof document !== 'undefined' ? document.getElementById('modify-diagnose-copy') : null;
   wireDiagnoseCopy(copyBtn, () => lastDiagnose);
+  paintHistory();
+  if (els.backButton) {
+    els.backButton.addEventListener('click', () => {
+      try {
+        const versions = loadHistory(histStore, histLabId());
+        if (versions.length < 2) {
+          say(tt(versions.length === 0 ? 'modify.keineHistorie' : 'modify.keinZurueck'), true);
+          return;
+        }
+        void restoreVersion(versions[versions.length - 2].v);
+      } catch {
+        say(tt('modify.keinZurueck'), true);
+      }
+    });
+  }
   els.goButton.addEventListener('click', async () => {
     const wish = els.promptInput.value.trim();
     if (wish.length < 2) {
@@ -174,8 +276,18 @@ export function mountModify(els) {
       const title = `${manifest.title ?? cur.title} (Modify)`;
       await els.player.load({ id, kind: 'session', source: gen.source, manifest: { ...manifest, title } });
       iteration += 1;
+      try {
+        recordModify(histStore, {
+          labId: baseLabId(cur.id),
+          prevSource: cur.source,
+          prevTitle: cur.title,
+          nextSource: gen.source,
+          nextTitle: title,
+        });
+      } catch { /* Verlauf ist Best-effort: Modify-Ergebnis bleibt geladen */ }
       els.onReloaded?.({ id, title, source: gen.source, manifest: { ...manifest, title } });
       paintModel();
+      paintHistory();
       say(tt('modify.geladen', { titel: title, id }));
     } catch (e) {
       lastDiagnose = errorDiagnose(e);
@@ -189,5 +301,5 @@ export function mountModify(els) {
       els.goButton.disabled = false;
     }
   });
-  return { repaintModel: paintModel };
+  return { repaintModel: () => { paintModel(); paintHistory(); }, repaintHistory: paintHistory, restoreVersion };
 }

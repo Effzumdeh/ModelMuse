@@ -93,6 +93,11 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .lab-library-list { list-style: none; margin: 0 0 8px; padding: 0; }
 .lib-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--line); padding: 6px 0; font-size: 14px; }
 .lib-btn { font-size: 13px; padding: 5px 8px; }
+/* Versionshistorie (Modify-Overlay): lokale V1..VX-Liste je Lab-Familie. */
+.lab-history-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; }
+.hist-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 6px 0; font-size: 14px; }
+.hist-btn { font-size: 13px; padding: 5px 8px; }
+.hist-empty { font-size: 13px; opacity: .75; padding: 4px 0; }
 .lab-detail { white-space: pre-wrap; font-size: 12px; max-height: 260px; overflow: auto; background: #0d141d; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; overflow: hidden;

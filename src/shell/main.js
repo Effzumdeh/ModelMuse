@@ -426,6 +426,8 @@ async function boot() {
       goButton: /** @type {HTMLButtonElement} */ ($('modify-go')),
       statusBox: $('modify-status'),
       modelBox: $('modify-model'),
+      historyBox: $('modify-history'),
+      backButton: /** @type {HTMLButtonElement} */ ($('modify-back')),
       player,
       getCurrent: () => {
         const c = curModel();
@@ -448,6 +450,16 @@ async function boot() {
         } catch { /* Duplikat beim Reload: ok */ }
         library.paint();
         persistLib();
+        paint();
+      },
+      onRestored: (entry) => {
+        const slot = registry.find((m) => m.id === entry.id);
+        if (slot) {
+          slot.source = entry.source;
+          slot.manifest = entry.manifest;
+          slot.title = entry.title;
+          setModels(store, registry);
+        }
         paint();
       },
       p2Template,

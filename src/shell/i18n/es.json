@@ -163,7 +163,14 @@
     "geladen": "«{titel}» cargado ({id}).",
     "fehler": "Error de revisión: {detail}",
     "pruefungRot": "Verificación del modelo: {detail}",
-    "reserve": "Iteración 3 solo manual — sin reparación automática ({id})."
+    "reserve": "Iteración 3 solo manual — sin reparación automática ({id}).",
+    "zurueck": "Volver a la versión anterior",
+    "verlaufTitel": "Historial (local, máx. 10 versiones)",
+    "wiederherstellen": "Restaurar",
+    "versionEintrag": "V{nr} · {datum} · {titel}",
+    "keineHistorie": "Aún no hay versiones — V1 aparecerá aquí tras la primera revisión.",
+    "keinZurueck": "No hay ninguna versión anterior.",
+    "wiederhergestellt": "«{titel}» (V{nr}) restaurado."
   },
   "onboarding": {
     "text": "¡Bienvenido! Elija un laboratorio a la izquierda; en modo libre genere directamente con su clave (solo sesión), sin proxy.",

@@ -163,7 +163,14 @@
     "geladen": "“{titel}” loaded ({id}).",
     "fehler": "Revise error: {detail}",
     "pruefungRot": "Model check: {detail}",
-    "reserve": "Iteration 3 manual only — no automatic repair ({id})."
+    "reserve": "Iteration 3 manual only — no automatic repair ({id}).",
+    "zurueck": "Back to previous version",
+    "verlaufTitel": "History (local, max. 10 versions)",
+    "wiederherstellen": "Restore",
+    "versionEintrag": "V{nr} · {datum} · {titel}",
+    "keineHistorie": "No versions yet — V1 appears here after the first revision.",
+    "keinZurueck": "No previous version available.",
+    "wiederhergestellt": "“{titel}” (V{nr}) restored."
   },
   "onboarding": {
     "text": "Welcome! Pick a lab on the left; in free mode generate directly with your own key (session only) — no proxy needed.",

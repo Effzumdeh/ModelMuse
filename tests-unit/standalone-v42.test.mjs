@@ -68,7 +68,7 @@ test('F1: FR-Button + fr-Dict mit es-Paritaet', async () => {
   assert.equal(cnt(s, 'I18N.fr={'), 1, 'fr-Dict genau 1x');
   const fr = dictKeys(s, 'I18N.fr={');
   const es = dictKeys(s, 'I18N.es={');
-  assert.equal(fr.size, 135, 'fr-Dict hat 135 Keys');
+  assert.equal(fr.size, 142, 'fr-Dict hat 142 Keys (135 + 7 History v43)');
   assert.deepEqual([...fr].sort(), [...es].sort(), 'fr-Keymenge == es-Keymenge');
   assert.ok(s.includes('saveModel:"Enregistrer"'), 'fr Enregistrer');
   assert.ok(s.includes('partsTitle:"Composants"'), 'fr Composants');
