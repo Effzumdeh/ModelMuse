@@ -66,7 +66,8 @@ test('H4: Docs-Ablage docs/help/{de,en,es,fr}.html vorhanden mit Kernabschnitten
       assert.ok(doc.includes(section), `${code}: Abschnitt fehlt: ${section}`);
     }
     assert.ok(doc.includes(`shots/app-${code}.png`), `${code}: Screenshot-Einbindung fehlt`);
-    assert.ok(doc.includes('href="/"'), `${code}: App-Ruecklink fehlt`);
+    assert.ok(!doc.includes('href="/"'), `${code}: absoluter App-Ruecklink (Pages-Projektseite!)`);
+    assert.equal(doc.split('href="../"').length - 1, 2, `${code}: App-Ruecklink (Header + Footer, relativ ../)`);
   }
   const index = await readFile(new URL('../docs/help/index.html', import.meta.url), 'utf8');
   for (const code of ['de', 'en', 'es', 'fr']) {

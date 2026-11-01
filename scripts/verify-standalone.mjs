@@ -68,6 +68,8 @@ const IDS_V15 = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handb
       if (!doc.includes(section)) { fail(`docs/help/${code}.html: Abschnitt fehlt: ${section}`); docOk = false; }
     }
     if (!doc.includes(`shots/app-${code}.png`)) { fail(`docs/help/${code}.html: Screenshot-Einbindung fehlt`); docOk = false; }
+    if (doc.includes('href="/"')) { fail(`docs/help/${code}.html: absoluter App-Ruecklink (Pages-Projektseite: ../ statt /)`); docOk = false; }
+    if (doc.split('href="../"').length - 1 !== 2) { fail(`docs/help/${code}.html: App-Ruecklink fehlt (Header + Footer, relativ ../)`); docOk = false; }
     if (docOk) ok(`Docs-Ablage vorhanden: docs/help/${code}.html`);
   }
 }
