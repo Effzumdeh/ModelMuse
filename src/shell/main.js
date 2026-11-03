@@ -107,26 +107,45 @@ async function boot() {
   const fallbackPanel = $('fallback-panel');
   const fallbackText = $('fallback-text');
 
-  // Teil 6 (Standalone-Maßstab): Theme Hell/Dunkel (Default dunkel, localStorage).
+  // v52: Theme Hell/Dunkel — Default folgt dem System (prefers-color-scheme,
+  // live bei Systemwechsel), manueller Toggle ueberschreibt und wird persistiert.
+  const THEME_KEY = 'modelmuse-theme';
   const themeBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('theme-toggle'));
   const applyTheme = (theme) => {
     document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
     if (themeBtn) themeBtn.dataset.theme = theme === 'light' ? 'light' : 'dark';
+  };
+  const systemTheme = () => (
+    window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  );
+  const storedTheme = () => {
+    try {
+      const t = localStorage.getItem(THEME_KEY);
+      return t === 'light' || t === 'dark' ? t : null;
+    } catch {
+      return null;
+    }
   };
   const paintThemeBtn = () => {
     if (!themeBtn) return;
     const light = document.documentElement.dataset.theme === 'light';
     themeBtn.textContent = light ? tt('theme.dunkel') : tt('theme.hell');
   };
+  applyTheme(storedTheme() ?? systemTheme());
   try {
-    applyTheme(localStorage.getItem('modelmuse-theme') === 'light' ? 'light' : 'dark');
-  } catch {
-    applyTheme('dark');
-  }
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    const onSystem = () => {
+      if (storedTheme()) return; // Manuelle Wahl gewinnt, kein Live-Override.
+      applyTheme(systemTheme());
+      paintThemeBtn();
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onSystem);
+    else if (mq.addListener) mq.addListener(onSystem);
+  } catch { /* kein MatchMedia: Default bleibt */ }
   themeBtn?.addEventListener('click', () => {
     const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
     try {
-      localStorage.setItem('modelmuse-theme', next);
+      localStorage.setItem(THEME_KEY, next);
     } catch { /* Speicher blockiert */ }
     applyTheme(next);
     paintThemeBtn();

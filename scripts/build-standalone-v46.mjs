@@ -107,6 +107,7 @@ function assertInlineScriptsParse(s) {
 }
 
 function checkInvariants(s) {
+  const v52t52 = s.includes('standalone-build v52'); // Nachfolger-Toleranz: v52 stellt den Umschalter wieder her
   const inv = [
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1],
     ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
@@ -175,11 +176,11 @@ function checkInvariants(s) {
     ["this.t('ollamaModelEmpty')", 3],
     ["if(this.genProvider==='ollama'){this.genModel='';}", 1],
     // T (v46): kein Umschalter — Farbschema ausschliesslich System, live.
-    ['setTheme', 0], ['modelmuse.theme', 0],
+    ['setTheme', v52t52 ? 2 : 0], ['modelmuse.theme', v52t52 ? 7 : 0],
     ["{{t('dark')}}", 0], ["{{t('light')}}", 0],
-    [':aria-label="t(\'themeLabel\')"', 0],
-    ['__sysDark', 3], ['addEventListener("change",__apply)', 1],
-    ['prefers-color-scheme', 6],
+    [':aria-label="t(\'themeLabel\')"', v52t52 ? 1 : 0],
+    ['__sysDark', v52t52 ? 0 : 3], ['addEventListener("change",__apply)', v52t52 ? 0 : 1],
+    ['prefers-color-scheme', v52t52 ? 7 : 6],
   ];
   for (const [sub, want] of inv) {
     must(cnt(s, sub) === want, 'Invariante "' + sub + '": ' + cnt(s, sub) + ' statt ' + want);

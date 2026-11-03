@@ -108,8 +108,8 @@ for (const f of await readdir(`${ROOT}/src/schema`)) {
 
 // 3. Datei-Max-Pruefung (Bauplan Dateitabelle).
 const maxTable = {
-  'src/shell/index.html': 17000, // Logo-V2 (03.11.2026): 13000 -> 17000, Inline-SVG im Header (+3,9 KB, kein Netz/CSP-Wechsel) // Historie (01.11.2026, v44 gestrafft): 12000 -> 13000, Historienliste im Modify-Panel (ohne Zurueck-Button, aktive Version Ausgewaehlt-Markierung)
-  'src/shell/main.js': 21000, // Teil 6 (28.10.2026): 18000 -> 21000, Theme/Onboarding/Suche-Verdrahtung
+  'src/shell/index.html': 22000, // v52 (03.11.2026): 17000 -> 22000, Logo-Dark-Variante (+3,7 KB Inline-SVG) + Pre-Paint-Theme-Init (System-Default, kein FOUC); Logo-V2 (03.11.2026): 13000 -> 17000, Inline-SVG im Header (+3,9 KB, kein Netz/CSP-Wechsel) // Historie (01.11.2026, v44 gestrafft): 12000 -> 13000, Historienliste im Modify-Panel (ohne Zurueck-Button, aktive Version Ausgewaehlt-Markierung)
+  'src/shell/main.js': 23000, // v52 (03.11.2026): 21000 -> 23000, Theme-Default folgt System (prefers-color-scheme + live), manueller Toggle persistiert; Teil 6 (28.10.2026): 18000 -> 21000, Theme/Onboarding/Suche-Verdrahtung
     'src/shell/ui-providers.js': 7000,
     'src/shell/ui-library.js': 8000,
     'src/shell/ui-modify.js': 17000, // Historie (01.11.2026, v44 gestrafft): 10000 -> 17000, V1..VX-Verlauf je Lab-Familie (localStorage, Deckel 10) + Historienliste mit Ausgewaehlt-Markierung der aktiven Version (de/en/es/fr); v22 (31.10.2026): 9000 -> 10000, Diagnose-Copy-Button (wie Freimodus); Slim-Generator (28.10.2026): neu, Modify-Flow (P2 als Modify)

@@ -27,8 +27,20 @@ body {
 }
 .lab-brand { font-weight: 700; font-size: 20px; }
 .lab-brand { display: flex; align-items: center; gap: 10px; }
-.lab-logo { display: inline-flex; align-items: center; background: #fff; border-radius: 8px; padding: 4px 8px; line-height: 0; }
+.lab-logo { display: inline-flex; align-items: center; background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; line-height: 0; }
 .lab-logo svg { display: block; height: 30px; width: auto; }
+/* v52: Logo-Varianten folgen dem Farbschema (automatischer Wechsel mit
+   data-theme; Pre-Paint-Fallback via prefers-color-scheme, Default dunkel). */
+.lab-logo .logo-variant { line-height: 0; }
+.lab-logo .logo-variant-dark { display: none; }
+html[data-theme="dark"] .lab-logo .logo-variant-light { display: none; }
+html[data-theme="dark"] .lab-logo .logo-variant-dark { display: block; }
+html[data-theme="light"] .lab-logo .logo-variant-light { display: block; }
+html[data-theme="light"] .lab-logo .logo-variant-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .lab-logo .logo-variant-light { display: none; }
+  html:not([data-theme]) .lab-logo .logo-variant-dark { display: block; }
+}
 .lab-lang { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .lab-sub { color: var(--muted); font-weight: 400; font-size: 14px; }
 .lab-ampel { display: flex; align-items: center; gap: 8px; font-weight: 600; }

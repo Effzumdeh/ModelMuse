@@ -7,9 +7,10 @@
  * (dist-standalone/modelmuse-standalone.html) + das GEBAUTE
  * Shell-Artefakt (dist/lab-player.html):
  *  L1) v51-Stempel genau 1x, v50-Kette intakt, Groesse < 600 KB.
- *  L2) Logo-Chip (weiss, rounded) + Inline-SVG (viewBox 621x170) genau 1x,
- *      direkt VOR dem App-Titel, mit Stil + a11y; kein <img>, keine data-URI.
- *  L3) Shell-Artefakt enthaelt dasselbe Inline-SVG (lab-logo-Chip) genau 1x.
+ *  L2) Logo-Chip vor App-Titel (Inline-SVG, kein Netz); seit v52-Nachfolger
+ *      (Theme-Umschalter + Logo-Dark-Variante): hell + dunkel je 1x
+ *      (viewBox 2x), Wechsel via .dark-Klasse, Chip transparent.
+ *  L3) Shell-Artefakt enthaelt dieselben Logo-Varianten (lab-logo-Chip).
  * Ablauf: erst bauen (npm run build + render + build:standalone), dann Tests.
  */
 import { test } from 'node:test';
@@ -31,8 +32,16 @@ test('v51-Stempel und Kette intakt', async () => {
 test('L2: Logo-Chip vor App-Titel (Inline-SVG, kein Netz)', async () => {
   const s = await readFile(STANDALONE, 'utf8');
   const H1 = '<h1 class="text-xl font-bold tracking-tight">{{t(\'appTitle\')}}</h1>';
+  const v52 = s.includes('standalone-build v52');
   assert.equal(cnt(s, H1), 1, 'H1-Anker fehlt/mehrdeutig');
-  assert.equal(cnt(s, 'viewBox="0 0 621 170"'), 1, 'Logo-SVG fehlt/mehrdeutig');
+  if (v52) {
+    assert.equal(cnt(s, 'viewBox="0 0 621 170"'), 2, 'v52: hell + dunkel je 1x');
+    assert.equal(cnt(s, 'logo-v52-light'), 2, 'v52: helle Variante (Span + CSS-Regel)');
+    assert.equal(cnt(s, 'logo-v52-dark'), 3, 'v52: dunkle Variante (Span + 2 CSS-Regeln)');
+    assert.equal(cnt(s, 'logo-chip-v51 inline-flex items-center bg-white'), 0, 'v52: kein weisser Chip mehr');
+  } else {
+    assert.equal(cnt(s, 'viewBox="0 0 621 170"'), 1, 'Logo-SVG fehlt/mehrdeutig');
+  }
   assert.equal(cnt(s, 'logo-chip-v51'), 1, 'Logo-Chip fehlt/mehrdeutig');
   assert.ok(s.indexOf('logo-chip-v51') < s.indexOf(H1), 'Logo muss VOR dem App-Titel stehen (oben links)');
   assert.ok(s.includes('style="height:28px;width:auto;display:block"'), 'SVG-Kopfzeilen-Stil fehlt');
@@ -43,7 +52,14 @@ test('L2: Logo-Chip vor App-Titel (Inline-SVG, kein Netz)', async () => {
 
 test('L3: Shell-Artefakt enthaelt dasselbe Logo (oben links)', async () => {
   const s = await readFile(SHELL, 'utf8');
-  assert.equal(cnt(s, 'viewBox="0 0 621 170"'), 1, 'Logo-SVG im Shell-Artefakt fehlt/mehrdeutig');
+  const v52 = s.includes('ModelMuse Theme-Init (v52)');
+  if (v52) {
+    assert.equal(cnt(s, 'viewBox="0 0 621 170"'), 2, 'v52: Shell hell + dunkel je 1x');
+    assert.ok(s.includes('logo-variant-dark'), 'v52: dunkle Shell-Variante fehlt');
+    assert.ok(s.includes('role="img" aria-label="ModelMuse Logo"'), 'v52: Shell-a11y fehlt');
+  } else {
+    assert.equal(cnt(s, 'viewBox="0 0 621 170"'), 1, 'Logo-SVG im Shell-Artefakt fehlt/mehrdeutig');
+  }
   assert.ok(s.includes('class="lab-logo"'), 'lab-logo-Chip im Shell-Artefakt fehlt');
   const start = s.indexOf('<div class="lab-brand">');
   assert.ok(start >= 0, 'Kopf-Marke fehlt');

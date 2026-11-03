@@ -81,10 +81,23 @@ test('O: Ollama lokal (Freitext leer, kein Key, localhost-Hinweise)', async () =
   assert.ok(!s.includes('127.0.0.1:8787') && !s.includes('localhost:8787'), 'kein lokaler Proxy-Port');
 });
 
-test('T: Farbschema ausschliesslich System (kein Umschalter, live)', async () => {
+test('T: System-Default + Umschalter mit Override (v52-Nachfolger)', async () => {
   const s = await html();
-  assert.equal(cnt(s, 'setTheme'), 0, 'Umschalter-Methode + Buttons raus');
-  assert.equal(cnt(s, 'modelmuse.theme'), 0, 'kein Theme-Override in Storage');
-  assert.ok(cnt(s, 'prefers-color-scheme') >= 5, 'System-Default + Live-Listener + Mounted');
-  assert.ok(s.includes('addEventListener("change",__apply)') || s.includes("addListener(__apply)"), 'Live-Wechsel bei Systemaenderung');
+  // v52: Umschalter zurueck — Default folgt System (live), manuell persistiert.
+  assert.equal(cnt(s, 'setTheme:function'), 1, 'setTheme-Methode genau 1x');
+  assert.equal(cnt(s, 'toggleTheme:function'), 1, 'toggleTheme-Methode genau 1x');
+  assert.equal(cnt(s, 'toggleTheme()'), 1, 'Toggle-Button ruft toggleTheme');
+  assert.equal(cnt(s, 'modelmuse.theme'), 7, 'Theme-Override persistiert (Head/Data/Apply/Mounted/setTheme)');
+  assert.equal(cnt(s, '__sysDark'), 0, 'kein System-only-Zwang mehr');
+  assert.equal(cnt(s, 'prefers-color-scheme'), 7, 'System-Default + Live-Listener (Head/Data/Apply/Mounted)');
+  assert.ok(s.includes(":aria-label=\"t('themeLabel')\""), 'Toggle-Gruppe mit Theme-Label');
+  assert.equal(cnt(s, "t('dark')"), 1, 'Dunkel-Label (Template)');
+  assert.equal(cnt(s, "t('light')"), 1, 'Hell-Label (Template)');
+  assert.equal(cnt(s, 'themeLabel'), 5, 'themeLabel de/en/es/fr + aria');
+  for (const [txt, code] of [['Dunkel', 'de'], ['Dark', 'en'], ['Oscuro', 'es'], ['Sombre', 'fr']]) {
+    assert.ok(s.includes('dark:"' + txt + '"'), 'dark-Label ' + code);
+  }
+  for (const [txt, code] of [['Hell', 'de'], ['Light', 'en'], ['Claro', 'es'], ['Clair', 'fr']]) {
+    assert.ok(s.includes('light:"' + txt + '"'), 'light-Label ' + code);
+  }
 });

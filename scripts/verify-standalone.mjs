@@ -402,10 +402,15 @@ if (isShowcase) {
   eqS('Build v47', 0, 'v47 build stamp ersetzt');
   eqS('Build v26', 0, 'v26 build stamp ersetzt');
   // v51 (Logo-V2-Header): Inline-SVG (viewBox 621x170, Quelle docs/assets/logo-header.svg)
-  // im weissen Chip direkt vor dem App-Titel — kein <img>, keine data-URI, kein CDN.
+  // v51 (Logo-V2-Header) + v52 (Dark-Variante): hell/dunkel je 1x im transparenten Chip
+  // direkt vor dem App-Titel (Wechsel via .dark-Klasse) — kein <img>, keine data-URI, kein CDN.
   eqS('standalone-build v51 (Logo-V2 header links)', 1, 'v51 stamp (Logo-V2-Header oben links)');
-  eqS('logo-chip-v51', 1, 'v51 Logo-Chip (weiss, rounded, vor App-Titel)');
-  eqS('viewBox="0 0 621 170"', 1, 'v51 Logo-Inline-SVG genau 1x');
+  eqS('logo-chip-v51', 1, 'v51/v52 Logo-Chip (transparent, rounded, vor App-Titel)');
+  eqS('viewBox="0 0 621 170"', 2, 'v51/v52 Logo-Varianten hell + dunkel je 1x');
+  eqS('logo-chip-v51 inline-flex items-center bg-white', 0, 'v52 transparenter Chip (kein Weiss-Block im Dark Mode)');
+  eqS('logo-v52-light', 2, 'v52 helle Variante (Span + CSS-Regel)');
+  eqS('logo-v52-dark', 3, 'v52 dunkle Variante (Span + 2 CSS-Regeln)');
+  eqS('standalone-build v52', 1, 'v52 Stempel (Theme-Umschalter + Logo-Dark-Variante)');
   eqS('role="img" aria-label="ModelMuse Logo"', 1, 'v51 Logo-a11y (role + aria-label)');
   eqS('Build v25', 0, 'v25 build stamp ersetzt');
   eqS('Build v24', 0, 'v24 build stamp ersetzt');
@@ -520,8 +525,15 @@ if (isShowcase) {
   eqS('href="docs/LICENSES.md"', 1, 'v46 Lizenz-Link in der Fusszeile');
   eqS('id:"ollama"', 1, 'v46 Ollama-Provider');
   eqS('http://localhost:11434/v1', 1, 'v46 Ollama-Basis (OpenAI-kompatibel)');
-  eqS('setTheme', 0, 'v46 kein Theme-Umschalter (Methode + Buttons raus)');
-  eqS('modelmuse.theme', 0, 'v46 kein Theme-Override (nur System)');
+  eqS('setTheme:function', 1, 'v52 setTheme-Methode (persistiert Override)');
+  eqS('toggleTheme:function', 1, 'v52 toggleTheme-Methode');
+  eqS('toggleTheme()', 1, 'v52 Toggle-Button ruft toggleTheme');
+  eqS('__sysDark', 0, 'v52 kein System-only-Zwang mehr');
+  eqS('prefers-color-scheme', 7, 'v52 System-Default + Live-Listener (Head/Data/Apply/Mounted)');
+  eqS(":aria-label=\"t('themeLabel')\"", 1, 'v52 Toggle-Gruppe mit Theme-Label');
+  eqS("t('dark')", 1, 'v52 Dunkel-Label (Template, de/en/es/fr via Dict)');
+  eqS("t('light')", 1, 'v52 Hell-Label (Template, de/en/es/fr via Dict)');
+  eqS('modelmuse.theme', 7, 'v52 Theme-Override persistiert (Head/Data/Apply/Mounted/setTheme)');
   eqS('standalone-build v40', 1, 'v40 Stempel (Reasoning-Stufen je Modell: max nur wo belegt)');
   eqS('||this.genProvider==="openrouter";},', 1, 'v40 max-Gate += openrouter (reasoningAllowed, max dort belegt)');
   eqS('this.genProvider==="openrouter"?"xhigh":"max"', 1, 'v40 Default openrouter xhigh (kein stilles max-Upgrade)');
