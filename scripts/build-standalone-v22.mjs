@@ -144,8 +144,10 @@ function checkInvariants(s) {
   must(cnt(s, 'Kein Nachdenken, keine Einleitung') === 2 || (is26 && cnt(s, 'Kein Nachdenken, keine Einleitung') === 3), 'Invariante Kein-Nachdenken-Satz: ' + cnt(s, 'Kein Nachdenken, keine Einleitung') + ', erwartet 2 (v26: 3)');
   // v23-Toleranz: kein Length-Limit (4/2/2 -> 1/0/0), Request-Echo
   // (reasoning 4->10, _lastRetry 6->7, Build v22->v23).
+  // v48-Toleranz: explizites Maximum 131072 (Totale 1->10: 2 Bodies + 6 Snapshots + 2 Echo-Labels).
   const is23 = s.includes('standalone-build v23');
-  must(cnt(s, 'max_completion_tokens') === 4 || (is23 && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1)');
+  const is48 = s.includes('standalone-build v48');
+  must(cnt(s, 'max_completion_tokens') === 4 || (is23 && cnt(s, 'max_completion_tokens') === 1) || (is48 && cnt(s, 'max_completion_tokens') === 10), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1, v48: 10)');
   must(cnt(s, 'max_completion_tokens:65536') === 2 || (is23 && cnt(s, 'max_completion_tokens:65536') === 0), 'Invariante max_completion_tokens:65536: ' + cnt(s, 'max_completion_tokens:65536') + ', erwartet 2 (v23: 0)');
   must(cnt(s, 'max_completion_tokens=131072') === 2 || (is23 && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
   must(cnt(s, 'reasoning_effort') === 4 || (is23 && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 4 (v23: 10)');

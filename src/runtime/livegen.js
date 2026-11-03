@@ -67,23 +67,29 @@ export function liveKeySessionKey(providerId) {
 /**
  * Diagnose-Build-Stempel (wird in Fehlermeldungen + kopierter Diagnose
  * mitgefuehrt, damit Support Faelle Build-Versionen zuordnen kann).
- * v23: KEIN Length-Limit in Requests (Eigentuemer-Vorgabe 31.10.2026: weder
- * max_completion_tokens noch max_tokens — Modell nutzt eigenes Maximum) +
- * Request-Echo in der Diagnose (je Versuch).
+ * v48: explizites Maximum (Eigentuemer-Alternative 03.11.2026) + Stempel
+ * v47 (war seit v26 stale: v23 hier, v26 im Standalone-Artefakt, obwohl
+ * Builder-Stand v46 war); v23-Regel (kein Limit) ist aufgehoben.
  */
-export const GEN_BUILD = 'v23';
+export const GEN_BUILD = 'v48';
 
 /**
- * KEIN Length-Limit (Eigentuemer-Vorgabe 31.10.2026, v23): Weder
- * max_completion_tokens noch max_tokens werden gesendet — in keinem Pfad
- * (direkt/proxy, generate/modify, Retry). Das Modell nutzt sein eigenes
- * Maximum; ein zu kleines Limit wurde live belegt vom Reasoning komplett
- * verbraucht (HTTP 200, finish=length, nur Reasoning, kein Content).
+ * Explizites Maximum (Eigentuemer-Alternative 03.11.2026, v48): Sowohl
+ * max_completion_tokens als auch max_tokens werden mit GEN_MAX_TOKENS
+ * gesendet — in jedem Pfad (direkt/proxy, generate/modify, Retry, alle
+ * Provider). Hintergrund: Weglassen != unbegrenzt — Upstream defaultet
+ * sonst auf 32768 (Eisbecher-Fall, belegt); 131072 war belegt wirksam.
  * Der EINZIGE Retry bleibt: genau 1x bei leer + length + nur Reasoning,
- * mit unveraendertem Body (kein Budget-Plus).
- * Temperatur 0.2 = deterministische Code-Gen.
+ * mit unveraendertem Body (inkl. Limit). Temperatur 0.2 = deterministische
+ * Code-Gen.
  */
 export const GEN_TEMPERATURE = 0.2;
+
+/**
+ * Explizites Output-Maximum je Request (beide Limit-Felder, v48).
+ * @type {number}
+ */
+export const GEN_MAX_TOKENS = 131072;
 
 /**
  * Belegte Reasoning-Stufen je Modell (v40, Stand 31.10.2026, live verifiziert
@@ -186,8 +192,9 @@ export function reasoningLevel(provider, model, want) {
 }
 
 /**
- * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder; v23: KEIN
- * Length-Limit — weder max_completion_tokens noch max_tokens).
+ * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder; v48:
+ * explizites Maximum GEN_MAX_TOKENS in beiden Limit-Feldern — alle
+ * Provider, generate/modify/Retry).
  * Baseten-Extras (v22/v23, NUR provider baseten — Meta-Pfad unveraendert):
  * 'xhigh' fordert das hoechste BELEGTE Thinking-Budget
  * (Baseten-Doku: Spark Open supported low/medium/high/xhigh(default), max
@@ -214,6 +221,8 @@ export function buildChatBody(model, promptText, opts = {}) {
     stream: true,
     messages: [{ role: 'user', content: promptText }],
     temperature: GEN_TEMPERATURE,
+    max_completion_tokens: GEN_MAX_TOKENS,
+    max_tokens: GEN_MAX_TOKENS,
   };
   const level = reasoningLevel(opts.provider ?? '', model, opts.reasoning);
   if (level) body.reasoning_effort = level;
@@ -223,9 +232,9 @@ export function buildChatBody(model, promptText, opts = {}) {
   return body;
 }
 
-/** v23-Request-Echo aus einem Chat-Body: was wurde TATSAECHLICH gesendet
- * (Limit-Felder sind seit v23 nie gesetzt — Echo belegt das) + ob der
- * 400-Fallback griff. Key-frei (nur Param-Namen/Werte, nie Credentials).
+/** v48-Request-Echo aus einem Chat-Body: was wurde TATSAECHLICH gesendet
+ * (Limit-Felder sind seit v48 explizit 131072 — Echo belegt die Werte) +
+ * ob der 400-Fallback griff. Key-frei (nur Param-Namen/Werte, nie Credentials).
  * @param {any} body
  * @param {boolean} slimmed400
  */
@@ -240,17 +249,16 @@ export function requestEcho(body, slimmed400) {
   };
 }
 
-/** v22/v23/v26/v40-Extras aus einem Chat-Body streichen (exakt v20-Form +
- * defensive Limit-Felder, falls ein Alt-Body sie traegt). Gestrichen:
- * low/medium/high/minimal/xhigh (belegte Stufen, aber Gateway-abhaengig —
- * 400-Fallback) + stream_options (Baseten-Extras); max bleibt (Meta-Gate
- * + OpenRouter-belegt, nie 400-Grund).
+/** v22/v23/v26/v40-Extras aus einem Chat-Body streichen (exakt v20-Form).
+ * Gestrichen: low/medium/high/minimal/xhigh (belegte Stufen, aber
+ * Gateway-abhaengig — 400-Fallback) + stream_options (Baseten-Extras);
+ * max bleibt (Meta-Gate + OpenRouter-belegt, nie 400-Grund) UND die
+ * v48-Limit-Felder (max_completion_tokens/max_tokens = 131072, belegt
+ * wirksam — duerfen den Fallback ueberleben).
  * @param {any} body */
 export function stripChatExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
-  if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
-  if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
   if (body.reasoning_effort === 'low' || body.reasoning_effort === 'minimal'
     || body.reasoning_effort === 'medium' || body.reasoning_effort === 'high'
     || body.reasoning_effort === 'xhigh') { delete body.reasoning_effort; stripped = true; }
@@ -506,8 +514,8 @@ export function redactDiagnoseText(s) {
 /**
  * Baut den kopierbaren Diagnose-Text (stabile Feldnamen, lokalisierte Kopfzeile,
  * Rohantwort auf ~2KB gekuerzt, IMMER redigiert — nie ein Key im Clipboard).
- * v23: Request-Echo (tatsaechlich gesendete Limit-/Thinking-Params je Versuch
- * + 400-Fallback) — belegt, dass kein Length-Limit gesendet wurde.
+ * v48: Request-Echo (tatsaechlich gesendete Limit-/Thinking-Params je Versuch
+ * inkl. Retry-Limit-Werte + 400-Fallback) — belegt das explizite Maximum.
  * @param {{ provider?: unknown, model?: unknown, via?: unknown, status?: unknown, finish?: unknown, usage?: unknown, usageReasoning?: unknown, usageCompletion?: unknown, retried?: unknown, build?: unknown, rawSnippet?: unknown, req?: unknown, reqRetry?: unknown }} [diag]
  * @param {string} [locale]
  */
@@ -561,6 +569,8 @@ export function buildDiagnoseText(diag = {}, locale = 'de') {
   if (diag.retried && diag.reqRetry && typeof diag.reqRetry === 'object') {
     const rr = lim(diag.reqRetry);
     lines.splice(lines.length - 2, 0,
+      `req_retry_max_completion_tokens: ${rr.maxC}`,
+      `req_retry_max_tokens: ${rr.maxT}`,
       `req_retry_reasoning_effort: ${rr.eff}`,
       `req_retry_400_fallback: ${rr.fb}`);
   }
@@ -762,7 +772,7 @@ function finishModule(full, finishReason, via, ctx = {}) {
  * Direkt-Call: Browser -> Upstream (OpenAI-kompatibel, SSE), Key per BYOK.
  * OpenRouter (NUR provider openrouter): zusaetzlich HTTP-Referer + X-Title
  * (App-Kennung, kein Key-Material).
- * v23: KEIN Length-Limit (Modell nutzt eigenes Maximum); bei
+ * v48: explizites Maximum GEN_MAX_TOKENS in beiden Limit-Feldern; bei
  * Budget-Erschoepfung (leer + finish length + nur Reasoning) max EIN Retry
  * mit UNVERAENDERTEM Body. Request-Echo je Versuch landet in err.diagnose.
  * Definitive HTTP-Fehler werfen E-GEN-*, Transport-Fehler (Netz/CORS/Timeout)
@@ -822,7 +832,7 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
     let retried = false;
     if (isBudgetExhausted(r.full, r.finishReason, r.info)) {
       retried = true;
-      r = await once(); // max 1 Retry, gleicher Body (kein Limit-Param)
+      r = await once(); // max 1 Retry, gleicher Body (inkl. Limit)
     }
     return finishModule(r.full, r.finishReason, 'direct', {
       provider, model, status: r.status, retried, info: r.info, rawSnippet: r.rawSnippet,
@@ -843,11 +853,12 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
  * verifiziert: meta-muse 1.3/wonder max, contributor/baseten xhigh,
  * OpenRouter je Slug max/xhigh/high/medium/low (+minimal nur spark);
  * unbelegte Stufe -> kein Param, 400-Fallback bleibt).
- * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser; Ollama lokal ohne Key),
+ * Direkt-Call zuerst (Browser -> Upstream, BYOK-Key; Ollama lokal ohne Key),
  * Proxy nur als Fallback
  * bei Transport-Fehler (OpenRouter: NUR Direkt-Call — Proxy lehnt openrouter
- * mit E-GEN-404 + Hinweis ab); ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
- * v23: KEIN Length-Limit im Proxy-Body (Modell nutzt eigenes Maximum);
+ * mit E-GEN-404 + Hinweis ab; ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
+ * v48: explizites Maximum GEN_MAX_TOKENS im Proxy-Upstream-Body (Modell nutzt
+ * NICHT mehr den Upstream-Default 32768);
  * max EIN Retry mit UNVERAENDERTEM Body bei Budget-Erschoepfung
  * (leer + finish length + nur Reasoning). Request-Echo (Proxy-Upstream-Form,
  * deterministisch aus Provider/Modell, gleiche Build-Version) in Diagnose.
@@ -880,11 +891,14 @@ export async function generateLive(promptText, opts = {}) {
   let lastCode = 'E-GEN-5XX';
   let lastError = null;
   let sawHttp = false;
-  // v23-Request-Echo Proxy-Pfad: Upstream-Form ist deterministisch
-  // (gleiche Build-Version): kein Limit-Param, Temperatur 0.2,
+  // v48-Request-Echo Proxy-Pfad: Upstream-Form ist deterministisch
+  // (gleiche Build-Version): explizites Maximum GEN_MAX_TOKENS in beiden
+  // Limit-Feldern, Temperatur 0.2,
   // reasoning_effort 'xhigh' nur bei baseten, 400-Fallback proxy-intern.
   const proxyReqEcho = () => requestEcho({
     temperature: GEN_TEMPERATURE,
+    max_completion_tokens: GEN_MAX_TOKENS,
+    max_tokens: GEN_MAX_TOKENS,
     ...(provider === 'baseten'
       ? { reasoning_effort: 'xhigh', stream_options: { include_usage: true } }
       : {}),

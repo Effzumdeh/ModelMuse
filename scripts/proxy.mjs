@@ -68,11 +68,19 @@ export const PROVIDERS = {
 export const DEFAULT_PROVIDER = 'meta-muse';
 
 /**
- * Upstream-Request-Form (v23): KEIN Length-Limit — weder max_completion_tokens
- * noch max_tokens (Eigentuemer-Vorgabe 31.10.2026: Modell nutzt eigenes
- * Maximum). Temperatur 0.2 = deterministische Code-Gen.
+ * Upstream-Request-Form (v48): explizites Maximum — sowohl
+ * max_completion_tokens als auch max_tokens mit UPSTREAM_MAX_TOKENS
+ * (Eigentuemer-Alternative 03.11.2026: Weglassen defaultet Upstream-seitig
+ * auf 32768 — Eisbecher-Fall, belegt; 131072 war belegt wirksam).
+ * Temperatur 0.2 = deterministische Code-Gen.
  */
 export const UPSTREAM_TEMPERATURE = 0.2;
+
+/**
+ * Explizites Output-Maximum je Upstream-Request (beide Limit-Felder, v48).
+ * @type {number}
+ */
+export const UPSTREAM_MAX_TOKENS = 131072;
 
 /** HTTP-Status -> E-GEN-Code (vgl. src/runtime/livegen.js classify). */
 export function mapStatusToCode(status) {
@@ -89,8 +97,9 @@ export function mapStatusToCode(status) {
 }
 
 /**
- * Body-Pruefung (rein, ohne Key/Netz). v23: Limit-Felder werden ignoriert
- * (nie an Upstream gereicht — Modell nutzt eigenes Maximum).
+ * Body-Pruefung (rein, ohne Key/Netz). v48: Limit-Felder in der
+ * Proxy-API werden weiter ignoriert (der Proxy setzt das Maximum selbst
+ * — siehe upstreamChatBody); sie erreichen Upstream nie direkt.
  * @returns {{ ok: true, prompt: string, provider: string, model: string } | { ok: false, code: string, message: string }}
  */
 export function parseGenerateBody(body) {
@@ -144,7 +153,8 @@ export async function loadServerKey() {
 }
 
 /** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Temperatur).
- * v23: KEIN Length-Limit (weder max_completion_tokens noch max_tokens).
+ * v48: explizites Maximum UPSTREAM_MAX_TOKENS in beiden Limit-Feldern
+ * (alle Provider — meta-muse wie baseten, generate wie modify wie Retry).
  * v22/v23-Extras NUR fuer Baseten (provider-Param):
  * reasoning_effort 'low' fordert das kleinste BELEGTE Thinking-Budget
  * (Baseten-Doku: Muse Spark Open "Always on / Control None",
@@ -159,6 +169,8 @@ export function upstreamChatBody(model, prompt, provider = undefined) {
     stream: true,
     messages: [{ role: 'user', content: prompt }],
     temperature: UPSTREAM_TEMPERATURE,
+    max_completion_tokens: UPSTREAM_MAX_TOKENS,
+    max_tokens: UPSTREAM_MAX_TOKENS,
   };
   if (provider === 'baseten') {
     body.reasoning_effort = 'low';
@@ -167,13 +179,13 @@ export function upstreamChatBody(model, prompt, provider = undefined) {
   return body;
 }
 
-/** v22/v23-Extras aus einem Upstream-Body streichen (defensive Limit-Felder
- * inklusive, falls ein Alt-Call sie traegt). @param {any} body */
+/** v22/v23-Extras aus einem Upstream-Body streichen (400-Fallback).
+ * Die v48-Limit-Felder (max_completion_tokens/max_tokens = 131072, belegt
+ * wirksam) werden NICHT gestrichen — sie ueberleben den Fallback.
+ * @param {any} body */
 export function stripUpstreamExtras(body) {
   if (!body || typeof body !== 'object') return false;
   let stripped = false;
-  if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
-  if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
   if (body.reasoning_effort === 'low') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
   return stripped;

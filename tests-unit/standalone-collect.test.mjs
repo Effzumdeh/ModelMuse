@@ -215,22 +215,24 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish/Usage/Retry/Build statt nur
   assert.match(msg, /finish=length/);
   assert.match(msg, /reasoning 198\/200/, 'Usage immer sichtbar (Budget- vs Thinking-Hypothese)');
   assert.match(msg, /Retry 1\/1/, 'Retry-Zaehler sichtbar');
-  assert.match(msg, /Build v26/, 'Build-Stempel sichtbar');
+  assert.match(msg, /Build v48/, 'Build-Stempel sichtbar');
   assert.ok(msg.length <= 200, 'passt in genNotice (slice 200)');
   app._lastRetry = 0;
   assert.match(app.emptyDetail(), /Retry 0\/1/, 'kein Retry ohne Budget-Retry');
 });
 
-test('v23 kein Length-Limit in generate+modify (Erstversuch + Retry + Fallback)', async () => {
+test('v48 explizites Limit 131072 in generate+modify (Erstversuch traegt, Retry + Fallback teilen Body)', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('temperature:0.2,max_completion_tokens'), 0, 'kein max_completion_tokens im Erst-Body');
+  assert.equal(count('temperature:0.2,max_completion_tokens:131072,max_tokens:131072'), 2, 'Limit in beiden Erst-Bodies (gen+mod)');
   assert.equal(count('max_completion_tokens:65536'), 0, 'kein 65536-Erst-Budget');
-  assert.equal(count('max_completion_tokens=131072'), 0, 'kein 131072-Retry-Budget');
-  assert.equal(count('max_tokens=65536'), 0, 'kein max_tokens-Mirror');
-  assert.equal(count('max_tokens=131072'), 0, 'kein max_tokens-Retry-Mirror');
+  assert.equal(count('max_completion_tokens=131072'), 0, 'kein Retry-Literal (Body wird geteilt)');
+  assert.equal(count('max_tokens=65536'), 0, 'kein max_tokens-Mirror (alt)');
+  assert.equal(count('max_tokens:131072'), 2, 'Mirror in beiden Erst-Bodies (gen+mod)');
   assert.equal(count('delete gbody.max_tokens'), 0, 'kein Limit-Strip noetig (gen)');
   assert.equal(count('delete mbody.max_tokens'), 0, 'kein Limit-Strip noetig (mod)');
+  assert.equal(count('delete gbody.stream_options'), 1, '400-Fallback strippt weiter Extras (gen)');
+  assert.equal(count('delete mbody.stream_options'), 1, '400-Fallback strippt weiter Extras (mod)');
   assert.equal(count('max_completion_tokens:8000'), 0, 'altes 8000-Budget ersetzt');
   assert.equal(count('max_completion_tokens:16384'), 0, 'v19-Zwischenwert ersetzt');
   assert.equal(count('max_completion_tokens=32768'), 0, 'v19-Zwischenwert ersetzt');
@@ -239,11 +241,13 @@ test('v23 kein Length-Limit in generate+modify (Erstversuch + Retry + Fallback)'
 
 /* v21: Thinking-Reduktion + 400-Fallback + gehärteter Reader + Diagnose. */
 
-test('v23-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Extras, nie Limit', async () => {
+test('v48-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Extras, Limit 131072 je Body', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('gbody.max_tokens'), 0, 'kein max_tokens gen (Modell nutzt eigenes Maximum)');
-  assert.equal(count('mbody.max_tokens'), 0, 'kein max_tokens mod');
+  assert.equal(count('gbody.max_tokens'), 3, 'max_tokens gen (3 Echo-Snapshots lesen aus Body)');
+  assert.equal(count('mbody.max_tokens'), 3, 'max_tokens mod (3 Echo-Snapshots lesen aus Body)');
+  assert.equal(count('mc:gbody.max_completion_tokens'), 3, 'Echo-Snapshots gen lesen Limit aus Body');
+  assert.equal(count('mc:mbody.max_completion_tokens'), 3, 'Echo-Snapshots mod lesen Limit aus Body');
   assert.equal(count('gbody.reasoning_effort="xhigh"'), 1, 'Hoechstes belegtes Thinking-Budget gen (v26: xhigh, max rejected)');
   assert.equal(count('gbody.reasoning_effort="low"'), 0, 'kein low mehr (v26: xhigh)');
   assert.equal(count('mbody.reasoning_effort="xhigh"'), 1, 'Hoechstes belegtes Thinking-Budget mod');
@@ -253,7 +257,7 @@ test('v23-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Ext
   assert.equal(count('include_usage'), 2, 'Usage im Stream gen+mod');
   assert.equal(count('slimG'), 4, '400-Fallback gen (Flag+Check+Set+Echo)');
   assert.equal(count('slimM'), 4, '400-Fallback mod (Flag+Check+Set+Echo)');
-  assert.ok(count('delete gbody.stream_options') === 1 && count('delete mbody.stream_options') === 1, 'Fallback strippt Extras (ohne Limit-Anteil)');
+  assert.ok(count('delete gbody.stream_options') === 1 && count('delete mbody.stream_options') === 1, 'Fallback strippt Extras, Limit ueberlebt');
   assert.equal(count('Kein Nachdenken, keine Einleitung'), 3, 'Prompt-Direktantwort generate+modify+2D');
   assert.equal(count('this._lastReq={'), 4, 'Request-Snapshots gen+mod (Erstversuch+Fallback)');
   assert.equal(count('_lastReqR'), 3, 'Request-Snapshots Retry gen+mod (+Diag-Lesen)');
@@ -287,7 +291,9 @@ test('v25-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
   assert.equal(count('standalone-build v23'), 1, 'v23-Stempel (Historie) im HTML');
   assert.equal(count('standalone-build v24'), 1, 'v24-Stempel (Historie) im HTML');
   assert.equal(count('standalone-build v25'), 1, 'v25-Stempel (Historie) im HTML');
-  assert.equal(count('standalone-build v26'), 1, 'v26-Stempel im HTML');
+  assert.equal(count('standalone-build v26'), 1, 'v26-Stempel (Historie) im HTML');
+  assert.equal(count('standalone-build v47'), 1, 'v47-Stempel (Historie) im HTML');
+  assert.equal(count('standalone-build v48'), 1, 'v48-Stempel im HTML');
   assert.equal(count('buildTag:function'), 1, 'buildTag-Methode');
   assert.equal(count('staleHint:function'), 1, 'staleHint-Methode');
   assert.ok(count('Strg+F5') === 1, 'Hart-Neuladen-Hinweis');
@@ -296,7 +302,7 @@ test('v25-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
     const code = extractMethod(src, name);
     app[name] = eval(`(${code.replace(`${name}:function`, 'function')})`);
   }
-  assert.equal(app.buildTag(), 'v26');
+  assert.equal(app.buildTag(), 'v48');
   for (const name of ['collectChatText', 'readSseText', 'readChatText', 'emptyDetail', 'buildTag', 'staleHint']) {
     assert.notEqual(src.indexOf(`${name}:function`), -1, `${name} vorhanden`);
   }
@@ -323,7 +329,7 @@ test('v22-Reader: Usage-Zahlen + reasonSample (2KB-Cap) im Info-Seitenkanal', as
   assert.ok(String(app._lastChatInfo.reasonSample).includes('Denke nach'), 'Reasoning-Auszug fuer Diagnose');
 });
 
-test('v25-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', async () => {
+test('v48-Diagnose: diagText redigiert, alle Felder + Request-Echo (Limit 131072, Retry-Werte), ~2KB-Cap', async () => {
   const src = await html();
   const app = appFrom(await html());
   const code = extractMethod(src, 'diagText');
@@ -337,27 +343,31 @@ test('v25-Diagnose: diagText redigiert, alle Felder + Request-Echo, ~2KB-Cap', a
     usage: 'reasoning 198/200 tokens', usageReasoning: 198, usageCompletion: 200,
     reasonSample: 'Denke nach... Authorization: Bearer HACKME12345678 ' + 'y'.repeat(5000),
   };
-  app._lastReq = { re: 'low', te: 0.2, fb: true };
-  app._lastReqR = { re: null, te: 0.2, fb: true };
+  app._lastReq = { re: 'low', te: 0.2, mc: 131072, mt: 131072, fb: true };
+  app._lastReqR = { re: null, te: 0.2, mc: 131072, mt: 131072, fb: true };
   const want = {
-    de: ['req_max_completion_tokens: (nicht gesendet)', 'req_max_tokens: (nicht gesendet)',
+    de: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: ja',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (keins)', 'req_retry_400_fallback: ja'],
-    en: ['req_max_completion_tokens: (not sent)', 'req_max_tokens: (not sent)',
+    en: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: yes',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (none)', 'req_retry_400_fallback: yes'],
-    es: ['req_max_completion_tokens: (no enviado)', 'req_max_tokens: (no enviado)',
+    es: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: sí',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí'],
-    fr: ['req_max_completion_tokens: (non envoyé)', 'req_max_tokens: (non envoyé)',
+    fr: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: oui',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui'],
   };
   for (const lang of ['de', 'en', 'es', 'fr']) {
     app.lang = lang;
     const t = app.diagText();
     for (const bit of ['provider: baseten-direct', 'model: meta-models/muse-spark-open-1026', 'http: 200',
-      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v26',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v48',
       ...want[lang]]) {
       assert.ok(t.includes(bit), `${lang}: ${bit}`);
     }

@@ -189,9 +189,14 @@ function checkInvariants(s) {
     ['diagramKind:function', 1], ['buildFreePrompt2D:function', 1], ['FREIMODUS-2D', 1],
     ['genReasoning:"xhigh"', 1], ['xhighAllowed', 6], ['directHintMeta', (s.includes('standalone-build v42') ? 4 : 3)],
     ['Aufbau wie Standard-Modelle', 2],
-    ['Build v26', 1], ['Build v25', 0],
+    ['Build v25', 0],
+    // v47-Nachfolger (Diagnose-Stempel v26->v47): 'Build v26' unten toleriert.
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v47-Nachfolger (Diagnose-Stempel v26->v47): ohne v47-Stempel gilt v26,
+  // mit v47-Stempel gilt v47 (Muster wie v22/v23/v24-Nachfolger).
+  must(cnt(s, 'Build v26') === 1 || (s.includes('standalone-build v47') && cnt(s, 'Build v26') === 0), 'Invariante Build v26: ' + cnt(s, 'Build v26') + ', erwartet 1 (v47: 0)');
+  must(cnt(s, 'Build v47') === 0 || (s.includes('standalone-build v47') && cnt(s, 'Build v47') === 1), 'Invariante Build v47: ' + cnt(s, 'Build v47') + ', erwartet 0 (v47: 1)');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v29 Modelliste 6 + Umbenennungen)');
 }

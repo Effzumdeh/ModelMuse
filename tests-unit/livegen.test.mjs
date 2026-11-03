@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
   configureLiveGen, generateLive, setLiveApiKey, clearLiveApiKey, hasLiveApiKey, liveGenStatus, extractModuleSource,
   directChatUrl, DIRECT_BASES, DIRECT_DEFAULT_MODEL, OPENROUTER_REFERER, OPENROUTER_TITLE, liveKeySessionKey,
-  GEN_TEMPERATURE,
+  GEN_TEMPERATURE, GEN_MAX_TOKENS,
   buildChatBody, isBudgetExhausted, reasoningMaxAllowed, reasoningXhighAllowed, reasoningLevel, reasoningEffortsFor, requestEcho,
 } from '../src/runtime/livegen.js';
 import {
@@ -390,23 +390,27 @@ function lengthReasoningResponse() {
   ]);
 }
 
-test('v23 kein Length-Limit: Temperatur 0.2, keine Limit-Konstanten', () => {
+test('v48 explizites Maximum: Temperatur 0.2, Limit-Konstante 131072', () => {
   assert.equal(GEN_TEMPERATURE, 0.2);
+  assert.equal(GEN_MAX_TOKENS, 131072);
 });
 
-test('v23 buildChatBody: KEIN max_completion_tokens/max_tokens, Temperatur + Baseten-Extras, Reasoning-Gate (nie -contributor)', () => {
+test('v48 buildChatBody: max_completion_tokens/max_tokens 131072, Temperatur + Baseten-Extras, Reasoning-Gate (nie -contributor)', () => {
   const base = buildChatBody('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', { provider: 'baseten' });
-  assert.ok(!('max_completion_tokens' in base), 'kein max_completion_tokens (Modell nutzt eigenes Maximum)');
-  assert.ok(!('max_tokens' in base), 'kein max_tokens');
+  assert.equal(base.max_completion_tokens, 131072, 'explizites Maximum (Upstream-Default 32768 reicht nicht)');
+  assert.equal(base.max_tokens, 131072, 'Mirror-Feld belegt wirksam');
   assert.equal(base.reasoning_effort, 'xhigh', 'hoechstes belegtes Thinking-Budget (Doku: xhigh, max rejected)');
   assert.deepEqual(base.stream_options, { include_usage: true }, 'Usage im Stream fuer Diagnose');
   assert.equal(base.temperature, 0.2);
   assert.equal(base.stream, true);
   const noProv = buildChatBody('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug');
-  assert.ok(!('max_completion_tokens' in noProv) && !('max_tokens' in noProv) && !('reasoning_effort' in noProv) && !('stream_options' in noProv), 'ohne Provider keine Extras');
+  assert.equal(noProv.max_completion_tokens, 131072, 'Limit ohne Provider (alle Pfade)');
+  assert.equal(noProv.max_tokens, 131072);
+  assert.ok(!('reasoning_effort' in noProv) && !('stream_options' in noProv), 'ohne Provider keine Thinking-Extras');
   const contrib = buildChatBody('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
   assert.equal(contrib.reasoning_effort, 'xhigh', 'max-Wunsch am Contributor ehrlich auf xhigh begrenzt (nie 400)');
-  assert.ok(!('max_tokens' in contrib) && !('max_completion_tokens' in contrib), 'Meta-Pfad unveraendert (keine Extras, kein Limit)');
+  assert.equal(contrib.max_tokens, 131072, 'Meta-Pfad mit Limit (Thinking-Gate unveraendert)');
+  assert.equal(contrib.max_completion_tokens, 131072);
   const contribX = buildChatBody('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', { provider: 'meta-muse' });
   assert.ok(!('reasoning_effort' in contribX), 'Contributor ohne Wunsch: Modell-Default (kein Param)');
   const spark = buildChatBody('muse-spark-1.3', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
@@ -414,7 +418,8 @@ test('v23 buildChatBody: KEIN max_completion_tokens/max_tokens, Temperatur + Bas
   const wonder = buildChatBody('muse-wonder-1.0', 'Hallo Welt, lang genug', { provider: 'meta-muse', reasoning: 'max' });
   assert.equal(wonder.reasoning_effort, 'max');
   const ignored = buildChatBody('m', 'Hallo Welt, lang genug', { maxTokens: 999999 });
-  assert.ok(!('max_completion_tokens' in ignored) && !('max_tokens' in ignored), 'Legacy-maxTokens wird ignoriert (kein Limit-Param)');
+  assert.equal(ignored.max_completion_tokens, 131072, 'Legacy-maxTokens-Opt wird ignoriert (Konstante gilt)');
+  assert.equal(ignored.max_tokens, 131072);
 });
 
 test('v26 reasoningLevel: max nur belegt, sonst xhigh, sonst nichts', () => {
@@ -460,12 +465,13 @@ test('v40 reasoningEffortsFor: belegte Stufen je Modell (live /models 31.10.2026
   assert.equal(reasoningLevel('baseten', 'meta-models/muse-spark-open-1026', 'medium'), null);
 });
 
-test('OpenRouter-Body: Default xhigh belegt, max je Slug durchgereicht, kein Limit, kein stream_options (400-Fallback bleibt)', () => {
+test('OpenRouter-Body: Default xhigh belegt, max je Slug durchgereicht, Limit 131072, kein stream_options (400-Fallback bleibt)', () => {
   for (const slug of ['openai/gpt-6.1-sol', 'meta/muse-spark-1.3', 'anthropic/claude-opus-5.5']) {
     const b = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter' });
     assert.equal(b.model, slug);
     assert.equal(b.reasoning_effort, 'xhigh', `${slug}: belegtes Default-Thinking (Modelle-API 31.10.2026)`);
-    assert.ok(!('max_completion_tokens' in b) && !('max_tokens' in b), `${slug}: keine Token-Caps (Eigentuemer-Vorgabe)`);
+    assert.equal(b.max_completion_tokens, 131072, `${slug}: explizites Maximum (alle Provider)`);
+    assert.equal(b.max_tokens, 131072, `${slug}: Mirror-Feld`);
     assert.ok(!('stream_options' in b), `${slug}: kein unverifizierter Param`);
     assert.equal(b.temperature, 0.2);
   }
@@ -522,10 +528,10 @@ test('Key-Hinweis je Anbieter (de/en/es, openrouter.ai/keys)', () => {
   assert.ok(!/openrouter/.test(String(germanMessageWithHint({ code: 'E-GEN-PARSE' }, 'openrouter'))), 'nur Key-Fehler erhalten Hinweis');
 });
 
-test('v23 requestEcho: belegt gesendete Params + 400-Fallback, key-frei', () => {
-  const e1 = requestEcho({ temperature: 0.2, reasoning_effort: 'low', stream_options: { include_usage: true } }, false);
-  assert.deepEqual(e1, { maxCompletionTokens: null, maxTokens: null, reasoningEffort: 'low', temperature: 0.2, fallback400: false });
-  const e2 = requestEcho({ temperature: 0.2 }, true);
+test('v48 requestEcho: belegt gesendete Params (Limit 131072) + 400-Fallback, key-frei', () => {
+  const e1 = requestEcho({ temperature: 0.2, max_completion_tokens: 131072, max_tokens: 131072, reasoning_effort: 'low', stream_options: { include_usage: true } }, false);
+  assert.deepEqual(e1, { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: 'low', temperature: 0.2, fallback400: false });
+  const e2 = requestEcho({ temperature: 0.2, max_completion_tokens: 131072, max_tokens: 131072 }, true);
   assert.equal(e2.reasoningEffort, null);
   assert.equal(e2.fallback400, true);
   assert.equal(requestEcho(null, false).maxCompletionTokens, null);
@@ -547,7 +553,7 @@ test('v19 reasoningMaxAllowed + isBudgetExhausted', () => {
   assert.equal(isBudgetExhausted('', null, exhausted), false);
 });
 
-test('v23 Direkt: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body (kein Limit), dann Erfolg via direct', async () => {
+test('v48 Direkt: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body (inkl. Limit 131072), dann Erfolg via direct', async () => {
   configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
   setLiveApiKey('LLM_12345678_abcdefghijklmnop');
   const bodies = [];
@@ -562,8 +568,8 @@ test('v23 Direkt: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body
   const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
   assert.equal(n, 2, 'genau 1 Retry');
   for (const [i, b] of bodies.entries()) {
-    assert.ok(!('max_completion_tokens' in b), `Versuch ${i + 1}: kein max_completion_tokens`);
-    assert.ok(!('max_tokens' in b), `Versuch ${i + 1}: kein max_tokens`);
+    assert.equal(b.max_completion_tokens, 131072, `Versuch ${i + 1}: explizites Maximum`);
+    assert.equal(b.max_tokens, 131072, `Versuch ${i + 1}: Mirror-Feld`);
   }
   assert.deepEqual(bodies[0], bodies[1], 'Retry mit unveraendertem Body');
   assert.equal(bodies[0].temperature, 0.2);
@@ -599,7 +605,7 @@ test('v19 Direkt: stop+Reasoning-only (leer) -> KEIN Retry (genau 1 Call)', asyn
   assert.equal(n, 1, 'kein Retry ohne length');
 });
 
-test('v23 Proxy: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body (kein Limit)', async () => {
+test('v48 Proxy: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body (Proxy-API ohne Limit, Upstream setzt 131072 selbst)', async () => {
   configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
   const bodies = [];
   let n = 0;
@@ -612,8 +618,8 @@ test('v23 Proxy: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body 
   const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'meta-muse', model: 'muse-spark-1.3-contributor' });
   assert.equal(n, 2, 'genau 1 Retry');
   for (const [i, b] of bodies.entries()) {
-    assert.ok(!('max_completion_tokens' in b), `Versuch ${i + 1}: kein max_completion_tokens im Proxy-Body`);
-    assert.ok(!('max_tokens' in b), `Versuch ${i + 1}: kein max_tokens im Proxy-Body`);
+    assert.ok(!('max_completion_tokens' in b), `Versuch ${i + 1}: kein max_completion_tokens in der Proxy-API (Upstream-Limit setzt der Proxy)`);
+    assert.ok(!('max_tokens' in b), `Versuch ${i + 1}: kein max_tokens in der Proxy-API`);
   }
   assert.deepEqual(bodies[0], bodies[1], 'Retry mit unveraendertem Body');
   assert.equal(gen.via, 'proxy');
@@ -677,7 +683,7 @@ test('v21 Diagnose: Retry 1/1 nach Budget-Retry, Retry 0/1 ohne Retry', async ()
   assert.match(String(err2?.message ?? err2), /Retry 0\/1/, 'kein Retry ohne length sichtbar');
 });
 
-test('v23 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras (kein Limit je Versuch)', async () => {
+test('v48 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras, Limit 131072 bleibt', async () => {
   configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
   setLiveApiKey('LLM_12345678_abcdefghijklmnop');
   const bodies = [];
@@ -688,10 +694,13 @@ test('v23 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras (kein Limit je 
     bodies.push(b);
     if (n === 1) {
       assert.equal(b.reasoning_effort, 'xhigh', 'erst mit Extras');
-      assert.ok(!('max_completion_tokens' in b) && !('max_tokens' in b), 'kein Limit trotz Extras');
+      assert.equal(b.max_completion_tokens, 131072, 'Limit schon im Erstversuch');
+      assert.equal(b.max_tokens, 131072, 'Mirror schon im Erstversuch');
       return { ok: false, status: 400 };
     }
-    assert.ok(!('reasoning_effort' in b) && !('max_tokens' in b) && !('max_completion_tokens' in b) && !('stream_options' in b), 'Fallback ohne Extras, ohne Limit');
+    assert.ok(!('reasoning_effort' in b) && !('stream_options' in b), 'Fallback ohne Extras');
+    assert.equal(b.max_completion_tokens, 131072, 'Fallback mit Limit (belegt wirksam)');
+    assert.equal(b.max_tokens, 131072, 'Fallback mit Mirror');
     assert.equal(b.temperature, 0.2, 'Temperatur bleibt');
     return sseResponse([MODULE]);
   };
@@ -701,7 +710,7 @@ test('v23 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras (kein Limit je 
   assert.ok(gen.source.includes('export function init'));
 });
 
-test('v23 Direkt: 400-Fallback landet als Request-Echo in der Diagnose (E-GEN-401-Form)', async () => {
+test('v48 Direkt: 400-Fallback landet als Request-Echo in der Diagnose (E-GEN-401-Form)', async () => {
   configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
   setLiveApiKey('LLM_12345678_abcdefghijklmnop');
   globalThis.fetch = async () => ({ ok: false, status: 401 });
@@ -709,8 +718,8 @@ test('v23 Direkt: 400-Fallback landet als Request-Echo in der Diagnose (E-GEN-40
   assert.match(String(err?.code ?? err), /E-GEN-401/);
   assert.equal(err?.diagnose?.req?.reasoningEffort, 'xhigh', 'Echo: reasoning xhigh gesendet');
   assert.equal(err?.diagnose?.req?.temperature, 0.2, 'Echo: Temperatur gesendet');
-  assert.equal(err?.diagnose?.req?.maxCompletionTokens, null, 'Echo: kein max_completion_tokens');
-  assert.equal(err?.diagnose?.req?.maxTokens, null, 'Echo: kein max_tokens');
+  assert.equal(err?.diagnose?.req?.maxCompletionTokens, 131072, 'Echo: max_completion_tokens gesendet');
+  assert.equal(err?.diagnose?.req?.maxTokens, 131072, 'Echo: max_tokens gesendet');
   assert.equal(err?.diagnose?.req?.fallback400, false, 'Echo: kein 400-Fallback (401 ist definitiv)');
 });
 
@@ -723,15 +732,16 @@ test('v21 Direkt: 400 ohne Extras (meta-muse) -> kein Fallback, direkt E-GEN-400
   assert.equal(n, 1, 'kein Fallback ohne Extras');
 });
 
-test('v23 stripChatExtras: entfernt Baseten-Extras + defensive Limit-Felder, meldet ob gestrippt', async () => {
+test('v48 stripChatExtras: entfernt Thinking-Extras, Limit 131072 ueberlebt, meldet ob gestrippt', async () => {
   const { stripChatExtras } = await import('../src/runtime/livegen.js');
-  const b = { model: 'm', max_completion_tokens: 1, max_tokens: 1, reasoning_effort: 'xhigh', stream_options: { include_usage: true }, temperature: 0.2 };
+  const b = { model: 'm', max_completion_tokens: 131072, max_tokens: 131072, reasoning_effort: 'xhigh', stream_options: { include_usage: true }, temperature: 0.2 };
   assert.equal(stripChatExtras(b), true);
-  assert.deepEqual(b, { model: 'm', temperature: 0.2 });
+  assert.deepEqual(b, { model: 'm', max_completion_tokens: 131072, max_tokens: 131072, temperature: 0.2 }, 'Limit ueberlebt den 400-Fallback');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'low' }), true, 'low bleibt Baseten-Extra (wird gestrippt)');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'medium' }), true, 'v40: belegte Zwischenstufe faellt unter 400-Fallback');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'high' }), true, 'v40: high gestrippt');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'minimal' }), true, 'v40: minimal gestrippt');
+  assert.equal(stripChatExtras({ model: 'm', max_completion_tokens: 131072, max_tokens: 131072 }), false, 'Limit allein ist kein Strip-Grund (nie 400-Grund)');
   assert.equal(stripChatExtras({ model: 'm' }), false, 'nichts zu strippen');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'max' }), false, 'max bleibt (Meta-Gate)');
   assert.equal(stripChatExtras({ model: 'm', reasoning_effort: 'none' }), false, 'none ist kein Baseten-Extra (Doku: rejected)');
@@ -740,9 +750,9 @@ test('v23 stripChatExtras: entfernt Baseten-Extras + defensive Limit-Felder, mel
 
 /* v22: Diagnose-Export (Copy-Button) + belegte Thinking-Stufe xhigh. */
 
-test('v23 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Build + Request-Echo', async () => {
+test('v48 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Build + Request-Echo', async () => {
   const { GEN_BUILD } = await import('../src/runtime/livegen.js');
-  assert.equal(GEN_BUILD, 'v23');
+  assert.equal(GEN_BUILD, 'v48');
   configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
   globalThis.fetch = async () => reasoningSseResponse([
     { choices: [{ delta: { reasoning_content: 'Denke nach...' } }], usage: { completion_tokens: 200, prompt_tokens: 22, total_tokens: 222, reasoning_tokens: 198 } },
@@ -750,10 +760,10 @@ test('v23 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Bui
   ]);
   const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
   assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
-  for (const bit of ['baseten', 'muse-spark-open-1026', 'HTTP 200', 'finish_reason=length', 'Retry 1/1', 'Build v23']) {
+  for (const bit of ['baseten', 'muse-spark-open-1026', 'HTTP 200', 'finish_reason=length', 'Retry 1/1', 'Build v48']) {
     assert.match(String(err?.message ?? err), new RegExp(bit.replace(/[./]/g, (c) => `\\${c}`)), bit);
   }
-  assert.equal(err?.diagnose?.build, 'v23');
+  assert.equal(err?.diagnose?.build, 'v48');
   assert.equal(err?.diagnose?.provider, 'baseten');
   assert.equal(err?.diagnose?.model, 'meta-models/muse-spark-open-1026');
   assert.equal(err?.diagnose?.status, 200);
@@ -762,8 +772,8 @@ test('v23 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Bui
   assert.equal(err?.diagnose?.usageCompletion, 200);
   assert.equal(err?.diagnose?.retried, true);
   assert.ok(String(err?.diagnose?.rawSnippet ?? '').includes('Denke nach'), 'Rohantwort-Auszug enthaelt Reasoning');
-  assert.equal(err?.diagnose?.req?.maxCompletionTokens, null, 'Echo: kein max_completion_tokens (Proxy-Upstream)');
-  assert.equal(err?.diagnose?.req?.maxTokens, null, 'Echo: kein max_tokens (Proxy-Upstream)');
+  assert.equal(err?.diagnose?.req?.maxCompletionTokens, 131072, 'Echo: max_completion_tokens (Proxy-Upstream)');
+  assert.equal(err?.diagnose?.req?.maxTokens, 131072, 'Echo: max_tokens (Proxy-Upstream)');
   assert.equal(err?.diagnose?.req?.reasoningEffort, 'xhigh', 'Echo: reasoning xhigh (Proxy-Upstream, baseten)');
   assert.equal(err?.diagnose?.req?.temperature, 0.2, 'Echo: Temperatur 0.2 (Proxy-Upstream)');
   assert.equal(err?.diagnose?.reqRetry?.reasoningEffort, 'xhigh', 'Echo: Retry-Versuch belegt');
@@ -797,34 +807,38 @@ test('v22 redactDiagnoseText: Key-Formen raus, Modell-Slug bleibt', async () => 
   assert.ok(clean.includes('meta-models/muse-spark-open-1026'), 'Modell-Slug bleibt lesbar');
 });
 
-test('v23 buildDiagnoseText: alle Felder + Request-Echo, ~2KB-Cap, de/en/es, nie Key', async () => {
+test('v48 buildDiagnoseText: alle Felder + Request-Echo (Limit 131072, Retry-Werte), ~2KB-Cap, de/en/es, nie Key', async () => {
   const { buildDiagnoseText } = await import('../src/runtime/livegen.js');
   const diag = {
     provider: 'baseten', model: 'meta-models/muse-spark-open-1026', via: 'direct',
     status: 200, finish: 'length', usage: 'reasoning 198/200 tokens',
-    usageReasoning: 198, usageCompletion: 200, retried: true, build: 'v23',
+    usageReasoning: 198, usageCompletion: 200, retried: true, build: 'v48',
     rawSnippet: `x\nAuthorization: Bearer HACKME12345678\n${'y'.repeat(5000)}`,
-    req: { maxCompletionTokens: null, maxTokens: null, reasoningEffort: 'low', temperature: 0.2, fallback400: true },
-    reqRetry: { maxCompletionTokens: null, maxTokens: null, reasoningEffort: null, temperature: 0.2, fallback400: true },
+    req: { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: 'low', temperature: 0.2, fallback400: true },
+    reqRetry: { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: null, temperature: 0.2, fallback400: true },
   };
   const want = {
-    de: ['req_max_completion_tokens: (nicht gesendet)', 'req_max_tokens: (nicht gesendet)',
+    de: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: ja',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (keins)', 'req_retry_400_fallback: ja'],
-    en: ['req_max_completion_tokens: (not sent)', 'req_max_tokens: (not sent)',
+    en: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: yes',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (none)', 'req_retry_400_fallback: yes'],
-    es: ['req_max_completion_tokens: (no enviado)', 'req_max_tokens: (no enviado)',
+    es: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: sí',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí'],
-    fr: ['req_max_completion_tokens: (non envoyé)', 'req_max_tokens: (non envoyé)',
+    fr: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: oui',
+      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
       'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui'],
   };
   for (const loc of ['de', 'en', 'es', 'fr']) {
     const t = buildDiagnoseText(diag, loc);
     for (const bit of ['provider: baseten', 'model: meta-models/muse-spark-open-1026', 'via: direct', 'http: 200',
-      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v23',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v48',
       ...want[loc]]) {
       assert.ok(t.includes(bit), `${loc}: ${bit}`);
     }
@@ -842,15 +856,15 @@ test('v23 buildDiagnoseText: alle Felder + Request-Echo, ~2KB-Cap, de/en/es, nie
   assert.ok(noRetry.includes('req_400_fallback: ja'), 'Erstversuch-Echo bleibt');
 });
 
-test('v23 errorDiagnose: Fallback ohne diagnose-Feld inkl. Request-Echo, nie Key', async () => {
+test('v48 errorDiagnose: Fallback ohne diagnose-Feld inkl. Request-Echo (Limit 131072), nie Key', async () => {
   const { errorDiagnose, buildDiagnoseText } = await import('../src/runtime/livegen.js');
   const e = Object.assign(new Error('E-GEN-401: HTTP 401'), { code: 'E-GEN-401' });
   const d = errorDiagnose(e);
-  assert.equal(d.build, 'v23');
+  assert.equal(d.build, 'v48');
   assert.ok(String(d.rawSnippet).includes('E-GEN-401'));
-  assert.equal(d.req.maxCompletionTokens, null, 'Echo: kein Limit gesendet');
-  assert.equal(d.req.maxTokens, null, 'Echo: kein Limit gesendet');
+  assert.equal(d.req.maxCompletionTokens, null, 'Echo: Fallback-Echo ohne Body (kein Request)');
+  assert.equal(d.req.maxTokens, null, 'Echo: Fallback-Echo ohne Body (kein Request)');
   const t = buildDiagnoseText(d, 'de');
-  assert.ok(t.includes('req_max_completion_tokens: (nicht gesendet)'), 'Echo belegt kein Limit');
+  assert.ok(t.includes('req_max_completion_tokens: (nicht gesendet)'), 'Echo: ohne Request kein Wert');
   assert.ok(!/Bearer \S{8,}/.test(t) || t.includes('Bearer [REDACTED]'), 'kein offener Bearer-Token');
 });

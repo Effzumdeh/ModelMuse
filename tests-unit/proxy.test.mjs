@@ -174,18 +174,19 @@ test('livegen: Verbindung verweigert -> E-GEN-OFFLINE (nicht 5XX)', async () => 
 
 /* v19: Budget + Temperatur im Proxy (simulierte length-Reasoning-Antwort). */
 
-test('v23 upstreamChatBody: KEIN Limit, Temperatur 0.2, kein Reasoning-Feld ohne Provider', async () => {
-  const { upstreamChatBody: up, UPSTREAM_TEMPERATURE } = await import('../scripts/proxy.mjs');
+test('v48 upstreamChatBody: Limit 131072 (beide Felder), Temperatur 0.2, kein Reasoning-Feld ohne Provider', async () => {
+  const { upstreamChatBody: up, UPSTREAM_TEMPERATURE, UPSTREAM_MAX_TOKENS } = await import('../scripts/proxy.mjs');
   assert.equal(UPSTREAM_TEMPERATURE, 0.2);
+  assert.equal(UPSTREAM_MAX_TOKENS, 131072);
   const d = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug');
-  assert.ok(!('max_completion_tokens' in d), 'kein max_completion_tokens (Modell nutzt eigenes Maximum)');
-  assert.ok(!('max_tokens' in d), 'kein max_tokens');
+  assert.equal(d.max_completion_tokens, 131072, 'explizites Maximum (Upstream-Default 32768 reicht nicht)');
+  assert.equal(d.max_tokens, 131072, 'Mirror-Feld');
   assert.equal(d.temperature, 0.2);
   assert.equal(d.stream, true);
   assert.ok(!('reasoning_effort' in d), 'Proxy setzt nie reasoning_effort ohne Provider');
 });
 
-test('v23 parseGenerateBody: Limit-Felder werden ignoriert (nie an Upstream)', () => {
+test('v48 parseGenerateBody: Client-Limit-Felder werden ignoriert (Proxy setzt 131072 selbst)', () => {
   const d = parseGenerateBody({ prompt: 'x'.repeat(20) });
   assert.equal(d.ok, true);
   assert.ok(!('maxTokens' in d), 'kein maxTokens im Parse-Ergebnis');
@@ -194,7 +195,7 @@ test('v23 parseGenerateBody: Limit-Felder werden ignoriert (nie an Upstream)', (
   assert.ok(!('maxTokens' in c), 'Limit-Felder ignoriert statt gereicht');
 });
 
-test('v23 Server: /generate reicht KEIN Limit an Upstream weiter (Stub-Upstream)', async () => {
+test('v48 Server: /generate reicht Limit 131072 an Upstream weiter (Stub-Upstream)', async () => {
   const keepEnv = { ...process.env };
   process.env.META_API_KEY = 'LLM_12345678_abcdefghijklmnop';
   process.env.KEY_FILE = 'C:/nonexistent-definitiv-kein-key.json';
@@ -222,8 +223,8 @@ test('v23 Server: /generate reicht KEIN Limit an Upstream weiter (Stub-Upstream)
     assert.equal(r.status, 200);
     await r.text();
     assert.equal(seen.length, 1);
-    assert.ok(!('max_completion_tokens' in seen[0]), 'KEIN Limit erreicht Upstream');
-    assert.ok(!('max_tokens' in seen[0]), 'KEIN Mirror-Limit erreicht Upstream');
+    assert.equal(seen[0].max_completion_tokens, 131072, 'explizites Maximum erreicht Upstream');
+    assert.equal(seen[0].max_tokens, 131072, 'Mirror-Limit erreicht Upstream');
     assert.equal(seen[0].temperature, 0.2);
     assert.ok(!('reasoning_effort' in seen[0]));
   } finally {
@@ -234,27 +235,31 @@ test('v23 Server: /generate reicht KEIN Limit an Upstream weiter (Stub-Upstream)
 
 /* v21: Baseten-Extras + 400-Fallback (simulierter Upstream, kein Netz). */
 
-test('v23 upstreamChatBody: Baseten-Extras nur mit provider=baseten, nie Limit', async () => {
+test('v48 upstreamChatBody: Baseten-Extras nur mit provider=baseten, immer Limit 131072', async () => {
   const { upstreamChatBody: up, stripUpstreamExtras } = await import('../scripts/proxy.mjs');
   const b = up('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', 'baseten');
-  assert.ok(!('max_completion_tokens' in b), 'kein max_completion_tokens');
-  assert.ok(!('max_tokens' in b), 'kein max_tokens');
+  assert.equal(b.max_completion_tokens, 131072, 'explizites Maximum');
+  assert.equal(b.max_tokens, 131072, 'Mirror-Feld');
   assert.equal(b.reasoning_effort, 'low');
   assert.deepEqual(b.stream_options, { include_usage: true });
   const m = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', 'meta-muse');
-  assert.ok(!('max_tokens' in m) && !('max_completion_tokens' in m) && !('reasoning_effort' in m) && !('stream_options' in m), 'Meta-Pfad unveraendert');
+  assert.equal(m.max_completion_tokens, 131072, 'Meta-Pfad mit Limit (Thinking-Gate unveraendert)');
+  assert.equal(m.max_tokens, 131072);
+  assert.ok(!('reasoning_effort' in m) && !('stream_options' in m), 'Meta-Pfad ohne Thinking-Extras');
   const d = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug');
-  assert.ok(!('max_tokens' in d), 'ohne Provider keine Extras');
+  assert.equal(d.max_tokens, 131072, 'Limit ohne Provider');
   assert.equal(stripUpstreamExtras(b), true);
-  assert.ok(!('max_tokens' in b) && !('reasoning_effort' in b) && !('stream_options' in b), 'Extras gestrippt');
-  assert.equal(stripUpstreamExtras(m), false);
+  assert.ok(!('reasoning_effort' in b) && !('stream_options' in b), 'Extras gestrippt');
+  assert.equal(b.max_completion_tokens, 131072, 'Limit ueberlebt den 400-Fallback');
+  assert.equal(b.max_tokens, 131072, 'Mirror ueberlebt den 400-Fallback');
+  assert.equal(stripUpstreamExtras(m), false, 'Limit allein ist kein Strip-Grund');
   assert.equal(stripUpstreamExtras(null), false);
   const legacy = { model: 'm', max_completion_tokens: 1, max_tokens: 1, temperature: 0.2 };
-  assert.equal(stripUpstreamExtras(legacy), true, 'Alt-Limit-Felder werden defensiv gestrippt');
-  assert.deepEqual(legacy, { model: 'm', temperature: 0.2 });
+  assert.equal(stripUpstreamExtras(legacy), false, 'Alt-Limit-Felder werden nicht mehr defensiv gestrippt (v48 sendet sie selbst)');
+  assert.deepEqual(legacy, { model: 'm', max_completion_tokens: 1, max_tokens: 1, temperature: 0.2 });
 });
 
-test('v21 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras', async () => {
+test('v48 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras, mit Limit', async () => {
   const keepEnv = { ...process.env };
   process.env.KEY_FILE = 'C:/nonexistent-definitiv-kein-key.json';
   const seen = [];
@@ -286,7 +291,9 @@ test('v21 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras',
     await r.text();
     assert.equal(n, 2, 'genau 1 Slim-Fallback');
     assert.equal(seen[0].reasoning_effort, 'low', 'erst mit Extras');
-    assert.ok(!('reasoning_effort' in seen[1]) && !('max_tokens' in seen[1]), 'Fallback ohne Extras');
+    assert.ok(!('reasoning_effort' in seen[1]), 'Fallback ohne Extras');
+    assert.equal(seen[1].max_completion_tokens, 131072, 'Fallback mit Limit (belegt wirksam)');
+    assert.equal(seen[1].max_tokens, 131072, 'Fallback mit Mirror');
   } finally {
     await new Promise((r) => server.close(r));
     globalThis.fetch = realFetch;

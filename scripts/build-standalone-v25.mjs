@@ -115,7 +115,7 @@ function checkInvariants(s) {
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 2], ['stream:true', 3],
-    ['temperature:0.2,max_completion_tokens', 0],
+    ['temperature:0.2,max_completion_tokens', (s.includes('standalone-build v48') ? 2 : 0)],
     ['temperature:0.2,max_tokens', 0],
     ['max_completion_tokens=131072', 0],
     ['max_tokens=65536', 0],

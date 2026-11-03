@@ -201,7 +201,8 @@ function checkInvariants(s) {
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 2], ['stream:true', 3],
-    ['temperature:0.2,max_completion_tokens', 0],
+    // v48-Nachfolger (explizites Maximum 131072 in beiden Erst-Bodies): Prefix 0->2.
+    ['temperature:0.2,max_completion_tokens', (s.includes('standalone-build v48') ? 2 : 0)],
     ['temperature:0.2,max_tokens', 0],
     ['max_completion_tokens=131072', 0],
     ['max_tokens=65536', 0],
@@ -237,7 +238,8 @@ function checkInvariants(s) {
     ['gbody.reasoning_effort="xhigh"', 1],
     ['mbody.reasoning_effort="xhigh"', 1],
     ['staleHint', 2], ['buildTag', 3],
-    ['Build v26', 1], ['Build v25', 0], ['Build v24', 0], ['Strg+F5', 1],
+    ['Build v25', 0], ['Build v24', 0], ['Strg+F5', 1],
+    // v47-Nachfolger (Diagnose-Stempel v26->v47): 'Build v26' unten toleriert.
     ['slice(0,200)', 2], ['slice(0,160)', 0],
     ['slice(0,2048)', 2],
     ['emptyResponse', (s.includes('standalone-build v42') ? 5 : 4)],
@@ -289,6 +291,10 @@ function checkInvariants(s) {
     ['mode: "+md', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
+  // v47-Nachfolger (Diagnose-Stempel v26->v47): ohne v47-Stempel gilt v26,
+  // mit v47-Stempel gilt v47 (Muster wie v22/v23/v24-Nachfolger).
+  must(cnt(s, 'Build v26') === 1 || (s.includes('standalone-build v47') && cnt(s, 'Build v26') === 0), 'Invariante Build v26: ' + cnt(s, 'Build v26') + ', erwartet 1 (v47: 0)');
+  must(cnt(s, 'Build v47') === 0 || (s.includes('standalone-build v47') && cnt(s, 'Build v47') === 1), 'Invariante Build v47: ' + cnt(s, 'Build v47') + ', erwartet 0 (v47: 1)');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (v26 E0+D0+M0+T0+R0+B0)');
 }

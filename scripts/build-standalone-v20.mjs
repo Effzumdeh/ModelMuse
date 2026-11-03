@@ -51,7 +51,9 @@ function checkInvariants(s) {
   // v26-Toleranz: R0 Reasoning xhigh/max (Methode + selects + defaults + bodies) 5->7.
   must(cnt(s, 'reasoningAllowed') === 5 || (s.includes('standalone-build v26') && cnt(s, 'reasoningAllowed') === 7), 'Invariante reasoningAllowed: ' + cnt(s, 'reasoningAllowed') + ', erwartet 5 (v26: 7)');
   // v23-Toleranz: kein Length-Limit (Werte 4/2/2 -> 1/0/0; exakt in v23).
-  must(cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1)');
+  // v48-Toleranz: explizites Maximum 131072 (Totale 1->10: 2 Bodies + 6 Snapshots + 2 Echo-Labels).
+  const is48 = s.includes('standalone-build v48');
+  must(cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1) || (is48 && cnt(s, 'max_completion_tokens') === 10), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1, v48: 10)');
   must(cnt(s, 'max_completion_tokens:65536') === 2 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens:65536') === 0), 'Invariante max_completion_tokens:65536: ' + cnt(s, 'max_completion_tokens:65536') + ', erwartet 2 (v23: 0)');
   must(cnt(s, 'max_completion_tokens=131072') === 2 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).

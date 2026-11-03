@@ -355,13 +355,17 @@ if (isShowcase) {
   eqS('text/event-stream', 2, 'v17 SSE streaming (directHeaders + Reader)');
   eqS('stream:true', 3, 'v17 stream flag (bodies + SSE decoder)');
   eqS('max_output_tokens', 0, 'v17 no legacy token field');
-  { const n = cnt('temperature:0.2,max_completion_tokens'); if (n !== 0) fail(`v23 no limit in Erst-Body: ${n}; expected 0`); else ok('v23 no max_completion_tokens in Erst-Body = 0'); }
-  eqS('max_completion_tokens:65536', 0, 'v23 kein 65536-Erst-Budget (generate + modify)');
-  eqS('max_completion_tokens=131072', 0, 'v23 kein 131072-Retry-Budget (generate + modify)');
-  eqS('max_tokens=65536', 0, 'v23 kein max_tokens-Mirror (generate + modify)');
-  eqS('max_tokens=131072', 0, 'v23 kein max_tokens-Retry-Mirror (generate + modify)');
-  eqS('delete gbody.max_tokens', 0, 'v23 kein Limit-Strip mehr noetig (gen)');
-  eqS('delete mbody.max_tokens', 0, 'v23 kein Limit-Strip mehr noetig (mod)');
+  { const n = cnt('temperature:0.2,max_completion_tokens:131072,max_tokens:131072'); if (n !== 2) fail(`v48 Limit in Erst-Bodies: ${n}; expected 2`); else ok('v48 max_completion_tokens:131072,max_tokens:131072 in Erst-Bodies = 2'); }
+  eqS('max_completion_tokens:65536', 0, 'v48 kein 65536-Erst-Budget (generate + modify)');
+  eqS('max_completion_tokens=131072', 0, 'v48 kein Retry-Literal (Body wird geteilt)');
+  eqS('max_tokens=65536', 0, 'v48 kein max_tokens-Mirror (alt)');
+  eqS('max_tokens=131072', 0, 'v48 kein Retry-Mirror (alt, =Form)');
+  eqS('delete gbody.max_tokens', 0, 'v48 kein Limit-Strip (gen, Limit ueberlebt Fallback)');
+  eqS('delete mbody.max_tokens', 0, 'v48 kein Limit-Strip (mod, Limit ueberlebt Fallback)');
+  eqS('delete gbody.stream_options', 1, 'v48 400-Fallback strippt weiter Extras (gen)');
+  eqS('delete mbody.stream_options', 1, 'v48 400-Fallback strippt weiter Extras (mod)');
+  eqS('mc:gbody.max_completion_tokens', 3, 'v48 Echo-Snapshots gen lesen Limit aus Body');
+  eqS('mc:mbody.max_completion_tokens', 3, 'v48 Echo-Snapshots mod lesen Limit aus Body');
   eqS('budgetRetryable', 3, 'v19 retry gate (helper + generate + modify)');
   eqS('standalone-build v19', 1, 'v19 stamp (Budget + Retry)');
   eqS('standalone-build v20', 1, 'v20 stamp (Budget hoch)');
@@ -377,12 +381,16 @@ if (isShowcase) {
   eqS('genReasoning:"xhigh"', 1, 'v26 UI-Default xhigh (Baseten-Startprovider)');
   eqS('reasoningHigh', 5, 'v26+v42 xhigh-Option (4 Locales + Template)');
   eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
-  eqS('req_max_completion_tokens: ', 1, 'v23 Request-Echo Limit (generate-Diag)');
-  eqS('req_max_tokens: ', 1, 'v23 Request-Echo Mirror (generate-Diag)');
+  eqS('req_max_completion_tokens: ', 1, 'v48 Request-Echo Limit (generate-Diag)');
+  eqS('req_max_tokens: ', 1, 'v48 Request-Echo Mirror (generate-Diag)');
+  eqS('req_retry_max_completion_tokens: ', 1, 'v48 Request-Echo Retry-Limit (generate-Diag)');
+  eqS('req_retry_max_tokens: ', 1, 'v48 Request-Echo Retry-Mirror (generate-Diag)');
   eqS('req_reasoning_effort: ', 1, 'v23 Request-Echo Thinking (generate-Diag)');
   eqS('req_400_fallback: ', 1, 'v23 Request-Echo Fallback (generate-Diag)');
   eqS('req_retry_reasoning_effort: ', 1, 'v23 Request-Echo Retry (generate-Diag)');
-  eqS('Build v26', 1, 'v26 build stamp in diagnosis');
+  eqS('Build v48', 1, 'v48 build stamp in diagnosis (explizites Limit 131072)');
+  eqS('Build v47', 0, 'v47 build stamp ersetzt');
+  eqS('Build v26', 0, 'v26 build stamp ersetzt');
   eqS('Build v25', 0, 'v25 build stamp ersetzt');
   eqS('Build v24', 0, 'v24 build stamp ersetzt');
   eqS('Build v23', 0, 'v23 build stamp ersetzt');
@@ -478,6 +486,8 @@ if (isShowcase) {
   eqS('if(st==="jobDone"){return "";}', 1, 'v38 Queue: fertig ohne eigene Zeit');
   eqS('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 0, 'v46 alte ETA-Tabelle ersetzt (flat)');
   eqS('standalone-build v46', 1, 'v46 Stempel (Final-Sprint: ETA flat + Modus-Auto + Footer + LICENSES + Ollama)');
+  eqS('standalone-build v47', 1, 'v47 Stempel (Diagnose-Stempel v26->v47)');
+  eqS('standalone-build v48', 1, 'v48 Stempel (explizites Limit 131072 + Diagnose-Echo-Werte)');
   // v46 (E/M/F/L/O/T): ETA flat 240, Modus-Auto, Funktions-Footer,
   // LICENSES-Link, Ollama lokal, System-Theme ohne Toggle.
   eqS('@click="force2D"', 0, 'v46 Modus-Buttons raus (force2D)');
