@@ -199,10 +199,12 @@ function checkInvariants(s) {
   // v19-Toleranz: Budget+Retry erhoeht auf 4 (pre-v19: 2).
   // v23-Toleranz: kein Length-Limit (nur noch Echo-Label 'req_max_completion_tokens: ').
   // v48-Toleranz: explizites Maximum 131072 (Totale 1->10: 2 Bodies + 6 Snapshots + 2 Echo-Labels).
-  must(cnt(s, 'max_completion_tokens') === 2 || cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1) || (s.includes('standalone-build v48') && cnt(s, 'max_completion_tokens') === 10), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 2 oder 4 (v23: 1, v48: 10)');
+  // v50-Toleranz (Baseten-Doku-Regel + Stufe-2-Fallback + Echo-ls): Totale 10->16.
+  must(cnt(s, 'max_completion_tokens') === 2 || cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1) || (s.includes('standalone-build v48') && cnt(s, 'max_completion_tokens') === 10) || (s.includes('standalone-build v50') && cnt(s, 'max_completion_tokens') === 16), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 2 oder 4 (v23: 1, v48: 10, v50: 16)');
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
   // v23-Toleranz: Request-Echo-Snapshots + Echo-Labels (2 + 2 + 4 + 2 = 10).
-  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4 || (s.includes('standalone-build v23') && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4 (v23: 10)');
+  // v50-Toleranz: Echo-Snapshots +2 (Erst + Fallback + Stufe 2) = 12.
+  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4 || (s.includes('standalone-build v23') && cnt(s, 'reasoning_effort') === 10) || (s.includes('standalone-build v50') && cnt(s, 'reasoning_effort') === 12), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4 (v23: 10, v50: 12)');
   must(s.length < 600000, 'Datei zu gross: ' + s.length);
   console.log('  Invarianten ok (Provider-Umschalter, Streaming, Keys je Provider)');
 }

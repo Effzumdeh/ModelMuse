@@ -114,8 +114,9 @@ function checkInvariants(s) {
   // v23-Toleranz: kein Length-Limit (max_completion_tokens nur noch Echo-Label = 1),
   // Request-Echo-Snapshots + Echo-Labels (reasoning_effort = 10).
   // v48-Toleranz: explizites Maximum 131072 (Totale 1->10: 2 Bodies + 6 Snapshots + 2 Echo-Labels).
+  // v50-Toleranz (Baseten-Doku-Regel + Stufe-2-Fallback + Echo-ls): Totale 10->16, reasoning 10->12.
   // v37-Nachfolger (Tele-Snapshot liest _lastChatInfo/_lastHttp je +1): 7->8, 6->7.
-  for (const [sub, vals] of [['max_completion_tokens', (s.includes('standalone-build v48') ? [2, 4, 1, 10] : [2, 4, 1])], ['_lastChatInfo', [5, 6, 7, 8]], ['_lastHttp', [3, 5, 6, 7]], ['reasoning_effort', [2, 4, 10]]]) {
+  for (const [sub, vals] of [['max_completion_tokens', (s.includes('standalone-build v50') ? [2, 4, 1, 10, 16] : (s.includes('standalone-build v48') ? [2, 4, 1, 10] : [2, 4, 1]))], ['_lastChatInfo', [5, 6, 7, 8]], ['_lastHttp', [3, 5, 6, 7]], ['reasoning_effort', (s.includes('standalone-build v50') ? [2, 4, 10, 12] : [2, 4, 10])]]) {
     must(vals.includes(cnt(s, sub)), 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + vals.join(' oder '));
   }
   must(s.length < 600000, 'Datei zu gross: ' + s.length);

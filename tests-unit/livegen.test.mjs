@@ -395,10 +395,10 @@ test('v48 explizites Maximum: Temperatur 0.2, Limit-Konstante 131072', () => {
   assert.equal(GEN_MAX_TOKENS, 131072);
 });
 
-test('v48 buildChatBody: max_completion_tokens/max_tokens 131072, Temperatur + Baseten-Extras, Reasoning-Gate (nie -contributor)', () => {
+test('v50 buildChatBody: Baseten NUR max_tokens (Doku-Regel), andere beide Limit-Felder 131072, Temperatur + Baseten-Extras', () => {
   const base = buildChatBody('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', { provider: 'baseten' });
-  assert.equal(base.max_completion_tokens, 131072, 'explizites Maximum (Upstream-Default 32768 reicht nicht)');
-  assert.equal(base.max_tokens, 131072, 'Mirror-Feld belegt wirksam');
+  assert.ok(!('max_completion_tokens' in base), 'Baseten-Doku kennt nur max_tokens (sonst Extra-inputs-400)');
+  assert.equal(base.max_tokens, 131072, 'explizites Maximum (Upstream-Default 32768 reicht nicht)');
   assert.equal(base.reasoning_effort, 'xhigh', 'hoechstes belegtes Thinking-Budget (Doku: xhigh, max rejected)');
   assert.deepEqual(base.stream_options, { include_usage: true }, 'Usage im Stream fuer Diagnose');
   assert.equal(base.temperature, 0.2);
@@ -528,12 +528,15 @@ test('Key-Hinweis je Anbieter (de/en/es, openrouter.ai/keys)', () => {
   assert.ok(!/openrouter/.test(String(germanMessageWithHint({ code: 'E-GEN-PARSE' }, 'openrouter'))), 'nur Key-Fehler erhalten Hinweis');
 });
 
-test('v48 requestEcho: belegt gesendete Params (Limit 131072) + 400-Fallback, key-frei', () => {
+test('v50 requestEcho: belegt gesendete Params (Limit 131072) + 400-Fallback Stufe 1/2, key-frei', () => {
   const e1 = requestEcho({ temperature: 0.2, max_completion_tokens: 131072, max_tokens: 131072, reasoning_effort: 'low', stream_options: { include_usage: true } }, false);
-  assert.deepEqual(e1, { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: 'low', temperature: 0.2, fallback400: false });
+  assert.deepEqual(e1, { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: 'low', temperature: 0.2, fallback400: false, limitStripped: false });
   const e2 = requestEcho({ temperature: 0.2, max_completion_tokens: 131072, max_tokens: 131072 }, true);
   assert.equal(e2.reasoningEffort, null);
   assert.equal(e2.fallback400, true);
+  assert.equal(e2.limitStripped, false);
+  const e3 = requestEcho({ temperature: 0.2, reasoning_effort: null }, true, true);
+  assert.deepEqual(e3, { maxCompletionTokens: null, maxTokens: null, reasoningEffort: null, temperature: 0.2, fallback400: true, limitStripped: true });
   assert.equal(requestEcho(null, false).maxCompletionTokens, null);
 });
 
@@ -553,7 +556,7 @@ test('v19 reasoningMaxAllowed + isBudgetExhausted', () => {
   assert.equal(isBudgetExhausted('', null, exhausted), false);
 });
 
-test('v48 Direkt: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body (inkl. Limit 131072), dann Erfolg via direct', async () => {
+test('v50 Direkt: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body (max_tokens 131072, Baseten ohne Mirror), dann Erfolg via direct', async () => {
   configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
   setLiveApiKey('LLM_12345678_abcdefghijklmnop');
   const bodies = [];
@@ -568,8 +571,8 @@ test('v48 Direkt: length+Reasoning-only -> genau 1 Retry mit UNVERAENDERTEM Body
   const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
   assert.equal(n, 2, 'genau 1 Retry');
   for (const [i, b] of bodies.entries()) {
-    assert.equal(b.max_completion_tokens, 131072, `Versuch ${i + 1}: explizites Maximum`);
-    assert.equal(b.max_tokens, 131072, `Versuch ${i + 1}: Mirror-Feld`);
+    assert.ok(!('max_completion_tokens' in b), `Versuch ${i + 1}: Baseten ohne max_completion_tokens (Doku-Regel)`);
+    assert.equal(b.max_tokens, 131072, `Versuch ${i + 1}: explizites Maximum`);
   }
   assert.deepEqual(bodies[0], bodies[1], 'Retry mit unveraendertem Body');
   assert.equal(bodies[0].temperature, 0.2);
@@ -683,7 +686,7 @@ test('v21 Diagnose: Retry 1/1 nach Budget-Retry, Retry 0/1 ohne Retry', async ()
   assert.match(String(err2?.message ?? err2), /Retry 0\/1/, 'kein Retry ohne length sichtbar');
 });
 
-test('v48 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras, Limit 131072 bleibt', async () => {
+test('v50 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras, max_tokens 131072 bleibt (Baseten ohne max_completion_tokens)', async () => {
   configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
   setLiveApiKey('LLM_12345678_abcdefghijklmnop');
   const bodies = [];
@@ -694,13 +697,13 @@ test('v48 Direkt: 400 mit Extras -> genau 1 Fallback ohne Extras, Limit 131072 b
     bodies.push(b);
     if (n === 1) {
       assert.equal(b.reasoning_effort, 'xhigh', 'erst mit Extras');
-      assert.equal(b.max_completion_tokens, 131072, 'Limit schon im Erstversuch');
-      assert.equal(b.max_tokens, 131072, 'Mirror schon im Erstversuch');
+      assert.ok(!('max_completion_tokens' in b), 'Baseten-Erstversuch ohne max_completion_tokens (Doku-Regel)');
+      assert.equal(b.max_tokens, 131072, 'Limit schon im Erstversuch');
       return { ok: false, status: 400 };
     }
     assert.ok(!('reasoning_effort' in b) && !('stream_options' in b), 'Fallback ohne Extras');
-    assert.equal(b.max_completion_tokens, 131072, 'Fallback mit Limit (belegt wirksam)');
-    assert.equal(b.max_tokens, 131072, 'Fallback mit Mirror');
+    assert.ok(!('max_completion_tokens' in b), 'Fallback weiter ohne max_completion_tokens (Baseten)');
+    assert.equal(b.max_tokens, 131072, 'Fallback mit Limit (belegt wirksam)');
     assert.equal(b.temperature, 0.2, 'Temperatur bleibt');
     return sseResponse([MODULE]);
   };
@@ -718,9 +721,10 @@ test('v48 Direkt: 400-Fallback landet als Request-Echo in der Diagnose (E-GEN-40
   assert.match(String(err?.code ?? err), /E-GEN-401/);
   assert.equal(err?.diagnose?.req?.reasoningEffort, 'xhigh', 'Echo: reasoning xhigh gesendet');
   assert.equal(err?.diagnose?.req?.temperature, 0.2, 'Echo: Temperatur gesendet');
-  assert.equal(err?.diagnose?.req?.maxCompletionTokens, 131072, 'Echo: max_completion_tokens gesendet');
+  assert.equal(err?.diagnose?.req?.maxCompletionTokens, null, 'Echo: Baseten ohne max_completion_tokens (Doku-Regel)');
   assert.equal(err?.diagnose?.req?.maxTokens, 131072, 'Echo: max_tokens gesendet');
   assert.equal(err?.diagnose?.req?.fallback400, false, 'Echo: kein 400-Fallback (401 ist definitiv)');
+  assert.equal(err?.diagnose?.req?.limitStripped, false, 'Echo: kein Limit-Strip (401 ist definitiv)');
 });
 
 test('v21 Direkt: 400 ohne Extras (meta-muse) -> kein Fallback, direkt E-GEN-400', async () => {
@@ -729,7 +733,114 @@ test('v21 Direkt: 400 ohne Extras (meta-muse) -> kein Fallback, direkt E-GEN-400
   let n = 0;
   globalThis.fetch = async () => { n += 1; return { ok: false, status: 400 }; };
   await assert.rejects(generateLive('Begriff Windkraftanlage lang genug', { provider: 'meta-muse', model: 'muse-spark-1.3-contributor' }), /E-GEN-400/);
-  assert.equal(n, 1, 'kein Fallback ohne Extras');
+  assert.equal(n, 1, 'kein Fallback ohne Extras und ohne Extra-inputs-Hinweis');
+});
+
+test('v50 Direkt: Extra-inputs-400 (Baseten-Live-Fall) -> Stufe 1 Extras, Stufe 2 Limits, 3. Versuch ok', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  const bodies = [];
+  let n = 0;
+  const extraInputs = () => ({
+    ok: false,
+    status: 400,
+    text: async () => 'Invalid request: max_completion_tokens (131072): Extra inputs are not permitted',
+  });
+  globalThis.fetch = async (url, opts) => {
+    n += 1;
+    const b = JSON.parse(opts?.body ?? '{}');
+    bodies.push(b);
+    if (n <= 2) return extraInputs();
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' });
+  assert.equal(n, 3, 'Erstversuch + Extras-Fallback + Limit-Fallback');
+  assert.equal(bodies[0].reasoning_effort, 'xhigh', 'Versuch 1 mit Extras');
+  assert.equal(bodies[0].max_tokens, 131072, 'Versuch 1 mit Limit (Baseten-Doku: nur max_tokens)');
+  assert.ok(!('max_completion_tokens' in bodies[0]), 'Versuch 1 ohne max_completion_tokens (Doku-Regel)');
+  assert.ok(!('reasoning_effort' in bodies[1]) && !('stream_options' in bodies[1]), 'Versuch 2 ohne Extras (Stufe 1)');
+  assert.equal(bodies[1].max_tokens, 131072, 'Versuch 2 mit Limit');
+  assert.ok(!('max_completion_tokens' in bodies[2]) && !('max_tokens' in bodies[2]), 'Versuch 3 ohne Limits (Stufe 2)');
+  assert.equal(gen.via, 'direct');
+  assert.ok(gen.source.includes('export function init'));
+});
+
+test('v50 Direkt: Extra-inputs-400 (meta-muse, beide Limit-Felder) -> Limits gestrippt, Retry ok', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  const bodies = [];
+  let n = 0;
+  globalThis.fetch = async (url, opts) => {
+    n += 1;
+    bodies.push(JSON.parse(opts?.body ?? '{}'));
+    if (n === 1) {
+      return {
+        ok: false,
+        status: 400,
+        text: async () => 'Invalid request: max_tokens (131072): Extra inputs are not permitted',
+      };
+    }
+    return sseResponse([MODULE]);
+  };
+  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'meta-muse', model: 'muse-spark-1.3-contributor' });
+  assert.equal(n, 2, 'ein Limit-Fallback (keine Extras im Body -> Stufe 1 entfaellt)');
+  assert.equal(bodies[0].max_completion_tokens, 131072, 'Versuch 1 mit beiden Limit-Feldern');
+  assert.equal(bodies[0].max_tokens, 131072);
+  assert.ok(!('max_completion_tokens' in bodies[1]) && !('max_tokens' in bodies[1]), 'Versuch 2 ohne Limits (Stufe 2)');
+  assert.equal(gen.via, 'direct');
+});
+
+test('v50 Direkt: Extra-inputs-400 ohne Limit-Erfolg -> E-GEN-400, Diagnose mit Limit-Strip + Fehlertext', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let n = 0;
+  globalThis.fetch = async () => {
+    n += 1;
+    return {
+      ok: false,
+      status: 400,
+      text: async () => 'Invalid request: max_tokens (131072): Extra inputs are not permitted',
+    };
+  };
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'meta-muse', model: 'muse-spark-1.3-contributor' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-400/);
+  assert.equal(n, 2, 'genau ein Limit-Retry, dann definitiv');
+  assert.equal(err?.diagnose?.req?.limitStripped, true, 'Echo: Limit-Strip ausgewiesen');
+  assert.equal(err?.diagnose?.req?.maxTokens, null, 'Echo: Limit fehlt nach Strip');
+  assert.equal(err?.diagnose?.req?.maxCompletionTokens, null, 'Echo: Mirror fehlt nach Strip');
+  assert.ok(String(err?.diagnose?.rawSnippet ?? '').includes('Extra inputs'), 'Diagnose traegt den Fehlertext');
+});
+
+test('v50 Direkt: 400 ohne Extra-inputs-Hinweis nach Extras-Fallback -> kein Limit-Strip', async () => {
+  configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
+  setLiveApiKey('LLM_12345678_abcdefghijklmnop');
+  let n = 0;
+  globalThis.fetch = async () => {
+    n += 1;
+    return { ok: false, status: 400, text: async () => 'Invalid request: bad temperature' };
+  };
+  const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
+  assert.match(String(err?.code ?? err), /E-GEN-400/);
+  assert.equal(n, 2, 'nur Extras-Fallback, kein Limit-Retry ohne Extra-inputs-Hinweis');
+  assert.equal(err?.diagnose?.req?.limitStripped, false, 'Echo: kein Limit-Strip');
+  assert.equal(err?.diagnose?.req?.maxTokens, 131072, 'Echo: Limit bleibt');
+});
+
+test('v50 stripChatLimits/isExtraInputs400/readErrorText: Stufenwahl-Helfer', async () => {
+  const { stripChatLimits, isExtraInputs400, readErrorText } = await import('../src/runtime/livegen.js');
+  const b = { model: 'm', max_completion_tokens: 131072, max_tokens: 131072, temperature: 0.2 };
+  assert.equal(stripChatLimits(b), true);
+  assert.deepEqual(b, { model: 'm', temperature: 0.2 }, 'beide Limit-Felder gestrippt');
+  assert.equal(stripChatLimits({ model: 'm' }), false, 'ohne Limits kein Strip (kein Retry-Grund)');
+  assert.equal(stripChatLimits({ model: 'm', max_tokens: 5 }), true, 'einzelnes Feld reicht');
+  assert.equal(stripChatLimits(null), false);
+  assert.equal(isExtraInputs400('Invalid request: max_completion_tokens (131072): Extra inputs are not permitted'), true);
+  assert.equal(isExtraInputs400('EXTRA INPUTS ARE NOT PERMITTED'), true, 'Grossschreibung egal');
+  assert.equal(isExtraInputs400('Invalid request: bad temperature'), false);
+  assert.equal(isExtraInputs400(null), false);
+  assert.equal(await readErrorText({ text: async () => 'abc' }), 'abc');
+  assert.equal(await readErrorText({}), '', 'Mock ohne .text -> leer');
+  assert.equal(await readErrorText(null), '', 'null -> leer');
 });
 
 test('v48 stripChatExtras: entfernt Thinking-Extras, Limit 131072 ueberlebt, meldet ob gestrippt', async () => {
@@ -750,9 +861,9 @@ test('v48 stripChatExtras: entfernt Thinking-Extras, Limit 131072 ueberlebt, mel
 
 /* v22: Diagnose-Export (Copy-Button) + belegte Thinking-Stufe xhigh. */
 
-test('v48 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Build + Request-Echo', async () => {
+test('v50 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Build + Request-Echo', async () => {
   const { GEN_BUILD } = await import('../src/runtime/livegen.js');
-  assert.equal(GEN_BUILD, 'v48');
+  assert.equal(GEN_BUILD, 'v50');
   configureLiveGen({ proxyUrl: 'http://127.0.0.1:9/mock', timeoutMs: 2000 });
   globalThis.fetch = async () => reasoningSseResponse([
     { choices: [{ delta: { reasoning_content: 'Denke nach...' } }], usage: { completion_tokens: 200, prompt_tokens: 22, total_tokens: 222, reasoning_tokens: 198 } },
@@ -760,10 +871,10 @@ test('v48 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Bui
   ]);
   const err = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }).catch((e) => e);
   assert.match(String(err?.code ?? err), /E-GEN-PARSE/);
-  for (const bit of ['baseten', 'muse-spark-open-1026', 'HTTP 200', 'finish_reason=length', 'Retry 1/1', 'Build v48']) {
+  for (const bit of ['baseten', 'muse-spark-open-1026', 'HTTP 200', 'finish_reason=length', 'Retry 1/1', 'Build v50']) {
     assert.match(String(err?.message ?? err), new RegExp(bit.replace(/[./]/g, (c) => `\\${c}`)), bit);
   }
-  assert.equal(err?.diagnose?.build, 'v48');
+  assert.equal(err?.diagnose?.build, 'v50');
   assert.equal(err?.diagnose?.provider, 'baseten');
   assert.equal(err?.diagnose?.model, 'meta-models/muse-spark-open-1026');
   assert.equal(err?.diagnose?.status, 200);
@@ -772,7 +883,7 @@ test('v48 GEN_BUILD + Fehlermeldung traegt Provider/Modell/HTTP/finish/Retry/Bui
   assert.equal(err?.diagnose?.usageCompletion, 200);
   assert.equal(err?.diagnose?.retried, true);
   assert.ok(String(err?.diagnose?.rawSnippet ?? '').includes('Denke nach'), 'Rohantwort-Auszug enthaelt Reasoning');
-  assert.equal(err?.diagnose?.req?.maxCompletionTokens, 131072, 'Echo: max_completion_tokens (Proxy-Upstream)');
+  assert.equal(err?.diagnose?.req?.maxCompletionTokens, null, 'Echo: Baseten ohne max_completion_tokens (Doku-Regel, Proxy-Upstream)');
   assert.equal(err?.diagnose?.req?.maxTokens, 131072, 'Echo: max_tokens (Proxy-Upstream)');
   assert.equal(err?.diagnose?.req?.reasoningEffort, 'xhigh', 'Echo: reasoning xhigh (Proxy-Upstream, baseten)');
   assert.equal(err?.diagnose?.req?.temperature, 0.2, 'Echo: Temperatur 0.2 (Proxy-Upstream)');
@@ -807,38 +918,46 @@ test('v22 redactDiagnoseText: Key-Formen raus, Modell-Slug bleibt', async () => 
   assert.ok(clean.includes('meta-models/muse-spark-open-1026'), 'Modell-Slug bleibt lesbar');
 });
 
-test('v48 buildDiagnoseText: alle Felder + Request-Echo (Limit 131072, Retry-Werte), ~2KB-Cap, de/en/es, nie Key', async () => {
+test('v50 buildDiagnoseText: alle Felder + Request-Echo (Limit 131072, Retry-Werte, Limit-Strip), ~2KB-Cap, de/en/es, nie Key', async () => {
   const { buildDiagnoseText } = await import('../src/runtime/livegen.js');
   const diag = {
     provider: 'baseten', model: 'meta-models/muse-spark-open-1026', via: 'direct',
     status: 200, finish: 'length', usage: 'reasoning 198/200 tokens',
-    usageReasoning: 198, usageCompletion: 200, retried: true, build: 'v48',
+    usageReasoning: 198, usageCompletion: 200, retried: true, build: 'v50',
     rawSnippet: `x\nAuthorization: Bearer HACKME12345678\n${'y'.repeat(5000)}`,
-    req: { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: 'low', temperature: 0.2, fallback400: true },
-    reqRetry: { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: null, temperature: 0.2, fallback400: true },
+    req: { maxCompletionTokens: 131072, maxTokens: 131072, reasoningEffort: 'low', temperature: 0.2, fallback400: true, limitStripped: false },
+    reqRetry: { maxCompletionTokens: null, maxTokens: null, reasoningEffort: null, temperature: 0.2, fallback400: true, limitStripped: true },
   };
   const want = {
     de: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: ja',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (keins)', 'req_retry_400_fallback: ja'],
+      'req_400_limit_strip: nein',
+      'req_retry_max_completion_tokens: (nicht gesendet)', 'req_retry_max_tokens: (nicht gesendet)',
+      'req_retry_reasoning_effort: (keins)', 'req_retry_400_fallback: ja',
+      'req_retry_400_limit_strip: ja'],
     en: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: yes',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (none)', 'req_retry_400_fallback: yes'],
+      'req_400_limit_strip: no',
+      'req_retry_max_completion_tokens: (not sent)', 'req_retry_max_tokens: (not sent)',
+      'req_retry_reasoning_effort: (none)', 'req_retry_400_fallback: yes',
+      'req_retry_400_limit_strip: yes'],
     es: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: sí',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí'],
+      'req_400_limit_strip: no',
+      'req_retry_max_completion_tokens: (no enviado)', 'req_retry_max_tokens: (no enviado)',
+      'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí',
+      'req_retry_400_limit_strip: sí'],
     fr: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: oui',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui'],
+      'req_400_limit_strip: non',
+      'req_retry_max_completion_tokens: (non envoyé)', 'req_retry_max_tokens: (non envoyé)',
+      'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui',
+      'req_retry_400_limit_strip: oui'],
   };
   for (const loc of ['de', 'en', 'es', 'fr']) {
     const t = buildDiagnoseText(diag, loc);
     for (const bit of ['provider: baseten', 'model: meta-models/muse-spark-open-1026', 'via: direct', 'http: 200',
-      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v48',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v50',
       ...want[loc]]) {
       assert.ok(t.includes(bit), `${loc}: ${bit}`);
     }
@@ -856,11 +975,11 @@ test('v48 buildDiagnoseText: alle Felder + Request-Echo (Limit 131072, Retry-Wer
   assert.ok(noRetry.includes('req_400_fallback: ja'), 'Erstversuch-Echo bleibt');
 });
 
-test('v48 errorDiagnose: Fallback ohne diagnose-Feld inkl. Request-Echo (Limit 131072), nie Key', async () => {
+test('v50 errorDiagnose: Fallback ohne diagnose-Feld inkl. Request-Echo (Limit 131072), nie Key', async () => {
   const { errorDiagnose, buildDiagnoseText } = await import('../src/runtime/livegen.js');
   const e = Object.assign(new Error('E-GEN-401: HTTP 401'), { code: 'E-GEN-401' });
   const d = errorDiagnose(e);
-  assert.equal(d.build, 'v48');
+  assert.equal(d.build, 'v50');
   assert.ok(String(d.rawSnippet).includes('E-GEN-401'));
   assert.equal(d.req.maxCompletionTokens, null, 'Echo: Fallback-Echo ohne Body (kein Request)');
   assert.equal(d.req.maxTokens, null, 'Echo: Fallback-Echo ohne Body (kein Request)');

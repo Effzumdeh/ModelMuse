@@ -314,7 +314,7 @@ function checkInvariants(s) {
     ['openai/gpt-6.1-sol', 1], ['meta/muse-spark-1.3', 1], ['anthropic/claude-opus-5.5', 1],
     // Alt-Gates: Zaehler mit fr-+1.
     ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', (s.includes('standalone-build v46') ? 5 : 6)],
-    ['reasoning_effort', 10],
+    ['reasoning_effort', (s.includes('standalone-build v50') ? 12 : 10)],
     ['reasoning_effort="xhigh"', 2],
     ['genReasoning:"xhigh"', 1],
     ['this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 1],

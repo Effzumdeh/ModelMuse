@@ -35,28 +35,33 @@ test('v47-Stempel und Kette intakt', async () => {
 test('D1: Laufzeit-Diagnose-Stempel v47 (5 Stellen), v26 raus (v48-tolerant)', async () => {
   const s = await html();
   const is48 = s.includes('standalone-build v48');
-  const want = is48 ? 'v48' : 'v47';
+  const is50 = s.includes('standalone-build v50');
+  const want = is50 ? 'v50' : (is48 ? 'v48' : 'v47');
   assert.equal(cnt(s, `bits.push("Build ${want}")`), 1, 'emptyDetail-Stempel');
   assert.equal(cnt(s, 'bits.push("Build v26")'), 0, 'Alt-Stempel emptyDetail raus');
   assert.equal(cnt(s, `var bld="${want}";try{bld=this.buildTag();}`), 1, 'diagText-Default');
   assert.equal(cnt(s, 'var bld="v26";try{bld=this.buildTag();}'), 0, 'Alt-Default raus');
   assert.equal(cnt(s, `buildTag:function(){return "${want}";},`), 1, 'buildTag');
   assert.equal(cnt(s, 'buildTag:function(){return "v26";},'), 0, 'Alt-buildTag raus');
-  // staleHint: v47 nutzt mine=47 (Nachfolger v48 nutzt mine=48).
+  // staleHint: v47 nutzt mine=47 (Nachfolger v48/v50 nutzen mine=48/50).
   if (!is48) {
     assert.equal(cnt(s, 'var mine=47;'), 1, 'staleHint-mine');
     assert.equal(cnt(s, 'var mine=26;'), 0, 'Alt-mine raus');
     assert.equal(cnt(s, ',10)||47;'), 1, 'staleHint-Fallback');
     assert.equal(cnt(s, ',10)||26;'), 0, 'Alt-Fallback raus');
+  } else if (is50) {
+    assert.equal(cnt(s, 'var mine=50;'), 1, 'staleHint-mine (v50)');
+    assert.equal(cnt(s, ',10)||50;'), 1, 'staleHint-Fallback (v50)');
   } else {
     assert.equal(cnt(s, 'var mine=48;'), 1, 'staleHint-mine (v48)');
     assert.equal(cnt(s, ',10)||48;'), 1, 'staleHint-Fallback (v48)');
   }
 });
 
-test('D2: Limit-Regel (v47: kein Rest; v48: explizites Maximum 131072)', async () => {
+test('D2: Limit-Regel (v47: kein Rest; v48: explizites Maximum 131072; v50: Doku-Regel + Stufe 2)', async () => {
   const s = await html();
   const is48 = s.includes('standalone-build v48');
+  const is50 = s.includes('standalone-build v50');
   if (!is48) {
     assert.equal(cnt(s, 'temperature:0.2,max_completion_tokens'), 0, 'kein Limit im Erst-Body');
     assert.equal(cnt(s, 'temperature:0.2,max_tokens'), 0, 'kein Mirror im Erst-Body');
@@ -66,6 +71,12 @@ test('D2: Limit-Regel (v47: kein Rest; v48: explizites Maximum 131072)', async (
     assert.equal(cnt(s, 'max_tokens=131072'), 0, 'kein Retry-Mirror');
     assert.equal(cnt(s, 'delete gbody.max_tokens'), 0, 'kein Mirror-Strip noetig (generate)');
     assert.equal(cnt(s, 'delete mbody.max_tokens'), 0, 'kein Mirror-Strip noetig (modify)');
+  } else if (is50) {
+    assert.equal(cnt(s, 'temperature:0.2,max_completion_tokens:131072,max_tokens:131072'), 2, 'Limit in beiden Erst-Bodies (v50)');
+    assert.equal(cnt(s, 'delete gbody.max_completion_tokens'), 2, 'Doku-Regel gen (v50)');
+    assert.equal(cnt(s, 'delete mbody.max_completion_tokens'), 2, 'Doku-Regel mod (v50)');
+    assert.equal(cnt(s, 'delete gbody.max_tokens'), 1, 'Stufe-2-Strip gen (v50)');
+    assert.equal(cnt(s, 'delete mbody.max_tokens'), 1, 'Stufe-2-Strip mod (v50)');
   } else {
     assert.equal(cnt(s, 'temperature:0.2,max_completion_tokens:131072,max_tokens:131072'), 2, 'Limit in beiden Erst-Bodies (v48)');
     assert.equal(cnt(s, 'delete gbody.max_tokens'), 0, 'kein Limit-Strip (v48, generate)');

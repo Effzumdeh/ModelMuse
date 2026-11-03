@@ -187,6 +187,10 @@ function writeReport(s) {
 let s = await readFile(FILE, 'utf8');
 console.log(`build-v48: Basis ${s.length} Zeichen`);
 must(s.includes('standalone-build v47'), 'kein v47-Stempel (falsche Basis)');
+if (s.includes('standalone-build v50')) {
+  console.log('build-v48: neuerer Stand v50 - ok (idempotent, exit 0)');
+  process.exit(0);
+}
 if (s.includes('standalone-build v48')) {
   assertInlineScriptsParse(s);
   checkInvariants(s);

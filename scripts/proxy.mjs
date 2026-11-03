@@ -68,10 +68,12 @@ export const PROVIDERS = {
 export const DEFAULT_PROVIDER = 'meta-muse';
 
 /**
- * Upstream-Request-Form (v48): explizites Maximum — sowohl
- * max_completion_tokens als auch max_tokens mit UPSTREAM_MAX_TOKENS
- * (Eigentuemer-Alternative 03.11.2026: Weglassen defaultet Upstream-seitig
- * auf 32768 — Eisbecher-Fall, belegt; 131072 war belegt wirksam).
+ * Upstream-Request-Form (v48: explizites Maximum — sowohl
+ * max_completion_tokens als auch max_tokens mit UPSTREAM_MAX_TOKENS;
+ * v49 Baseten-Doku-Regel: Baseten NUR max_tokens — die
+ * Baseten-Chat-Completions-Referenz (live geprueft 03.11.2026) listet
+ * ausschliesslich max_tokens, max_completion_tokens antwortet mit
+ * 400 "Extra inputs are not permitted". Meta/alle anderen: beide Felder).
  * Temperatur 0.2 = deterministische Code-Gen.
  */
 export const UPSTREAM_TEMPERATURE = 0.2;
@@ -153,8 +155,11 @@ export async function loadServerKey() {
 }
 
 /** Upstream-Body fuer /chat/completions (OpenAI-Form, SSE, Temperatur).
- * v48: explizites Maximum UPSTREAM_MAX_TOKENS in beiden Limit-Feldern
- * (alle Provider — meta-muse wie baseten, generate wie modify wie Retry).
+ * v48: explizites Maximum UPSTREAM_MAX_TOKENS (alle Provider — meta-muse
+ * wie baseten, generate wie modify wie Retry).
+ * v49 Baseten-Doku-Regel: Baseten NUR max_tokens (Referenz listet
+ * ausschliesslich max_tokens; max_completion_tokens -> 400 "Extra inputs").
+ * Meta/alle anderen: beide Felder.
  * v22/v23-Extras NUR fuer Baseten (provider-Param):
  * reasoning_effort 'low' fordert das kleinste BELEGTE Thinking-Budget
  * (Baseten-Doku: Muse Spark Open "Always on / Control None",
@@ -169,9 +174,13 @@ export function upstreamChatBody(model, prompt, provider = undefined) {
     stream: true,
     messages: [{ role: 'user', content: prompt }],
     temperature: UPSTREAM_TEMPERATURE,
-    max_completion_tokens: UPSTREAM_MAX_TOKENS,
     max_tokens: UPSTREAM_MAX_TOKENS,
   };
+  // v49 Baseten-Doku-Regel: Baseten kennt NUR max_tokens (Referenz listet
+  // ausschliesslich max_tokens; max_completion_tokens -> 400 Extra inputs).
+  if (provider !== 'baseten') {
+    body.max_completion_tokens = UPSTREAM_MAX_TOKENS;
+  }
   if (provider === 'baseten') {
     body.reasoning_effort = 'low';
     body.stream_options = { include_usage: true };
@@ -179,9 +188,10 @@ export function upstreamChatBody(model, prompt, provider = undefined) {
   return body;
 }
 
-/** v22/v23-Extras aus einem Upstream-Body streichen (400-Fallback).
- * Die v48-Limit-Felder (max_completion_tokens/max_tokens = 131072, belegt
- * wirksam) werden NICHT gestrichen — sie ueberleben den Fallback.
+/** v22/v23-Extras aus einem Upstream-Body streichen (400-Fallback Stufe 1).
+ * Die Limit-Felder ueberleben Stufe 1 — sie fallen erst bei
+ * Extra-inputs-400 (Stufe 2, stripUpstreamLimits). Baseten-Bodies tragen
+ * seit v49 ohnehin nur max_tokens (Baseten-Doku-Regel).
  * @param {any} body */
 export function stripUpstreamExtras(body) {
   if (!body || typeof body !== 'object') return false;
@@ -189,6 +199,30 @@ export function stripUpstreamExtras(body) {
   if (body.reasoning_effort === 'low') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
   return stripped;
+}
+
+/**
+ * Limit-Felder aus einem Upstream-Body streichen (400-Fallback Stufe 2):
+ * greift NUR bei Extra-inputs-400 ("Extra inputs are not permitted" —
+ * Provider/Modell lehnt Limit-Params grundsaetzlich ab). Gestrichen werden
+ * BEIDE Felder (max_completion_tokens + max_tokens) — danach gilt der
+ * Upstream-Default. Rueckgabe true, wenn mindestens ein Feld entfernt
+ * wurde (sonst kein Retry-Grund).
+ * @param {any} body */
+export function stripUpstreamLimits(body) {
+  if (!body || typeof body !== 'object') return false;
+  let stripped = false;
+  if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
+  if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
+  return stripped;
+}
+
+/**
+ * Erkennt einen Extra-inputs-400 anhand des Upstream-Antworttextes.
+ * @param {unknown} text
+ */
+export function isExtraInputsUpstream(text) {
+  return /extra inputs/i.test(String(text ?? ''));
 }
 
 function sendJson(res, status, code, message) {
@@ -309,8 +343,8 @@ export function createProxyServer() {
         return;
       }
       if (!upstream.ok && upstream.status === 400 && stripUpstreamExtras(upBody)) {
-        // v22/v23: Gateway lehnt unverifizierte Extras ab -> Body ohne
-        // Extras erneut.
+        // Stufe 1 (v22/v23): Gateway lehnt unverifizierte Extras ab -> Body
+        // ohne Extras erneut.
         try {
           await upstream.body?.cancel();
         } catch {
@@ -328,13 +362,48 @@ export function createProxyServer() {
           return;
         }
       }
+      // Stufe 2 (v49): Extra-inputs-400 -> Upstream lehnt Limit-Params
+      // grundsaetzlich ab ("Extra inputs are not permitted") -> Limits raus,
+      // einmal ohne neu. Fehlertext einmal lesen und fuer den Hinweis unten
+      // wiederverwenden (Body ist danach verbraucht).
+      let upstreamErrHint = '';
+      if (!upstream.ok && upstream.status === 400) {
+        try {
+          upstreamErrHint = await upstream.text();
+        } catch {
+          upstreamErrHint = '';
+        }
+        if (isExtraInputsUpstream(upstreamErrHint) && stripUpstreamLimits(upBody)) {
+          try {
+            await upstream.body?.cancel();
+          } catch {
+            /* ignorieren */
+          }
+          try {
+            upstream = await fetch(reg.base + reg.chatPath, {
+              method: 'POST',
+              headers: upHeaders,
+              body: JSON.stringify(upBody),
+            });
+            upstreamErrHint = '';
+          } catch (e) {
+            console.log(`POST /generate -> 502 E-GEN-5XX (upstream-netz no-limit, key=${keySource})`);
+            sendJson(res, 502, 'E-GEN-5XX', 'E-GEN-5XX: Upstream nicht erreichbar');
+            return;
+          }
+        }
+      }
       if (!upstream.ok || !upstream.body) {
         const code = mapStatusToCode(upstream.status);
-        let hint = '';
-        try {
-          hint = (await upstream.text()).slice(0, 160);
-        } catch {
-          hint = '';
+        let hint = upstreamErrHint;
+        if (!hint) {
+          try {
+            hint = (await upstream.text()).slice(0, 160);
+          } catch {
+            hint = '';
+          }
+        } else {
+          hint = hint.slice(0, 160);
         }
         console.log(`POST /generate -> ${upstream.status} ${code} (upstream, modell=${parsed.model}, key=${keySource})`);
         try {

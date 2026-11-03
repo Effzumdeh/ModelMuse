@@ -67,21 +67,25 @@ export function liveKeySessionKey(providerId) {
 /**
  * Diagnose-Build-Stempel (wird in Fehlermeldungen + kopierter Diagnose
  * mitgefuehrt, damit Support Faelle Build-Versionen zuordnen kann).
- * v48: explizites Maximum (Eigentuemer-Alternative 03.11.2026) + Stempel
- * v47 (war seit v26 stale: v23 hier, v26 im Standalone-Artefakt, obwohl
+ * v50: Baseten-Doku-Regel (nur max_tokens, kein max_completion_tokens —
+ * Baseten-Chat-Completions-Referenz listet ausschliesslich max_tokens;
+ * Live-400 03.11.2026: "Extra inputs are not permitted") + zweistufiger
+ * 400-Fallback (erst Extras, dann Limits bei Extra-inputs-400) + Stempel
+ * v48 (war seit v26 stale: v23 hier, v26 im Standalone-Artefakt, obwohl
  * Builder-Stand v46 war); v23-Regel (kein Limit) ist aufgehoben.
  */
-export const GEN_BUILD = 'v48';
+export const GEN_BUILD = 'v50';
 
 /**
- * Explizites Maximum (Eigentuemer-Alternative 03.11.2026, v48): Sowohl
- * max_completion_tokens als auch max_tokens werden mit GEN_MAX_TOKENS
- * gesendet — in jedem Pfad (direkt/proxy, generate/modify, Retry, alle
- * Provider). Hintergrund: Weglassen != unbegrenzt — Upstream defaultet
- * sonst auf 32768 (Eisbecher-Fall, belegt); 131072 war belegt wirksam.
- * Der EINZIGE Retry bleibt: genau 1x bei leer + length + nur Reasoning,
- * mit unveraendertem Body (inkl. Limit). Temperatur 0.2 = deterministische
- * Code-Gen.
+ * Explizites Maximum (Eigentuemer-Alternative 03.11.2026, v48; v50
+ * Baseten-Doku-Regel): max_tokens wird IMMER mit GEN_MAX_TOKENS gesendet
+ * (Weglassen defaultet Upstream-seitig auf 32768 — Eisbecher-Fall, belegt;
+ * 131072 war belegt wirksam; Baseten erlaubt 1..262144) — in jedem Pfad
+ * (direkt/proxy, generate/modify, Retry, alle Provider). max_completion_tokens
+ * zusaetzlich AUSSER bei Baseten: die Baseten-Chat-Completions-Referenz
+ * (live geprueft 03.11.2026) listet ausschliesslich max_tokens — das zweite
+ * Limit-Feld lehnt Baseten als "Extra inputs" mit HTTP 400 ab (Live-Fehler).
+ * Temperatur 0.2 = deterministische Code-Gen.
  */
 export const GEN_TEMPERATURE = 0.2;
 
@@ -193,8 +197,9 @@ export function reasoningLevel(provider, model, want) {
 
 /**
  * Chat-Body (Direkt- und Proxy-Pfad teilen sich Form/Felder; v48:
- * explizites Maximum GEN_MAX_TOKENS in beiden Limit-Feldern — alle
- * Provider, generate/modify/Retry).
+ * explizites Maximum GEN_MAX_TOKENS; v50 Baseten-Doku-Regel: NUR max_tokens —
+ * Baseten-Chat-Completions-Referenz listet ausschliesslich max_tokens,
+ * max_completion_tokens wuerde als "Extra inputs" mit 400 abgelehnt).
  * Baseten-Extras (v22/v23, NUR provider baseten — Meta-Pfad unveraendert):
  * 'xhigh' fordert das hoechste BELEGTE Thinking-Budget
  * (Baseten-Doku: Spark Open supported low/medium/high/xhigh(default), max
@@ -210,7 +215,8 @@ export function reasoningLevel(provider, model, want) {
  * (supports_max_tokens bei keinem der 3 Slugs gesetzt, Budgets werden
  * laut Claude-5.5-Migrationsguide nicht weitergeleitet).
  * Unverifizierte Params -> 400-Risiko,
- * deshalb genau EIN Fallback ohne Extras bei HTTP 400.
+ * deshalb genau EIN Extras-Fallback bei HTTP 400 (Stufe 1: Extras raus)
+ * plus EIN Limit-Fallback bei Extra-inputs-400 (Stufe 2: Limits raus).
  * @param {string} model
  * @param {string} promptText
  * @param {{ provider?: string, reasoning?: string }} [opts]
@@ -221,9 +227,13 @@ export function buildChatBody(model, promptText, opts = {}) {
     stream: true,
     messages: [{ role: 'user', content: promptText }],
     temperature: GEN_TEMPERATURE,
-    max_completion_tokens: GEN_MAX_TOKENS,
     max_tokens: GEN_MAX_TOKENS,
   };
+  // v50: max_completion_tokens nur ausserhalb Baseten (Baseten-Doku kennt
+  // ausschliesslich max_tokens; dort waere es ein "Extra inputs"-400).
+  if ((opts.provider ?? '') !== 'baseten') {
+    body.max_completion_tokens = GEN_MAX_TOKENS;
+  }
   const level = reasoningLevel(opts.provider ?? '', model, opts.reasoning);
   if (level) body.reasoning_effort = level;
   if ((opts.provider ?? '') === 'baseten') {
@@ -232,13 +242,16 @@ export function buildChatBody(model, promptText, opts = {}) {
   return body;
 }
 
-/** v48-Request-Echo aus einem Chat-Body: was wurde TATSAECHLICH gesendet
- * (Limit-Felder sind seit v48 explizit 131072 — Echo belegt die Werte) +
- * ob der 400-Fallback griff. Key-frei (nur Param-Namen/Werte, nie Credentials).
+/** v50-Request-Echo aus einem Chat-Body: was wurde TATSAECHLICH gesendet
+ * (Limit-Felder: max_tokens immer 131072; max_completion_tokens nur
+ * ausserhalb Baseten — Baseten-Doku-Regel; nach Limit-Fallback sind beide
+ * null) + ob der 400-Fallback griff (Stufe 1 Extras, Stufe 2 Limits).
+ * Key-frei (nur Param-Namen/Werte, nie Credentials).
  * @param {any} body
- * @param {boolean} slimmed400
+ * @param {boolean} slimmed400 Stufe 1 (Extras gestrippt)
+ * @param {boolean} [limitStripped] Stufe 2 (Limits gestrippt)
  */
-export function requestEcho(body, slimmed400) {
+export function requestEcho(body, slimmed400, limitStripped = false) {
   const b = body && typeof body === 'object' ? body : {};
   return {
     maxCompletionTokens: ('max_completion_tokens' in b) ? b.max_completion_tokens : null,
@@ -246,15 +259,17 @@ export function requestEcho(body, slimmed400) {
     reasoningEffort: (typeof b.reasoning_effort === 'string') ? b.reasoning_effort : null,
     temperature: (typeof b.temperature === 'number') ? b.temperature : null,
     fallback400: !!slimmed400,
+    limitStripped: !!limitStripped,
   };
 }
 
 /** v22/v23/v26/v40-Extras aus einem Chat-Body streichen (exakt v20-Form).
  * Gestrichen: low/medium/high/minimal/xhigh (belegte Stufen, aber
- * Gateway-abhaengig — 400-Fallback) + stream_options (Baseten-Extras);
- * max bleibt (Meta-Gate + OpenRouter-belegt, nie 400-Grund) UND die
- * v48-Limit-Felder (max_completion_tokens/max_tokens = 131072, belegt
- * wirksam — duerfen den Fallback ueberleben).
+ * Gateway-abhaengig — 400-Fallback Stufe 1) + stream_options (Baseten-Extras);
+ * max bleibt (Meta-Gate + OpenRouter-belegt, nie 400-Grund). Die Limit-Felder
+ * ueberleben Stufe 1 — sie fallen erst bei Extra-inputs-400 (Stufe 2,
+ * stripChatLimits). Baseten-Erst-Bodies tragen seit v50 ohnehin nur
+ * max_tokens (Baseten-Doku-Regel).
  * @param {any} body */
 export function stripChatExtras(body) {
   if (!body || typeof body !== 'object') return false;
@@ -264,6 +279,48 @@ export function stripChatExtras(body) {
     || body.reasoning_effort === 'xhigh') { delete body.reasoning_effort; stripped = true; }
   if ('stream_options' in body) { delete body.stream_options; stripped = true; }
   return stripped;
+}
+
+/**
+ * Limit-Felder aus einem Chat-Body streichen (400-Fallback Stufe 2):
+ * greift NUR bei Extra-inputs-400 ("Extra inputs are not permitted" —
+ * ein Provider/Modell lehnt Limit-Params grundsaetzlich ab, Live-Fall
+ * Baseten 03.11.2026: max_completion_tokens). Gestrichen werden BEIDE
+ * Felder (max_completion_tokens + max_tokens) — das Modell bekommt dann
+ * den Upstream-Default. Rueckgabe true, wenn mindestens ein Feld
+ * entfernt wurde (sonst kein Retry-Grund).
+ * @param {any} body */
+export function stripChatLimits(body) {
+  if (!body || typeof body !== 'object') return false;
+  let stripped = false;
+  if ('max_completion_tokens' in body) { delete body.max_completion_tokens; stripped = true; }
+  if ('max_tokens' in body) { delete body.max_tokens; stripped = true; }
+  return stripped;
+}
+
+/**
+ * Erkennt einen Extra-inputs-400 anhand des Antworttextes
+ * ("Invalid request: ...: Extra inputs are not permitted").
+ * @param {unknown} text
+ */
+export function isExtraInputs400(text) {
+  return /extra inputs/i.test(String(text ?? ''));
+}
+
+/**
+ * Fehlertext einer Fetch-Response lesen (fuer die 400-Fallback-Stufenwahl
+ * + Diagnose-Snippet). Nie werfend: kein .text (Mocks) oder verbrauchter
+ * Body ergeben ''.
+ * @param {any} res
+ * @param {number} [limit]
+ */
+export async function readErrorText(res, limit = 2048) {
+  try {
+    if (res && typeof res.text === 'function') {
+      return String(await res.text()).slice(0, limit);
+    }
+  } catch { /* kein Text lesbar — keine Stufe-2-Entscheidung */ }
+  return '';
 }
 
 /**
@@ -516,6 +573,8 @@ export function redactDiagnoseText(s) {
  * Rohantwort auf ~2KB gekuerzt, IMMER redigiert — nie ein Key im Clipboard).
  * v48: Request-Echo (tatsaechlich gesendete Limit-/Thinking-Params je Versuch
  * inkl. Retry-Limit-Werte + 400-Fallback) — belegt das explizite Maximum.
+ * v50: zusaetzlich req_400_limit_strip (Stufe 2: Limits fielen bei
+ * Extra-inputs-400 — dann zeigen die Limit-Zeilen "(nicht gesendet)").
  * @param {{ provider?: unknown, model?: unknown, via?: unknown, status?: unknown, finish?: unknown, usage?: unknown, usageReasoning?: unknown, usageCompletion?: unknown, retried?: unknown, build?: unknown, rawSnippet?: unknown, req?: unknown, reqRetry?: unknown }} [diag]
  * @param {string} [locale]
  */
@@ -544,6 +603,7 @@ export function buildDiagnoseText(diag = {}, locale = 'de') {
       eff: (typeof o.reasoningEffort === 'string' && o.reasoningEffort) ? o.reasoningEffort : dict.none,
       temp: (typeof o.temperature === 'number' && Number.isFinite(o.temperature)) ? String(o.temperature) : dict.noTemp,
       fb: o.fallback400 ? dict.yes : dict.no,
+      ls: o.limitStripped ? dict.yes : dict.no,
     };
   };
   const req = lim(diag.req);
@@ -563,6 +623,7 @@ export function buildDiagnoseText(diag = {}, locale = 'de') {
     `req_reasoning_effort: ${req.eff}`,
     `req_temperature: ${req.temp}`,
     `req_400_fallback: ${req.fb}`,
+    `req_400_limit_strip: ${req.ls}`,
     `build: ${diag.build ?? GEN_BUILD}`,
     `raw_snippet_2k: ${String(diag.rawSnippet ?? '').slice(0, 2048)}`,
   ];
@@ -572,7 +633,8 @@ export function buildDiagnoseText(diag = {}, locale = 'de') {
       `req_retry_max_completion_tokens: ${rr.maxC}`,
       `req_retry_max_tokens: ${rr.maxT}`,
       `req_retry_reasoning_effort: ${rr.eff}`,
-      `req_retry_400_fallback: ${rr.fb}`);
+      `req_retry_400_fallback: ${rr.fb}`,
+      `req_retry_400_limit_strip: ${rr.ls}`);
   }
   return redactDiagnoseText(lines.join('\n'));
 }
@@ -724,7 +786,7 @@ export function extractModuleSource(rawText) {
  * @param {string} full
  * @param {string | null} finishReason
  * @param {'direct' | 'proxy'} via
- * @param {{ provider?: string, model?: string, status?: number, retried?: boolean, rawSnippet?: string, req?: { maxCompletionTokens: number | null, maxTokens: number | null, reasoningEffort: string | null, temperature: number | null, fallback400: boolean } | null, reqRetry?: { maxCompletionTokens: number | null, maxTokens: number | null, reasoningEffort: string | null, temperature: number | null, fallback400: boolean } | null, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string, usageReasoning?: number | null, usageCompletion?: number | null, reasonSample?: string } }} [ctx]
+ * @param {{ provider?: string, model?: string, status?: number, retried?: boolean, rawSnippet?: string, req?: { maxCompletionTokens: number | null, maxTokens: number | null, reasoningEffort: string | null, temperature: number | null, fallback400: boolean, limitStripped?: boolean } | null, reqRetry?: { maxCompletionTokens: number | null, maxTokens: number | null, reasoningEffort: string | null, temperature: number | null, fallback400: boolean, limitStripped?: boolean } | null, info?: { chunks: number, empty: number, reason: number, finish: string, err: string, usage: string, usageReasoning?: number | null, usageCompletion?: number | null, reasonSample?: string } }} [ctx]
  */
 function finishModule(full, finishReason, via, ctx = {}) {
   const who = `${ctx.provider ?? '?'}/${ctx.model ?? '?'}`;
@@ -772,9 +834,17 @@ function finishModule(full, finishReason, via, ctx = {}) {
  * Direkt-Call: Browser -> Upstream (OpenAI-kompatibel, SSE), Key per BYOK.
  * OpenRouter (NUR provider openrouter): zusaetzlich HTTP-Referer + X-Title
  * (App-Kennung, kein Key-Material).
- * v48: explizites Maximum GEN_MAX_TOKENS in beiden Limit-Feldern; bei
- * Budget-Erschoepfung (leer + finish length + nur Reasoning) max EIN Retry
- * mit UNVERAENDERTEM Body. Request-Echo je Versuch landet in err.diagnose.
+ * v48: explizites Maximum GEN_MAX_TOKENS (v50: Baseten NUR max_tokens,
+ * Baseten-Doku-Regel); bei Budget-Erschoepfung (leer + finish length +
+ * nur Reasoning) max EIN Retry mit UNVERAENDERTEM Body. Request-Echo je
+ * Versuch landet in err.diagnose.
+ * v50: zweistufiger 400-Fallback (beide Stufen je einmal, alle Provider,
+ * generate + modify teilen sich diesen Pfad, Budget-Retry nutzt ihn erneut):
+ * Stufe 1 (jedes 400): Extras raus (stripChatExtras). Stufe 2 (nur
+ * Extra-inputs-400): Limit-Felder raus (stripChatLimits) — ein
+ * Provider/Modell lehnt Limit-Params grundsaetzlich ab (Live-Fall Baseten
+ * 03.11.2026: "Invalid request: max_completion_tokens (131072):
+ * Extra inputs are not permitted").
  * Definitive HTTP-Fehler werfen E-GEN-*, Transport-Fehler (Netz/CORS/Timeout)
  * werfen E-GEN-DIREKT (Fallback-Signal).
  */
@@ -782,6 +852,7 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
   const ctrl = new AbortController();
   try {
     let slimmed = false;
+    let slimmedLimits = false;
     const attempts = [];
     const extraHeaders = provider === 'openrouter'
       ? { 'HTTP-Referer': OPENROUTER_REFERER, 'X-Title': OPENROUTER_TITLE }
@@ -791,6 +862,7 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
       try {
         const chatBody = buildChatBody(model, promptText, { provider, reasoning: opts.reasoning });
         if (slimmed) stripChatExtras(chatBody);
+        if (slimmedLimits) stripChatLimits(chatBody);
         const baseHeaders = { 'content-type': 'application/json', accept: 'text/event-stream', ...extraHeaders };
         // Ollama laeuft lokal ohne Key (BYOK entfaellt, localhost:11434).
         if (provider !== 'ollama' && key) baseHeaders.authorization = 'Bearer ' + key;
@@ -801,28 +873,40 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
           signal: ctrl.signal,
         });
         let res = await send(chatBody);
+        let errText = '';
         if (!res.ok && res.status === 400 && !slimmed && stripChatExtras(chatBody)) {
-          // v22/v23: Gateway lehnt unverifizierte Extras ab -> Body ohne
-          // Extras erneut (nie schlechter als ohne Extras: ohne gab es
-          // dasselbe 400).
+          // Stufe 1 (v22/v23): Gateway lehnt unverifizierte Extras ab ->
+          // Body ohne Extras erneut (nie schlechter als ohne Extras: ohne
+          // gab es dasselbe 400).
           slimmed = true;
           res = await send(chatBody);
         }
+        if (!res.ok && res.status === 400 && !slimmedLimits) {
+          // Stufe 2 (v50): Extra-inputs-400 -> Provider/Modell lehnt
+          // Limit-Params grundsaetzlich ab -> Limits raus, einmal ohne neu.
+          errText = await readErrorText(res);
+          if (isExtraInputs400(errText) && stripChatLimits(chatBody)) {
+            slimmedLimits = true;
+            res = await send(chatBody);
+            errText = '';
+          }
+        }
         if (!res.ok) {
           const code = classify(res.status);
-          const req = requestEcho(chatBody, slimmed);
+          if (!errText) errText = await readErrorText(res);
+          const req = requestEcho(chatBody, slimmed, slimmedLimits);
           attempts.push(req);
           const err = Object.assign(new Error(`${code}: HTTP ${res.status}`), { code });
           err.diagnose = {
             provider, model, via: 'direct', status: res.status,
             finish: '', usage: '', usageReasoning: null, usageCompletion: null,
-            retried: false, build: GEN_BUILD, rawSnippet: '',
+            retried: false, build: GEN_BUILD, rawSnippet: errText.slice(0, 2048),
             req, reqRetry: null,
           };
           throw err;
         }
         const { full, finishReason, info, rawSnippet } = await readSseModule(res, opts.onToken);
-        attempts.push(requestEcho(chatBody, slimmed));
+        attempts.push(requestEcho(chatBody, slimmed, slimmedLimits));
         return { full, finishReason, info, rawSnippet, status: res.status };
       } finally {
         clearTimeout(timer);
@@ -858,7 +942,9 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
  * bei Transport-Fehler (OpenRouter: NUR Direkt-Call — Proxy lehnt openrouter
  * mit E-GEN-404 + Hinweis ab; ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
  * v48: explizites Maximum GEN_MAX_TOKENS im Proxy-Upstream-Body (Modell nutzt
- * NICHT mehr den Upstream-Default 32768);
+ * NICHT mehr den Upstream-Default 32768); v50 Baseten-Doku-Regel (Upstream
+ * nur max_tokens, kein max_completion_tokens) + zweistufiger 400-Fallback
+ * (Stufe 1 Extras, Stufe 2 Limits bei Extra-inputs-400).
  * max EIN Retry mit UNVERAENDERTEM Body bei Budget-Erschoepfung
  * (leer + finish length + nur Reasoning). Request-Echo (Proxy-Upstream-Form,
  * deterministisch aus Provider/Modell, gleiche Build-Version) in Diagnose.
@@ -891,14 +977,17 @@ export async function generateLive(promptText, opts = {}) {
   let lastCode = 'E-GEN-5XX';
   let lastError = null;
   let sawHttp = false;
-  // v48-Request-Echo Proxy-Pfad: Upstream-Form ist deterministisch
-  // (gleiche Build-Version): explizites Maximum GEN_MAX_TOKENS in beiden
-  // Limit-Feldern, Temperatur 0.2,
+  // v48-Request-Echo Proxy-Pfad (v50 Baseten-Doku-Regel): Upstream-Form ist
+  // deterministisch (gleiche Build-Version): explizites Maximum GEN_MAX_TOKENS
+  // (max_tokens immer; max_completion_tokens nur ausserhalb Baseten),
+  // Temperatur 0.2,
   // reasoning_effort 'xhigh' nur bei baseten, 400-Fallback proxy-intern.
   const proxyReqEcho = () => requestEcho({
     temperature: GEN_TEMPERATURE,
-    max_completion_tokens: GEN_MAX_TOKENS,
     max_tokens: GEN_MAX_TOKENS,
+    ...(provider === 'baseten'
+      ? {}
+      : { max_completion_tokens: GEN_MAX_TOKENS }),
     ...(provider === 'baseten'
       ? { reasoning_effort: 'xhigh', stream_options: { include_usage: true } }
       : {}),

@@ -215,13 +215,13 @@ test('emptyDetail meldet Provider/Modell/HTTP/finish/Usage/Retry/Build statt nur
   assert.match(msg, /finish=length/);
   assert.match(msg, /reasoning 198\/200/, 'Usage immer sichtbar (Budget- vs Thinking-Hypothese)');
   assert.match(msg, /Retry 1\/1/, 'Retry-Zaehler sichtbar');
-  assert.match(msg, /Build v48/, 'Build-Stempel sichtbar');
+  assert.match(msg, /Build v50/, 'Build-Stempel sichtbar');
   assert.ok(msg.length <= 200, 'passt in genNotice (slice 200)');
   app._lastRetry = 0;
   assert.match(app.emptyDetail(), /Retry 0\/1/, 'kein Retry ohne Budget-Retry');
 });
 
-test('v48 explizites Limit 131072 in generate+modify (Erstversuch traegt, Retry + Fallback teilen Body)', async () => {
+test('v50 Baseten-Doku-Regel + Stufe-2-Fallback in generate+modify (Erstversuch traegt, Stufe 1/2 + Retry teilen Body)', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
   assert.equal(count('temperature:0.2,max_completion_tokens:131072,max_tokens:131072'), 2, 'Limit in beiden Erst-Bodies (gen+mod)');
@@ -229,10 +229,12 @@ test('v48 explizites Limit 131072 in generate+modify (Erstversuch traegt, Retry 
   assert.equal(count('max_completion_tokens=131072'), 0, 'kein Retry-Literal (Body wird geteilt)');
   assert.equal(count('max_tokens=65536'), 0, 'kein max_tokens-Mirror (alt)');
   assert.equal(count('max_tokens:131072'), 2, 'Mirror in beiden Erst-Bodies (gen+mod)');
-  assert.equal(count('delete gbody.max_tokens'), 0, 'kein Limit-Strip noetig (gen)');
-  assert.equal(count('delete mbody.max_tokens'), 0, 'kein Limit-Strip noetig (mod)');
-  assert.equal(count('delete gbody.stream_options'), 1, '400-Fallback strippt weiter Extras (gen)');
-  assert.equal(count('delete mbody.stream_options'), 1, '400-Fallback strippt weiter Extras (mod)');
+  assert.equal(count('delete gbody.max_completion_tokens'), 2, 'Baseten-Doku-Regel gen (nur max_tokens)');
+  assert.equal(count('delete mbody.max_completion_tokens'), 2, 'Baseten-Doku-Regel mod (nur max_tokens)');
+  assert.equal(count('delete gbody.max_tokens'), 1, 'Stufe-2-Limit-Strip gen (Extra-inputs-400)');
+  assert.equal(count('delete mbody.max_tokens'), 1, 'Stufe-2-Limit-Strip mod (Extra-inputs-400)');
+  assert.equal(count('delete gbody.stream_options'), 1, 'Stufe 1 strippt weiter Extras (gen)');
+  assert.equal(count('delete mbody.stream_options'), 1, 'Stufe 1 strippt weiter Extras (mod)');
   assert.equal(count('max_completion_tokens:8000'), 0, 'altes 8000-Budget ersetzt');
   assert.equal(count('max_completion_tokens:16384'), 0, 'v19-Zwischenwert ersetzt');
   assert.equal(count('max_completion_tokens=32768'), 0, 'v19-Zwischenwert ersetzt');
@@ -241,25 +243,28 @@ test('v48 explizites Limit 131072 in generate+modify (Erstversuch traegt, Retry 
 
 /* v21: Thinking-Reduktion + 400-Fallback + gehärteter Reader + Diagnose. */
 
-test('v48-Request: Baseten-Extras nur bei baseten-direct + 400-Fallback ohne Extras, Limit 131072 je Body', async () => {
+test('v50-Request: Baseten-Doku-Regel + Stufe 1/2-Fallback, Limit je Body, ls-Flag im Echo', async () => {
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
-  assert.equal(count('gbody.max_tokens'), 3, 'max_tokens gen (3 Echo-Snapshots lesen aus Body)');
-  assert.equal(count('mbody.max_tokens'), 3, 'max_tokens mod (3 Echo-Snapshots lesen aus Body)');
-  assert.equal(count('mc:gbody.max_completion_tokens'), 3, 'Echo-Snapshots gen lesen Limit aus Body');
-  assert.equal(count('mc:mbody.max_completion_tokens'), 3, 'Echo-Snapshots mod lesen Limit aus Body');
+  assert.equal(count('gbody.max_tokens'), 5, 'max_tokens gen (4 Echo-Snapshots + Stufe-2-Strip)');
+  assert.equal(count('mbody.max_tokens'), 5, 'max_tokens mod (4 Echo-Snapshots + Stufe-2-Strip)');
+  assert.equal(count('mc:gbody.max_completion_tokens'), 4, 'Echo-Snapshots gen lesen Limit aus Body');
+  assert.equal(count('mc:mbody.max_completion_tokens'), 4, 'Echo-Snapshots mod lesen Limit aus Body');
   assert.equal(count('gbody.reasoning_effort="xhigh"'), 1, 'Hoechstes belegtes Thinking-Budget gen (v26: xhigh, max rejected)');
   assert.equal(count('gbody.reasoning_effort="low"'), 0, 'kein low mehr (v26: xhigh)');
   assert.equal(count('mbody.reasoning_effort="xhigh"'), 1, 'Hoechstes belegtes Thinking-Budget mod');
   assert.equal(count('mbody.reasoning_effort="low"'), 0, 'kein low mehr (v26: xhigh)');
   assert.equal(count('reasoning_effort="none"'), 0, 'kein unbelegtes none (Doku: rejected/gemapped)');
-  assert.equal(count('reasoning_effort'), 10, '2 Gates + 2 xhigh + 4 Echo-Snapshots + 2 Echo-Labels');
+  assert.equal(count('reasoning_effort'), 12, '2 Gates + 2 xhigh + 6 Echo-Snapshots + 2 Echo-Labels');
   assert.equal(count('include_usage'), 2, 'Usage im Stream gen+mod');
-  assert.equal(count('slimG'), 4, '400-Fallback gen (Flag+Check+Set+Echo)');
-  assert.equal(count('slimM'), 4, '400-Fallback mod (Flag+Check+Set+Echo)');
-  assert.ok(count('delete gbody.stream_options') === 1 && count('delete mbody.stream_options') === 1, 'Fallback strippt Extras, Limit ueberlebt');
+  assert.equal(count('slimG'), 4, 'Stufe-1-Fallback gen (Flag+Check+Set+Echo)');
+  assert.equal(count('slimM'), 4, 'Stufe-1-Fallback mod (Flag+Check+Set+Echo)');
+  assert.equal(count('slimLimG'), 4, 'Stufe-2-Fallback gen (Flag+Check+Set+Echo)');
+  assert.equal(count('slimLimM'), 4, 'Stufe-2-Fallback mod (Flag+Check+Set+Echo)');
+  assert.ok(count('delete gbody.stream_options') === 1 && count('delete mbody.stream_options') === 1, 'Stufe 1 strippt Extras');
+  assert.ok(count('delete gbody.max_tokens') === 1 && count('delete mbody.max_tokens') === 1, 'Stufe 2 strippt Limits bei Extra-inputs');
   assert.equal(count('Kein Nachdenken, keine Einleitung'), 3, 'Prompt-Direktantwort generate+modify+2D');
-  assert.equal(count('this._lastReq={'), 4, 'Request-Snapshots gen+mod (Erstversuch+Fallback)');
+  assert.equal(count('this._lastReq={'), 6, 'Request-Snapshots gen+mod (Erstversuch+Fallback+Stufe 2)');
   assert.equal(count('_lastReqR'), 3, 'Request-Snapshots Retry gen+mod (+Diag-Lesen)');
 });
 
@@ -294,6 +299,8 @@ test('v25-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
   assert.equal(count('standalone-build v26'), 1, 'v26-Stempel (Historie) im HTML');
   assert.equal(count('standalone-build v47'), 1, 'v47-Stempel (Historie) im HTML');
   assert.equal(count('standalone-build v48'), 1, 'v48-Stempel im HTML');
+  assert.equal(count('standalone-build v49'), 1, 'v49-Stempel im HTML');
+  assert.equal(count('standalone-build v50'), 1, 'v50-Stempel im HTML');
   assert.equal(count('buildTag:function'), 1, 'buildTag-Methode');
   assert.equal(count('staleHint:function'), 1, 'staleHint-Methode');
   assert.ok(count('Strg+F5') === 1, 'Hart-Neuladen-Hinweis');
@@ -302,7 +309,7 @@ test('v25-Diagnose: buildTag/staleHint vorhanden und verdrahtet', async () => {
     const code = extractMethod(src, name);
     app[name] = eval(`(${code.replace(`${name}:function`, 'function')})`);
   }
-  assert.equal(app.buildTag(), 'v48');
+  assert.equal(app.buildTag(), 'v50');
   for (const name of ['collectChatText', 'readSseText', 'readChatText', 'emptyDetail', 'buildTag', 'staleHint']) {
     assert.notEqual(src.indexOf(`${name}:function`), -1, `${name} vorhanden`);
   }
@@ -329,7 +336,7 @@ test('v22-Reader: Usage-Zahlen + reasonSample (2KB-Cap) im Info-Seitenkanal', as
   assert.ok(String(app._lastChatInfo.reasonSample).includes('Denke nach'), 'Reasoning-Auszug fuer Diagnose');
 });
 
-test('v48-Diagnose: diagText redigiert, alle Felder + Request-Echo (Limit 131072, Retry-Werte), ~2KB-Cap', async () => {
+test('v50-Diagnose: diagText redigiert, alle Felder + Request-Echo (Doku-Regel, Limit-Strip), ~2KB-Cap', async () => {
   const src = await html();
   const app = appFrom(await html());
   const code = extractMethod(src, 'diagText');
@@ -343,31 +350,39 @@ test('v48-Diagnose: diagText redigiert, alle Felder + Request-Echo (Limit 131072
     usage: 'reasoning 198/200 tokens', usageReasoning: 198, usageCompletion: 200,
     reasonSample: 'Denke nach... Authorization: Bearer HACKME12345678 ' + 'y'.repeat(5000),
   };
-  app._lastReq = { re: 'low', te: 0.2, mc: 131072, mt: 131072, fb: true };
-  app._lastReqR = { re: null, te: 0.2, mc: 131072, mt: 131072, fb: true };
+  app._lastReq = { re: 'low', te: 0.2, mc: 131072, mt: 131072, fb: true, ls: false };
+  app._lastReqR = { re: null, te: 0.2, mc: null, mt: null, fb: true, ls: true };
   const want = {
     de: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: ja',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (keins)', 'req_retry_400_fallback: ja'],
+      'req_400_limit_strip: nein',
+      'req_retry_max_completion_tokens: (nicht gesendet)', 'req_retry_max_tokens: (nicht gesendet)',
+      'req_retry_reasoning_effort: (keins)', 'req_retry_400_fallback: ja',
+      'req_retry_400_limit_strip: ja'],
     en: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: yes',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (none)', 'req_retry_400_fallback: yes'],
+      'req_400_limit_strip: no',
+      'req_retry_max_completion_tokens: (not sent)', 'req_retry_max_tokens: (not sent)',
+      'req_retry_reasoning_effort: (none)', 'req_retry_400_fallback: yes',
+      'req_retry_400_limit_strip: yes'],
     es: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: sí',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí'],
+      'req_400_limit_strip: no',
+      'req_retry_max_completion_tokens: (no enviado)', 'req_retry_max_tokens: (no enviado)',
+      'req_retry_reasoning_effort: (ninguno)', 'req_retry_400_fallback: sí',
+      'req_retry_400_limit_strip: sí'],
     fr: ['req_max_completion_tokens: 131072', 'req_max_tokens: 131072',
       'req_reasoning_effort: low', 'req_temperature: 0.2', 'req_400_fallback: oui',
-      'req_retry_max_completion_tokens: 131072', 'req_retry_max_tokens: 131072',
-      'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui'],
+      'req_400_limit_strip: non',
+      'req_retry_max_completion_tokens: (non envoyé)', 'req_retry_max_tokens: (non envoyé)',
+      'req_retry_reasoning_effort: (aucun)', 'req_retry_400_fallback: oui',
+      'req_retry_400_limit_strip: oui'],
   };
   for (const lang of ['de', 'en', 'es', 'fr']) {
     app.lang = lang;
     const t = app.diagText();
     for (const bit of ['provider: baseten-direct', 'model: meta-models/muse-spark-open-1026', 'http: 200',
-      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v48',
+      'finish: length', 'usage_reasoning_tokens: 198', 'usage_completion_tokens: 200', 'retry: 1/1', 'build: v50',
       ...want[lang]]) {
       assert.ok(t.includes(bit), `${lang}: ${bit}`);
     }

@@ -39,9 +39,11 @@ test('D: Overtime-Texte de/en/es + Overtime-Mechanik', async () => {
   assert.equal(cnt(s, 'genOver>0'), 1, 'Gen-Template schaltet auf Overtime');
   assert.equal(cnt(s, 'modOver>0'), 1, 'Mod-Template schaltet auf Overtime');
   assert.ok(s.includes('genOver:0') && s.includes('modOver:0'), 'Overtime-State ab 0');
-  // Timer laeuft nach Ablauf weiter (kein clearInterval beim Erreichen von 0).
-  assert.ok(s.includes('self.genOver=(self.genOver||0)+1'), 'Gen-Overtime zaehlt hoch');
-  assert.ok(s.includes('self.modOver=(self.modOver||0)+1'), 'Mod-Overtime zaehlt hoch');
+  // Overtime aus derselben Deadline (v49: kein eigener Zaehlerstand).
+  assert.ok(s.includes('self.genOver=gr.rem<0?(gr.el-gr.eta):0'), 'Gen-Overtime aus Deadline');
+  assert.ok(s.includes('self.modOver=mr.rem<0?(mr.el-mr.eta):0'), 'Mod-Overtime aus Deadline');
+  assert.equal(cnt(s, 'self.genOver=(self.genOver||0)+1'), 0, 'kein eigener gen-Zaehler');
+  assert.equal(cnt(s, 'self.modOver=(self.modOver||0)+1'), 0, 'kein eigener mod-Zaehler');
   // Geduld-Hinweis bleibt (v31-Vertrag).
   assert.equal(cnt(s, 'Hab noch einen Moment Geduld.'), 2, 'de-Geduld bleibt (gen + mod)');
 });

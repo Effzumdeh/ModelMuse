@@ -46,7 +46,7 @@ test('O: OpenRouter-Provider (direkt, 3 verifizierte Slugs)', async () => {
 test('O: Referer/Title nur OpenRouter, Bearer immer', async () => {
   const s = await html();
   assert.equal(cnt(s, 'directHeaders:function'), 1, 'Header-Methode genau 1x');
-  assert.equal(cnt(s, 'headers:this.directHeaders()'), 6, 'alle 6 Direkt-Fetches (gen/mod x Erst/Slim)');
+  assert.equal(cnt(s, 'headers:this.directHeaders()'), 8, 'alle 8 Direkt-Fetches (gen/mod x Erst/Slim/Stufe2/Retry)');
   assert.equal(cnt(s, 'HTTP-Referer'), 1, 'Referer genau 1x (nur openrouter-Zweig)');
   assert.equal(cnt(s, 'X-Title'), 1, 'X-Title genau 1x (nur openrouter-Zweig)');
   assert.ok(s.includes('https://github.com/Effzumdeh/ModelMuse'), 'Referer ist App-Kennung (kein Key)');

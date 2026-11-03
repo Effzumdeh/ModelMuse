@@ -115,7 +115,7 @@ function checkInvariants(s) {
     // v31-Vertrag bleibt (v35: zwei Einreihungen teilen eine Pumpe / Status).
     ['enqueueGenerate', 2], ['pumpGenQueue', 3],
     ['genJobsTitle', (s.includes('standalone-build v42') ? 5 : 4)], ['genStopped', (s.includes('standalone-build v42') ? 5 : 4)],
-    ['jobWaiting', (s.includes('standalone-build v42') ? 11 : 10)], ['jobRunning', (s.includes('standalone-build v42') ? 8 : 7)], ['jobDone', (s.includes('standalone-build v42') ? 15 : 13)], ['jobError', (s.includes('standalone-build v42') ? 10 : 9)],
+    ['jobWaiting', (s.includes('standalone-build v42') ? 11 : 10)], ['jobRunning', (s.includes('standalone-build v49') ? 10 : (s.includes('standalone-build v42') ? 8 : 7))], ['jobDone', (s.includes('standalone-build v42') ? 15 : 13)], ['jobError', (s.includes('standalone-build v42') ? 10 : 9)],
     ['@click="generate"', 0], ['@click="enqueueGenerate"', 1],
     ['position:fixed;bottom:16px;right:16px', 3],
   ];

@@ -53,12 +53,14 @@ function checkInvariants(s) {
   // v23-Toleranz: kein Length-Limit (Werte 4/2/2 -> 1/0/0; exakt in v23).
   // v48-Toleranz: explizites Maximum 131072 (Totale 1->10: 2 Bodies + 6 Snapshots + 2 Echo-Labels).
   const is48 = s.includes('standalone-build v48');
-  must(cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1) || (is48 && cnt(s, 'max_completion_tokens') === 10), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1, v48: 10)');
+  const is50 = s.includes('standalone-build v50');
+  must(cnt(s, 'max_completion_tokens') === 4 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens') === 1) || (is48 && cnt(s, 'max_completion_tokens') === 10) || (is50 && cnt(s, 'max_completion_tokens') === 16), 'Invariante max_completion_tokens: ' + cnt(s, 'max_completion_tokens') + ', erwartet 4 (v23: 1, v48: 10, v50: 16)');
   must(cnt(s, 'max_completion_tokens:65536') === 2 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens:65536') === 0), 'Invariante max_completion_tokens:65536: ' + cnt(s, 'max_completion_tokens:65536') + ', erwartet 2 (v23: 0)');
   must(cnt(s, 'max_completion_tokens=131072') === 2 || (s.includes('standalone-build v23') && cnt(s, 'max_completion_tokens=131072') === 0), 'Invariante max_completion_tokens=131072: ' + cnt(s, 'max_completion_tokens=131072') + ', erwartet 2 (v23: 0)');
   // v21-Toleranz: Thinking-Reduktion (pre-v21: 2 | v21: 4).
   // v23-Toleranz: Request-Echo (2 + 2 + 4 + 2 = 10).
-  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4 || (s.includes('standalone-build v23') && cnt(s, 'reasoning_effort') === 10), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4 (v23: 10)');
+  // v50-Toleranz: Echo-Snapshots +2 (Erst + Fallback + Stufe 2) = 12.
+  must(cnt(s, 'reasoning_effort') === 2 || cnt(s, 'reasoning_effort') === 4 || (s.includes('standalone-build v23') && cnt(s, 'reasoning_effort') === 10) || (s.includes('standalone-build v50') && cnt(s, 'reasoning_effort') === 12), 'Invariante reasoning_effort: ' + cnt(s, 'reasoning_effort') + ', erwartet 2 oder 4 (v23: 10, v50: 12)');
   // v22-Toleranz: Diagnose-Export (pre-v22: 6/5 | v22: 7/6).
   // v37-Nachfolger (Tele-Snapshot liest _lastChatInfo/_lastHttp je +1): 7->8, 6->7.
   must(cnt(s, '_lastChatInfo') === 6 || cnt(s, '_lastChatInfo') === 7 || cnt(s, '_lastChatInfo') === 8, 'Invariante _lastChatInfo: ' + cnt(s, '_lastChatInfo') + ', erwartet 6, 7 oder 8');

@@ -120,10 +120,10 @@ function checkInvariants(s) {
     ['max_completion_tokens=131072', 0],
     ['max_tokens=65536', 0],
     ['max_tokens=131072', 0],
-    ['delete gbody.max_tokens', 0],
-    ['delete mbody.max_tokens', 0],
+    ['delete gbody.max_tokens', (s.includes('standalone-build v50') ? 1 : 0)],
+    ['delete mbody.max_tokens', (s.includes('standalone-build v50') ? 1 : 0)],
     ['budgetRetryable', 3],
-    ['reasoning_effort', 10],
+    ['reasoning_effort', (s.includes('standalone-build v50') ? 12 : 10)],
     ['req_reasoning_effort: ', 1],
     ['req_retry_reasoning_effort: ', 1],
     // v26-Nachfolger (R0 Reasoning xhigh statt low): low 1->0, xhigh 0->1 (je Body).
@@ -139,7 +139,7 @@ function checkInvariants(s) {
     // v37-Nachfolger (Tele-Snapshot liest _lastRetry +1): 7->8.
     ['_lastRetry', 8],
     ['_lastReqR', 3],
-    ['this._lastReq={', 4],
+    ['this._lastReq={', (s.includes('standalone-build v50') ? 6 : 4)],
     ['staleHint', 2], ['buildTag', 3],
     // v26-Nachfolger (B0 Diagnose-Stempel): Build v25->v26.
     ['Build v24', 0], ['Strg+F5', 1],

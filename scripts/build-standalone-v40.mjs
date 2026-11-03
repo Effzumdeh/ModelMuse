@@ -96,7 +96,7 @@ function checkInvariants(s) {
     // O: OpenRouter-Kette intakt (v38-Nachfolger).
     ['id:"openrouter"', 1], ['https://openrouter.ai/api/v1', 1],
     ['openai/gpt-6.1-sol', 1], ['meta/muse-spark-1.3', 1], ['anthropic/claude-opus-5.5', 1],
-    ['directHeaders:function', 1], ['headers:this.directHeaders()', 6],
+    ['directHeaders:function', 1], ['headers:this.directHeaders()', (s.includes('standalone-build v50') ? 8 : 6)],
     // E: ETA-Tabelle robust + reaktiv (unveraendert).
     ['etaSeconds:function', 1],
     ['var hi=(r==="xhigh"||r==="max");', (s.includes('standalone-build v46') ? 0 : 1)],
@@ -107,7 +107,7 @@ function checkInvariants(s) {
     ['genEstimate', (s.includes('standalone-build v42') ? 6 : 5)],
     // Alt-Gates: alle Zaehler unveraendert (nur Gate-Bodies geaendert, keine Literale).
     ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', (s.includes('standalone-build v46') ? 5 : 6)],
-    ['reasoning_effort', 10],
+    ['reasoning_effort', (s.includes('standalone-build v50') ? 12 : 10)],
     ['reasoning_effort="xhigh"', 2],
     ['genReasoning:"xhigh"', 1],
     ['this.genModel==="muse-spark-1.3"||this.genModel==="muse-wonder-1.0"', 1],

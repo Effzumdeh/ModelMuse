@@ -31,22 +31,26 @@ test('v48-Stempel und Kette intakt', async () => {
   assert.ok(s.length < 600000, `Artefakt zu gross: ${s.length}`);
 });
 
-test('D1: Laufzeit-Diagnose-Stempel v48 (5 Stellen), v47 raus', async () => {
+test('D1: Laufzeit-Diagnose-Stempel v48 (5 Stellen), v47 raus (v50-tolerant)', async () => {
   const s = await html();
-  assert.equal(cnt(s, 'bits.push("Build v48")'), 1, 'emptyDetail-Stempel');
-  assert.equal(cnt(s, 'bits.push("Build v47")'), 0, 'Alt-Stempel emptyDetail raus');
-  assert.equal(cnt(s, 'var bld="v48";try{bld=this.buildTag();}'), 1, 'diagText-Default');
-  assert.equal(cnt(s, 'var bld="v47";try{bld=this.buildTag();}'), 0, 'Alt-Default raus');
-  assert.equal(cnt(s, 'buildTag:function(){return "v48";},'), 1, 'buildTag');
-  assert.equal(cnt(s, 'buildTag:function(){return "v47";},'), 0, 'Alt-buildTag raus');
-  assert.equal(cnt(s, 'var mine=48;'), 1, 'staleHint-mine');
-  assert.equal(cnt(s, 'var mine=47;'), 0, 'Alt-mine raus');
-  assert.equal(cnt(s, ',10)||48;'), 1, 'staleHint-Fallback');
-  assert.equal(cnt(s, ',10)||47;'), 0, 'Alt-Fallback raus');
+  const is50 = s.includes('standalone-build v50');
+  const want = is50 ? 'v50' : 'v48';
+  const prev = is50 ? 'v49' : 'v47';
+  assert.equal(cnt(s, `bits.push("Build ${want}")`), 1, 'emptyDetail-Stempel');
+  assert.equal(cnt(s, `bits.push("Build ${prev}")`), 0, 'Alt-Stempel emptyDetail raus');
+  assert.equal(cnt(s, `var bld="${want}";try{bld=this.buildTag();}`), 1, 'diagText-Default');
+  assert.equal(cnt(s, `var bld="${prev}";try{bld=this.buildTag();}`), 0, 'Alt-Default raus');
+  assert.equal(cnt(s, `buildTag:function(){return "${want}";},`), 1, 'buildTag');
+  assert.equal(cnt(s, `buildTag:function(){return "${prev}";},`), 0, 'Alt-buildTag raus');
+  assert.equal(cnt(s, `var mine=${want.slice(1)};`), 1, 'staleHint-mine');
+  assert.equal(cnt(s, `var mine=${prev.slice(1)};`), 0, 'Alt-mine raus');
+  assert.equal(cnt(s, `,10)||${want.slice(1)};`), 1, 'staleHint-Fallback');
+  assert.equal(cnt(s, `,10)||${prev.slice(1)};`), 0, 'Alt-Fallback raus');
 });
 
-test('D2: explizites Limit 131072 in beiden Erst-Bodies (gen+mod), Echo zeigt Werte', async () => {
+test('D2: explizites Limit 131072 in beiden Erst-Bodies (gen+mod), Echo zeigt Werte (v50-tolerant)', async () => {
   const s = await html();
+  const is50 = s.includes('standalone-build v50');
   assert.equal(cnt(s, 'temperature:0.2,max_completion_tokens:131072,max_tokens:131072'), 2, 'Limit in beiden Erst-Bodies');
   assert.equal(cnt(s, 'max_completion_tokens:131072'), 2, 'Erst-Bodies gen+mod');
   assert.equal(cnt(s, 'max_tokens:131072'), 2, 'Mirror gen+mod');
@@ -54,15 +58,26 @@ test('D2: explizites Limit 131072 in beiden Erst-Bodies (gen+mod), Echo zeigt We
   assert.equal(cnt(s, 'max_completion_tokens:65536'), 0, 'kein Erst-Budget (alt)');
   assert.equal(cnt(s, 'max_tokens=65536'), 0, 'kein max_tokens-Mirror (alt)');
   assert.equal(cnt(s, 'max_tokens=131072'), 0, 'kein Retry-Mirror (alt, =Form)');
-  assert.equal(cnt(s, 'delete gbody.max_tokens'), 0, 'kein Limit-Strip (generate)');
-  assert.equal(cnt(s, 'delete mbody.max_tokens'), 0, 'kein Limit-Strip (modify)');
-  assert.equal(cnt(s, 'delete gbody.stream_options'), 1, '400-Fallback strippt weiter Extras (gen)');
-  assert.equal(cnt(s, 'delete mbody.stream_options'), 1, '400-Fallback strippt weiter Extras (mod)');
-  // Echo-Snapshots lesen Limit aus dem Body (je gen/mod: Erst + Fallback + Retry).
-  assert.equal(cnt(s, 'mc:gbody.max_completion_tokens'), 3, 'Echo-Snapshots gen');
-  assert.equal(cnt(s, 'mc:mbody.max_completion_tokens'), 3, 'Echo-Snapshots mod');
-  assert.equal(cnt(s, 'mt:gbody.max_tokens'), 3, 'Echo-Snapshots gen (Mirror)');
-  assert.equal(cnt(s, 'mt:mbody.max_tokens'), 3, 'Echo-Snapshots mod (Mirror)');
+  if (is50) {
+    assert.equal(cnt(s, 'delete gbody.max_completion_tokens'), 2, 'Doku-Regel gen (v50)');
+    assert.equal(cnt(s, 'delete mbody.max_completion_tokens'), 2, 'Doku-Regel mod (v50)');
+    assert.equal(cnt(s, 'delete gbody.max_tokens'), 1, 'Stufe-2-Strip gen (v50)');
+    assert.equal(cnt(s, 'delete mbody.max_tokens'), 1, 'Stufe-2-Strip mod (v50)');
+    assert.equal(cnt(s, 'mc:gbody.max_completion_tokens'), 4, 'Echo-Snapshots gen (v50)');
+    assert.equal(cnt(s, 'mt:gbody.max_tokens'), 4, 'Echo-Snapshots gen Mirror (v50)');
+    assert.equal(cnt(s, 'mc:mbody.max_completion_tokens'), 4, 'Echo-Snapshots mod (v50)');
+    assert.equal(cnt(s, 'mt:mbody.max_tokens'), 4, 'Echo-Snapshots mod Mirror (v50)');
+  } else {
+    assert.equal(cnt(s, 'delete gbody.max_tokens'), 0, 'kein Limit-Strip (generate)');
+    assert.equal(cnt(s, 'delete mbody.max_tokens'), 0, 'kein Limit-Strip (modify)');
+    assert.equal(cnt(s, 'delete gbody.stream_options'), 1, '400-Fallback strippt weiter Extras (gen)');
+    assert.equal(cnt(s, 'delete mbody.stream_options'), 1, '400-Fallback strippt weiter Extras (mod)');
+    // Echo-Snapshots lesen Limit aus dem Body (je gen/mod: Erst + Fallback + Retry).
+    assert.equal(cnt(s, 'mc:gbody.max_completion_tokens'), 3, 'Echo-Snapshots gen');
+    assert.equal(cnt(s, 'mc:mbody.max_completion_tokens'), 3, 'Echo-Snapshots mod');
+    assert.equal(cnt(s, 'mt:gbody.max_tokens'), 3, 'Echo-Snapshots gen (Mirror)');
+    assert.equal(cnt(s, 'mt:mbody.max_tokens'), 3, 'Echo-Snapshots mod (Mirror)');
+  }
   // Diagnose-Labels (Erst + Retry) bleiben — zeigen jetzt 131072 statt "(nicht gesendet)".
   assert.equal(cnt(s, 'req_max_completion_tokens: '), 1, 'Echo-Label generate-Diag');
   assert.equal(cnt(s, 'req_max_tokens: '), 1, 'Echo-Label Mirror-Diag');

@@ -355,24 +355,30 @@ if (isShowcase) {
   eqS('text/event-stream', 2, 'v17 SSE streaming (directHeaders + Reader)');
   eqS('stream:true', 3, 'v17 stream flag (bodies + SSE decoder)');
   eqS('max_output_tokens', 0, 'v17 no legacy token field');
-  { const n = cnt('temperature:0.2,max_completion_tokens:131072,max_tokens:131072'); if (n !== 2) fail(`v48 Limit in Erst-Bodies: ${n}; expected 2`); else ok('v48 max_completion_tokens:131072,max_tokens:131072 in Erst-Bodies = 2'); }
-  eqS('max_completion_tokens:65536', 0, 'v48 kein 65536-Erst-Budget (generate + modify)');
-  eqS('max_completion_tokens=131072', 0, 'v48 kein Retry-Literal (Body wird geteilt)');
-  eqS('max_tokens=65536', 0, 'v48 kein max_tokens-Mirror (alt)');
-  eqS('max_tokens=131072', 0, 'v48 kein Retry-Mirror (alt, =Form)');
-  eqS('delete gbody.max_tokens', 0, 'v48 kein Limit-Strip (gen, Limit ueberlebt Fallback)');
-  eqS('delete mbody.max_tokens', 0, 'v48 kein Limit-Strip (mod, Limit ueberlebt Fallback)');
-  eqS('delete gbody.stream_options', 1, 'v48 400-Fallback strippt weiter Extras (gen)');
-  eqS('delete mbody.stream_options', 1, 'v48 400-Fallback strippt weiter Extras (mod)');
-  eqS('mc:gbody.max_completion_tokens', 3, 'v48 Echo-Snapshots gen lesen Limit aus Body');
-  eqS('mc:mbody.max_completion_tokens', 3, 'v48 Echo-Snapshots mod lesen Limit aus Body');
+  { const n = cnt('temperature:0.2,max_completion_tokens:131072,max_tokens:131072'); if (n !== 2) fail(`v50 Limit in Erst-Bodies: ${n}; expected 2`); else ok('v50 max_completion_tokens:131072,max_tokens:131072 in Erst-Bodies = 2'); }
+  eqS('max_completion_tokens:65536', 0, 'v50 kein 65536-Erst-Budget (generate + modify)');
+  eqS('max_completion_tokens=131072', 0, 'v50 kein Retry-Literal (Body wird geteilt)');
+  eqS('max_tokens=65536', 0, 'v50 kein max_tokens-Mirror (alt)');
+  eqS('max_tokens=131072', 0, 'v50 kein Retry-Mirror (alt, =Form)');
+  eqS('delete gbody.max_completion_tokens', 2, 'v50 Baseten-Doku-Regel (gen, nur max_tokens)');
+  eqS('delete mbody.max_completion_tokens', 2, 'v50 Baseten-Doku-Regel (mod, nur max_tokens)');
+  eqS('delete gbody.max_tokens', 1, 'v50 Stufe-2-Limit-Strip (gen, Extra-inputs-400)');
+  eqS('delete mbody.max_tokens', 1, 'v50 Stufe-2-Limit-Strip (mod, Extra-inputs-400)');
+  eqS('/extra inputs/i', 2, 'v50 Stufe-2-Erkennung (gen + mod)');
+  eqS('delete gbody.stream_options', 1, 'v50 Stufe-1 strippt weiter Extras (gen)');
+  eqS('delete mbody.stream_options', 1, 'v50 Stufe-1 strippt weiter Extras (mod)');
+  eqS('mc:gbody.max_completion_tokens', 4, 'v50 Echo-Snapshots gen lesen Limit aus Body');
+  eqS('mc:mbody.max_completion_tokens', 4, 'v50 Echo-Snapshots mod lesen Limit aus Body');
+  eqS('this._lastReq={', 6, 'v50 Request-Snapshots (Erst + Fallback + Stufe 2 je gen/mod)');
+  eqS(',ls:0', 4, 'v50 Limit-Strip-Flag Erst/Fallback');
+  eqS(',ls:1', 2, 'v50 Limit-Strip-Flag Stufe 2 (gen + mod)');
   eqS('budgetRetryable', 3, 'v19 retry gate (helper + generate + modify)');
   eqS('standalone-build v19', 1, 'v19 stamp (Budget + Retry)');
   eqS('standalone-build v20', 1, 'v20 stamp (Budget hoch)');
   eqS('standalone-build v21', 1, 'v21 stamp (Thinking-Reduktion + Fallback)');
   eqS('standalone-build v22', 1, 'v22 stamp (Diagnose-Export + Thinking-Budget low)');
   eqS('standalone-build v23', 1, 'v23 stamp (kein Limit + Request-Echo + Prompt-Slim)');
-  eqS('reasoning_effort', 10, 'v26 reasoning param (2 Gates + 2 xhigh + 4 Echo-Snapshots + 2 Echo-Labels)');
+  eqS('reasoning_effort', 12, 'v50 reasoning param (2 Gates + 2 xhigh + 6 Echo-Snapshots + 2 Echo-Labels)');
   eqS('reasoning_effort="xhigh"', 2, 'v26 belegtes Maximum (Contributor + Baseten, nie max)');
   eqS('reasoning_effort="low"', 0, 'v26 kein low mehr (xhigh)');
   eqS('reasoning_effort="none"', 0, 'v26 kein unbelegtes none (Doku: rejected/gemapped)');
@@ -381,14 +387,18 @@ if (isShowcase) {
   eqS('genReasoning:"xhigh"', 1, 'v26 UI-Default xhigh (Baseten-Startprovider)');
   eqS('reasoningHigh', 5, 'v26+v42 xhigh-Option (4 Locales + Template)');
   eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
-  eqS('req_max_completion_tokens: ', 1, 'v48 Request-Echo Limit (generate-Diag)');
-  eqS('req_max_tokens: ', 1, 'v48 Request-Echo Mirror (generate-Diag)');
-  eqS('req_retry_max_completion_tokens: ', 1, 'v48 Request-Echo Retry-Limit (generate-Diag)');
-  eqS('req_retry_max_tokens: ', 1, 'v48 Request-Echo Retry-Mirror (generate-Diag)');
+  eqS('req_max_completion_tokens: ', 1, 'v50 Request-Echo Limit (generate-Diag)');
+  eqS('req_max_tokens: ', 1, 'v50 Request-Echo Mirror (generate-Diag)');
+  eqS('req_400_limit_strip: ', 1, 'v50 Request-Echo Limit-Strip (generate-Diag)');
+  eqS('req_retry_max_completion_tokens: ', 1, 'v50 Request-Echo Retry-Limit (generate-Diag)');
+  eqS('req_retry_max_tokens: ', 1, 'v50 Request-Echo Retry-Mirror (generate-Diag)');
+  eqS('req_retry_400_limit_strip: ', 1, 'v50 Request-Echo Retry-Limit-Strip (generate-Diag)');
   eqS('req_reasoning_effort: ', 1, 'v23 Request-Echo Thinking (generate-Diag)');
   eqS('req_400_fallback: ', 1, 'v23 Request-Echo Fallback (generate-Diag)');
   eqS('req_retry_reasoning_effort: ', 1, 'v23 Request-Echo Retry (generate-Diag)');
-  eqS('Build v48', 1, 'v48 build stamp in diagnosis (explizites Limit 131072)');
+  eqS('Build v50', 1, 'v50 build stamp in diagnosis (Baseten-Doku-Regel + Stufe-2-Fallback)');
+  eqS('Build v49', 0, 'v49 build stamp ersetzt');
+  eqS('Build v48', 0, 'v48 build stamp ersetzt');
   eqS('Build v47', 0, 'v47 build stamp ersetzt');
   eqS('Build v26', 0, 'v26 build stamp ersetzt');
   eqS('Build v25', 0, 'v25 build stamp ersetzt');
@@ -409,7 +419,7 @@ if (isShowcase) {
   eqS('genJobsTitle', 5, 'v31 Auftragstitel (4 Locales + Template)');
   eqS('genJobs:[]', 1, 'v31 Queue-State im Data-Block');
   eqS('jobWaiting', 11, 'v31+v35+v37+v42 Auftragsstatus wartend (4 Locales + 2x enqueue + Pumpe + Stopp + Tick + Zeittext x2)');
-  eqS('jobRunning', 8, 'v31+v37+v42 Auftragsstatus laeuft (4 Locales + Pumpe + Tick + Zeittext + Stempel)');
+  eqS('jobRunning', 10, 'v31+v37+v42+v49 Auftragsstatus laeuft (4 Locales + Pumpe + Tick + Zeittext + Stempel + eine-Deadline x2)');
   eqS('jobDone', 15, 'v31+v37+v42 Auftragsstatus fertig (4 Locales + Pumpe + Template x3 + Zeittext + Tick + Stempel + Hinweis x4 + Hint-Key)');
   eqS('jobError', 10, 'v31+v37+v42 Auftragsstatus Fehler (4 Locales + Pumpe x2 + Stopp + Zeittext + Tick + Prune)');
   eqS('genStopped', 5, 'v31 Stopp-Hinweis (4 Locales + Stopp-Methode)');
@@ -488,6 +498,8 @@ if (isShowcase) {
   eqS('standalone-build v46', 1, 'v46 Stempel (Final-Sprint: ETA flat + Modus-Auto + Footer + LICENSES + Ollama)');
   eqS('standalone-build v47', 1, 'v47 Stempel (Diagnose-Stempel v26->v47)');
   eqS('standalone-build v48', 1, 'v48 Stempel (explizites Limit 131072 + Diagnose-Echo-Werte)');
+  eqS('standalone-build v49', 1, 'v49 Stempel (Countdown-eine-Deadline)');
+  eqS('standalone-build v50', 1, 'v50 Stempel (Baseten-Doku-Regel + Stufe-2-Fallback + Echo-ls)');
   // v46 (E/M/F/L/O/T): ETA flat 240, Modus-Auto, Funktions-Footer,
   // LICENSES-Link, Ollama lokal, System-Theme ohne Toggle.
   eqS('@click="force2D"', 0, 'v46 Modus-Buttons raus (force2D)');

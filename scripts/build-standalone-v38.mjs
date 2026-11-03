@@ -110,7 +110,7 @@ function checkInvariants(s) {
     // O: OpenRouter-Drittprovider (direkt, 3 Slugs, Header, Keys, Texte).
     ['id:"openrouter"', 1], ['https://openrouter.ai/api/v1', 1],
     ['openai/gpt-6.1-sol', 1], ['meta/muse-spark-1.3', 1], ['anthropic/claude-opus-5.5', 1],
-    ['directHeaders:function', 1], ['headers:this.directHeaders()', 6],
+    ['directHeaders:function', 1], ['headers:this.directHeaders()', (s.includes('standalone-build v50') ? 8 : 6)],
     ['HTTP-Referer', 1], ['X-Title', 1],
     ['modelmuse-key-openrouter', 3],
     ['keyMissingOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyInvalidOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyFormatOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)],

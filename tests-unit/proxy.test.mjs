@@ -235,11 +235,11 @@ test('v48 Server: /generate reicht Limit 131072 an Upstream weiter (Stub-Upstrea
 
 /* v21: Baseten-Extras + 400-Fallback (simulierter Upstream, kein Netz). */
 
-test('v48 upstreamChatBody: Baseten-Extras nur mit provider=baseten, immer Limit 131072', async () => {
+test('v50 upstreamChatBody: Baseten NUR max_tokens (Doku-Regel) + Extras nur mit provider=baseten, andere beide Felder 131072', async () => {
   const { upstreamChatBody: up, stripUpstreamExtras } = await import('../scripts/proxy.mjs');
   const b = up('meta-models/muse-spark-open-1026', 'Hallo Welt, lang genug', 'baseten');
-  assert.equal(b.max_completion_tokens, 131072, 'explizites Maximum');
-  assert.equal(b.max_tokens, 131072, 'Mirror-Feld');
+  assert.ok(!('max_completion_tokens' in b), 'Baseten-Doku kennt nur max_tokens (sonst Extra-inputs-400)');
+  assert.equal(b.max_tokens, 131072, 'explizites Maximum');
   assert.equal(b.reasoning_effort, 'low');
   assert.deepEqual(b.stream_options, { include_usage: true });
   const m = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug', 'meta-muse');
@@ -248,18 +248,32 @@ test('v48 upstreamChatBody: Baseten-Extras nur mit provider=baseten, immer Limit
   assert.ok(!('reasoning_effort' in m) && !('stream_options' in m), 'Meta-Pfad ohne Thinking-Extras');
   const d = up('muse-spark-1.3-contributor', 'Hallo Welt, lang genug');
   assert.equal(d.max_tokens, 131072, 'Limit ohne Provider');
+  assert.equal(d.max_completion_tokens, 131072, 'Mirror ohne Provider');
   assert.equal(stripUpstreamExtras(b), true);
   assert.ok(!('reasoning_effort' in b) && !('stream_options' in b), 'Extras gestrippt');
-  assert.equal(b.max_completion_tokens, 131072, 'Limit ueberlebt den 400-Fallback');
-  assert.equal(b.max_tokens, 131072, 'Mirror ueberlebt den 400-Fallback');
+  assert.ok(!('max_completion_tokens' in b), 'Baseten weiter ohne max_completion_tokens');
+  assert.equal(b.max_tokens, 131072, 'Mirror ueberlebt den 400-Fallback Stufe 1');
   assert.equal(stripUpstreamExtras(m), false, 'Limit allein ist kein Strip-Grund');
   assert.equal(stripUpstreamExtras(null), false);
   const legacy = { model: 'm', max_completion_tokens: 1, max_tokens: 1, temperature: 0.2 };
-  assert.equal(stripUpstreamExtras(legacy), false, 'Alt-Limit-Felder werden nicht mehr defensiv gestrippt (v48 sendet sie selbst)');
+  assert.equal(stripUpstreamExtras(legacy), false, 'Alt-Limit-Felder werden nicht mehr defensiv gestrippt (Stufe 1 kennt nur Extras)');
   assert.deepEqual(legacy, { model: 'm', max_completion_tokens: 1, max_tokens: 1, temperature: 0.2 });
 });
 
-test('v48 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras, mit Limit', async () => {
+test('v50 stripUpstreamLimits/isExtraInputsUpstream: Stufe-2-Helfer', async () => {
+  const { stripUpstreamLimits, isExtraInputsUpstream } = await import('../scripts/proxy.mjs');
+  const b = { model: 'm', max_completion_tokens: 131072, max_tokens: 131072 };
+  assert.equal(stripUpstreamLimits(b), true);
+  assert.deepEqual(b, { model: 'm' }, 'beide Limit-Felder gestrippt');
+  assert.equal(stripUpstreamLimits({ model: 'm', max_tokens: 9 }), true, 'einzelnes Feld reicht');
+  assert.equal(stripUpstreamLimits({ model: 'm' }), false, 'ohne Limits kein Strip (kein Retry-Grund)');
+  assert.equal(stripUpstreamLimits(null), false);
+  assert.equal(isExtraInputsUpstream('Invalid request: max_completion_tokens (131072): Extra inputs are not permitted'), true);
+  assert.equal(isExtraInputsUpstream('bad temperature'), false);
+  assert.equal(isExtraInputsUpstream(null), false);
+});
+
+test('v50 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras, mit Limit (Baseten-Doku: nur max_tokens)', async () => {
   const keepEnv = { ...process.env };
   process.env.KEY_FILE = 'C:/nonexistent-definitiv-kein-key.json';
   const seen = [];
@@ -292,8 +306,56 @@ test('v48 Server: Upstream-400 mit Extras -> genau 1 Slim-Fallback ohne Extras, 
     assert.equal(n, 2, 'genau 1 Slim-Fallback');
     assert.equal(seen[0].reasoning_effort, 'low', 'erst mit Extras');
     assert.ok(!('reasoning_effort' in seen[1]), 'Fallback ohne Extras');
-    assert.equal(seen[1].max_completion_tokens, 131072, 'Fallback mit Limit (belegt wirksam)');
-    assert.equal(seen[1].max_tokens, 131072, 'Fallback mit Mirror');
+    assert.ok(!('max_completion_tokens' in seen[1]), 'Baseten-Fallback ohne max_completion_tokens (Doku-Regel)');
+    assert.equal(seen[1].max_tokens, 131072, 'Fallback mit Limit (belegt wirksam)');
+  } finally {
+    await new Promise((r) => server.close(r));
+    globalThis.fetch = realFetch;
+    process.env = keepEnv;
+  }
+});
+
+test('v50 Server: Upstream-Extra-inputs-400 -> Stufe 2 Limit-Fallback ohne Limits, dann 200 (simulierter Live-Fall)', async () => {
+  const keepEnv = { ...process.env };
+  process.env.KEY_FILE = 'C:/nonexistent-definitiv-kein-key.json';
+  const seen = [];
+  const realFetch = globalThis.fetch;
+  let n = 0;
+  const extraInputs = () => ({
+    ok: false,
+    status: 400,
+    text: async () => 'Invalid request: max_completion_tokens (131072): Extra inputs are not permitted',
+    body: { cancel: async () => {} },
+  });
+  globalThis.fetch = async (_url, opts) => {
+    if (String(_url).includes('127.0.0.1')) return realFetch(_url, opts);
+    n += 1;
+    seen.push(JSON.parse(opts?.body ?? '{}'));
+    if (n <= 2) return extraInputs();
+    const enc = new TextEncoder();
+    const bytes = enc.encode('data: [DONE]\n');
+    return {
+      ok: true, status: 200,
+      body: { getReader() { let u = false; return { async read() { if (u) return { done: true, value: undefined }; u = true; return { done: false, value: bytes }; } }; } },
+    };
+  };
+  const { createProxyServer } = await import('../scripts/proxy.mjs');
+  const server = createProxyServer();
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const port = server.address().port;
+  try {
+    const r = await realFetch(`http://127.0.0.1:${port}/generate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer LLM_12345678_abcdefghijklmnop' },
+      body: JSON.stringify({ prompt: 'Begriff Windkraftanlage lang genug', provider: 'baseten', model: 'meta-models/muse-spark-open-1026' }),
+    });
+    assert.equal(r.status, 200);
+    await r.text();
+    assert.equal(n, 3, 'Erstversuch + Extras-Fallback + Limit-Fallback');
+    assert.equal(seen[0].reasoning_effort, 'low', 'Versuch 1 mit Extras');
+    assert.ok(!('reasoning_effort' in seen[1]), 'Versuch 2 ohne Extras (Stufe 1)');
+    assert.equal(seen[1].max_tokens, 131072, 'Versuch 2 mit Limit');
+    assert.ok(!('max_completion_tokens' in seen[2]) && !('max_tokens' in seen[2]), 'Versuch 3 ohne Limits (Stufe 2)');
   } finally {
     await new Promise((r) => server.close(r));
     globalThis.fetch = realFetch;
