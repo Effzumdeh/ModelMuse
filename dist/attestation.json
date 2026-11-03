@@ -4,160 +4,160 @@
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 1253 Bytes vs Beleg 11944 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "ae-2",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 1324 Bytes vs Beleg 12006 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "ae-3",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 1206 Bytes vs Beleg 14457 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "arch-brandenburger-tor",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "chemie-koffein",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-chart",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-chart-v2",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-d3",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-d3-v2",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-katex",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-katex-v2",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-mermaid",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-mermaid-v2",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-svg",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "demo-2d-svg-v2",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "dup-1",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 1301 Bytes vs Beleg 10609 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "dup-2",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 1207 Bytes vs Beleg 12746 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "dup-3",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 1188 Bytes vs Beleg 14628 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "free-handbohrmaschine",
     "ampel": "gelb",
     "beleg": "Teilbasis (kein Messwert in dist/final-budgets.json)",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "gpu-example",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 22649 Bytes vs Beleg 20892 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "si-1",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 16295 Bytes vs Beleg 15423 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "si-2",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 14125 Bytes vs Beleg 12903 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   },
   {
     "id": "si-3",
     "ampel": "gelb",
     "beleg": "Teilbasis (Beleg aelter als Modellquelle (Quelle 10759 Bytes vs Beleg 10270 Bytes))",
     "vermerk": "auto-geprueft (Lehrkraft-Freigabe ausstehend)",
-    "datum": "2026-11-01"
+    "datum": "2026-11-03"
   }
 ]

@@ -64,4 +64,7 @@ playwright-report/
 # Erklaervideo-Arbeitsstand + MP4s + KI-Recherche-Notizen bleiben lokal (nichts davon stagen)
 docs/.erklaervideo-work/
 docs/*.mp4
+# Logo-V2-Ausnahme (03.11.2026): docs/assets/*.svg ist die repo-faehige Logo-Quelle
+# (klein, z. B. logo-header.svg 3,7 KB) — bewusst versioniert, vom Video-Ignore
+# oben NICHT erfasst (nur .erklaervideo-work/ + *.mp4 sind ignoriert)
 docs/export-formate-recherche-*.md

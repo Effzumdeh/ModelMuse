@@ -401,6 +401,12 @@ if (isShowcase) {
   eqS('Build v48', 0, 'v48 build stamp ersetzt');
   eqS('Build v47', 0, 'v47 build stamp ersetzt');
   eqS('Build v26', 0, 'v26 build stamp ersetzt');
+  // v51 (Logo-V2-Header): Inline-SVG (viewBox 621x170, Quelle docs/assets/logo-header.svg)
+  // im weissen Chip direkt vor dem App-Titel — kein <img>, keine data-URI, kein CDN.
+  eqS('standalone-build v51 (Logo-V2 header links)', 1, 'v51 stamp (Logo-V2-Header oben links)');
+  eqS('logo-chip-v51', 1, 'v51 Logo-Chip (weiss, rounded, vor App-Titel)');
+  eqS('viewBox="0 0 621 170"', 1, 'v51 Logo-Inline-SVG genau 1x');
+  eqS('role="img" aria-label="ModelMuse Logo"', 1, 'v51 Logo-a11y (role + aria-label)');
   eqS('Build v25', 0, 'v25 build stamp ersetzt');
   eqS('Build v24', 0, 'v24 build stamp ersetzt');
   eqS('Build v23', 0, 'v23 build stamp ersetzt');

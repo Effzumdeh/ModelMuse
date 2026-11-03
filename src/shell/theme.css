@@ -26,6 +26,9 @@ body {
   padding: 12px 20px; background: var(--bg2); border-bottom: 1px solid var(--line);
 }
 .lab-brand { font-weight: 700; font-size: 20px; }
+.lab-brand { display: flex; align-items: center; gap: 10px; }
+.lab-logo { display: inline-flex; align-items: center; background: #fff; border-radius: 8px; padding: 4px 8px; line-height: 0; }
+.lab-logo svg { display: block; height: 30px; width: auto; }
 .lab-lang { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .lab-sub { color: var(--muted); font-weight: 400; font-size: 14px; }
 .lab-ampel { display: flex; align-items: center; gap: 8px; font-weight: 600; }
