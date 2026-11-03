@@ -45,6 +45,11 @@ jobs:
           mkdir -p _site/help
           cp docs/help/de.html docs/help/en.html docs/help/es.html docs/help/fr.html docs/help/index.html _site/help/
           cp -r docs/help/shots _site/help/shots
+          # Lizenz-Audit versioniert mit ausliefern: der Standalone-Footer
+          # verlinkt relativ auf docs/LICENSES.md (ab /index.html => /docs/LICENSES.md).
+          # Ohne diese Datei liefe der Link auf Pages ins Leere (404).
+          mkdir -p _site/docs
+          cp docs/LICENSES.md _site/docs/LICENSES.md
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
