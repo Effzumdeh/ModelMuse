@@ -173,7 +173,7 @@
     "wiederhergestellt": "„{titel}“ (V{nr}) wiederhergestellt."
   },
   "onboarding": {
-    "text": "Willkommen! Links ein Lab wählen, im Freimodus mit eigenem Key (nur Sitzung) direkt generieren — ganz ohne Proxy.",
+    "text": "Willkommen! Ein Lab wählen, im Freimodus mit eigenem Key (nur Sitzung) direkt generieren — ganz ohne Proxy.",
     "verstanden": "Verstanden"
   },
   "theme": {

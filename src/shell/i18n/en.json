@@ -173,7 +173,7 @@
     "wiederhergestellt": "“{titel}” (V{nr}) restored."
   },
   "onboarding": {
-    "text": "Welcome! Pick a lab on the left; in free mode generate directly with your own key (session only) — no proxy needed.",
+    "text": "Welcome! Pick a lab; in free mode generate directly with your own key (session only) — no proxy needed.",
     "verstanden": "Got it"
   },
   "theme": {

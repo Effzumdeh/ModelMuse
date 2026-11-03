@@ -291,6 +291,11 @@ async function boot() {
     const manifest = localizeManifest(current?.manifest ?? { labels: [], measurements: [], tasks: [] }, getLocale());
     renderAnnotations(annotationList, manifest, store.level, { labels: store.labels, measurements: store.measurements },
       { hidden: store.partsHidden ?? [], onToggle: partToggle });
+    // Phase 2 (H3): Panel-Titel trägt die Bauteil-Anzahl (wie Labs-Zähler).
+    try {
+      const nAnno = annotationList.querySelectorAll('.part-row').length;
+      document.getElementById('annotation-count').textContent = nAnno > 0 ? `(${nAnno})` : '';
+    } catch { /* Zähler optional */ }
     document.body.dataset.ampel = store.ampel;
     renderLabs();
     try { modifyCtl?.repaintModel(); } catch { /* Modify-Panel noch nicht gemountet */ }
@@ -368,14 +373,22 @@ async function boot() {
     showFallback(fallbackPanel, fallbackText, fallbackMessage(store.level, 'no-webgl2'));
   }
 
-  /** Modell per ID laden (Labs-Nav + Programm). */
+  /** Modell per ID laden (Labs-Nav + Programm). Phase 2 §4: 160ms-Crossfade, Reduced-Motion = Schnitt. */
   async function loadModelById(id) {
     if (!player) return;
     hideFallback(fallbackPanel);
+    let fading = false;
     try {
       const current = registry.find((m) => m.id === id);
       if (!current) return;
       store.modelId = current.id;
+      try {
+        fading = !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      } catch { fading = false; }
+      if (fading) {
+        mount.classList.add('is-switching');
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      }
       const loaded = await player.load({ id: current.id, kind: 'lab', source: current.source, manifest: current.manifest });
       if (loaded?.sessionId) labDebugState.sessionId = loaded.sessionId;
       paint();
@@ -387,6 +400,8 @@ async function boot() {
       }
       store.ampel = 'rot';
       paint();
+    } finally {
+      if (fading) mount.classList.remove('is-switching');
     }
   }
 

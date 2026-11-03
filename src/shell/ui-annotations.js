@@ -1,5 +1,7 @@
 /**
  * Label- und Messungsliste, Beschriftungs-Checkboxen (ein-/ausblenden).
+ * Phase 2 (H3): keine Etikett:/Maß:-Bullet-Dopplung mehr — Checkbox-Liste plus
+ * kompakte Maß-Badge-Chips; Panel-Titel trägt die Anzahl (main.js).
  * Callbacks aus main.js.
  */
 import { labelsForLevel, measurementsForLevel } from './store.js';
@@ -48,14 +50,17 @@ export function renderAnnotations(el, manifest, level, cfg, parts = {}) {
     el.querySelector('li').textContent = tt('bauteile.keineAnnotationen');
     return;
   }
-  for (const label of labels) {
-    const li = document.createElement('li');
-    li.textContent = tt('bauteile.etikett', { label });
-    el.appendChild(li);
-  }
-  for (const m of ms) {
-    const li = document.createElement('li');
-    li.textContent = tt('bauteile.mass', { text: m?.text ?? '' });
-    el.appendChild(li);
+  // H3-Dopplung gestrichen: keine Etikett:/Maß:-Bullets — Maße als Badge-Chips.
+  if (ms.length > 0) {
+    const wrap = document.createElement('li');
+    wrap.className = 'measure-badges';
+    for (const m of ms) {
+      const b = document.createElement('span');
+      b.className = 'measure-badge';
+      b.textContent = m?.text ?? '';
+      b.title = m?.text ?? '';
+      wrap.appendChild(b);
+    }
+    el.appendChild(wrap);
   }
 }

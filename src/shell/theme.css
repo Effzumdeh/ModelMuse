@@ -1,17 +1,19 @@
+/* Phase 2 (04.11.2026, FRONTEND-REDESIGN-PLAN §4): Token-System + Type-Skala.
+   Kanonisch: --surface-0/1/2, --ink-1/2/3, --accent(--ink), --accent-2,
+   --ok/--warn/--bad, --focus. Alt-Namen (--bg/--panel/...) bleiben als Aliase.
+   Kontraste (gemessen): hell --accent2 #0277b6 4,86:1 / --ink-3 #64748b 4,76:1 /
+   --ink-1 16,40:1 / --ink-2 6,53:1 / --accent #4f46e5 6,29:1; dunkel --bad
+   #ef6b6b 5,69:1 / --accent-2 #4dd2ff 9,76:1 / --ink-1 16,09:1 / --ink-2 7,88:1. */
 :root {
-  --bg: #0c1118;
-  --bg2: #10141c;
-  --panel: #151c27;
-  --line: #26313f;
-  --text: #e8edf3;
-  --muted: #9fb2c8;
-  --accent: #ffd34d;
-  --accent2: #4dd2ff;
-  --ok: #37c26a;
-  --warn: #e0a100;
-  --bad: #e05252;
+  --surface-0: #0c1118; --surface-1: #151c27; --surface-2: #0d141d;
+  --ink-1: #e8edf3; --ink-2: #9fb2c8; --ink-3: #3b4a5e;
+  --accent: #ffd34d; --accent-ink: #1c1005; --accent-2: #4dd2ff;
+  --ok: #37c26a; --warn: #e0a100; --bad: #ef6b6b;
   --focus: #7cc4ff;
   --radius: 10px;
+  --bg: var(--surface-0); --bg2: #10141c; --panel: var(--surface-1);
+  --line: #26313f; --text: var(--ink-1); --muted: var(--ink-2);
+  --accent2: var(--accent-2);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -21,12 +23,13 @@ body {
   font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* Kompakt-Header <640px (H2): Kopfzeile darf umbrechen, Bedienelemente rechts. */
 .lab-top {
   display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; row-gap: 8px;
   padding: 12px 20px; background: var(--bg2); border-bottom: 1px solid var(--line);
 }
-.lab-brand { font-weight: 700; font-size: 20px; }
-.lab-brand { display: flex; align-items: center; gap: 10px; }
+.lab-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; flex: 1 1 auto; }
 .lab-logo { display: inline-flex; align-items: center; background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; line-height: 0; }
 .lab-logo svg { display: block; height: 30px; width: auto; }
 /* v52: Logo-Varianten folgen dem Farbschema (automatischer Wechsel mit
@@ -41,8 +44,12 @@ html[data-theme="light"] .lab-logo .logo-variant-dark { display: none; }
   html:not([data-theme]) .lab-logo .logo-variant-light { display: none; }
   html:not([data-theme]) .lab-logo .logo-variant-dark { display: block; }
 }
+@media (max-width: 639px) {
+  .lab-top { padding: 10px 12px; }
+  .lab-logo svg { height: 26px; }
+  .lab-lang, .lab-theme, .lab-ampel { font-size: 13px; }
+}
 .lab-lang { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-.lab-sub { color: var(--muted); font-weight: 400; font-size: 14px; }
 .lab-ampel { display: flex; align-items: center; gap: 8px; font-weight: 600; }
 .ampel-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--warn); }
 body[data-ampel="gruen"] .ampel-dot, [data-ampel="gruen"] .ampel-dot { background: var(--ok); }
@@ -63,9 +70,18 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .lab-mount {
   width: 100%; aspect-ratio: 16/9; background: #05070b;
   border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+  transition: opacity 160ms ease-out;
+}
+/* Signatur-Motion (Phase 2 §4): Lab-Wechsel blendet 160ms aus/ein; Reduced-Motion = harter Schnitt. */
+.lab-mount.is-switching { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .lab-mount { transition: none; }
+  .lab-mount.is-switching { opacity: 1; }
 }
 .lab-mount canvas { width: 100%; height: auto; display: block; }
 .lab-stage { width: 100%; height: 100%; }
+/* Signatur: schwebende Bernstein-Glastoolbar (Phase 2 §4). Akzent nur am aktiven
+   Segment (.lab-lab-btn[aria-current]); Toolbar-Hover bleibt neutral. */
 .lab-toolbar {
   display: flex; flex-wrap: wrap; gap: 12px; align-items: end;
   background: var(--panel); border: 1px solid var(--line);
@@ -74,22 +90,37 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .lab-field { display: flex; flex-direction: column; gap: 4px; }
 .lab-field label { font-size: 13px; color: var(--muted); }
 .lab-field select, .lab-field textarea, .lab-btn {
-  background: #0d141d; color: var(--text);
+  background: var(--surface-2); color: var(--text);
   border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 15px;
 }
 .lab-field textarea { resize: vertical; min-height: 64px; font: inherit; }
+/* Selects unterscheiden sich von Buttons (M1): eigenes Chevron, neutraler Hover. */
+.lab-field select {
+  appearance: none; -webkit-appearance: none; padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239fb2c8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+}
+.lab-field select:hover { border-color: var(--ink-3); }
+.lab-toolbar .lab-btn:hover { border-color: var(--ink-3); }
 .lab-check { flex-direction: row; gap: 12px; align-items: center; }
 .lab-check label { color: var(--text); font-size: 15px; }
 .lab-btn { cursor: pointer; }
 .lab-btn:hover { border-color: var(--accent); }
+/* Genau eine prominente Aktion je Panel (M1): Akzent-Fuellung + --accent-ink-Text. */
+.lab-btn--primary { background: var(--accent); border-color: transparent; color: var(--accent-ink); font-weight: 700; }
+.lab-btn--primary:hover { border-color: transparent; filter: brightness(.95); }
 .lab-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .lab-panel {
   background: var(--panel); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 12px 14px;
 }
-.lab-panel h2 { margin: 0 0 8px; font-size: 17px; }
+/* Type-Skala (Phase 2 §4): Panel-Titel 20 semibold, Micro 13px. */
+.lab-panel h2 { margin: 0 0 8px; font-size: 20px; font-weight: 600; }
 .lab-annotations { margin: 0; padding-left: 20px; }
 .lab-annotations li { margin: 6px 0; }
+/* Mass-Badges (H3): kompakte Chips statt Bullet-Dopplung. */
+.measure-badges { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 8px 0 4px; padding: 0; }
+.measure-badge { font-size: 13px; border: 1px solid var(--accent-2); color: var(--accent-2); border-radius: 20px; padding: 2px 10px; }
 .lab-report { font-size: 14px; }
 .lab-report .crit-pass { color: var(--ok); }
 .lab-report .crit-fail { color: var(--bad); font-weight: 700; }
@@ -99,7 +130,7 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .lab-note { font-size: 13px; color: var(--muted); }
 .lab-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 .prov-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-.prov-badge { font-size: 12px; border: 1px solid var(--line); border-radius: 20px; padding: 2px 10px; }
+.prov-badge { font-size: 13px; border: 1px solid var(--line); border-radius: 20px; padding: 2px 10px; }
 .prov-geometrie { border-color: var(--accent2); color: var(--accent2); }
 .prov-aesthetik, .prov-praeferenz { border-color: var(--accent); color: var(--accent); }
 .prov-preis, .prov-allround { border-color: var(--ok); color: var(--ok); }
@@ -116,7 +147,7 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .hist-btn.is-active { background: var(--ok); border-color: var(--ok); color: #06130b; font-weight: 700; }
 .hist-btn.is-active:disabled { opacity: 1; cursor: default; }
 .hist-empty { font-size: 13px; opacity: .75; padding: 4px 0; }
-.lab-detail { white-space: pre-wrap; font-size: 12px; max-height: 260px; overflow: auto; background: #0d141d; border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+.lab-detail { white-space: pre-wrap; font-size: 13px; max-height: 260px; overflow: auto; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
 .sr-only {
   position: absolute; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
@@ -132,7 +163,7 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .lab-mount { position: relative; aspect-ratio: 16/10; min-height: 420px; box-shadow: 0 12px 40px rgba(0,0,0,.45); }
 .lab-toolbar {
   position: relative; z-index: 6; margin: -84px 12px 12px;
-  background: rgba(16,21,30,.9); backdrop-filter: blur(8px);
+  background: rgba(16,21,30,.9); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   box-shadow: 0 8px 24px rgba(0,0,0,.45);
 }
 .lab-side { position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; }
@@ -140,21 +171,22 @@ body[data-ampel="rot"] .ampel-dot, [data-ampel="rot"] .ampel-dot { background: v
 .part-head { display: flex; align-items: center; gap: 8px; list-style: none; margin: 4px 0; }
 .part-row { display: flex; align-items: center; gap: 8px; list-style: none; margin: 4px 0; }
 .part-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
-.part-btn { padding: 3px 8px; font-size: 12px; min-height: 32px; }
+.part-btn { padding: 3px 8px; font-size: 13px; min-height: 32px; }
 /* Teil 6 (28.10.2026, Standalone-Maßstab): moderne UI — Onboarding-Banner,
    Labs-Suche, Hell/Dunkel-Theme, Footer, 44px-Touch-Ziele, Karten-Polish.
    Kein Framework, keine CDN-Abhängigkeit (Single-File/CSP-sicher). */
+/* Akzent-Disziplin (Phase 2 §4): Banner-Rahmen neutral, Akzent nur Auswahl + Primary. */
 .lab-onboard {
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
   margin: 12px 16px 0; padding: 12px 16px;
-  background: var(--panel); border: 1px solid var(--accent); border-radius: 14px;
+  background: var(--panel); border: 1px solid var(--ink-3); border-radius: 14px;
   box-shadow: 0 4px 18px rgba(0,0,0,.35);
 }
 .lab-onboard[hidden] { display: none; }
 .lab-onboard p { margin: 0; flex: 1 1 240px; font-size: 14px; }
 .lab-search input, .lab-field input[type="search"], .lab-field input[type="text"],
 .lab-field input[type="url"], .lab-field input[type="password"] {
-  background: #0d141d; color: var(--text);
+  background: var(--surface-2); color: var(--text);
   border: 1px solid var(--line); border-radius: 8px;
   padding: 10px 12px; font-size: 15px; min-height: 44px; width: 100%;
 }
@@ -175,21 +207,18 @@ select#lang-select, select#prov-provider, select#prov-model {
 .lab-panel { border-radius: 14px; }
 .lab-toolbar { border-radius: 14px; }
 .lab-mount { border-radius: 14px; }
-/* Hell-Theme (Standalone-Maßstab, Default bleibt dunkel). */
+/* Hell-Theme (Standalone-Maßstab, Default bleibt dunkel). Phase 2: Token-Namen + Fixwerte. */
 html[data-theme="light"] {
-  --bg: #f1f4f9; --bg2: #e4e9f1; --panel: #ffffff; --line: #c9d3e0;
-  --text: #16202e; --muted: #4c5f78; --accent: #4f46e5; --accent2: #0284c7;
+  --surface-0: #f1f4f9; --surface-1: #ffffff; --surface-2: #ffffff;
+  --ink-1: #16202e; --ink-2: #4c5f78; --ink-3: #64748b;
+  --accent: #4f46e5; --accent-ink: #ffffff; --accent-2: #0277b6;
   --ok: #15803d; --warn: #b45309; --bad: #b91c1c; --focus: #1d4ed8;
+  --bg: var(--surface-0); --bg2: #e4e9f1; --panel: var(--surface-1);
+  --line: var(--ink-3); --text: var(--ink-1); --muted: var(--ink-2);
+  --accent2: var(--accent-2);
 }
-html[data-theme="light"] body { background: var(--bg); color: var(--text); }
-html[data-theme="light"] .lab-field select, html[data-theme="light"] .lab-field textarea,
-html[data-theme="light"] .lab-btn,
-html[data-theme="light"] .lab-search input, html[data-theme="light"] .lab-field input[type="search"],
-html[data-theme="light"] .lab-field input[type="text"],
-html[data-theme="light"] .lab-field input[type="url"],
-html[data-theme="light"] .lab-field input[type="password"] {
-  background: #ffffff; color: var(--text);
+html[data-theme="light"] .lab-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%234c5f78' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 html[data-theme="light"] .lab-toolbar { background: rgba(255,255,255,.92); }
 html[data-theme="light"] .lab-mount { background: #0b0f16; }
-html[data-theme="light"] .lab-detail { background: #f1f4f9; }

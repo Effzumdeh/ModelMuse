@@ -173,7 +173,7 @@
     "wiederhergestellt": "«{titel}» (V{nr}) restaurado."
   },
   "onboarding": {
-    "text": "¡Bienvenido! Elija un laboratorio a la izquierda; en modo libre genere directamente con su clave (solo sesión), sin proxy.",
+    "text": "¡Bienvenido! Elija un laboratorio; en modo libre genere directamente con su clave (solo sesión), sin proxy.",
     "verstanden": "Entendido"
   },
   "theme": {

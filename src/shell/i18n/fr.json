@@ -173,7 +173,7 @@
     "wiederhergestellt": "« {titel} » (V{nr}) restauré."
   },
   "onboarding": {
-    "text": "Bienvenue ! Choisis un lab à gauche, génère directement en mode libre avec ta clé personnelle (session uniquement) — sans aucun proxy.",
+    "text": "Bienvenue ! Choisis un lab ; génère directement en mode libre avec ta clé personnelle (session uniquement) — sans aucun proxy.",
     "verstanden": "Compris"
   },
   "theme": {
