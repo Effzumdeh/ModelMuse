@@ -181,7 +181,8 @@
     "hell": "Hell"
   },
   "fuss": {
-    "notiz": "Lab-Player · Generierung direkt im Browser (Key nur Sitzung) oder via lokalem Proxy-Fallback · Verlauf lokal im Browser.",
-    "hilfe": "Brauchst du Hilfe?"
+    "notiz": "Baue 3D-Modelle mit deinem LLM — direkt im Browser, mit Verlauf und Export.",
+    "hilfe": "Brauchst du Hilfe?",
+    "lizenzen": "Lizenzen"
   }
 }

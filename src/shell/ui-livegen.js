@@ -60,6 +60,12 @@ export function keyHintFor(providerId, locale = 'de') {
       es: 'Clave OpenRouter de https://openrouter.ai/keys — solo esta sesión (BYOK).',
       fr: 'Clé OpenRouter de https://openrouter.ai/keys — cette session uniquement (BYOK).',
     },
+    ollama: {
+      de: 'Kein Key nötig — Ollama läuft lokal auf http://localhost:11434 (ggf. OLLAMA_ORIGINS freigeben).',
+      en: 'No key needed — Ollama runs locally on http://localhost:11434 (allow via OLLAMA_ORIGINS if needed).',
+      es: 'Sin clave — Ollama se ejecuta localmente en http://localhost:11434 (permite con OLLAMA_ORIGINS si hace falta).',
+      fr: 'Aucune clé requise — Ollama tourne en local sur http://localhost:11434 (autorise via OLLAMA_ORIGINS si besoin).',
+    },
   };
   return table[providerId]?.[loc] ?? '';
 }

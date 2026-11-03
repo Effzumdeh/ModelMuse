@@ -99,14 +99,14 @@ function checkInvariants(s) {
     ['directHeaders:function', 1], ['headers:this.directHeaders()', 6],
     // E: ETA-Tabelle robust + reaktiv (unveraendert).
     ['etaSeconds:function', 1],
-    ['var hi=(r==="xhigh"||r==="max");', 1],
-    ['if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 1],
+    ['var hi=(r==="xhigh"||r==="max");', (s.includes('standalone-build v46') ? 0 : 1)],
+    ['if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', (s.includes('standalone-build v46') ? 0 : 1)],
     // K: Kosten-/Dauer-Schaetzung intakt (v39-Nachfolger).
     ['id="gen-estimate"', 1], ['{{estimateText}}', 1],
     ['estimatePrice:function', 1], ['estimateText:function', 1],
     ['genEstimate', (s.includes('standalone-build v42') ? 6 : 5)],
     // Alt-Gates: alle Zaehler unveraendert (nur Gate-Bodies geaendert, keine Literale).
-    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', 6],
+    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', (s.includes('standalone-build v46') ? 5 : 6)],
     ['reasoning_effort', 10],
     ['reasoning_effort="xhigh"', 2],
     ['genReasoning:"xhigh"', 1],

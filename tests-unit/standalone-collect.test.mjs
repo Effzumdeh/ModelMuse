@@ -438,7 +438,7 @@ test('v26-Reasoning: max/xhigh mit Leitplanken, UI-Default folgt Maximum', async
   const src = await html();
   const count = (sub) => src.split(sub).length - 1;
   assert.equal(count('xhighAllowed'), 6, 'Leitplanken-Methode + Verwendungen');
-  assert.equal(count('reasoningDefault'), 6, 'Default-Ableitung + Verwendungen (v32 ETA-Tabelle)');
+  assert.equal(count('reasoningDefault'), 5, 'Default-Ableitung + Verwendungen (v46 ETA flat, ohne Tabelle)');
   assert.equal(count('genReasoning:"xhigh"'), 1, 'UI-Default xhigh (Baseten-Startprovider)');
   assert.equal(count("this.t('promptCopied')"), 1, 'copyPrompt zeigt promptCopied');
   assert.ok(!src.includes('},,'), 'kein Doppelkomma (Vue-Boot)');

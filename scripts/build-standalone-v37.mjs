@@ -105,7 +105,7 @@ function checkInvariants(s) {
     ['id==="tele"){this.winMin.tele', 1],
     // E: Tabelle je Modell+Reasoning (1.3 ODER wonder mit xhigh/max -> 240 s).
     // v38-Nachfolger (ETA robust): exakte v37-Zeile ersetzt, wonder bleibt.
-    ['indexOf("wonder")', 1], ['if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 1],
+    ['indexOf("wonder")', (s.includes('standalone-build v46') ? 0 : 1)], ['if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', (s.includes('standalone-build v46') ? 0 : 1)],
     ['if(is13&&hi&&pv)', 0], ['if(isBig&&hi&&pv){return 240;}return 60;}', 0],
     // T: Overlay, Methoden, Hooks, Dock, i18n, Issue-Link.
     ['id="tele-status"', 1], ['"tele-status"', 2],

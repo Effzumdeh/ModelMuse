@@ -102,12 +102,12 @@ function checkInvariants(s) {
     // v32-Texte je Sprache (Overtime + Gesamtzeit + 4-Minuten-Countdown).
     ['länger als erwartet', 2], ['longer than expected', 2], ['lento de lo esperado', 2],
     ['fertig nach {s} s', 2], ['done after {s} s', 2], ['listo tras {s} s', 2],
-    ['ca. 4 Minuten', 2], ['about 4 minutes', 2], ['aprox. 4 minutos', 2],
+    ['ca. 4 Minuten', (s.includes('standalone-build v46') ? 4 : 2)], ['about 4 minutes', (s.includes('standalone-build v46') ? 4 : 2)], ['aprox. 4 minutos', (s.includes('standalone-build v46') ? 4 : 2)],
     // v32-Mechanik.
     ['etaSeconds:function', 1], ['genOverText:function', 1], ['modOverText:function', 1],
     ['genTotalText:function', 1], ['modTotalText:function', 1],
     ['genOver:0', 1], ['modOver:0', 1], ['genTotal:0', 1], ['modTotal:0', 1],
-    ['genOver>0', 1], ['modOver>0', 1], ['return 240;', 3],
+    ['genOver>0', 1], ['modOver>0', 1], ['return 240;', (s.includes('standalone-build v46') ? 1 : 3)],
     ['*1000+120000', 2], ['},120000);', 0],
     // v31-Vertrag bleibt (Countdown-Zeile, Geduld, Queue).
     ['{{genEtaText}}', 1], ['{{modEtaText}}', 1],

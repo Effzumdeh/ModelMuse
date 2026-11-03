@@ -115,6 +115,13 @@ export function generationTarget(reg, providerId, modelId, promptFile = '<PROMPT
     };
   }
   if (p.generation?.kind === 'direct') {
+    if (providerId === 'ollama') {
+      return {
+        kind: 'direct',
+        ready: true,
+        text: `Lokal: Ollama auf http://localhost:11434 (Modell ${modelId}, kein Key, kein Proxy) — ggf. OLLAMA_ORIGINS freigeben, Modell per ollama pull laden.`,
+      };
+    }
     return {
       kind: 'direct',
       ready: false,

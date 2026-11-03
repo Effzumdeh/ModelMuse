@@ -63,12 +63,13 @@ test('O: Keys je Anbieter + Fehlertexte mit Key-Hinweis', async () => {
   assert.ok(s.includes("genProvider===\"openrouter\"?\"OpenRouter-Key (openrouter.ai/keys)\""), 'Placeholder je Anbieter');
 });
 
-test('E1: ETA robust (Modellstring-Varianten, contributor=>240)', async () => {
+test('E1: ETA flat 240 s (v46 ersetzt die robuste Tabelle)', async () => {
   const s = await html();
-  assert.ok(s.includes('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}'), 'konservative 240-s-Regel');
-  assert.ok(s.includes('if(p==="openrouter"&&pv){return 240;}'), 'OpenRouter immer 240 s (unvermessene Modelle)');
-  assert.ok(s.includes('low.indexOf("contributor")>=0'), 'contributor-Variante immer gross');
-  assert.ok(s.includes('low.lastIndexOf("/")'), 'Vendor-Prefix wird gestrippt');
+  assert.ok(s.includes('etaSeconds:function(){return 240;}'), 'flat 240 s fuer alle Modelle/Reasoning-Stufen');
+  assert.ok(!s.includes('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}'), 'alte robuste 60-s-Tabelle ersetzt');
+  assert.ok(!s.includes('if(p==="openrouter"&&pv){return 240;}'), 'keine Provider-Sonderregel mehr (flat)');
+  assert.ok(!s.includes('low.indexOf("contributor")>=0'), 'kein contributor-Sonderfall mehr (flat)');
+  assert.ok(!s.includes('low.lastIndexOf("/")'), 'kein Modellstring-Normalisieren mehr (flat)');
 });
 
 test('E2: Queue entdoppelt (aktiv mit Zeit, Rest ohne)', async () => {

@@ -57,16 +57,16 @@ test('E: Gesamtzeit bei Abschluss de/en/es', async () => {
   assert.ok(s.includes('this.modStatus+=" "+this.modTotalText'), 'Mod-Status haengt Gesamtzeit an');
 });
 
-test('F: ETA-Tabelle (240 s fuer 1.3+xhigh/max, sonst 60 s)', async () => {
+test('F: ETA flat 240 s (keine Tabelle, v46)', async () => {
   const s = await html();
-  assert.equal(cnt(s, 'etaSeconds:function'), 1, 'Tabellen-Methode 1x');
-  assert.ok(s.includes('m.indexOf("1.3")>=0') || s.includes('low.indexOf("1.3")>=0'), 'Modell-Filter 1.3 (v38 robust normalisiert)');
-  assert.ok(s.includes('baseten-direct') && s.includes('meta-muse'), 'Provider-Filter');
-  assert.ok(s.includes('return 240;'), 'Lang-ETA 240 s');
-  // Countdown-Texte je Tabellenwert.
-  assert.equal(cnt(s, 'ca. 4 Minuten'), 2, 'de-Lang-Countdown (gen + mod)');
-  assert.equal(cnt(s, 'about 4 minutes'), 2, 'en-Lang-Countdown (gen + mod)');
-  assert.equal(cnt(s, 'aprox. 4 minutos'), 2, 'es-Lang-Countdown (gen + mod)');
+  assert.equal(cnt(s, 'etaSeconds:function'), 1, 'Flat-Methode 1x');
+  assert.ok(s.includes('etaSeconds:function(){return 240;}'), 'flat 240 s fuer alle Modelle/Reasoning-Stufen');
+  assert.ok(!s.includes('low.indexOf("1.3")'), 'kein Modell-Filter mehr (Tabelle ersetzt)');
+  assert.ok(s.includes('return 240;'), 'ETA 240 s');
+  // Countdown-Texte: Kurz = Lang (ca. 4 Minuten, je gen + mod).
+  assert.equal(cnt(s, 'ca. 4 Minuten'), 4, 'de-Countdown (kurz + lang, gen + mod)');
+  assert.equal(cnt(s, 'about 4 minutes'), 4, 'en-Countdown (kurz + lang, gen + mod)');
+  assert.equal(cnt(s, 'aprox. 4 minutos'), 4, 'es-Countdown (kurz + lang, gen + mod)');
   assert.ok(s.includes('this.etaSeconds()>=120'), 'Countdown-Text folgt Tabelle');
   assert.ok(s.includes('this.genEta=this.etaSeconds()'), 'Gen-Start nutzt Tabelle');
   assert.ok(s.includes('this.modEta=this.etaSeconds()'), 'Mod-Start nutzt Tabelle');

@@ -181,7 +181,8 @@
     "hell": "Clair"
   },
   "fuss": {
-    "notiz": "Lab-Player · génération directement dans le navigateur (clé de session uniquement) ou via repli proxy local · historique local dans le navigateur.",
-    "hilfe": "Besoin d'aide ?"
+    "notiz": "Crée des modèles 3D avec ton LLM — directement dans le navigateur, avec historique et export.",
+    "hilfe": "Besoin d'aide ?",
+    "lizenzen": "Licences"
   }
 }

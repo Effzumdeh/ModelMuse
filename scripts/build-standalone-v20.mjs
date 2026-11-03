@@ -29,7 +29,7 @@ function checkInvariants(s) {
     ['standalone-build v13', 1], ['standalone-build v14', 1], ['standalone-build v15 (', 1],
     ['standalone-build v15a', 1], ['standalone-build v16', 1], ['standalone-build v17', 1],
     ['standalone-build v18', 1], ['standalone-build v19', 1], ['standalone-build v20', 1],
-    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
+    ['PointLight(0xffffff, 900', 0], ['openrouter', (s.includes('standalone-build v46') ? 29 : (s.includes('standalone-build v42') ? 31 : (s.includes('standalone-build v40') ? 28 : 26)))], ['OpenRouter', (s.includes('standalone-build v42') ? 16 : (s.includes('standalone-build v40') ? 13 : 12))],
     ['max_output_tokens', 0], ['"stop"', 0], ['logprobs', 0], ['logit_bias', 0],
     ['modalities', 0], ['web_search_options', 0],
     ['text/event-stream', 2], ['stream:true', 3],

@@ -78,21 +78,28 @@ test('Banner oben: Onboarding steht direkt unter der Menueleiste, ueber Liste un
   await expect(page.getByText('Willkommen bei ModelMuse')).toHaveCount(0);
 });
 
-test('Provider-Umschalter: 3 Optionen (v38/27d68d6: +OpenRouter direkt), Default Baseten ohne (direkt)', async ({ page }) => {
+test('Provider-Umschalter: 4 Optionen (v46: +Ollama lokal), Default Baseten ohne (direkt)', async ({ page }) => {
   await ready(page);
   const prov = page.locator('#gen-provider');
   await expect(prov).toBeVisible();
-  await expect(prov.locator('option')).toHaveCount(3);
+  await expect(prov.locator('option')).toHaveCount(4);
   await expect(prov).toHaveValue('baseten-direct');
   await expect(prov.locator('option[value="baseten-direct"]')).toHaveText('Baseten');
   await expect(prov.locator('option[value="openrouter"]')).toHaveText('OpenRouter');
   await expect(prov.locator('option[value="meta-muse"]')).toHaveText('Meta Muse');
+  await expect(prov.locator('option[value="ollama"]')).toHaveText('Ollama (lokal)');
   await expect(page.locator('#gen-model')).toHaveValue('meta-models/muse-spark-open-1026');
   await expect(page.locator('#gen-key')).toHaveAttribute('placeholder', 'Baseten-API-Key');
   const label = await page.textContent('body');
   expect(label).not.toContain('Baseten (direkt)');
   expect(label).not.toContain('Baseten (direct)');
   expect(label).toContain('Baseten');
+  // v46 Ollama: Modell-Freitext bewusst leer, Key-Block versteckt (BYOK entfaellt).
+  await page.selectOption('#gen-provider', 'ollama');
+  await expect(page.locator('#gen-model')).toHaveValue('');
+  await expect(page.locator('#gen-key')).toHaveCount(0);
+  await page.selectOption('#gen-provider', 'baseten-direct');
+  await expect(page.locator('#gen-model')).toHaveValue('meta-models/muse-spark-open-1026');
 });
 
 test('Provider-Wechsel Meta: Modelle + LLM-Hinweis + Reasoning-Gate + Key-Cache', async ({ page }) => {

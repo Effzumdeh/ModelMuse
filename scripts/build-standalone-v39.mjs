@@ -99,8 +99,8 @@ function checkInvariants(s) {
     ['keyMissingOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyInvalidOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)], ['keyFormatOpenrouter', (s.includes('standalone-build v42') ? 5 : 4)],
     ["{{t('teleThanks')}}", 1], ['teleThanksTimer', 10], ['teleIssueShow', 6],
     // E: ETA-Tabelle robust + Queue entdoppelt (unveraendert).
-    ['indexOf(\"wonder\")', 1],
-    ['if(pv&&hi&&(low===\"\"||low===\"auto\"||low===\"standard\")){return 240;}return 60;}', 1],
+    ['indexOf(\"wonder\")', (s.includes('standalone-build v46') ? 0 : 1)],
+    ['if(pv&&hi&&(low===\"\"||low===\"auto\"||low===\"standard\")){return 240;}return 60;}', (s.includes('standalone-build v46') ? 0 : 1)],
     ['if(st===\"jobDone\"){return \"\";}', 1],
     ['Platz {n}\"', 1], ['Slot {n}\"', 1], ['Puesto {n}\"', 1],
     // T: Telemetrie-UX intakt.

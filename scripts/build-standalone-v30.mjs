@@ -86,7 +86,7 @@ function checkInvariants(s) {
     // R0-Calls weg (Computed als Properties), Bilanz unveraendert.
     ['this.reasoningAllowed()', 0], ['this.xhighAllowed()', 0], ['this.reasoningDefault()', 0],
     // v32-Nachfolger (ETA-Tabelle liest Default): 5->6.
-    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', 6],
+    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', (s.includes('standalone-build v46') ? 5 : 6)],
     ['genReasoning:"xhigh"', 1],
     // v29-Modelliste unveraendert.
     ['{id:"demo-2d-chart",track', 1], ['{id:"demo-2d-svg"', 0], ['{id:"demo-2d-katex"', 0],

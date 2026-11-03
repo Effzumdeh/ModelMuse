@@ -46,15 +46,15 @@ test('B: ETA-Countdown mit Geduld-Hinweis de/en/es in beiden Overlays', async ()
       assert.ok(s.includes(key) && cnt(s, key) >= 1, `${key} vorhanden (${loc}-Abdeckung im Block)`);
     }
   }
-  // Countdown-Platzhalter und Geduld-Texte je Sprache.
-  assert.ok(s.includes('ca. 1 Minute'), 'de-ETA ca. 1 Minute');
-  assert.ok(s.includes('about 1 minute'), 'en-ETA about 1 minute');
-  assert.ok(s.includes('aprox. 1 minuto'), 'es-ETA aprox. 1 minuto');
+  // Countdown-Platzhalter und Geduld-Texte je Sprache (v46: flat 240 s, Kurz = Lang).
+  assert.ok(s.includes('ca. 4 Minuten'), 'de-ETA ca. 4 Minuten');
+  assert.ok(s.includes('about 4 minutes'), 'en-ETA about 4 minutes');
+  assert.ok(s.includes('aprox. 4 minutos'), 'es-ETA aprox. 4 minutos');
   assert.ok(s.includes('{s}'), 'Countdown-Sekundenplatzhalter');
   assert.equal(cnt(s, 'Hab noch einen Moment Geduld.'), 2, 'de-Geduld (gen + mod)');
   assert.ok(s.includes('Hang on a moment.'), 'en-Geduld');
   assert.ok(s.includes('Ten un poco m\u00e1s de paciencia.'), 'es-Geduld');
-  // Timer-Verdrahtung: Start/Stopp je Overlay, Countdown ab 60.
+  // Timer-Verdrahtung: Start/Stopp je Overlay, Countdown ab 240 (v46 flat).
   for (const m of ['startGenEta', 'stopGenEta', 'startModEta', 'stopModEta', 'genEtaText', 'modEtaText']) {
     assert.equal(cnt(s, m), 2, `${m} (Definition + Nutzung)`);
   }

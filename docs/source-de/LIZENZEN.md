@@ -87,7 +87,7 @@ Im Artefakt erscheinen nur die *Zeichenketten* `2d-mermaid`, `2d-chart`, `2d-d3`
 > **Inter** (SIL Open Font License 1.1, © 2016 The Inter Project Authors, CDN-Referenz im Standalone-Artefakt) ·
 > **Vue 3** (MIT, © 2018-present Yuxi (Evan) You and Vue contributors, CDN-Referenz im Standalone-Artefakt) ·
 > **3JSBench Task-Briefings** (MIT, © 2026 General Context — <https://github.com/GeneralContext/3jsbench>, Eval-Korpus, 100 Briefings).
-> Vollständige Lizenztexte, Herkunftsnachweise und die Abgrenzung „eingebettet vs. nur referenziert" stehen in [`docs/LIZENZEN.md`](LIZENZEN.md).
+> Vollständige Lizenztexte, Herkunftsnachweise und die Abgrenzung „eingebettet vs. nur referenziert" stehen in [`docs/LICENSES.md`](LIZENZEN.md).
 > Es werden ausschließlich MIT-, Apache-2.0-, ISC- und OFL-1.1-lizenzierte Komponenten verwendet — keine NC-/ND-/proprietären Inhalte.
 
 ### 5.2 Attributions-Text für das Artefakt `dist/lab-player.html`
@@ -117,14 +117,14 @@ The MIT License (MIT), applies to all components listed above:
   … (vollständiger MIT-Text) …
 
 Vollstaendiger Lizenz-Audit, Provenienznachweis und offene Punkte:
-docs/LIZENZEN.md
+docs/LICENSES.md
 ```
 
 ### 5.3 Attributions-Text für den Footer des Standalone-Artefakts
 
 `dist-standalone/modelmuse-standalone.html` bündelt **keine** Fremd-Bibliothek, referenziert aber vier per CDN. Der Footer nennt sie deshalb mit Version/Lizenz:
 
-> Attribution: three.js 0.186.1 (MIT) · Vue 3 (MIT) · Tailwind CSS (MIT) · Inter Font (SIL OFL 1.1). Vollstaendige Lizenztexte, Provenienz und Abgrenzung (eingebettet vs. nur referenziert): docs/LIZENZEN.md
+> Attribution: three.js 0.186.1 (MIT) · Vue 3 (MIT) · Tailwind CSS (MIT) · Inter Font (SIL OFL 1.1). Vollstaendige Lizenztexte, Provenienz und Abgrenzung (eingebettet vs. nur referenziert): docs/LICENSES.md
 
 **Beleg der Abgrenzung:** Das Standalone enthält **keinen** Alpine-Code (`grep -c -i alpine` = 0) und **keinen** inline eingebetteten three.js-Bibliothekskörper (kein `REVISION = '…'`; die `WebGLRenderer`-Treffer sind ausschließlich Import-Listen im generierten Modellcode und eine Namens-Allowlist). Der three.js-Bezug entsteht allein über die Importmap auf `unpkg.com/three@0.186.1`, der Alpine-Bezug entfällt für dieses Artefakt vollständig.
 
@@ -225,7 +225,7 @@ npm run build && npm run test:unit && npm run render && npm run verify:dist
 | `npm run verify:dist` | **ALLE CHECKS GRUEN** — keine externen LOAD-URLs, keine Key-Muster, `artefaktSha256` == `.sha256` |
 | `npm run verify:all` | **OK** — 12 Modelle, alle gelb, keine Fehler; Artefakt 854 325 B < Komfort |
 | Standalone-Renderprobe (`scripts/_tmp/proof-standalone-guide.mjs`, Chromium/SwiftShader) | **PROOF-OK** — 0 Console-Errors, 0 Page-Errors, Boot ohne Banner, 10 Labs geladen; **Warnung erwartet**: „cdn.tailwindcss.com should not be used in production" (→ Risiko R6/O-5, kein Fehler) |
-| Footer-Sichtprobe (Playwright, `footer.innerText`) | Attributions-Zeile sichtbar: „Attribution: three.js 0.186.1 (MIT) · Vue 3 (MIT) · Tailwind CSS (MIT) · Inter Font (SIL OFL 1.1). Vollständige Lizenztexte und Herkunftsnachweis: docs/LIZENZEN.md" |
+| Footer-Sichtprobe (Playwright, `footer.innerText`) | Attributions-Zeile sichtbar: „Attribution: three.js 0.186.1 (MIT) · Vue 3 (MIT) · Tailwind CSS (MIT) · Inter Font (SIL OFL 1.1). Vollständige Lizenztexte und Herkunftsnachweis: docs/LICENSES.md" |
 | Nachweis im Hauptartefakt | `THIRD-PARTY NOTICES` = 1, `Caleb Porzio` = 1, `Copyright 2010-2026 three.js authors` = 1, `Permission is hereby granted` = 1 |
 
 **Reihenfolge-Hinweis (wichtig für Reproduzierbarkeit):** `scripts/build.mjs` stempelt `artefaktSha256` aus der **bereits vorhandenen** `dist/lab-player.html`. Nach einer Änderung am Shell-Template muss deshalb **`npm run render` → `npm run build`** laufen, damit der Hash-Stempel zum Artefakt passt; erst danach ist `npm run verify:dist` grün. Die Reihenfolge `build → render → verify:dist` lässt einen veralteten Stempel zurück und meldet zu Unrecht „artefaktSha256 != Artefakt-sha256".

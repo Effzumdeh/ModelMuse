@@ -100,7 +100,7 @@ function checkInvariants(s) {
     ['modify:async function', 1], ['role="dialog"', 3], ['id="gen-status"', 1],
     ['{id:"demo-2d-chart",track', 1], ['explanations:{de:[', 6],
     // v32-Nachfolger (ETA-Tabelle liest Default): 5->6.
-    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', 6],
+    ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', (s.includes('standalone-build v46') ? 5 : 6)],
     ['genReasoning:"xhigh"', 1],
     // v31-Marker.
     // v35-Nachfolger (eine Pumpe, zwei Einreihungen): 2->3.

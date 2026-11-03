@@ -33,6 +33,7 @@ export const DIRECT_BASES = Object.freeze({
   'meta-muse': 'https://api.meta.ai/v1',
   baseten: 'https://inference.baseten.co/v1',
   openrouter: 'https://openrouter.ai/api/v1',
+  ollama: 'http://localhost:11434/v1',
 });
 
 /** Upstream-Default-Modelle je Anbieter (stimmen mit scripts/proxy.mjs ueberein). */
@@ -40,6 +41,7 @@ export const DIRECT_DEFAULT_MODEL = Object.freeze({
   'meta-muse': 'muse-spark-1.3-contributor',
   baseten: 'meta-models/muse-spark-open-1026',
   openrouter: 'openai/gpt-6.1-sol',
+  ollama: 'llama3.1:8b',
 });
 
 /**
@@ -779,9 +781,12 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
       try {
         const chatBody = buildChatBody(model, promptText, { provider, reasoning: opts.reasoning });
         if (slimmed) stripChatExtras(chatBody);
+        const baseHeaders = { 'content-type': 'application/json', accept: 'text/event-stream', ...extraHeaders };
+        // Ollama laeuft lokal ohne Key (BYOK entfaellt, localhost:11434).
+        if (provider !== 'ollama' && key) baseHeaders.authorization = 'Bearer ' + key;
         const send = async (b) => fetch(url, {
           method: 'POST',
-          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key, accept: 'text/event-stream', ...extraHeaders },
+          headers: baseHeaders,
           body: JSON.stringify(b),
           signal: ctrl.signal,
         });
@@ -838,7 +843,8 @@ async function generateDirect(url, provider, model, promptText, opts, key) {
  * verifiziert: meta-muse 1.3/wonder max, contributor/baseten xhigh,
  * OpenRouter je Slug max/xhigh/high/medium/low (+minimal nur spark);
  * unbelegte Stufe -> kein Param, 400-Fallback bleibt).
- * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser), Proxy nur als Fallback
+ * Ablauf: Direkt-Call zuerst (BYOK-Key im Browser; Ollama lokal ohne Key),
+ * Proxy nur als Fallback
  * bei Transport-Fehler (OpenRouter: NUR Direkt-Call — Proxy lehnt openrouter
  * mit E-GEN-404 + Hinweis ab); ohne Key nur Proxy (Server-Key), sonst E-GEN-OFFLINE.
  * v23: KEIN Length-Limit im Proxy-Body (Modell nutzt eigenes Maximum);
@@ -856,7 +862,9 @@ export async function generateLive(promptText, opts = {}) {
     ? opts.model
     : (DIRECT_DEFAULT_MODEL[provider] ?? undefined);
   const key = liveApiKey;
-  const directUrl = directFirst && key && model ? directChatUrl(provider) : null;
+  // Ollama braucht keinen Key (lokal, localhost:11434) — Direkt-Call auch ohne Key.
+  const needsKey = provider !== 'ollama';
+  const directUrl = directFirst && (!needsKey || key) && model ? directChatUrl(provider) : null;
   if (directUrl) {
     try {
       return await generateDirect(directUrl, provider, model, promptText, opts, key);

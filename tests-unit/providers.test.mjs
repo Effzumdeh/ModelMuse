@@ -9,11 +9,11 @@ import {
 
 const reg = JSON.parse(await readFile('src/data/providers.json', 'utf8'));
 
-test('Registry ist gueltig: 3 Anbieter, 6 Modelle, Defaults belegt', () => {
+test('Registry ist gueltig: 4 Anbieter, 7 Modelle, Defaults belegt', () => {
   const { ok, errors } = validateProviders(reg);
   assert.equal(ok, true, errors.join('; '));
-  assert.equal(reg.providers.length, 3);
-  assert.equal(listModels(reg).length, 6);
+  assert.equal(reg.providers.length, 4);
+  assert.equal(listModels(reg).length, 7);
   assert.equal(reg.defaultProvider, 'meta-muse');
   assert.equal(reg.defaultModel, 'muse-spark-1.3-contributor');
 });
@@ -61,6 +61,27 @@ test('OpenRouter: NUR verifizierte Slugs (31.10.2026, nichts erfunden)', () => {
     assert.match(String(m.routingHinweis ?? ''), /verifiziert/, `${id}: Verifikations-Beleg fehlt`);
     assert.match(String(m.privacy ?? ''), /OpenRouter-Key/, `${id}: BYOK-Hinweis fehlt`);
   }
+});
+
+test('Ollama: lokal ohne Key, Freitext-Modell, belegte Doku-Links', () => {
+  const p = getProvider(reg, 'ollama');
+  assert.ok(p, 'ollama-Anbieter fehlt');
+  assert.equal(p.generation?.kind, 'direct', 'Ollama: Direkt-Call (kein Proxy)');
+  assert.equal(p.generation?.status, 'lokal-ohne-key', 'Ollama: BYOK entfaellt');
+  assert.match(p.generation?.keyHandling ?? '', /Kein Key-Feld/, 'Key-Feld-Hinweis');
+  for (const url of (p.docs ?? []).map((d) => d.url)) {
+    assert.ok(/^https:\/\/(ollama\.com|docs\.ollama\.com)\//.test(url), `unbelegte Ollama-URL: ${url}`);
+  }
+  const urls = (p.docs ?? []).map((d) => d.url).join(' ');
+  assert.ok(urls.includes('http://localhost:11434') || /localhost:11434/.test(p.generation?.hinweis ?? ''), 'localhost:11434 belegt');
+  assert.ok(/OLLAMA_ORIGINS/.test(p.generation?.hinweis ?? ''), 'CORS-Hinweis OLLAMA_ORIGINS');
+  const m = getModel(reg, 'ollama', 'llama3.1:8b');
+  assert.ok(m, 'Ollama-Beispiel-Tag fehlt');
+  assert.ok((m.badges ?? []).some((b) => /ETA 240 s/.test(b.text)), 'ETA-240-Badge');
+  const ziel = generationTarget(reg, 'ollama', 'llama3.1:8b');
+  assert.equal(ziel.kind, 'direct');
+  assert.equal(ziel.ready, true, 'Ollama braucht keinen Key (ready ohne BYOK)');
+  assert.match(ziel.text, /localhost:11434/);
 });
 
 test('Empfehlungen: Geometrie/Aesthetik/Praeferenz=Fallback Standard, Allround=Contributor, Datenschutz=Standard', () => {

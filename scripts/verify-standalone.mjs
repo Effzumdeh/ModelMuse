@@ -373,7 +373,7 @@ if (isShowcase) {
   eqS('reasoning_effort="low"', 0, 'v26 kein low mehr (xhigh)');
   eqS('reasoning_effort="none"', 0, 'v26 kein unbelegtes none (Doku: rejected/gemapped)');
   eqS('xhighAllowed', 6, 'v26 xhigh-Leitplanken (Methode + selects + defaults + bodies)');
-  eqS('reasoningDefault', 6, 'v26+v32 UI-Default-Ableitung (Methode + resets + bodies + ETA-Tabelle)');
+  eqS('reasoningDefault', 5, 'v26+v46 UI-Default (Methode + resets + bodies + Schaetzung; ETA flat ohne Tabelle)');
   eqS('genReasoning:"xhigh"', 1, 'v26 UI-Default xhigh (Baseten-Startprovider)');
   eqS('reasoningHigh', 5, 'v26+v42 xhigh-Option (4 Locales + Template)');
   eqS('stream_options', 4, 'v21 stream usage (2 Bodies + 2 Fallback-Strips)');
@@ -419,10 +419,15 @@ if (isShowcase) {
   eqS('fertig nach {s} s', 2, 'v32 Gesamtzeit de (gen + mod)');
   eqS('done after {s} s', 2, 'v32 Gesamtzeit en (gen + mod)');
   eqS('listo tras {s} s', 2, 'v32 Gesamtzeit es (gen + mod)');
-  eqS('ca. 4 Minuten', 2, 'v32 Lang-Countdown de (gen + mod)');
-  eqS('about 4 minutes', 2, 'v32 Lang-Countdown en (gen + mod)');
-  eqS('aprox. 4 minutos', 2, 'v32 Lang-Countdown es (gen + mod)');
-  eqS('etaSeconds:function', 1, 'v32+v37 ETA-Tabelle (1.3/wonder+xhigh/max->240 s)');
+  eqS('ca. 4 Minuten', 4, 'v46 ETA-Countdown de (kurz + lang, gen + mod)');
+  eqS('about 4 minutes', 4, 'v46 ETA-Countdown en (kurz + lang, gen + mod)');
+  eqS('aprox. 4 minutos', 4, 'v46 ETA-Countdown es (kurz + lang, gen + mod)');
+  eqS('etaSeconds:function', 1, 'v46 ETA flat (Methode ohne Tabelle)');
+  eqS('etaSeconds:function(){return 240;}', 1, 'v46 ETA flat 240 s (keine Modell/Reasoning-Tabelle)');
+  eqS('ca. 1 Minute', 0, 'v46 kein 1-Min-Kurztext mehr (de)');
+  eqS('about 1 minute', 0, 'v46 kein 1-Min-Kurztext mehr (en)');
+  eqS('aprox. 1 minuto', 0, 'v46 kein 1-Min-Kurztext mehr (es)');
+  eqS('env. 1 minute', 0, 'v46 kein 1-Min-Kurztext mehr (fr)');
   eqS('*1000+120000', 2, 'v32 Abort folgt Tabelle (gen + mod)');
   eqS('},120000);', 0, 'v32 kein fixer 120-s-Abort mehr');
   eqS('standalone-build v33', 1, 'v33 stamp (Mesh-Text raus + Erklaerungs-Haertung)');
@@ -454,7 +459,7 @@ if (isShowcase) {
   // v37 (M/E/T/Q): zustandsabhaengige Min-Buttons, wonder-ETA, Telemetrie-Opt-in,
   // Countdown je Auftrag, Erfolgs-Feedback, 30-s-/Modell-Oeffnen-Hygiene.
   eqS("winMin.gen?'+':'–'", 1, 'v37 gen-Min zustandsabhaengig');
-  eqS('indexOf("wonder")', 1, 'v37 wonder in ETA-Tabelle');
+  eqS('indexOf("wonder")', 0, 'v46 flat (keine wonder-Sondertabelle)');
   eqS('id="tele-status"', 1, 'v37 Telemetrie-Fenster');
   eqS('openTele:function', 1, 'v37 Telemetrie-Snapshot');
   eqS('teleBlock:function', 1, 'v37 Telemetrie-Block (redigiert)');
@@ -471,7 +476,24 @@ if (isShowcase) {
   eqS("{{t('teleThanks')}}", 1, 'v38 Danke-Text im Fenster');
   eqS('teleIssueShow', 6, 'v38 Issue erst nach Danke (Data/Reset/Close/Copy/Template)');
   eqS('if(st==="jobDone"){return "";}', 1, 'v38 Queue: fertig ohne eigene Zeit');
-  eqS('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 1, 'v38 ETA robust (Varianten + openrouter/unbekannt -> 240)');
+  eqS('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}', 0, 'v46 alte ETA-Tabelle ersetzt (flat)');
+  eqS('standalone-build v46', 1, 'v46 Stempel (Final-Sprint: ETA flat + Modus-Auto + Footer + LICENSES + Ollama)');
+  // v46 (E/M/F/L/O/T): ETA flat 240, Modus-Auto, Funktions-Footer,
+  // LICENSES-Link, Ollama lokal, System-Theme ohne Toggle.
+  eqS('@click="force2D"', 0, 'v46 Modus-Buttons raus (force2D)');
+  eqS('@click="to3D"', 0, 'v46 Modus-Buttons raus (to3D)');
+  eqS("{{t('mode2d')}}", 0, 'v46 Modus-Buttons raus (Template)');
+  eqS("{{t('mode3d')}}", 0, 'v46 Modus-Buttons raus (Template)');
+  eqS('Baue 3D-Modelle mit deinem LLM', 1, 'v46 Funktions-Footer de');
+  eqS('Build 3D models with your LLM', 1, 'v46 Funktions-Footer en');
+  eqS('Crea modelos 3D con tu LLM', 1, 'v46 Funktions-Footer es');
+  eqS('avec ton LLM', 1, 'v46 Funktions-Footer fr');
+  eqS('docs/LIZENZEN.md', 0, 'v46 alte Lizenzablage weg');
+  eqS('href="docs/LICENSES.md"', 1, 'v46 Lizenz-Link in der Fusszeile');
+  eqS('id:"ollama"', 1, 'v46 Ollama-Provider');
+  eqS('http://localhost:11434/v1', 1, 'v46 Ollama-Basis (OpenAI-kompatibel)');
+  eqS('setTheme', 0, 'v46 kein Theme-Umschalter (Methode + Buttons raus)');
+  eqS('modelmuse.theme', 0, 'v46 kein Theme-Override (nur System)');
   eqS('standalone-build v40', 1, 'v40 Stempel (Reasoning-Stufen je Modell: max nur wo belegt)');
   eqS('||this.genProvider==="openrouter";},', 1, 'v40 max-Gate += openrouter (reasoningAllowed, max dort belegt)');
   eqS('this.genProvider==="openrouter"?"xhigh":"max"', 1, 'v40 Default openrouter xhigh (kein stilles max-Upgrade)');
@@ -509,7 +531,7 @@ if (isShowcase) {
   eqS('var FR={', 1, 'v42 FR-Anreicherung (Map + fr-Fallbacks)');
   eqS('plus lent que pr\\u00e9vu', 2, 'v42 Overtime fr (gen + mod)');
   eqS('pr\\u00eat apr\\u00e8s {s} s', 2, 'v42 Gesamtzeit fr (gen + mod)');
-  eqS('env. 4 minutes', 2, 'v42 Lang-Countdown fr (gen + mod)');
+  eqS('env. 4 minutes', 4, 'v46 ETA-Countdown fr (kurz + lang, gen + mod)');
   eqS('Patiente encore un moment.', 2, 'v42 Geduld-Hinweis fr (gen + mod)');
   eqS('ModelMuse diagnostic (édité, sans clé).', 1, 'v42 diagText fr');
   eqS('ModelMuse télémétrie (volontaire, sans clé).', 1, 'v42 teleBlock fr');

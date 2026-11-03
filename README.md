@@ -130,4 +130,4 @@ Contributions are welcome. Please keep pull requests focused, run `npm run verif
 
 ## License
 
-This project is released under the MIT License. See [`LICENSE`](LICENSE) for details. Third-party components and their licenses are documented in [`docs/licenses.md`](docs/licenses.md).
+This project is released under the MIT License. See [`LICENSE`](LICENSE) for details. Third-party components and their licenses are documented in [`docs/LICENSES.md`](docs/LICENSES.md).

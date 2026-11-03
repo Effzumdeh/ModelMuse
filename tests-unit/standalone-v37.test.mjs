@@ -40,11 +40,11 @@ test('M: Min-Buttons zustandsabhaengig (gen/mod/part/tele)', async () => {
   assert.ok(s.includes('"tele-status"'), 'Dock stapelt tele-status');
 });
 
-test('E: ETA-Tabelle je Modell+Reasoning (robust, v38-Nachfolger)', async () => {
+test('E: ETA flat 240 s (v46 ersetzt die robuste Tabelle)', async () => {
   const s = await html();
-  assert.ok(s.includes('m.indexOf("1.3")') || s.includes('low.indexOf("1.3")'), '1.3 in Tabelle');
-  assert.ok(s.includes('indexOf("wonder")'), 'wonder in Tabelle');
-  assert.ok(s.includes('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}'), '240 s robust (Varianten, openrouter/unbekannt)');
+  assert.ok(s.includes('etaSeconds:function(){return 240;}'), 'flat 240 s (keine Modell/Reasoning-Tabelle)');
+  assert.equal(cnt(s, 'indexOf("wonder")'), 0, 'keine wonder-Sondertabelle mehr');
+  assert.ok(!s.includes('if(pv&&hi&&(low===""||low==="auto"||low==="standard")){return 240;}return 60;}'), 'alte robuste Tabelle ersetzt');
   assert.equal(cnt(s, 'if(is13&&hi&&pv)'), 0, 'alte is13-Bedingung ersetzt');
   assert.equal(cnt(s, 'if(isBig&&hi&&pv){return 240;}return 60;}'), 0, 'v37-Zeile ersetzt');
   assert.equal(cnt(s, 'if(st==="jobDone"){return "";}'), 1, 'Queue: fertig ohne eigene Zeit (v38-Entkopplung)');

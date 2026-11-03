@@ -181,7 +181,8 @@
     "hell": "Light"
   },
   "fuss": {
-    "notiz": "Lab player · generation directly in the browser (session-only key) or via local proxy fallback · history stays local.",
-    "hilfe": "Need help?"
+    "notiz": "Build 3D models with your LLM — right in the browser, with history and export.",
+    "hilfe": "Need help?",
+    "lizenzen": "Licenses"
   }
 }

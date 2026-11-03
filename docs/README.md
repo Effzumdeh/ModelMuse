@@ -8,7 +8,7 @@ Du findest hier alle Konzept- und Nachweisdokumente. Beginne im Abschnitt „Akt
 |---|---|
 | `INVENTUR-2026-10-30.md` | Bestandsaufnahme vom 30.10.2026 — **historische Momentaufnahme vor der Bereinigung** (siehe Hinweis im Dateikopf). |
 | `INVENTUR-ANHANG-FILELISTE.md` | Dateiliste zur Inventur (Anhang, maschinell erzeugt). |
-| `licenses.md` | License and provenance audit (v13 state; historical — see the note in the file header). |
+| `LICENSES.md` | License and provenance audit (v13 state; historical — see the note in the file header). |
 | `FINAL-NACHWEISE.md` | Finale Nachweise zum Release-Stand. |
 | `AKTUELL-SCREENSHOTS.md` | Aktuelle Screenshots und ihr Stand. |
 | `LIVE-SHOTS.md` | Live-Aufnahmen aus dem laufenden Betrieb. |
