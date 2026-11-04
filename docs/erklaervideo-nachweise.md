@@ -56,3 +56,14 @@ Kosten: reine API-Nutzung, **≈ 0,80 $** (9.952 Zeichen inkl. Break-Tags; im Cr
 `docs/.erklaervideo-work/tools/`: `tts-v2.mjs` (Key aus Profil-`.env` selbst geparst, nur als HTTP-Header, nie geloggt; inkl. PHON-Abbildung),
 `build-html-v3.mjs`, `mix-v2.mjs`, `mux.mjs`, `verify.mjs` · Belege: `tts-summary.json`, `voices.json`, `mix-report.json`, `grid.json`.
 Skripte: `docs/erklaervideo-skript.md` (+`.en`/`.es`/`.fr.md`, FR neu angelegt).
+
+## Player-Pfad live (Fix v55, 04.11.2026)
+
+- Befund: Player (v54) fragte `../docs/erklaervideo-{lang}-180.mp4` — auf Pages
+  (Projektseite, App unter `/ModelMuse/`) loest das zu `/docs/...` auf → **404**,
+  Video startet nicht. Dateien selbst ok: `/ModelMuse/docs/*.mp4` → 200 video/mp4.
+- Fix: `videoBase()` waehlt je Kontext (`dist-standalone/`-Vorschau → `../docs/`,
+  Pages → `docs/`, relativ/subpfad-unabhaengig); `@error`-Fallback versucht einmalig
+  die Alternativbasis (`videoAlt`, Markierung `data-v55-alt`, Cleanup bei Close).
+- Belege: `npm run build:standalone` (Kette idempotent) + `verify:standalone` gruen,
+  `test:unit` 414/414, `dist-standalone/build-standalone-v55-report.json`.

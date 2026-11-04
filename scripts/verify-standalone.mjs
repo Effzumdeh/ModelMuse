@@ -567,6 +567,17 @@ if (isShowcase) {
   eqS('videoBtn:', 4, 'v54 I18N videoBtn de/en/es/fr');
   eqS('videoMissing:', 4, 'v54 I18N videoMissing de/en/es/fr');
   eqS('../docs/erklaervideo-', 2, 'v54 Video-Pfad (CSS-Kommentar + Methode)');
+  // v55 (P2/P3, 04.11.2026): Pages-fix — ../docs/ griff auf Pages ins Leere
+  // (Projekt-Subpfad /ModelMuse/ -> /docs/ = 404). videoBase waehlt je Kontext
+  // (dist-standalone-Vorschau ../docs/, Pages docs/), @error versucht einmalig
+  // die Alternativbasis (videoAlt), Close raeumt die Markierung ab.
+  eqS('standalone-build v55', 1, 'v55 Stempel (Erklaervideo-Pfad Pages-fix)');
+  eqS('videoBase:function', 1, 'v55 Kontext-Basis (dist-standalone vs Pages)');
+  eqS('videoFile:function', 1, 'v55 Video-Dateiname je UI-Sprache');
+  eqS('videoAlt:function', 1, 'v55 Alternativbasis (../docs/ <-> docs/)');
+  eqS('onVideoError:function', 1, 'v55 Error-Fallback-Methode');
+  eqS('@error="onVideoError"', 1, 'v55 Error-Bindung im Video-Template');
+  eqS('data-v55-alt', 3, 'v55 Alternativ-Markierung (Get + Set + Cleanup)');
   eqS('TEMP-DEAKTIVIERT-v54', 1, 'v54 Deaktivierungs-Kommentar');
   eqS('id:"openrouter"', 1, 'v54 OpenRouter-ID bleibt (Kommentar)');
   eqS('id:"ollama"', 1, 'v54 Ollama-ID bleibt (Kommentar)');

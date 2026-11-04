@@ -51,7 +51,9 @@ jobs:
           mkdir -p _site/docs
           cp docs/LICENSES.md _site/docs/LICENSES.md
           # Erklaervideos (04.11.2026, -180-Finalschnitt): der Standalone-Player
-          # laedt je UI-Sprache ../docs/erklaervideo-{de,en,es,fr}-180.mp4.
+          # waehlt die Basis je Kontext (videoBase, v55): dist-standalone-Vorschau
+          # ../docs/, Pages (_site/index.html + _site/docs/) docs/ — relativ,
+          # daher subpfad-unabhaengig; @error versucht einmalig die Alternativbasis.
           # Nur diese 4 Finals werden deployed (alle anderen MP4s bleiben lokal).
           cp docs/erklaervideo-de-180.mp4 docs/erklaervideo-en-180.mp4 docs/erklaervideo-es-180.mp4 docs/erklaervideo-fr-180.mp4 _site/docs/
 
