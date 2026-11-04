@@ -76,7 +76,7 @@ function checkInvariants(s) {
     // je +1 (exakt in v22: 7/6). Exakte v22-Werte prueft build-standalone-v22.mjs.
     ['emptyResponse', (s.includes('standalone-build v42') ? 5 : 4)],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
-    ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)], ['__FREE_GUARD_V18__', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   // v26-Toleranz: R0 Reasoning xhigh/max (Methode + selects + defaults + bodies) 5->7.

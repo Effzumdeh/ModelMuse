@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-11-04T20:03:33.477Z",
+  "createdAt": "2026-11-04T22:54:44.639Z",
   "versions": {
     "three": "0.186.1",
     "esbuild": "0.28.2",
@@ -138,8 +138,8 @@
     "manifestsSchemas": 115713
   },
   "maxViolations": [],
-  "buildHash": "73f03d79129901a4391be94264331345040936008cbba4f733ee97f06467fc7c",
-  "artefaktSha256": "81bf7c0705ceeb5cac220313bb23f6d89ac70beb9bb4f93084f5ec6403119f59",
+  "buildHash": "ff2dcdb25575fbb22686999ec94447105d01a979736bd07bbd5a43363d895354",
+  "artefaktSha256": null,
   "routes": {
     "p0": true,
     "p1_2d": true,

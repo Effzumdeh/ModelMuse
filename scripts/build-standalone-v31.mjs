@@ -96,9 +96,9 @@ function checkInvariants(s) {
     ['standalone-build v27', 1], ['standalone-build v28', 1], ['standalone-build v29', 1],
     ['standalone-build v30', 1],
     ['standalone-build v31', 1],
-    ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)], ['__FREE_GUARD_V18__', 1],
     ['modify:async function', 1], ['role="dialog"', (s.includes('standalone-build v54') ? 4 : 3)], ['id="gen-status"', 1],
-    ['{id:"demo-2d-chart",track', 1], ['explanations:{de:[', 6],
+    ['{id:"demo-2d-chart",track', (s.includes('standalone-build v56') ? 0 : 1)], ['explanations:{de:[', (s.includes('standalone-build v56') ? 4 : 6)],
     // v32-Nachfolger (ETA-Tabelle liest Default): 5->6.
     ['reasoningAllowed', 7], ['xhighAllowed', 6], ['reasoningDefault', (s.includes('standalone-build v46') ? 5 : 6)],
     ['genReasoning:"xhigh"', 1],

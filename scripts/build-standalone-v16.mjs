@@ -76,7 +76,7 @@ function checkInvariants(s) {
     ['v-if="showOnboarding"', 1],
     ['shrink-0 inline-flex items-center justify-center rounded-xl border', 1],
     // v37-Nachfolger (Tele-Fenster): 2->3.
-    ['role="dialog"', (s.includes('standalone-build v54') ? 4 : 3)], ['id="gen-status"', 1],    ['showcase: 5 Modelle', 1],
+    ['role="dialog"', (s.includes('standalone-build v54') ? 4 : 3)], ['id="gen-status"', 1],    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)],
     ['__FREE_GUARD_V18__', 1],
     ['Fortschritt', 0], ['fortschritt', 0],
     // v29-Nachfolger (Modelliste 10->6): explanations 10->6 (exakt in v29).
@@ -87,7 +87,7 @@ function checkInvariants(s) {
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, `Invariante ${sub}: ${cnt(s, sub)}, erwartet ${want}`);
   // v29-Toleranz: Modelliste 10->6 (4 Demos raus) — 6 nur mit v29-Stempel.
-  must(cnt(s, 'explanations:{de:[') === 10 || (s.includes('standalone-build v29') && cnt(s, 'explanations:{de:[') === 6), `Invariante explanations:{de:[ ${cnt(s, 'explanations:{de:[')}, erwartet 10 (v29: 6)`);
+  must(cnt(s, 'explanations:{de:[') === (s.includes('standalone-build v56') ? 4 : 10) || (s.includes('standalone-build v29') && !s.includes('standalone-build v56') && cnt(s, 'explanations:{de:[') === 6), `Invariante explanations:{de:[ ${cnt(s, 'explanations:{de:[')}, erwartet 10 (v29: 6, v56: 4)`);
   const iBanner = s.indexOf('v-if="showOnboarding"');
   const iAside = s.indexOf('<aside');
   const iViewport = s.indexOf('id="viewport"');
@@ -149,7 +149,7 @@ if (s.includes('standalone-build v16')) {
   console.log('build-v16: OK v16 (universelles Loeschen)');
   process.exit(0);
 }
-must(s.includes('showcase: 5 Modelle'), 'kein Showcase-Stempel (falsche Basis)');
+must(s.includes('showcase: 5 Modelle') || s.includes('showcase: 4 Modelle'), 'kein Showcase-Stempel (falsche Basis)');
 
 // ---------- U1: Haupt-Block "Modell überarbeiten" entfernen (Anzeige only) ----------
 {

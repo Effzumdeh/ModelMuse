@@ -167,7 +167,7 @@ function checkInvariants(s) {
     ['aria-label="modify"', 0], ['id="mod-desc"', 0], ['@click="modify"', 0],
     ['id="mod-desc2"', 1], ['@click="openModify', 1], ['modify:async function', 1], ['submitModify:function', 1], ['closeModify:function', 1],
     ['deleteLab', (s.includes('standalone-build v42') ? 7 : 6)], ['deleteConfirm', (s.includes('standalone-build v42') ? 5 : 4)],
-    ['v-if="showOnboarding"', 1], ['id="gen-status"', 1], ['showcase: 5 Modelle', 1],
+    ['v-if="showOnboarding"', 1], ['id="gen-status"', 1], ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)],
     ['__FREE_GUARD_V18__', 1],
     ['emptyLibrary', (s.includes('standalone-build v42') ? 5 : 4)],
     // v36-Nachfolger (K1 Startaufloesung): 4->5.

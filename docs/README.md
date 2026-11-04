@@ -1,6 +1,6 @@
 # Wegweiser durch die Dokumentation
 
-Du findest hier alle Konzept- und Nachweisdokumente. Beginne im Abschnitt „Aktuell“; die weiteren Abschnitte dienen der gezielten Recherche. Die Unterordner `source-de/` (deutsche Quellarchiv-Fassungen) und `routing-shots/` (Test-Screenshots) sind Archiv- bzw. Bildablagen, kein Lesestoff für den Einstieg.
+Du findest hier alle Konzept- und Nachweisdokumente. Beginne im Abschnitt „Aktuell“; die weiteren Abschnitte dienen der gezielten Recherche.
 
 ## Aktuell — Einstieg, Release-Nachweise, nächste Schritte
 
@@ -50,8 +50,4 @@ Du findest hier alle Konzept- und Nachweisdokumente. Beginne im Abschnitt „Akt
 
 ## Archiv — nicht mehr aktiv, nur als Beleg aufheben
 
-| Pfad | Wozu er da ist |
-|---|---|
-| `source-de/` | Deutsche Quellarchiv-Fassungen von 5 Doku-Dateien (Vor-Übersetzungen). Der aktive Stand liegt jeweils in `docs/` bzw. `dist-standalone/`. |
-| `source-de/STANDALONE-REPORT-2026-10-29.md` | **Historischer 12-Modell-v13-Report.** Widerspricht bewusst dem aktuellen 10-Modell-v15a-Artefakt — nicht als aktuellen Beleg nutzen. |
-| `routing-shots/` | Test-Screenshots zum Routing (Bilder, keine Lesedoku). |
+(Archiv-Unterordner `source-de/` und `routing-shots/` wurden am 04.11.2026 als Altlasten entfernt.)

@@ -80,15 +80,15 @@ test('F2: LABS fr je Modell (Titel/Labels/Explanations/Messwerte/Tasks/Quiz)', a
   const s = await html();
   for (const [mem, label] of [
     [',fr:"Porte de Brandebourg (Berlin)"}', 'arch-Titel'],
-    [',fr:"Poste PC (SI-1)"}', 'si-1-Titel'],
     [',fr:"Molécule de caféine"}', 'koffein-Titel'],
     [',fr:"Perceuse manuelle"}', 'bohrmaschine-Titel'],
     [',fr:"Carte graphique"}', 'gpu-Titel'],
-    ['"fr":"Comparaison de rendement"}', 'chart-Titel'],
   ]) assert.equal(cnt(s, mem), 1, 'LABS-Titel fr: ' + label);
-  assert.equal(cnt(s, 'Quel composant appartient à'), 6, 'Quiz-Frage fr (6 kuratierte)');
-  assert.equal(cnt(s, 'Aucun de ceux-ci'), 7, 'Quiz-Option fr (6 + makeFreeLab)');
-  assert.equal(cnt(s, 'figure dans la liste.'), 7, 'Quiz-Rationale fr (6 + makeFreeLab)');
+  assert.equal(cnt(s, ',fr:"Poste PC (SI-1)"}'), 0, 'v56 si-1-Titel fr raus');
+  assert.equal(cnt(s, '"fr":"Comparaison de rendement"}'), 0, 'v56 chart-Titel fr raus');
+  assert.equal(cnt(s, 'Quel composant appartient à'), 4, 'Quiz-Frage fr (4 kuratierte)');
+  assert.equal(cnt(s, 'Aucun de ceux-ci'), 5, 'Quiz-Option fr (4 + makeFreeLab)');
+  assert.equal(cnt(s, 'figure dans la liste.'), 5, 'Quiz-Rationale fr (4 + makeFreeLab)');
   assert.ok(s.includes('fr:"Largeur totale : 62,5 m"'), 'arch-Messwert fr');
   assert.ok(s.includes('fr:"Longueur : 448 mm"'), 'bohrmaschine-Messwert fr');
   assert.ok(s.includes('fr:"Relie : quel composant porte le quadrige'), 'arch-Task fr');
@@ -100,10 +100,11 @@ test('F2: LABS fr je Modell (Titel/Labels/Explanations/Messwerte/Tasks/Quiz)', a
 
 test('F3: META fr (Konstanten + makeFreeLab + Anreicherung)', async () => {
   const s = await html();
-  for (const id of ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example']) {
+  for (const id of ['arch-brandenburger-tor', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example']) {
     assert.ok(s.includes('const meta_i18n_' + id.replaceAll('-', '_') + ' = {'), id + '-Konstante bleibt');
   }
-  assert.equal(cnt(s, ', fr: { title:'), 5, 'meta_i18n-Konstanten fr (5 Modelle)');
+  assert.ok(!s.includes('const meta_i18n_si_1 = {'), 'v56 si-1-Konstante raus');
+  assert.equal(cnt(s, ', fr: { title:'), 4, 'meta_i18n-Konstanten fr (4 Modelle)');
   assert.ok(s.includes('var titleFr=(metaI18n&&metaI18n.fr'), 'makeFreeLab titleFr');
   assert.ok(s.includes('var partsFr=(metaI18n&&metaI18n.fr'), 'makeFreeLab partsFr');
   assert.ok(s.includes('var expFr=this.normExp(metaI18n&&metaI18n.fr'), 'makeFreeLab expFr');

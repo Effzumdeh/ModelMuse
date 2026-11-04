@@ -130,7 +130,7 @@ function checkInvariants(s) {
     ['slice(0,2048)', 2],
     ['emptyResponse', (s.includes('standalone-build v42') ? 5 : 4)],
     ['v-if="labs.length"', 1], ['$nextTick', 2],
-    ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)], ['__FREE_GUARD_V18__', 1],
     // v26-Nachfolger (T0 2D-Vertrag im Prompt): 2->3 (generate + modify + 2D).
     ['diagText:function', 1], ['copyDiag:function', 1],
     ['copyDiagBtn', (s.includes('standalone-build v42') ? 5 : 4)],

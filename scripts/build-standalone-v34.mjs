@@ -80,7 +80,7 @@ function checkInvariants(s) {
   const inv = [
     ['standalone-build v32', 1], ['standalone-build v33', 1],
     ['standalone-build v34', 1],
-    ['showcase: 5 Modelle', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)],
     // I: Dock-Mechanik.
     // v37-Nachfolger (Tele-Fenster): 3->4, 5->6, 4->5.
     ['toggleWinMin(', 4], ['win-bar', 6], ['win-min', 5],

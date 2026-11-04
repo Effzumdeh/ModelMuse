@@ -299,9 +299,9 @@ function checkInvariants(s) {
     ['(locale==="en"||locale==="es"||locale==="fr")?locale:"de"', 1],
     ['fr: { title, parts: [...] }', 2],
     ['en.explanations + es.explanations + fr.explanations als', 2],
-    // F2/F3: LABS/META fr (6 Modelle je Feld, 5 meta_i18n-Konstanten).
+    // F2/F3: LABS/META fr (v56: 4 Modelle je Feld, 4 meta_i18n-Konstanten; davor 6/5).
     ['titleFr', 6], ['partsFr', 12], ['expFr', 2], ['measTextFr', 3],
-    ['const meta_i18n_arch_brandenburger_tor = {', 1], ['const meta_i18n_si_1 = {', 1],
+    ['const meta_i18n_arch_brandenburger_tor = {', 1],    ['const meta_i18n_si_1 = {', (s.includes('standalone-build v56') ? 0 : 1)],
     ['const meta_i18n_chemie_koffein = {', 1], ['const meta_i18n_free_handbohrmaschine = {', 1],
     ['const meta_i18n_gpu_example = {', 1],
     // E: I18N-Keys je Sprache genau 4x (de/en/es/fr).

@@ -24,7 +24,8 @@ test('v31-Stempel und Kette intakt', async () => {
   const s = await html();
   assert.equal(cnt(s, 'standalone-build v31'), 1, 'v31-Stempel genau 1x');
   assert.equal(cnt(s, 'standalone-build v30'), 1, 'v30-Stempel bleibt');
-  assert.equal(cnt(s, 'showcase: 5 Modelle'), 1, 'Showcase-Marker bleibt');
+  assert.equal(cnt(s, 'showcase: 4 Modelle'), 1, 'Showcase-Marker v56 (4 kuratierte)');
+  assert.equal(cnt(s, 'showcase: 5 Modelle'), 0, 'alter Marker weg');
   assert.ok(s.length < 600000, 'Artefakt unter 600 KB');
 });
 

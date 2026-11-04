@@ -86,7 +86,7 @@ function checkInvariants(s) {
   const inv = [
     ['standalone-build v31', 1], ['standalone-build v32', 1],
     ['standalone-build v33', 1],
-    ['showcase: 5 Modelle', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)],
     // G: Mesh-Text ersatzlos raus (Anzeige + Methode + alle Locales).
     ['mappingNote', 0], ['mappingText', 0], ['Meshes zugeordnet', 0],
     ['Bauteil-Zuordnung', 0], ['Part mapping', 0],

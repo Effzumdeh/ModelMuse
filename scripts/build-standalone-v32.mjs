@@ -97,7 +97,7 @@ function checkInvariants(s) {
     ['standalone-build v27', 1], ['standalone-build v28', 1], ['standalone-build v29', 1],
     ['standalone-build v30', 1], ['standalone-build v31', 1],
     ['standalone-build v32', 1],
-    ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)], ['__FREE_GUARD_V18__', 1],
     ['modify:async function', 1], ['role="dialog"', (s.includes('standalone-build v54') ? 4 : 3)], ['id="gen-status"', 1],
     // v32-Texte je Sprache (Overtime + Gesamtzeit + 4-Minuten-Countdown).
     ['länger als erwartet', 2], ['longer than expected', 2], ['lento de lo esperado', 2],

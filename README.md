@@ -16,7 +16,7 @@ Runtime generation and revision run in the browser against one of three provider
 ## Features
 
 - **Single-file release:** one HTML file (`dist-standalone/modelmuse-standalone.html`), no backend, no local references.
-- **6 built-in labs:** 5 x 3D (`si-1`, `gpu-example`, `free-handbohrmaschine`, `chemie-koffein`, `arch-brandenburger-tor`) plus 1 x 2D demo (`demo-2d-chart`). Each lab ships trilingual per-part explanations (German, English, Spanish) aligned with its labels.
+- **4 built-in labs:** 4 x 3D (`gpu-example`, `free-handbohrmaschine`, `chemie-koffein`, `arch-brandenburger-tor`). Each lab ships per-part explanations in four languages (German, English, Spanish, French) aligned with its labels.
 - **Interactive 3D viewer:** Three.js-based rendering with orbit controls, part toggles, and a component-info overlay with explanations.
 - **2D renderers:** SVG, Mermaid-style, chart, D3-style, and KaTeX-style renderers for teaching content, plus automatic 2D detection — diagram terms are routed to the 2D contract without an extra model call.
 - **Three generation providers (bring your own key, session only):**

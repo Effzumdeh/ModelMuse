@@ -82,7 +82,7 @@ function checkInvariants(s) {
   const inv = [
     ['standalone-build v33', 1], ['standalone-build v34', 1],
     ['standalone-build v35', 1],
-    ['showcase: 5 Modelle', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)],
     // J: einheitliche Queue (gen + mod, eine Pumpe).
     ['jobGen', (s.includes('standalone-build v42') ? 5 : 4)], ['jobMod', (s.includes('standalone-build v42') ? 5 : 4)],
     ['enqueueModify', 2], ['modify(job.wish,job.labId)', 1],

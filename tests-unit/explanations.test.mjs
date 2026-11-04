@@ -26,9 +26,9 @@ test('Manifeste: alle Standard-Modelle mit explanations de/en/es, Deckung zu lab
   }
 });
 
-test('Manifeste: kuratierte Sechs mit fr explanations, Deckung zu labels', async () => {
-  const six = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example', 'demo-2d-chart'];
-  for (const id of six) {
+test('Manifeste: kuratierte Vier mit fr explanations, Deckung zu labels', async () => {
+  const four = ['arch-brandenburger-tor', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example'];
+  for (const id of four) {
     const m = JSON.parse(await readFile(`src/models/manifests/${id}.json`, 'utf8'));
     const rep = checkExplanationsPresence(m);
     assert.ok(rep.ok && rep.fr, `${id}: ${rep.detail}`);

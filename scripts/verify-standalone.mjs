@@ -2,7 +2,7 @@
  * npm run verify:standalone — static release verification for the
  * standalone artifact (the only release artifact; GitHub Pages-ready; no backend).
  * Checks the BUILT artifact at dist-standalone/modelmuse-standalone.html:
- *  - v13 stamp, title/badges, 12 LABS and 12 META/INIT entries (6 3D, 6 2D metadata)
+ *  - v13 stamp, title/badges, 4 LABS + 4 META/INIT entries (4 3D, v56: si-1 + chart raus)
  *  - no obsolete lighting patterns (900/2048/PCFSoft/envMap/dark room)
  *  - no removed UI elements (objectives/level/learning mode/track/curriculum)
  * - direct endpoints/models for all three providers (Baseten + Meta/Muse + OpenRouter);
@@ -31,8 +31,7 @@ try {
 const cnt = (sub) => s.split(sub).length - 1;
 const artifactBytes = Buffer.byteLength(s, 'utf8');
 const IDS_ALL = ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3', 'chemie-koffein', 'gpu-example', 'free-handbohrmaschine'];
-const IDS_V15 = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example',
-  'demo-2d-chart'];
+const IDS_V15 = ['arch-brandenburger-tor', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example'];
 
 // v45: lokalisierter Hilfe-Link in der Fusszeile + koexistierende Docs-Ablage.
 // Steht vor der Empty-/Showcase-/Standard-Verzweigung, gilt also fuer jede Variante.
@@ -162,7 +161,7 @@ function v15PartInfo(s, fail, ok) {
   eqV('partInfoAbout', 6, 'v15+v42 partInfoAbout (4 I18N + aria + title)');
   eqV('partExplanations', 2, 'v15a partExplanations (computed + text)');
   eqV('partInfoMissing', 5, 'v15a+v42 partInfoMissing (4 I18N + Popup-Fallback)');
-  eqV('explanations:{de:[', 6, 'v15 LABS mit explanations');
+  eqV('explanations:{de:[', 4, 'v15 LABS mit explanations');
   eqV('v-if="partInfoIndex!==null"', 1, 'v15 Info-Popup v-if');
   eqV('ⓘ', 1, 'v15 Info-Kreis-i-Button');
   eqV('this.partsHidden=[];this.partInfoIndex=null;', 1, 'v15 selectLab-Reset');
@@ -239,12 +238,12 @@ if (isEmptyStand) {
   console.log('verify-standalone: OK (empty standalone verified; BYOK generation is available)');
   process.exit(0);
 }
-const IDS_SHOWCASE = ['arch-brandenburger-tor', 'si-1', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example'];
+const IDS_SHOWCASE = ['arch-brandenburger-tor', 'chemie-koffein', 'free-handbohrmaschine', 'gpu-example'];
 const isShowcase = !isEmptyStand && IDS_SHOWCASE.every((id) => cnt(`{id:"${id}"`) >= 1) && cnt(`INIT['arch-brandenburger-tor'] = `) === 1;
 
 if (isShowcase) {
-  // Showcase release: 5 3D-Erststart-Defaults (je Domaene 1, Harness-gruen).
-  console.log('verify-standalone: Showcase detected (5 3D-Erststart-Defaults)');
+  // Showcase release: 4 3D-Erststart-Defaults (je Domaene 1, Harness-gruen, v56).
+  console.log('verify-standalone: Showcase detected (4 3D-Erststart-Defaults)');
   const eqS = (sub, want, label) => {
     const n = cnt(sub);
     if (n === want) ok(`${label} = ${n}`);
@@ -260,11 +259,11 @@ if (isShowcase) {
     if (cnt(`META['${id}']`) < 1) fail(`META entry missing: ${id}`);
     if (cnt(`INIT['${id}'] = `) !== 1) fail(`3D init missing/ambiguous: ${id}`);
   }
-  ok('5 LABS + 5 META + 5 3D-INIT entries found');
-  for (const id of ['si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3']) {
+  ok('4 LABS + 4 META + 4 3D-INIT entries found');
+  for (const id of ['si-1', 'si-2', 'si-3', 'dup-1', 'dup-2', 'dup-3', 'ae-1', 'ae-2', 'ae-3']) {
     if (cnt(`INIT['${id}'] = `) !== 0) fail(`Non-showcase init present: ${id}`);
   }
-  ok('INIT entries: 5 3D-Showcase, keine Fremd-INITs');
+  ok('INIT entries: 4 3D-Showcase, keine Fremd-INITs');
   eqS('PointLight(0xffffff, 900', 0, 'Room-light intensity 900');
   eqS('0x11141a', 0, 'Dark-room color');
   eqS('envMapIntensity', 0, 'envMapIntensity');
@@ -624,16 +623,16 @@ if (isShowcase) {
   eqS('ModelMuse télémétrie (volontaire, sans clé).', 1, 'v42 teleBlock fr');
   for (const [frTitle, label] of [
     [',fr:"Porte de Brandebourg (Berlin)"}', 'arch'],
-    [',fr:"Poste PC (SI-1)"}', 'si-1'],
     [',fr:"Molécule de caféine"}', 'koffein'],
     [',fr:"Perceuse manuelle"}', 'bohrmaschine'],
     [',fr:"Carte graphique"}', 'gpu'],
-    ['"fr":"Comparaison de rendement"}', 'chart'],
   ]) eqS(frTitle, 1, `v42 LABS-Titel fr (${label})`);
-  eqS('Quel composant appartient à', 6, 'v42 LABS-Quiz fr (6 kuratierte)');
-  eqS('Aucun de ceux-ci', 7, 'v42 Quiz-Option fr (6 kuratierte + makeFreeLab)');
-  eqS('figure dans la liste.', 7, 'v42 Quiz-Rationale fr (6 kuratierte + makeFreeLab)');
-  eqS(', fr: { title:', 5, 'v42 meta_i18n-Konstanten fr (5 Modelle)');
+  eqS(',fr:"Poste PC (SI-1)"}', 0, 'v56 si-1-Titel fr raus');
+  eqS('"fr":"Comparaison de rendement"}', 0, 'v56 chart-Titel fr raus');
+  eqS('Quel composant appartient à', 4, 'v42 LABS-Quiz fr (4 kuratierte)');
+  eqS('Aucun de ceux-ci', 5, 'v42 Quiz-Option fr (4 kuratierte + makeFreeLab)');
+  eqS('figure dans la liste.', 5, 'v42 Quiz-Rationale fr (4 kuratierte + makeFreeLab)');
+  eqS(', fr: { title:', 4, 'v42 meta_i18n-Konstanten fr (4 Modelle)');
   eqS('OctahedronGeometry, OrthographicCamera, PCFShadowMap', 1, 'v41 E8 Destructure-Luecke (registerFree funktionsfaehig)');
   eqS('"OctahedronGeometry","OrthographicCamera","PCFShadowMap"', 1, 'v38 OrthographicCamera-Allowlist');
   eqS('OctahedronGeometry,OrthographicCamera,PCFShadowMap', 2, 'v38 OrthographicCamera-Prolog x2');
@@ -699,34 +698,35 @@ if (isShowcase) {
     else ok('v16 banner below header, above list + viewer');
   }
   eqS('empty-stand: 0 Modelle', 0, 'Stale empty-stand marker');
-  if (!s.includes('showcase: 5 Modelle')) fail('Showcase marker is missing.');
-  else ok('Showcase marker is present');
-  // v14 (2D-Demo): 1 Demo-Modell + Vendor-IIFE + Dispatch + Payloads (seit v29 nur chart).
+  eqS('showcase: 4 Modelle', 1, 'Showcase marker (v56: 4 kuratierte)');
+  eqS('showcase: 5 Modelle', 0, 'Alter Showcase marker weg');
+  // v14 (2D-Demo): seit v56 keine kuratierte 2D-Demo mehr (Vendor-IIFE +
+  // Dispatcher + Allowlist bleiben fuer den 2D-Freemodus).
   if (!s.includes('standalone-build v14')) fail('v14 stamp is missing (standalone-build v14).');
-  else ok('v14 stamp present (2D-Demo chart)');
-  for (const id of ['demo-2d-chart']) {
-    if (cnt(`{id:"${id}"`) < 1) fail(`v14 LABS entry missing: ${id}`);
-    if (cnt(`META['${id}']`) < 1) fail(`v14 META entry missing: ${id}`);
-    if (cnt(`INIT['${id}'] = `) !== 0) fail(`v14 2D must not have 3D-INIT: ${id}`);
-  }
-  ok('1 v14 LABS + 1 v14 META entry found (is3d:false, keine INITs)');
+  else ok('v14 stamp present (Vendor-IIFE + Dispatcher)');
+  for (const [sub, want] of [
+    ["{id:\"demo-2d-chart\"", 0],
+    ["META['demo-2d-chart']", 0],
+    ["INIT['demo-2d-chart'] = ", 0],
+  ]) eqS(sub, want, `v56 2D-Demo entfernt: ${sub}`);
+  ok('v56: keine kuratierte 2D-Demo (0 v14 LABS/META/INIT)');
   for (const v of ['__V14SVG', '__V14MERMAID', '__V14CHART', '__V14D3', '__V14KATEX', '__renderVariant2D']) {
     if (cnt(v) < 3) fail(`v14 vendor/dispatcher missing: ${v}`);
   }
-  ok('5 v14 Vendor-IIFE + __renderVariant2D vorhanden (fuer chart-Demo + 2D-Freimodus)');
-  if (cnt('diagram2d:{"variant"') !== 1) fail(`v14 LABS diagram2d-Payload: ${cnt('diagram2d:{"variant"')}, erwartet 1`);
-  else ok('v14 diagram2d-Payload: 1 LABS + 1 META');
+  ok('5 v14 Vendor-IIFE + __renderVariant2D vorhanden (2D-Freemodus)');
+  if (cnt('diagram2d:{"variant"') !== 0) fail(`v56 LABS ohne diagram2d-Payload: ${cnt('diagram2d:{"variant"')}, erwartet 0`);
+  else ok('v56 diagram2d-Payload: 0 (keine kuratierte 2D-Demo)');
   eqS('"2d-svg","2d-mermaid","2d-chart","2d-d3","2d-katex"', 1, 'registerFree 2d-Allowlist');
   // v15 (Bestandteil-Info): Stempel, explanations je LABS, Info-Button/Popup, Umbenennungen.
   if (!s.includes('standalone-build v15')) fail('v15 stamp is missing (standalone-build v15).');
   else ok('v15 stamp present (Bestandteil-Info)');
   v15PartInfo(s, fail, ok);
-  // v29 (Modelliste): 5x 3D + 1x 2D-chart kuratiert, Umbenennungen si-1/gpu.
+  // v29 (Modelliste): 4x 3D kuratiert (v56: si-1 + chart raus), Umbenennungen si-1/gpu.
   eqS('PC-Arbeitsplatz (SI-1)', 0, 'v29 si-1 DE-Suffix weg');
   eqS('PC workstation (SI-1)', 0, 'v29 si-1 EN-Suffix weg');
   eqS('Puesto de PC (SI-1)', 0, 'v29 si-1 ES-Suffix weg');
   eqS('Graphics Card', 0, 'v29 gpu DE-Titel ersetzt');
-  eqS('title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz",fr:"Poste PC (SI-1)"}', 1, 'v29+v42 si-1 Titel de/en/es/fr');
+  eqS('title:{de:"PC-Arbeitsplatz",en:"PC-Arbeitsplatz",es:"PC-Arbeitsplatz",fr:"Poste PC (SI-1)"}', 0, 'v56 si-1 Titel raus (de/en/es/fr)');
   eqS('de:"Grafikkarte"', 1, 'v29 gpu DE-Titel Grafikkarte');
   eqS('{id:"demo-2d-svg"', 0, 'v29 Wasserkocher-Demo raus');
   eqS('{id:"demo-2d-mermaid"', 0, 'v29 Photosynthese-Demo raus');
@@ -738,7 +738,7 @@ if (isShowcase) {
     console.error(`verify-standalone: ABORT (showcase: ${failures.length} failures)`);
     process.exit(1);
   }
-  console.log('verify-standalone: OK (showcase verified: 5 3D-Erststart-Defaults + 1 2D-Demo v14 (chart), Baseten-Direkt BYOK)');
+  console.log('verify-standalone: OK (showcase verified: 4 3D-Erststart-Defaults (v56), Baseten-Direkt BYOK)');
   process.exit(0);
 }
 const eq = (sub, want, label) => {

@@ -92,7 +92,7 @@ function checkInvariants(s) {
   const inv = [
     ['standalone-build v34', 1], ['standalone-build v35', 1],
     ['standalone-build v36', 1],
-    ['showcase: 5 Modelle', 1],
+    ['showcase: 5 Modelle', (s.includes('standalone-build v56') ? 0 : 1)], ['showcase: 4 Modelle', (s.includes('standalone-build v56') ? 1 : 0)],
     // K: Startauswahl + Fallback + Modus.
     ['modelmuse.mode', 5],
     ['localStorage.removeItem("modelmuse.lab")', 2],
