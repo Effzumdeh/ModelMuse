@@ -1,55 +1,58 @@
-# Erklärvideos — Nachweise (DE/EN/ES)
+# Erklärvideos — Nachweise (DE/EN/ES/FR)
 
-Stand: 30.10.2026 · Alle Angaben per `ffprobe` / `ebur128` / Hyperframes-Lint gemessen, nicht geschätzt.
+Stand: 04.11.2026 · Alle Angaben per `ffprobe` / `ebur128` gemessen, nicht geschätzt.
+Revision: -180-Finalschnitt (184 s, je Sprache verifiziert `fail: 0`); Eigentümer-Vorgaben A–D + „serverless“-Korrektur (nichts zu installieren, nur gültiger Key eines LLM-Anbieters nötig).
 
 ## Deliverables
 
 | Datei | Dauer | Auflösung | Größe | Finalmix (ebur128 am MP4) | True Peak |
 |---|---|---|---|---|---|
-| `docs/erklaervideo-de.mp4` | **170,00 s** | 1920×1080, h264 + aac 192k/48kHz | **19,5 MB** (20.486.077 B) | **−12,0 LUFS** | −1,8 dBFS |
-| `docs/erklaervideo-en.mp4` | **174,00 s** | 1920×1080, h264 + aac 192k/48kHz | **19,5 MB** (20.440.881 B) | **−12,1 LUFS** | −1,7 dBFS |
-| `docs/erklaervideo-es.mp4` | **170,00 s** | 1920×1080, h264 + aac 192k/48kHz | **19,2 MB** (20.184.223 B) | **−12,1 LUFS** | −1,4 dBFS |
+| `docs/erklaervideo-de-180.mp4` | **184,00 s** | 1920×1080, h264 + aac 192k/48kHz | **23,4 MB** (24.513.076 B) | **−12,1 LUFS** | −1,7 dBFS |
+| `docs/erklaervideo-en-180.mp4` | **184,00 s** | 1920×1080, h264 + aac 192k/48kHz | **23,5 MB** (24.681.277 B) | **−12,1 LUFS** | −1,7 dBFS |
+| `docs/erklaervideo-es-180.mp4` | **184,00 s** | 1920×1080, h264 + aac 192k/48kHz | **23,4 MB** (24.509.447 B) | **−12,0 LUFS** | −1,7 dBFS |
+| `docs/erklaervideo-fr-180.mp4` | **184,00 s** | 1920×1080, h264 + aac 192k/48kHz | **23,6 MB** (24.704.285 B) | **−12,1 LUFS** | −1,7 dBFS |
 
-Alle Dauern im Zielkorridor 160–180 s. `docs/erklaervideo-test.mp4` (Smoke, 169 KB) ist **gelöscht**.
-Abnahme-Skript: `docs/.erklaervideo-work/tools/verify.mjs` — 24/24 Prüfungen bestanden.
+Alle Dauern 184 s (Ziel ~180 s). `docs/erklaervideo-test.mp4` (Smoke) existiert **nicht**.
+Abnahme-Skripte: `docs/.erklaervideo-work/verify-{de,en,es,fr}180.json` — je Sprache **fail: 0** (Datei, Dauer, 1920×1080, h264, Audio, −12 ±0,3 LUFS, TP ≤ −1,0; plus Smoke-Abwesenheit und Belegdateien).
 
-## Voiceover (ElevenLabs, `eleven_flash_v2_5`, speed 1.0, kein Chipmunk)
+## Voiceover (ElevenLabs, `eleven_multilingual_v2`, speed 1.0, kein Chipmunk)
 
-| Sprache | Wörter | Voiceover netto | Video gesamt | Stimme (alle `use_case=informative_educational`, per `/v1/voices` gewählt + per ID verifiziert) |
+| Sprache | Wörter | Voiceover netto | Video gesamt | Stimme (per `/v1/voices` verifiziert, Primary, kein Fallback nötig) |
 |---|---|---|---|---|
-| DE | 300 (gekürzt von 419, Fakten unverändert) | 161,43 s | 170,00 s | **Daniel – Steady Broadcaster** (`onwK4e9ZLuTAKqWW03F9`), male/middle-aged, verifiziert `en\|de\|tr`. „A strong voice perfect for delivering a professional broadcast“ — warm, klar, moderierend. **Lennart wurde auf Eigentümer-Weisung NICHT verwendet.** |
-| EN | 409 | 162,91 s | 174,00 s | **Alice – Clear, Engaging Educator** (`Xb7hH8MSUJpSbSDYk0k2`), female/middle-aged, verifiziert `en\|it\|fr\|ar\|ja\|pl\|hi`. „Suitable for e-learning“ — warm, klar, Tutorial-Ton. |
-| ES | 342 (gekürzt von 418, Fakten unverändert) | 159,43 s | 170,00 s | **Matilda – Knowledgable, Professional** (`XrExE9yKIg1WjnnlVkGX`), female/middle-aged, verifiziert `en\|it\|fr\|de\|ar\|es`. „Pleasing alto pitch“ — ruhig, professionell. |
+| DE | ~312 | 158,78 s | 184,00 s | German Narration / Lennard (`TUKJhQmz3RPYBNAgC5A1`) |
+| EN | ~350 | 142,90 s | 184,00 s | Tyler / Claire (`xS4rWdm7XjmSzwmzOl3j`) |
+| ES | ~370 | 154,74 s | 184,00 s | Salva / Diego (`hyKxCTlAqtnW188CgltM`) |
+| FR | ~390 | 143,13 s | 184,00 s | Guillaume / Adam (`ohItIVrXTBI80RrUECOD`), verifiziert als „Premium Male teacher, E-learning, Informative" (cat=professional) |
 
-Auswahlregel (deterministisch): `premade` + `narration|educational`-Use-Case zuerst, dann Name. 6 Blöcke/Sprache einzelsynthetisiert, Pausen (Head 1,0 s, Gaps 0,5–0,6 s, Tail 2,6–7,6 s) als Stille — keine Zeitdehnung.
-Kosten: reine API-Nutzung, ca. **< 1 $** (≈ 12k Zeichen × 0,04 $/1k), **keine Cloud-Käufe**.
+6 Blöcke/Sprache einzelsynthetisiert, `<break time="0.9s"/>` pro Satz, Pausen (Head 1,0 s, Gaps 0,45 s, Tail ≥ 3,0 s) als Stille — keine Zeitdehnung.
+Aussprache (Eigentümer B): TTS-Input phonetisch per PHON-Abbildung in `tools/tts-v2.mjs` — Muse→Mjus, Baseten→Baejsten, Queue→Kju (identisch in allen 4 Sprachen); Skripte, Anzeige und Captions behalten die korrekte Schreibweise.
+Kosten: reine API-Nutzung, **≈ 0,80 $** (9.952 Zeichen inkl. Break-Tags; im Creator-Kontingent $0,00), **keine Cloud-Käufe**.
 
 ## Musik (eigene Synthese, Loop)
 
-`docs/.erklaervideo-work/music-loop.wav` — 32,0 s, 48 kHz Stereo, Peak −3 dBFS, generiert per NumPy
-(`tools/music.py`): Pad Am–F–C–G (je 8 s, Sinus + weiche Oktave, Raised-Cosine-Blenden),
-Sub-Bass, Pentatonik-Plucks alle 2 s (deterministisches Pattern). Alle Frequenzen auf 1/32-Hz-Raster
-quantisiert → **perfekter Seamless-Loop**. Auf **−36 LUFS** normalisiert (Gain ≈ −24,5 dB), geloopt.
+`docs/.erklaervideo-work/music-loop.wav` — 32,0 s, 48 kHz Stereo (unverändert wiederverwendet, keine Neukosten).
 
 ## Pegel-Kette (ffmpeg, gemessen)
 
-- Stimme → **−14 LUFS** (fixer Gain + sanfte 3:1-Kompression, verifiziert −14,06/−14,18/−14,18)
-- Musik → **−36 LUFS** → Summe → linearer Gain auf **−12 LUFS** + oversampelter True-Peak-Limiter (−2,0 dBFS)
-- Final-WAV (ebur128): DE −12,00 / EN −12,00 / ES −12,00, TP −2,00 — nach AAC: siehe Tabelle oben.
+- Stimme → **−14 LUFS** (fixer Gain + sanfte 3:1-Kompression, verifiziert −14,12/−14,36/−14,02/−14,02)
+- Musik → **−36 LUFS** (Gain −24,56 dB) → Summe → linearer Gain auf **−12 LUFS** + oversampelter True-Peak-Limiter (−2,0 dBFS)
+- Final-WAV (ebur128): DE −12,10 / EN −12,20 / ES −12,00 / FR −12,00, TP jeweils −2,00 — nach AAC: siehe Tabelle oben.
+- Mux-Guard (neu, `tools/mux.mjs`): AAC kann Peaks anheben (EN: +2,1 dBFS) — Korrektur jetzt in −1-dB-Schritten ab −2,0 dBFS statt −2-dB-Schritten (EN: eine Runde −2,0 dB → −12,20 LUFS/TP −1,0, Guard erfüllt).
 
-## Video (Hyperframes, high quality, 1920×1080, 30 fps)
+## Video (Hyperframes, 1920×1080, 30 fps, T = 184 s)
 
-- Komposition je Sprache aus dem Storyboard (`docs/erklaervideo-skript[.en|.es].md`): **9 Szenen**,
-  selbst gezeichnete 2D-SVG-Figuren (Muse-Glühbirne mit Mimik-Varianten wink/happy/wow/grin,
-  Lina mit Dutt/Brille/Zeigestock, Finn mit Kappe), GSAP-Timing auf den Voiceover-Blöcken
-  (Szenen-Splits an Satzgrenzen), Push-Slide-Übergänge + Iris-Auftakt, kein Jump Cut.
-- `npx hyperframes lint`: **0 Errors** · `validate` (WCAG AA): **bestanden, 0 Kontrast-Warnungen** ·
-  `inspect`: **0 Layout-Issues** · Render: Screenshot-Capture, ~2 min/Video.
-- Standbild-Kontrolle (t = 5/30/90/160 DE, t = 100 EN, t = 60 ES): Layout, Figuren, Texte lesbar, keine Defekte.
-- App-Fakten nur aus belegten Quellen (10 Modelle 5×3D/5×2D, Anbieter Meta Muse/Baseten,
-  Muse Spark 1.3, Session-Key, Überarbeiten-Feld — **kein Stift-Icon**, Bestandteile-Overlay, 2D-Modus, Single-File).
+- Eine Komposition (`hf-all`) + `render --batch` (Rows de-en / es-fr): **9 Szenen** aus den Storyboards
+  (`docs/erklaervideo-skript[.en|.es|.fr].md`), wiederverwendete Szenenbilder (keine Neukosten),
+  GSAP-Timing auf den Voiceover-Blöcken, Scribble-Transitions an Blockgrenzen, Caption-Clip-Wipe, kein Jump Cut.
+- Niveau-Pills (Basis/Aufbau/Profi) **entfernt** (Feature existiert nicht): Szene-3-Akzent leer, Variablen `lvl1–3` aus Komposition/Rows gestrichen.
+- Neue Texte: Titel t2 „Nur Key nötig" + t4 Beispielmodelle + final1 ohne Modellzahl; Overlays unverändert blank (Schilder) bzw. HTML-Pills.
+- Standbild-Kontrolle (DE t = 130 Szene 7, FR t = 60 Szene 5): Layout, Figuren, Titel-Chips, Overlays und Captions lesbar, neue Begrifflichkeiten belegt (Versionen/Historie, PNG/GLB); FR-Chip bei t = 60,0 s mitten in Wort-Stagger-Animation (kein Defekt).
+- Illustrationen sichtgeprüft (scene4/6/7 + DE/FR-Frames): kein lesbarer Text in Bildern, nicht überladen → **keine Neumotive** (Kosten im Blick).
+- Seedance-Zwischenclips: OpenRouter-Modellliste geprüft (451 Modelle, 0 Seedance-Treffer, keine Text/Bild→Video-Modelle) → **nicht verfügbar, ohne Clips produziert**.
+- App-Fakten nur aus belegten Quellen (Beispiel-Bibliothek ohne Aufzählung, Anbieter Meta Muse/Baseten, Muse Spark 1.3, Session-Key, Reasoning Standard/vertieft, Queue, Historie max. 10, Export PNG/GLB, Überarbeiten-Feld — **kein Stift-Icon**, Bestandteile-Overlay, 2D-Modus, Single-File, nur Key nötig — **kein Server-Begriff**).
 
 ## Reproduktion
 
-`docs/.erklaervideo-work/tools/`: `tts.mjs` (Key aus Root-`.env` selbst geparst, nie geloggt),
-`music.py`, `build-html.mjs`, `mix.mjs`, `verify.mjs` · Belege: `tts-summary.json`, `voices.json`, `mix-report.json`.
+`docs/.erklaervideo-work/tools/`: `tts-v2.mjs` (Key aus Profil-`.env` selbst geparst, nur als HTTP-Header, nie geloggt; inkl. PHON-Abbildung),
+`build-html-v3.mjs`, `mix-v2.mjs`, `mux.mjs`, `verify.mjs` · Belege: `tts-summary.json`, `voices.json`, `mix-report.json`, `grid.json`.
+Skripte: `docs/erklaervideo-skript.md` (+`.en`/`.es`/`.fr.md`, FR neu angelegt).

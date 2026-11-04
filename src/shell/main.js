@@ -166,6 +166,34 @@ async function boot() {
     if (onboard) onboard.hidden = true;
   });
 
+  // Erklaervideo-Popup (04.11.2026): Button im Welcome-Dialog, Video je
+  // UI-Sprache (docs/erklaervideo-{de,en,es,fr}-180.mp4), schliessbar via
+  // Schliessen-Button, Backdrop-Klick und Escape (stoppt das Video).
+  const videoPopup = /** @type {HTMLElement | null} */ (document.getElementById('video-popup'));
+  const videoEl = /** @type {HTMLVideoElement | null} */ (document.getElementById('erklaervideo'));
+  const videoSrcFor = (/** @type {string} */ locale) =>
+    `docs/erklaervideo-${['de', 'en', 'es', 'fr'].includes(locale) ? locale : 'de'}-180.mp4`;
+  const openVideo = () => {
+    if (!videoPopup || !videoEl) return;
+    try { videoEl.src = videoSrcFor(getLocale()); } catch { /* src bleibt */ }
+    videoPopup.hidden = false;
+    try { videoEl.play()?.catch?.(() => {}); } catch { /* Autoplay optional */ }
+  };
+  const closeVideo = () => {
+    if (!videoPopup || !videoEl) return;
+    try { videoEl.pause(); } catch { /* kein Video aktiv */ }
+    try { videoEl.removeAttribute('src'); videoEl.load(); } catch { /* Reset optional */ }
+    videoPopup.hidden = true;
+  };
+  document.getElementById('onboard-video')?.addEventListener('click', openVideo);
+  document.getElementById('video-close')?.addEventListener('click', closeVideo);
+  videoPopup?.addEventListener('click', (ev) => {
+    if (ev.target === videoPopup) closeVideo();
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && videoPopup && !videoPopup.hidden) closeVideo();
+  });
+
   // Teil 6 (Standalone-Maßstab): Labs-Suche filtert die Nav-Liste.
   const labsSearch = /** @type {HTMLInputElement | null} */ (document.getElementById('labs-search'));
   const labsCount = document.getElementById('labs-count');
@@ -304,6 +332,9 @@ async function boot() {
   /** Vollstaendiges Neu-Rendern nach Sprachumschaltung (alle sichtbaren Strings). */
   const repaintAll = () => {
     applyLocale(getLocale());
+    if (videoPopup && !videoPopup.hidden && videoEl) {
+      try { videoEl.src = videoSrcFor(getLocale()); } catch { /* src bleibt */ }
+    }
     if (langSel) langSel.value = getLocale();
     const helpLink = /** @type {HTMLAnchorElement | null} */ (document.getElementById('help-link'));
     if (helpLink) helpLink.setAttribute('href', `docs/help/${getLocale()}.html`);

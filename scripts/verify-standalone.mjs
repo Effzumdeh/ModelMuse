@@ -176,7 +176,7 @@ function v15PartInfo(s, fail, ok) {
   eqV('Nutze die Bauteilliste.', 0, 'v15 keine Bauteilliste-Hints (de)');
   eqV('Use the parts list.', 0, 'v15 keine parts-list-Hints (en)');
   eqV('Usa la lista de piezas.', 0, 'v15 keine piezas-Hints (es)');
-  eqV('role="dialog"', 3, 'v15+v37 Dialoge (Tele + Modify + Bestandteil-Info)');
+  eqV('role="dialog"', 4, 'v15+v37+v54 Dialoge (Tele + Modify + Bestandteil-Info + Erklaervideo)');
 }
 const labsHits = IDS_ALL.reduce((n, id) => n + cnt(`{id:"${id}"`), 0);
 const initHits = IDS_ALL.reduce((n, id) => n + cnt(`INIT['${id}'] = `), 0);
@@ -558,6 +558,18 @@ if (isShowcase) {
   eqS('#viewport{transition:opacity 160ms ease-out}', 1, 'v53 Crossfade');
   eqS('v53-switching', 6, 'v53 Switching-Marker');
   eqS('v53-viewport', 1, 'v53 Viewport-Marker');
+  // v54 (V1/D1): Erklaervideo-Popup + TEMP-DEAKTIVIERT OpenRouter/Ollama.
+  eqS('standalone-build v54', 1, 'v54 Stempel (Erklaervideo + TEMP-DEAKTIVIERT)');
+  eqS('v54-video-popup', 2, 'v54 Popup-Marker (CSS + Template)');
+  eqS('v54-video-panel', 3, 'v54 Panel-Marker (CSS-Regel + .dark + Template)');
+  eqS('v-if="videoOpen"', 1, 'v54 Popup-Template');
+  eqS('@click="openVideo"', 1, 'v54 Video-Button');
+  eqS('videoBtn:', 4, 'v54 I18N videoBtn de/en/es/fr');
+  eqS('videoMissing:', 4, 'v54 I18N videoMissing de/en/es/fr');
+  eqS('../docs/erklaervideo-', 2, 'v54 Video-Pfad (CSS-Kommentar + Methode)');
+  eqS('TEMP-DEAKTIVIERT-v54', 1, 'v54 Deaktivierungs-Kommentar');
+  eqS('id:"openrouter"', 1, 'v54 OpenRouter-ID bleibt (Kommentar)');
+  eqS('id:"ollama"', 1, 'v54 Ollama-ID bleibt (Kommentar)');
   eqS('standalone-build v40', 1, 'v40 Stempel (Reasoning-Stufen je Modell: max nur wo belegt)');
   eqS('||this.genProvider==="openrouter";},', 1, 'v40 max-Gate += openrouter (reasoningAllowed, max dort belegt)');
   eqS('this.genProvider==="openrouter"?"xhigh":"max"', 1, 'v40 Default openrouter xhigh (kein stilles max-Upgrade)');

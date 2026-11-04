@@ -49,7 +49,7 @@ test('I: je Fenster Minimieren-zu-Bubble + Schliessen', async () => {
 
 test('I: Alt-Vertraege bleiben (Dialoge, Queue, Timer)', async () => {
   const s = await html();
-  assert.equal(cnt(s, 'role="dialog"'), 3, 'genau 3 Dialoge (Tele + Modify + Bestandteil-Info)');
+  assert.equal(cnt(s, 'role="dialog"'), 4, 'genau 4 Dialoge (Tele + Modify + Bestandteil-Info + Erklaervideo v54)');
   assert.equal(cnt(s, 'enqueueGenerate'), 2, 'Queue bleibt');
   assert.equal(cnt(s, 'normExp:function'), 1, 'Erklaerungs-Haertung bleibt');
   assert.equal(cnt(s, 'etaSeconds:function'), 1, 'ETA-Tabelle bleibt');

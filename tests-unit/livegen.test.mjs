@@ -61,13 +61,17 @@ test('E-GEN-OFFLINE ohne Key und ohne Proxy (UI schaltet auf Bibliothek)', async
   await assert.rejects(generateLive('Begriff Windkraftanlage lang genug'), /E-GEN-OFFLINE/);
 });
 
-test('Direkt-Mapping: Upstream-URLs + Defaults, unbekannt -> null', () => {
+test('Direkt-Mapping: Upstream-URLs + Defaults, unbekannt/deaktiviert -> null', () => {
   assert.equal(directChatUrl('baseten'), `${DIRECT_BASES.baseten}/chat/completions`);
   assert.equal(directChatUrl('meta-muse'), 'https://api.meta.ai/v1/chat/completions');
-  assert.equal(directChatUrl('openrouter'), 'https://openrouter.ai/api/v1/chat/completions');
+  // TEMP-DEAKTIVIERT (04.11.2026, Daten auskommentiert — kein Direkt-Call, kein Key-Fluss).
+  assert.equal(directChatUrl('openrouter'), null, 'openrouter auskommentiert');
+  assert.equal(directChatUrl('ollama'), null, 'ollama auskommentiert');
   assert.equal(DIRECT_DEFAULT_MODEL.baseten, 'meta-models/muse-spark-open-1026');
   assert.equal(DIRECT_DEFAULT_MODEL['meta-muse'], 'muse-spark-1.3-contributor');
-  assert.equal(DIRECT_DEFAULT_MODEL.openrouter, 'openai/gpt-6.1-sol');
+  assert.equal(DIRECT_DEFAULT_MODEL.openrouter, undefined, 'openrouter-Default auskommentiert');
+  assert.equal(DIRECT_DEFAULT_MODEL.ollama, undefined, 'ollama-Default auskommentiert');
+  // Attribution-Konstanten bleiben (nicht geloescht), nur der Zweig ist deaktiviert.
   assert.equal(OPENROUTER_REFERER, 'https://github.com/Effzumdeh/ModelMuse');
   assert.equal(OPENROUTER_TITLE, 'ModelMuse');
 });
@@ -430,46 +434,47 @@ test('v26 reasoningLevel: max nur belegt, sonst xhigh, sonst nichts', () => {
   assert.equal(reasoningLevel('meta-muse', 'muse-spark-1.3-contributor', undefined), null);
   assert.equal(reasoningLevel('baseten', 'meta-models/muse-spark-open-1026', undefined), 'xhigh', 'Baseten-Default xhigh');
   assert.equal(reasoningLevel('baseten', 'meta-models/muse-spark-open-1026', 'max'), 'xhigh', 'Baseten nie max');
-  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', undefined), 'xhigh', 'OpenRouter-Default xhigh (belegt, Modelle-API 31.10.2026)');
-  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', undefined), 'xhigh');
-  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', undefined), 'xhigh');
-  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'max'), 'max', 'v40: OpenRouter max belegt (live supported_efforts 31.10.2026, 400-Fallback bleibt)');
-  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', 'max'), 'max');
-  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', 'max'), 'max');
+  // TEMP-DEAKTIVIERT (04.11.2026): OpenRouter-Zweig auskommentiert -> kein Thinking.
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', undefined), null, 'TEMP: kein OpenRouter-Default');
+  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', undefined), null);
+  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', undefined), null);
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'max'), null, 'TEMP: kein OpenRouter-max');
+  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', 'max'), null);
+  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', 'max'), null);
   assert.equal(reasoningLevel('unbekannt', 'm', 'max'), null);
   assert.equal(reasoningXhighAllowed('meta-muse', 'muse-spark-1.3'), true);
   assert.equal(reasoningXhighAllowed('meta-muse', 'muse-spark-1.3-contributor'), true);
   assert.equal(reasoningXhighAllowed('baseten', 'x'), true);
-  assert.equal(reasoningXhighAllowed('openrouter', 'openai/gpt-6.1-sol'), true);
+  assert.equal(reasoningXhighAllowed('openrouter', 'openai/gpt-6.1-sol'), false, 'TEMP: OpenRouter-Gate auskommentiert');
   assert.equal(reasoningMaxAllowed('openrouter', 'openai/gpt-6.1-sol'), false, 'OpenRouter nie max per Meta-UI-Gate (reasoningEffortsFor traegt OpenRouter-max)');
   assert.equal(reasoningXhighAllowed('unbekannt', 'm'), false);
 });
 
-test('v40 reasoningEffortsFor: belegte Stufen je Modell (live /models 31.10.2026, 452 Modelle)', () => {
-  assert.deepEqual(reasoningEffortsFor('openrouter', 'openai/gpt-6.1-sol'), ['max', 'xhigh', 'high', 'medium', 'low']);
-  assert.deepEqual(reasoningEffortsFor('openrouter', 'meta/muse-spark-1.3'), ['max', 'xhigh', 'high', 'medium', 'low', 'minimal']);
-  assert.deepEqual(reasoningEffortsFor('openrouter', 'anthropic/claude-opus-5.5'), ['max', 'xhigh', 'high', 'medium', 'low']);
-  assert.deepEqual(reasoningEffortsFor('openrouter', 'openai/gpt-6.1-sol:exact'), ['max', 'xhigh', 'high', 'medium', 'low'], ':suffix-Variante');
+test('TEMP reasoningEffortsFor: OpenRouter-Zweig auskommentiert (-> []), Rest unveraendert', () => {
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'openai/gpt-6.1-sol'), []);
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'meta/muse-spark-1.3'), []);
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'anthropic/claude-opus-5.5'), []);
+  assert.deepEqual(reasoningEffortsFor('openrouter', 'openai/gpt-6.1-sol:exact'), [], ':suffix-Variante');
   assert.deepEqual(reasoningEffortsFor('meta-muse', 'muse-spark-1.3'), ['max', 'xhigh']);
   assert.deepEqual(reasoningEffortsFor('meta-muse', 'muse-wonder-1.0'), ['max', 'xhigh']);
   assert.deepEqual(reasoningEffortsFor('meta-muse', 'muse-spark-1.3-contributor'), ['xhigh']);
   assert.deepEqual(reasoningEffortsFor('baseten', 'meta-models/muse-spark-open-1026'), ['xhigh']);
   assert.deepEqual(reasoningEffortsFor('unbekannt', 'm'), []);
-  // Durchreichung belegter Zwischenstufen (nur OpenRouter), unbelegte -> null.
-  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'medium'), 'medium');
-  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', 'low'), 'low');
-  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', 'minimal'), 'minimal');
+  // Durchreichung belegter Zwischenstufen (TEMP: OpenRouter deaktiviert -> nie Param).
+  assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'medium'), null);
+  assert.equal(reasoningLevel('openrouter', 'anthropic/claude-opus-5.5', 'low'), null);
+  assert.equal(reasoningLevel('openrouter', 'meta/muse-spark-1.3', 'minimal'), null);
   assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'minimal'), null, 'minimal dort unbelegt -> Modell-Default (nie 400)');
   assert.equal(reasoningLevel('openrouter', 'openai/gpt-6.1-sol', 'none'), null, 'none mandatory -> nie senden (Modell-Default, nie 400)');
   assert.equal(reasoningLevel('meta-muse', 'muse-spark-1.3-contributor', 'medium'), null, 'Contributor ohne belegte Zwischenstufe -> kein Param');
   assert.equal(reasoningLevel('baseten', 'meta-models/muse-spark-open-1026', 'medium'), null);
 });
 
-test('OpenRouter-Body: Default xhigh belegt, max je Slug durchgereicht, Limit 131072, kein stream_options (400-Fallback bleibt)', () => {
+test('TEMP OpenRouter-Body: deaktiviert -> kein reasoning_effort, Limits intakt', () => {
   for (const slug of ['openai/gpt-6.1-sol', 'meta/muse-spark-1.3', 'anthropic/claude-opus-5.5']) {
     const b = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter' });
     assert.equal(b.model, slug);
-    assert.equal(b.reasoning_effort, 'xhigh', `${slug}: belegtes Default-Thinking (Modelle-API 31.10.2026)`);
+    assert.ok(!('reasoning_effort' in b), `${slug}: kein Thinking fuer deaktivierten Anbieter`);
     assert.equal(b.max_completion_tokens, 131072, `${slug}: explizites Maximum (alle Provider)`);
     assert.equal(b.max_tokens, 131072, `${slug}: Mirror-Feld`);
     assert.ok(!('stream_options' in b), `${slug}: kein unverifizierter Param`);
@@ -477,30 +482,21 @@ test('OpenRouter-Body: Default xhigh belegt, max je Slug durchgereicht, Limit 13
   }
   for (const slug of ['openai/gpt-6.1-sol', 'meta/muse-spark-1.3', 'anthropic/claude-opus-5.5']) {
     const m = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter', reasoning: 'max' });
-    assert.equal(m.reasoning_effort, 'max', `${slug}: max belegt (live supported_efforts 31.10.2026, 400-Fallback bleibt)`);
-  }
-  for (const [slug, lvl] of [['openai/gpt-6.1-sol', 'medium'], ['anthropic/claude-opus-5.5', 'low'], ['meta/muse-spark-1.3', 'minimal']]) {
-    const s = buildChatBody(slug, 'Hallo Welt, lang genug', { provider: 'openrouter', reasoning: lvl });
-    assert.equal(s.reasoning_effort, lvl, `${slug}: belegte Zwischenstufe ${lvl} belegt`);
+    assert.ok(!('reasoning_effort' in m), `${slug}: TEMP — max wird nicht durchgereicht`);
   }
 });
 
-test('OpenRouter-Direkt: Bearer + Referer/Title, andere Anbieter ohne Extra-Header', async () => {
+test('TEMP OpenRouter-Direkt: deaktiviert -> E-GEN-DEAKTIVIERT, kein Fetch, kein Key-Fluss', async () => {
   configureLiveGen({ proxyUrl: null, timeoutMs: 2000 });
   setLiveApiKey('OR_TESTKEY_12345678_abcdefghijklmnop');
-  let seenUrl = null;
-  let seenHeaders = null;
-  globalThis.fetch = async (url, opts) => {
-    seenUrl = String(url);
-    seenHeaders = opts?.headers ?? {};
-    return sseResponse([MODULE]);
-  };
-  const gen = await generateLive('Begriff Windkraftanlage lang genug', { provider: 'openrouter', model: 'openai/gpt-6.1-sol' });
-  assert.equal(seenUrl, 'https://openrouter.ai/api/v1/chat/completions');
-  assert.ok(String(seenHeaders.authorization ?? '').startsWith('Bearer '), 'BYOK-Bearer gesetzt');
-  assert.equal(seenHeaders['HTTP-Referer'], OPENROUTER_REFERER, 'Referer gesetzt (App-Kennung, kein Key)');
-  assert.equal(seenHeaders['X-Title'], OPENROUTER_TITLE, 'X-Title gesetzt');
-  assert.equal(gen.via, 'direct');
+  let fetched = false;
+  globalThis.fetch = async () => { fetched = true; return sseResponse([MODULE]); };
+  await assert.rejects(
+    generateLive('Begriff Windkraftanlage lang genug', { provider: 'openrouter', model: 'openai/gpt-6.1-sol' }),
+    (e) => e?.code === 'E-GEN-DEAKTIVIERT',
+    'generateLive wirft E-GEN-DEAKTIVIERT'
+  );
+  assert.equal(fetched, false, 'kein Upstream-Call fuer deaktivierten Anbieter');
 });
 
 test('Direkt ohne OpenRouter: keine Referer/Title-Header (Meta-Pfad unveraendert)', async () => {
@@ -515,15 +511,15 @@ test('Direkt ohne OpenRouter: keine Referer/Title-Header (Meta-Pfad unveraendert
   assert.ok(!('HTTP-Referer' in seenHeaders) && !('X-Title' in seenHeaders), 'nur OpenRouter erhaelt Attribution');
 });
 
-test('Key-Hinweis je Anbieter (de/en/es, openrouter.ai/keys)', () => {
-  assert.match(keyHintFor('openrouter'), /openrouter\.ai\/keys/);
-  assert.match(keyHintFor('openrouter', 'en'), /openrouter\.ai\/keys/);
-  assert.match(keyHintFor('openrouter', 'es'), /openrouter\.ai\/keys/);
+test('TEMP Key-Hinweis: openrouter/ollama ohne Hinweis, meta/baseten wie gehabt', () => {
+  assert.equal(keyHintFor('openrouter'), '', 'TEMP: openrouter-Hinweis auskommentiert');
+  assert.equal(keyHintFor('openrouter', 'en'), '');
+  assert.equal(keyHintFor('ollama', 'es'), '', 'TEMP: ollama-Hinweis auskommentiert');
   assert.match(keyHintFor('meta-muse'), /dev\.meta\.ai/);
   assert.match(keyHintFor('baseten'), /Baseten/);
   assert.equal(keyHintFor('unbekannt'), '');
-  assert.match(germanMessageWithHint({ code: 'E-GEN-401' }, 'openrouter'), /openrouter\.ai\/keys/, '401 + Key-Hinweis');
-  assert.match(germanMessageWithHint({ code: 'E-GEN-CONFIG' }, 'openrouter'), /openrouter\.ai\/keys/, 'CONFIG + Key-Hinweis');
+  assert.ok(!/openrouter\.ai\/keys/.test(germanMessageWithHint({ code: 'E-GEN-401' }, 'openrouter')), 'TEMP: 401 ohne Key-Hinweis (deaktiviert)');
+  assert.ok(!/openrouter\.ai\/keys/.test(germanMessageWithHint({ code: 'E-GEN-CONFIG' }, 'openrouter')), 'TEMP: CONFIG ohne Key-Hinweis');
   assert.ok(!/openrouter/.test(germanMessageWithHint({ code: 'E-GEN-401' }, 'baseten')), 'fremder Hinweis bleibt draussen');
   assert.ok(!/openrouter/.test(String(germanMessageWithHint({ code: 'E-GEN-PARSE' }, 'openrouter'))), 'nur Key-Fehler erhalten Hinweis');
 });

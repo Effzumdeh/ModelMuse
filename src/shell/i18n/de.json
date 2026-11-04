@@ -174,7 +174,13 @@
   },
   "onboarding": {
     "text": "Willkommen! Ein Lab wählen, im Freimodus mit eigenem Key (nur Sitzung) direkt generieren — ganz ohne Proxy.",
-    "verstanden": "Verstanden"
+    "verstanden": "Verstanden",
+    "videoBtn": "Erklärvideo"
+  },
+  "video": {
+    "titel": "Erklärvideo",
+    "schliessen": "Schließen",
+    "missing": "Video fehlt? Lege docs/erklaervideo-{sprache}-180.mp4 ab (de/en/es/fr)."
   },
   "theme": {
     "dunkel": "Dunkel",

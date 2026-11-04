@@ -54,18 +54,19 @@ export function keyHintFor(providerId, locale = 'de') {
       es: 'Clave Baseten del panel de Baseten — solo esta sesión.',
       fr: 'Clé Baseten du tableau de bord Baseten — cette session uniquement.',
     },
-    openrouter: {
-      de: 'OpenRouter-Key von https://openrouter.ai/keys — nur diese Sitzung (BYOK).',
-      en: 'OpenRouter key from https://openrouter.ai/keys — this session only (BYOK).',
-      es: 'Clave OpenRouter de https://openrouter.ai/keys — solo esta sesión (BYOK).',
-      fr: 'Clé OpenRouter de https://openrouter.ai/keys — cette session uniquement (BYOK).',
-    },
-    ollama: {
-      de: 'Kein Key nötig — Ollama läuft lokal auf http://localhost:11434 (ggf. OLLAMA_ORIGINS freigeben).',
-      en: 'No key needed — Ollama runs locally on http://localhost:11434 (allow via OLLAMA_ORIGINS if needed).',
-      es: 'Sin clave — Ollama se ejecuta localmente en http://localhost:11434 (permite con OLLAMA_ORIGINS si hace falta).',
-      fr: 'Aucune clé requise — Ollama tourne en local sur http://localhost:11434 (autorise via OLLAMA_ORIGINS si besoin).',
-    },
+    // TEMP-DEAKTIVIERT (04.11.2026, Revert: Eintraege einkommentieren — Daten bleiben):
+    // openrouter: {
+    //   de: 'OpenRouter-Key von https://openrouter.ai/keys — nur diese Sitzung (BYOK).',
+    //   en: 'OpenRouter key from https://openrouter.ai/keys — this session only (BYOK).',
+    //   es: 'Clave OpenRouter de https://openrouter.ai/keys — solo esta sesión (BYOK).',
+    //   fr: 'Clé OpenRouter de https://openrouter.ai/keys — cette session uniquement (BYOK).',
+    // },
+    // ollama: {
+    //   de: 'Kein Key nötig — Ollama läuft lokal auf http://localhost:11434 (ggf. OLLAMA_ORIGINS freigeben).',
+    //   en: 'No key needed — Ollama runs locally on http://localhost:11434 (allow via OLLAMA_ORIGINS if needed).',
+    //   es: 'Sin clave — Ollama se ejecuta localmente en http://localhost:11434 (permite con OLLAMA_ORIGINS si hace falta).',
+    //   fr: 'Aucune clé requise — Ollama tourne en local sur http://localhost:11434 (autorise via OLLAMA_ORIGINS si besoin).',
+    // },
   };
   return table[providerId]?.[loc] ?? '';
 }

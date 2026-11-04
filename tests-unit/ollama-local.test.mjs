@@ -1,31 +1,35 @@
 /**
- * Ollama-Lokal (Final-Sprint 03.11.2026): reine Funktions-Tests ohne Netz.
- * Belegt: localhost-Basis, Default-Tag, Direkt-Call ohne Key, kein
- * Reasoning-Param, localhost-Fehlerhinweise, Registry-Eintrag.
- * Quellen: https://ollama.com/blog/openai-compatibility,
+ * Ollama-Lokal TEMP-DEAKTIVIERT (04.11.2026, Revert: diese Datei + auskommentierte
+ * Zweige in src/runtime/livegen.js + src/shell/ui-livegen.js reaktivieren).
+ * Pinnt die Deaktivierung: kein localhost-Direkt-Call, kein Reasoning-Param,
+ * kein Key-Hinweis, Registry-Eintrag bleibt DATEN (nicht geloescht), Guard
+ * meldet E-GEN-DEAKTIVIERT statt Upstream-Calls.
+ * Belegte Doku-Quellen bleiben im Registry-Eintrag erhalten
+ * (https://ollama.com/blog/openai-compatibility,
  * https://docs.ollama.com/api/openai-compatibility,
- * https://docs.ollama.com/faq, https://docs.ollama.com/api/introduction.
+ * https://docs.ollama.com/faq, https://docs.ollama.com/api/introduction).
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   DIRECT_BASES, DIRECT_DEFAULT_MODEL, directChatUrl, reasoningLevel,
   reasoningEffortsFor, reasoningXhighAllowed, reasoningMaxAllowed,
-  buildChatBody, liveKeySessionKey,
+  buildChatBody, liveKeySessionKey, generateLive,
 } from '../src/runtime/livegen.js';
 import { keyHintFor } from '../src/shell/ui-livegen.js';
-import { getProvider, getModel } from '../src/runtime/providers.js';
+import { getProvider, getModel, isProviderDeaktiviert, generationTarget } from '../src/runtime/providers.js';
 import { readFile } from 'node:fs/promises';
 
 const reg = JSON.parse(await readFile('src/data/providers.json', 'utf8'));
 
-test('Basis + Default-Tag belegt (localhost:11434, OpenAI-kompatibel)', () => {
-  assert.equal(DIRECT_BASES.ollama, 'http://localhost:11434/v1');
-  assert.equal(DIRECT_DEFAULT_MODEL.ollama, 'llama3.1:8b');
-  assert.equal(directChatUrl('ollama'), 'http://localhost:11434/v1/chat/completions');
+test('TEMP: keine localhost-Basis, kein Default-Tag (auskommentiert, Daten bleiben)', () => {
+  assert.equal(DIRECT_BASES.ollama, undefined, 'DIRECT_BASES.ollama auskommentiert');
+  assert.equal(DIRECT_DEFAULT_MODEL.ollama, undefined, 'DIRECT_DEFAULT_MODEL.ollama auskommentiert');
+  assert.equal(directChatUrl('ollama'), null, 'kein Direkt-URL fuer deaktivierten Anbieter');
+  assert.equal(isProviderDeaktiviert('ollama'), true);
 });
 
-test('Kein Reasoning-Param fuer Ollama (unverifiziert = 400-Risiko)', () => {
+test('TEMP: kein Reasoning-Param fuer Ollama (wie zuvor [], Guard bleibt)', () => {
   assert.deepEqual(reasoningEffortsFor('ollama', 'llama3.1:8b'), []);
   assert.equal(reasoningMaxAllowed('ollama', 'llama3.1:8b'), false);
   assert.equal(reasoningXhighAllowed('ollama', 'llama3.1:8b'), false);
@@ -38,16 +42,24 @@ test('Kein Reasoning-Param fuer Ollama (unverifiziert = 400-Risiko)', () => {
   assert.ok(!('stream_options' in body), 'kein stream_options fuer Ollama');
 });
 
-test('Key-Hinweis: kein Key, localhost statt Key-Quelle (de/en/es/fr)', () => {
+test('TEMP: kein Key-Hinweis, Guard meldet deaktiviert (de/en/es/fr)', async () => {
   for (const loc of ['de', 'en', 'es', 'fr']) {
-    const hint = keyHintFor('ollama', loc);
-    assert.ok(hint.includes('http://localhost:11434'), `${loc}: localhost-Hinweis`);
-    assert.ok(!/openrouter\.ai\/keys|dev\.meta\.ai|Baseten-Key/i.test(hint), `${loc}: kein fremder Key-Hinweis`);
+    assert.equal(keyHintFor('ollama', loc), '', `${loc}: kein Hinweis fuer deaktivierten Anbieter`);
   }
   assert.equal(liveKeySessionKey('ollama'), 'modelmuse-live-key-ollama');
+  const ziel = generationTarget(reg, 'ollama', 'llama3.1:8b');
+  assert.equal(ziel.kind, 'deaktiviert');
+  assert.equal(ziel.ready, false);
+  assert.match(ziel.text, /TEMP-DEAKTIVIERT/);
+  // generateLive lehnt frueh ab (kein Call, kein Key-Fluss).
+  await assert.rejects(
+    generateLive('Begriff lang genug zum Generieren', { provider: 'ollama', model: 'llama3.1:8b' }),
+    (e) => e?.code === 'E-GEN-DEAKTIVIERT',
+    'generateLive wirft E-GEN-DEAKTIVIERT'
+  );
 });
 
-test('Registry: Ollama lokal-ohne-key mit belegten Doku-Links', () => {
+test('TEMP: Registry-Eintrag bleibt DATEN (nicht geloescht, Doku-Links belegt)', () => {
   const p = getProvider(reg, 'ollama');
   assert.ok(p, 'ollama in Registry');
   assert.equal(p.generation.kind, 'direct');

@@ -100,7 +100,7 @@ function checkInvariants(s) {
     ['etaSeconds:function', 1], ['länger als erwartet', 2],
     ['fertig nach {s} s', 2],
     // v31-Vertrag bleibt (v35: zwei Einreihungen teilen eine Pumpe).
-    ['enqueueGenerate', 2], ['pumpGenQueue', 3], ['role="dialog"', 3],
+    ['enqueueGenerate', 2], ['pumpGenQueue', 3], ['role="dialog"', (s.includes('standalone-build v54') ? 4 : 3)],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);
   must(s.length < 600000, 'Datei zu gross: ' + s.length);

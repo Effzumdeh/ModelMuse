@@ -64,6 +64,13 @@ playwright-report/
 # Erklaervideo-Arbeitsstand + MP4s + KI-Recherche-Notizen bleiben lokal (nichts davon stagen)
 docs/.erklaervideo-work/
 docs/*.mp4
+# Eigentuemer-Entscheid 2026-11-04: genau die 4 finalen Erklaervideos
+# (184 s, -180-Schnitt, verifiziert) werden versioniert — alle anderen
+# MP4-Varianten (Roh-, Branded-, Telegram-, Showcase-Schnitte) bleiben lokal.
+!docs/erklaervideo-de-180.mp4
+!docs/erklaervideo-en-180.mp4
+!docs/erklaervideo-es-180.mp4
+!docs/erklaervideo-fr-180.mp4
 # Logo-V2-Ausnahme (03.11.2026): docs/assets/*.svg ist die repo-faehige Logo-Quelle
 # (klein, z. B. logo-header.svg 3,7 KB) — bewusst versioniert, vom Video-Ignore
 # oben NICHT erfasst (nur .erklaervideo-work/ + *.mp4 sind ignoriert)

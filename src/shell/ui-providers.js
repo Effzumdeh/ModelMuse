@@ -7,6 +7,7 @@
  */
 import {
   getProvider, getModel, recommendModel, privacyNotice, generationTarget, didaktikHinweis,
+  activeProviders, isProviderDeaktiviert,
 } from '../runtime/providers.js';
 import { configureLiveGen, setLiveApiKey, clearLiveApiKey, liveKeySessionKey } from '../runtime/livegen.js';
 import { tt } from './i18n.js';
@@ -15,7 +16,8 @@ import { tt } from './i18n.js';
  * @param {{ registry: unknown }} reg
  */
 export function providerOptions(reg) {
-  return (reg?.providers ?? []).map((p) => ({ id: p.id, label: p.label, status: p?.generation?.status ?? '?' }));
+  // TEMP-DEAKTIVIERT (04.11.2026): nur aktive Anbieter in der UI-Liste.
+  return activeProviders(reg).map((p) => ({ id: p.id, label: p.label, status: p?.generation?.status ?? '?' }));
 }
 
 /**
@@ -23,9 +25,11 @@ export function providerOptions(reg) {
  */
 export function mountProviders(els) {
   const reg = els.registry;
-  const providers = reg?.providers ?? [];
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: activeProviders -> reg?.providers):
+  // OpenRouter + Ollama stehen nicht zur Auswahl (Daten bleiben erhalten).
+  const providers = activeProviders(reg);
   const state = {
-    providerId: reg?.defaultProvider ?? providers[0]?.id,
+    providerId: isProviderDeaktiviert(reg?.defaultProvider) ? providers[0]?.id : (reg?.defaultProvider ?? providers[0]?.id),
     modelId: reg?.defaultModel ?? providers[0]?.models?.[0]?.id,
   };
 

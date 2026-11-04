@@ -34,7 +34,7 @@ test('G: Mesh-Text ersatzlos entfernt, Overlay-Rest intakt', async () => {
   // Rest des Bestandteile-Overlays: Liste + Info-Dialog + Texte bleiben.
   assert.equal(cnt(s, 'partExplanations'), 2, 'Erklaerungs-Computed + Template bleiben');
   assert.ok(s.includes('id="part-info"') || s.includes('partInfoIndex'), 'Part-Dialog bleibt');
-  assert.equal(cnt(s, 'role="dialog"'), 3, 'genau 3 Dialoge (Tele + Modify + Bestandteil-Info)');
+  assert.equal(cnt(s, 'role="dialog"'), 4, 'genau 4 Dialoge (Tele + Modify + Bestandteil-Info + Erklaervideo v54)');
 });
 
 test('H: tolerante Erklaerungs-Zuordnung (normExp)', async () => {

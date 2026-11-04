@@ -94,7 +94,7 @@ function checkInvariants(s) {
     ['länger als erwartet', 2], ['fertig nach {s} s', 2],
     ['etaSeconds:function', 1],
     // v31-Vertrag bleibt.
-    ['enqueueGenerate', 2], ['role="dialog"', 3],
+    ['enqueueGenerate', 2], ['role="dialog"', (s.includes('standalone-build v54') ? 4 : 3)],
     ['{{genEtaText}}', 1], ['{{modEtaText}}', 1],
   ];
   for (const [sub, want] of inv) must(cnt(s, sub) === want, 'Invariante ' + sub + ': ' + cnt(s, sub) + ', erwartet ' + want);

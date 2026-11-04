@@ -174,7 +174,13 @@
   },
   "onboarding": {
     "text": "Bienvenue ! Choisis un lab ; génère directement en mode libre avec ta clé personnelle (session uniquement) — sans aucun proxy.",
-    "verstanden": "Compris"
+    "verstanden": "Compris",
+    "videoBtn": "Vidéo explicative"
+  },
+  "video": {
+    "titel": "Vidéo explicative",
+    "schliessen": "Fermer",
+    "missing": "Vidéo manquante ? Ajoute docs/erklaervideo-{sprache}-180.mp4 (de/en/es/fr)."
   },
   "theme": {
     "dunkel": "Sombre",

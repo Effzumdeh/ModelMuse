@@ -174,7 +174,13 @@
   },
   "onboarding": {
     "text": "Welcome! Pick a lab; in free mode generate directly with your own key (session only) — no proxy needed.",
-    "verstanden": "Got it"
+    "verstanden": "Got it",
+    "videoBtn": "Explainer video"
+  },
+  "video": {
+    "titel": "Explainer video",
+    "schliessen": "Close",
+    "missing": "Video missing? Add docs/erklaervideo-{sprache}-180.mp4 (de/en/es/fr)."
   },
   "theme": {
     "dunkel": "Dark",

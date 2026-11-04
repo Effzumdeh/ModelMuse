@@ -12,6 +12,24 @@
 /** @typedef {{ id: string, label: string, generation?: { kind: string, status: string }, models?: ProviderModel[] }} Provider */
 
 /**
+ * TEMP-DEAKTIVIERT (Eigentuemer 04.11.2026, Revert in einer Zeile: Liste leeren).
+ * OpenRouter + Ollama bleiben in src/data/providers.json erhalten (NICHT geloescht,
+ * nur deaktiviert): Sie erscheinen nicht in der UI-Liste, Guards melden
+ * E-GEN-DEAKTIVIERT statt Upstream-Calls. Meta-Regel bleibt: Laufzeit nur Meta-Modelle.
+ */
+export const TEMP_DEAKTIVIERT = Object.freeze(['openrouter', 'ollama']);
+
+/** @param {string} providerId */
+export function isProviderDeaktiviert(providerId) {
+  return TEMP_DEAKTIVIERT.includes(providerId);
+}
+
+/** Nur aktive Anbieter (UI-Liste, Guards) — deaktivierte bleiben Daten, nie Auswahl. @param {{ providers?: Provider[] }} reg */
+export function activeProviders(reg) {
+  return (reg?.providers ?? []).filter((p) => !isProviderDeaktiviert(p?.id));
+}
+
+/**
  * @param {unknown} reg
  * @returns {{ ok: boolean, errors: string[] }}
  */
@@ -107,6 +125,15 @@ export function privacyNotice(reg, providerId, modelId) {
 export function generationTarget(reg, providerId, modelId, promptFile = '<PROMPTDATEI>') {
   const p = getProvider(reg, providerId);
   if (!p) return { kind: 'unbekannt', ready: false, text: 'Anbieter unbekannt.' };
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: Guard entfernen): kein Upstream-Pfad,
+  // kein Key-Fluss — Daten bleiben in der Registry erhalten.
+  if (isProviderDeaktiviert(providerId)) {
+    return {
+      kind: 'deaktiviert',
+      ready: false,
+      text: `TEMP-DEAKTIVIERT: Anbieter ${providerId} ist abgeschaltet (Modell ${modelId}, kein Key noetig, kein Call) — Revert: TEMP_DEAKTIVIERT leeren.`,
+    };
+  }
   if (p.generation?.kind === 'muse-cli') {
     return {
       kind: 'muse-cli',

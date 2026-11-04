@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://api.meta.ai https://inference.baseten.co https://openrouter.ai; frame-src 'self' blob:; child-src blob:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://api.meta.ai https://inference.baseten.co; frame-src 'self' blob:; child-src blob:; base-uri 'none'; form-action 'none'">
+<!-- CSP-Hinweis (TEMP-DEAKTIVIERT 04.11.2026, Revert: Quelle wieder ergaenzen):
+     https://openrouter.ai ist aus connect-src auskommentiert — OpenRouter ist
+     registry-seitig deaktiviert (kein Direkt-Call mehr, kein Key-Fluss). -->
 <title data-i18n="app.title">ModelMuse Lab-Player</title>
 <link rel="stylesheet" href="./src/shell/theme.css">
 <script>
@@ -64,8 +67,18 @@ try{var __t52=null;try{__t52=localStorage.getItem("modelmuse-theme");}catch(e52)
 </header>
 <section class="lab-onboard" id="onboard" hidden>
   <p data-i18n="onboarding.text">Willkommen! Links ein Lab wählen, im Freimodus mit eigenem Key (nur Sitzung) direkt generieren — ganz ohne Proxy.</p>
+  <button type="button" class="lab-btn" id="onboard-video" data-i18n="onboarding.videoBtn">Erklärvideo</button>
   <button type="button" class="lab-btn lab-btn--primary" id="onboard-ok" data-i18n="onboarding.verstanden">Verstanden</button>
 </section>
+<div class="lab-video-popup" id="video-popup" hidden>
+  <div class="lab-video-panel" role="dialog" aria-modal="true" aria-labelledby="video-title">
+    <h2 id="video-title" data-i18n="video.titel">Erklärvideo</h2>
+    <video id="erklaervideo" controls preload="none" playsinline>
+      <p data-i18n="video.missing">Video fehlt? Lege docs/erklaervideo-{sprache}-180.mp4 ab (de/en/es/fr).</p>
+    </video>
+    <button type="button" class="lab-btn lab-btn--primary" id="video-close" data-i18n="video.schliessen">Schließen</button>
+  </div>
+</div>
 <main class="lab-layout">
   <nav class="lab-labs" aria-label="Labs">
     <section class="lab-panel">

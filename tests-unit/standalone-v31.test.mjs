@@ -36,7 +36,7 @@ test('A: Ueberarbeiten als Eck-Overlay wie Generieren', async () => {
   assert.ok(s.includes('id="mod-status"'), 'Mod-Overlay mit eigener ID');
   assert.ok(s.includes('I18N.de.modifyTitle="Modell \u00fcberarbeiten"'), 'de-Titel Modell ueberarbeiten');
   assert.ok(s.includes('{{t(\'modifyTitle\')}}'), 'Titel aus i18n-Key');
-  assert.equal(cnt(s, 'role="dialog"'), 3, 'genau 3 Dialoge (Tele + Modify + Bestandteil-Info)');
+  assert.equal(cnt(s, 'role="dialog"'), 4, 'genau 4 Dialoge (Tele + Modify + Bestandteil-Info + Erklaervideo v54)');
 });
 
 test('B: ETA-Countdown mit Geduld-Hinweis de/en/es in beiden Overlays', async () => {

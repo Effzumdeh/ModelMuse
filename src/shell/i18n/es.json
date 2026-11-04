@@ -174,7 +174,13 @@
   },
   "onboarding": {
     "text": "¡Bienvenido! Elija un laboratorio; en modo libre genere directamente con su clave (solo sesión), sin proxy.",
-    "verstanden": "Entendido"
+    "verstanden": "Entendido",
+    "videoBtn": "Vídeo explicativo"
+  },
+  "video": {
+    "titel": "Vídeo explicativo",
+    "schliessen": "Cerrar",
+    "missing": "¿Falta el vídeo? Añade docs/erklaervideo-{sprache}-180.mp4 (de/en/es/fr)."
   },
   "theme": {
     "dunkel": "Oscuro",

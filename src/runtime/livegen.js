@@ -32,16 +32,18 @@ let directFirst = true;
 export const DIRECT_BASES = Object.freeze({
   'meta-muse': 'https://api.meta.ai/v1',
   baseten: 'https://inference.baseten.co/v1',
-  openrouter: 'https://openrouter.ai/api/v1',
-  ollama: 'http://localhost:11434/v1',
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: Zeilen einkommentieren — Daten bleiben):
+  // openrouter: 'https://openrouter.ai/api/v1',
+  // ollama: 'http://localhost:11434/v1',
 });
 
 /** Upstream-Default-Modelle je Anbieter (stimmen mit scripts/proxy.mjs ueberein). */
 export const DIRECT_DEFAULT_MODEL = Object.freeze({
   'meta-muse': 'muse-spark-1.3-contributor',
   baseten: 'meta-models/muse-spark-open-1026',
-  openrouter: 'openai/gpt-6.1-sol',
-  ollama: 'llama3.1:8b',
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: Zeilen einkommentieren — Daten bleiben):
+  // openrouter: 'openai/gpt-6.1-sol',
+  // ollama: 'llama3.1:8b',
 });
 
 /**
@@ -123,11 +125,13 @@ export function reasoningEffortsFor(provider, model) {
   const m = String(model ?? '');
   const short = m.includes('/') ? m.slice(m.lastIndexOf('/') + 1) : m;
   const base = short.includes(':') ? short.slice(0, short.indexOf(':')) : short;
-  if ((provider ?? '') === 'openrouter') {
-    if (base === 'muse-spark-1.3') return ['max', 'xhigh', 'high', 'medium', 'low', 'minimal'];
-    if (base === 'gpt-6.1-sol' || base === 'opus-5.5') return ['max', 'xhigh', 'high', 'medium', 'low'];
-    return ['max', 'xhigh', 'high', 'medium', 'low'];
-  }
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: Block einkommentieren — Daten bleiben):
+  // OpenRouter-Zweig auskommentiert — deaktivierte Anbieter fallen auf [] (nie 400 durch Raten).
+  // if ((provider ?? '') === 'openrouter') {
+  //   if (base === 'muse-spark-1.3') return ['max', 'xhigh', 'high', 'medium', 'low', 'minimal'];
+  //   if (base === 'gpt-6.1-sol' || base === 'opus-5.5') return ['max', 'xhigh', 'high', 'medium', 'low'];
+  //   return ['max', 'xhigh', 'high', 'medium', 'low'];
+  // }
   if ((provider ?? '') === 'meta-muse' && (model === 'muse-spark-1.3' || model === 'muse-wonder-1.0')) {
     return ['max', 'xhigh'];
   }
@@ -167,7 +171,8 @@ export function reasoningMaxAllowed(provider, model) {
 export function reasoningXhighAllowed(provider, model) {
   if (reasoningMaxAllowed(provider ?? '', model)) return true;
   if ((provider ?? '') === 'baseten') return true;
-  if ((provider ?? '') === 'openrouter') return true;
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: Zeile einkommentieren):
+  // if ((provider ?? '') === 'openrouter') return true;
   if ((provider ?? '') === 'meta-muse' && String(model ?? '').includes('contributor')) return true;
   return false;
 }
@@ -185,13 +190,14 @@ export function reasoningXhighAllowed(provider, model) {
  * @param {string} [want]
  */
 export function reasoningLevel(provider, model, want) {
-  if (want === 'max' && (reasoningMaxAllowed(provider ?? '', model) || (provider ?? '') === 'openrouter')) {
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: openrouter-Fragmente einkommentieren).
+  if (want === 'max' && (reasoningMaxAllowed(provider ?? '', model) /* || (provider ?? '') === 'openrouter' */)) {
     const eff = reasoningEffortsFor(provider ?? '', model);
     if (eff.includes('max')) return 'max';
   }
   if ((want === 'max' || want === 'xhigh') && reasoningXhighAllowed(provider ?? '', model)) return 'xhigh';
   if (typeof want === 'string' && want && reasoningEffortsFor(provider ?? '', model).includes(want)) return want;
-  if (!want && ((provider ?? '') === 'baseten' || (provider ?? '') === 'openrouter')) return 'xhigh';
+  if (!want && ((provider ?? '') === 'baseten' /* || (provider ?? '') === 'openrouter' */)) return 'xhigh';
   return null;
 }
 
@@ -958,6 +964,11 @@ export async function generateLive(promptText, opts = {}) {
   const model = typeof opts.model === 'string' && opts.model
     ? opts.model
     : (DIRECT_DEFAULT_MODEL[provider] ?? undefined);
+  // TEMP-DEAKTIVIERT (04.11.2026, Revert: Guard entfernen): OpenRouter + Ollama
+  // lehnen wir frueh ab statt irrefuehrend E-GEN-OFFLINE zu melden (kein Call, kein Key).
+  if (provider === 'openrouter' || provider === 'ollama') {
+    throw Object.assign(new Error('E-GEN-DEAKTIVIERT: Anbieter openrouter/ollama temporaer deaktiviert (Revert: TEMP-Guard in livegen.js entfernen)'), { code: 'E-GEN-DEAKTIVIERT' });
+  }
   const key = liveApiKey;
   // Ollama braucht keinen Key (lokal, localhost:11434) — Direkt-Call auch ohne Key.
   const needsKey = provider !== 'ollama';

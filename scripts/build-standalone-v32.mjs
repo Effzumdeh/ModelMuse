@@ -98,7 +98,7 @@ function checkInvariants(s) {
     ['standalone-build v30', 1], ['standalone-build v31', 1],
     ['standalone-build v32', 1],
     ['showcase: 5 Modelle', 1], ['__FREE_GUARD_V18__', 1],
-    ['modify:async function', 1], ['role="dialog"', 3], ['id="gen-status"', 1],
+    ['modify:async function', 1], ['role="dialog"', (s.includes('standalone-build v54') ? 4 : 3)], ['id="gen-status"', 1],
     // v32-Texte je Sprache (Overtime + Gesamtzeit + 4-Minuten-Countdown).
     ['länger als erwartet', 2], ['longer than expected', 2], ['lento de lo esperado', 2],
     ['fertig nach {s} s', 2], ['done after {s} s', 2], ['listo tras {s} s', 2],
