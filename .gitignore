@@ -68,3 +68,6 @@ docs/*.mp4
 # (klein, z. B. logo-header.svg 3,7 KB) — bewusst versioniert, vom Video-Ignore
 # oben NICHT erfasst (nur .erklaervideo-work/ + *.mp4 sind ignoriert)
 docs/export-formate-recherche-*.md
+# Lokale Forschungs-Docs (2026-11-04): nie versionieren, nur lokal (kein Commit dieser Dateien)
+docs/erklaervideo-neuproduktion-recherche.md
+docs/OPENROUTER-PROVIDER.md
