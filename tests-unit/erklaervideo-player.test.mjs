@@ -24,7 +24,7 @@ test('Shell: Welcome-Dialog hat Erklaervideo-Button + schliessbares Popup', asyn
   assert.ok(html.includes('id="video-close"'), 'Schliessen-Button fehlt');
   assert.ok(html.includes('data-i18n="video.titel"'), 'Titel-i18n fehlt');
   assert.ok(html.includes('data-i18n="video.schliessen"'), 'Schliessen-i18n fehlt');
-  assert.ok(html.includes('data-i18n="video.missing"'), 'Missing-i18n fehlt');
+  assert.ok(!html.includes('video.missing'), 'video.missing-Fallback entfernt (Videos immer mitgeliefert)');
   assert.ok(html.includes("media-src 'self'"), 'CSP media-src fehlt (Video wuerde blocken)');
 });
 
@@ -53,13 +53,17 @@ test('Shell: Player-Logik (Sprache=UI-Sprache, Close/Esc/Backdrop, Sprachwechsel
   assert.ok(css.includes('.lab-video-panel'), 'Panel-CSS fehlt');
 });
 
-test('Shell: Video-i18n de/en/es/fr (Paritaet via i18n.test, hier Inhalt)', async () => {
+test('Shell: Video-i18n de/en/es/fr (Paritaet via i18n.test, hier Inhalt; kein missing-Fallback)', async () => {
   const { t } = await import('../src/shell/i18n.js');
   for (const loc of ['de', 'en', 'es', 'fr']) {
     assert.ok(t(loc, 'onboarding.videoBtn').length > 2, `${loc}: videoBtn leer`);
     assert.ok(t(loc, 'video.titel').length > 2, `${loc}: titel leer`);
     assert.ok(t(loc, 'video.schliessen').length > 2, `${loc}: schliessen leer`);
-    assert.ok(t(loc, 'video.missing').includes('{sprache}'), `${loc}: missing ohne Platzhalter`);
+    assert.equal(t(loc, 'video.missing'), 'video.missing', `${loc}: missing-Fallback unerwartet vorhanden`);
+  }
+  for (const loc of ['de', 'en', 'es', 'fr']) {
+    const dict = JSON.parse(await readFile(`src/shell/i18n/${loc}.json`, 'utf8'));
+    assert.ok(!('missing' in (dict.video ?? {})), `${loc}: video.missing-Key entfernt`);
   }
 });
 

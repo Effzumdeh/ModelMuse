@@ -44,11 +44,12 @@ test('V1: Video-Button + schliessbares Popup (Video je UI-Sprache)', async () =>
   assert.equal(cnt(s, 'v54-video-popup'), 2, 'Popup-Marker (CSS + Template)');
 });
 
-test('V1: Video-I18N de/en/es/fr (je 4 Keys, Paritaet)', async () => {
+test('V1: Video-I18N de/en/es/fr (je 3 Keys, Paritaet; kein missing-Fallback)', async () => {
   const s = await html();
-  for (const k of ['videoBtn:', 'videoTitle:', 'videoClose:', 'videoMissing:']) {
+  for (const k of ['videoBtn:', 'videoTitle:', 'videoClose:']) {
     assert.equal(cnt(s, k), 4, `${k} je Lokale`);
   }
+  assert.equal(cnt(s, 'videoMissing'), 0, 'videoMissing-Fallback entfernt');
   assert.ok(s.includes('videoBtn:"Erklärvideo"'), 'de videoBtn');
   assert.ok(s.includes('videoBtn:"Explainer video"'), 'en videoBtn');
   assert.ok(s.includes('deo explicativo'), 'es videoBtn');

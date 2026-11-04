@@ -179,8 +179,7 @@
   },
   "video": {
     "titel": "Vídeo explicativo",
-    "schliessen": "Cerrar",
-    "missing": "¿Falta el vídeo? Añade docs/erklaervideo-{sprache}-180.mp4 (de/en/es/fr)."
+    "schliessen": "Cerrar"
   },
   "theme": {
     "dunkel": "Oscuro",

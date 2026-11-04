@@ -564,8 +564,8 @@ if (isShowcase) {
   eqS('v54-video-panel', 3, 'v54 Panel-Marker (CSS-Regel + .dark + Template)');
   eqS('v-if="videoOpen"', 1, 'v54 Popup-Template');
   eqS('@click="openVideo"', 1, 'v54 Video-Button');
-  eqS('videoBtn:', 4, 'v54 I18N videoBtn de/en/es/fr');
-  eqS('videoMissing:', 4, 'v54 I18N videoMissing de/en/es/fr');
+  eqS('videoBtn:', 4, 'v54 I18N videoBtn de/en/es/fr (ohne videoMissing-Fallback)');
+  eqS('videoMissing', 0, 'kein videoMissing-Fallback (Videos immer mitgeliefert)');
   eqS('../docs/erklaervideo-', 2, 'v54 Video-Pfad (CSS-Kommentar + Methode)');
   // v55 (P2/P3, 04.11.2026): Pages-fix — ../docs/ griff auf Pages ins Leere
   // (Projekt-Subpfad /ModelMuse/ -> /docs/ = 404). videoBase waehlt je Kontext

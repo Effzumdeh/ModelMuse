@@ -8,15 +8,16 @@
  *     mit <video> (controls, preload none), Quelle je UI-Sprache
  *     (../docs/erklaervideo-{de,en,es,fr}-180.mp4, Dist liegt in dist-standalone/),
  *     Close-Button + Backdrop (@click.self) + Escape (onEsc), Video-Stopp beim
- *     Schliessen; I18N-Keys videoBtn/videoTitle/videoClose/videoMissing de/en/es/fr.
+ *     Schliessen; I18N-Keys videoBtn/videoTitle/videoClose de/en/es/fr
+ *     (kein videoMissing-Fallback: Videos werden immer mit ausgeliefert).
  * D1 TEMP-DEAKTIVIERT (Eigentuemer 04.11.2026, Revert: Kommentar entfernen):
  *     OpenRouter- + Ollama-Eintraege in genProviders AUSKOMMENTIERT
  *     (Blockkommentar, Text bleibt — keine Auswahl, keine Loeschung).
  *     Alle v38/v46-Zaehler bleiben gruen (Text erhalten).
  * S  Stempel v54 + Invarianten + Syntax-Gate.
  *
- * Nachfolger-Toleranz: tests-unit/standalone-v42.test.mjs (fr-Dict 149 -> 153)
- * wird mitgezogen (4 Video-Keys je Lokale, Paritaet fr==es bleibt).
+ * Nachfolger-Toleranz: tests-unit/standalone-v42.test.mjs (fr-Dict 149 -> 152)
+ * wird mitgezogen (3 Video-Keys je Lokale, Paritaet fr==es bleibt).
  *
  * Aufruf: node scripts/build-standalone-v54.mjs [htmlDatei]
  */
@@ -105,7 +106,7 @@ function checkInvariants(s) {
     ['videoBtn:', 4, 'I18N videoBtn de/en/es/fr'],
     ['videoTitle:', 4, 'I18N videoTitle de/en/es/fr'],
     ['videoClose:', 4, 'I18N videoClose de/en/es/fr'],
-    ['videoMissing:', 4, 'I18N videoMissing de/en/es/fr'],
+    ['videoMissing', 0, 'Kein videoMissing-Fallback (Videos immer mitgeliefert)'],
     // D1 TEMP-DEAKTIVIERT: Text bleibt (alte Zaehler gruen), aber auskommentiert.
     ['TEMP-DEAKTIVIERT-v54', 1, 'Deaktivierungs-Kommentar'],
     ['id:"openrouter"', 1, 'v38 OpenRouter-ID bleibt (Kommentar)'],
@@ -133,7 +134,7 @@ function writeReport(s) {
     standalone: 'v54-erklaervideo-temp-deaktiviert',
     quelle: 'Eigentuemer 04.11.2026 (Welcome-Dialog + Provider TEMP aus)',
     fixes: [
-      'V1 Erklaervideo-Popup: Button + Dialog + Video je UI-Sprache (../docs/erklaervideo-{de,en,es,fr}-180.mp4), Close/Esc/Backdrop, I18N de/en/es/fr',
+      'V1 Erklaervideo-Popup: Button + Dialog + Video je UI-Sprache (../docs/erklaervideo-{de,en,es,fr}-180.mp4), Close/Esc/Backdrop, I18N de/en/es/fr (ohne videoMissing-Fallback)',
       'D1 TEMP-DEAKTIVIERT: genProviders OpenRouter/Ollama auskommentiert (Text bleibt, v38/v46-Zaehler gruen)',
     ],
     counts: { zeichen: s.length, v54Stempel: cnt(s, STAMP) },
@@ -148,6 +149,19 @@ must(s.includes('standalone-build v51 (Logo-V2 header links)'), 'kein v51-Stempe
 must(s.includes('standalone-build v52'), 'kein v52-Stempel (falsche Basis)');
 must(s.includes('standalone-build v53'), 'kein v53-Stempel (falsche Basis)');
 if (s.includes(STAMP)) {
+  if (s.includes('videoMissing')) {
+    // Legacy-Heilung: videoMissing-Fallback entfernen (Videos werden immer
+    // mit ausgeliefert). Heilt alte v54/v55-Artefakte idempotent, ohne die
+    // Kette neu aufzubauen.
+    s = s.replace(/<p class="text-xs">\{\{t\('videoMissing'\)\}\}<\/p>(\r\n|\n)?/g, '');
+    s = s.replace(/,videoMissing:"(?:[^"\\]|\\.)*"/g, '');
+    assertInlineScriptsParse(s);
+    checkInvariants(s);
+    await writeFile(FILE, s);
+    console.log('build-v54: legacy videoMissing entfernt (idempotent geheilt)');
+    await writeReport(s);
+    process.exit(0);
+  }
   checkInvariants(s);
   console.log('build-v54: bereits v54 - ok (idempotent, exit 0)');
   process.exit(0);
@@ -163,26 +177,26 @@ console.log('  V1a: Video-Button im Onboarding');
 // ---------- V1b: Popup hinter dem Onboarding-Banner ----------
 s = rep1(s,
   "{{t('understood')}}</button>\r\n</div>\r\n</div>\r\n" + '<div class="max-w-[1920px] mx-auto w-full flex-1 flex flex-col lg:flex-row gap-6 p-4">',
-  "{{t('understood')}}</button>\r\n</div>\r\n" + '<div v-if="videoOpen" class="v54-video-popup" @click.self="closeVideo">\r\n' + '<div class="v54-video-panel" role="dialog" aria-modal="true" :aria-label="t(\'videoTitle\')">\r\n' + '<h2 class="text-xl font-semibold">{{t(\'videoTitle\')}}</h2>\r\n' + '<video id="erklaervideo54" :src="videoSrc()" controls preload="none" playsinline class="v54-video"></video>\r\n' + '<p class="text-xs">{{t(\'videoMissing\')}}</p>\r\n' + '<button type="button" @click="closeVideo" class="px-5 rounded-xl bg-white text-indigo-700 font-bold min-h-[44px] transition-all hover:bg-indigo-50">{{t(\'videoClose\')}}</button>\r\n' + '</div>\r\n</div>\r\n</div>\r\n' + '<div class="max-w-[1920px] mx-auto w-full flex-1 flex flex-col lg:flex-row gap-6 p-4">',
+  "{{t('understood')}}</button>\r\n</div>\r\n" + '<div v-if="videoOpen" class="v54-video-popup" @click.self="closeVideo">\r\n' + '<div class="v54-video-panel" role="dialog" aria-modal="true" :aria-label="t(\'videoTitle\')">\r\n' + '<h2 class="text-xl font-semibold">{{t(\'videoTitle\')}}</h2>\r\n' + '<video id="erklaervideo54" :src="videoSrc()" controls preload="none" playsinline class="v54-video"></video>\r\n' + 'button type="button" @click="closeVideo" class="px-5 rounded-xl bg-white text-indigo-700 font-bold min-h-[44px] transition-all hover:bg-indigo-50">{{t(\'videoClose\')}}</button>\r\n' + '</div>\r\n</div>\r\n</div>\r\n' + '<div class="max-w-[1920px] mx-auto w-full flex-1 flex flex-col lg:flex-row gap-6 p-4">',
   'V1b Video-Popup');
 console.log('  V1b: Video-Popup (schliessbar, Quelle je UI-Sprache)');
 
 // ---------- V1c: I18N-Keys de/en/es/fr ----------
 s = rep1(s,
   'understood:"Verstanden"',
-  'understood:"Verstanden",videoBtn:"Erklärvideo",videoTitle:"Erklärvideo",videoClose:"Schließen",videoMissing:"Video fehlt? Lege docs/erklaervideo-{sprache}-180.mp4 ab (de/en/es/fr)."',
+  'understood:"Verstanden",videoBtn:"Erklärvideo",videoTitle:"Erklärvideo",videoClose:"Schließen"',
   'V1c I18N de');
 s = rep1(s,
   'understood:"Got it"',
-  'understood:"Got it",videoBtn:"Explainer video",videoTitle:"Explainer video",videoClose:"Close",videoMissing:"Video missing? Add docs/erklaervideo-{sprache}-180.mp4 (de/en/es/fr)."',
+  'understood:"Got it",videoBtn:"Explainer video",videoTitle:"Explainer video",videoClose:"Close"',
   'V1c I18N en');
 s = rep1(s,
   'understood:"Entendido"',
-  'understood:"Entendido",videoBtn:"Vídeo explicativo",videoTitle:"Vídeo explicativo",videoClose:"Cerrar",videoMissing:"¿Falta el vídeo? Añade docs/erklaervideo-{sprache}-180.mp4 (de/en/es/fr)."',
+  'understood:"Entendido",videoBtn:"Vídeo explicativo",videoTitle:"Vídeo explicativo",videoClose:"Cerrar"',
   'V1c I18N es');
 s = rep1(s,
   'understood:"Compris"',
-  'understood:"Compris",videoBtn:"Vidéo explicative",videoTitle:"Vidéo explicative",videoClose:"Fermer",videoMissing:"Vidéo manquante ? Ajoute docs/erklaervideo-{sprache}-180.mp4 (de/en/es/fr)."',
+  'understood:"Compris",videoBtn:"Vidéo explicative",videoTitle:"Vidéo explicative",videoClose:"Fermer"',
   'V1c I18N fr');
 console.log('  V1c: I18N-Keys de/en/es/fr');
 
