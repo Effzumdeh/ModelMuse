@@ -100,7 +100,8 @@ function checkInvariants(s) {
     ['#F8FAFC', 1],
     ['#E8EDF3', 2],
     ['#A5B4FC', 2],
-    ['<h1 class="text-xl font-bold tracking-tight">{{t(\'appTitle\')}}</h1>', 1],
+    ['<h1 class="text-xl font-bold tracking-tight">{{t(\'appTitle\')}}</h1>', s.includes('standalone-build v53') ? 0 : 1],
+    ['<h1 class="sr-only">{{t(\'appTitle\')}}</h1>', s.includes('standalone-build v53') ? 1 : 0],
     ['<img', 0],
     // L2-L4: Umschalter zurueck (System-Default + live, Override persistiert).
     ['setTheme:function', 1],

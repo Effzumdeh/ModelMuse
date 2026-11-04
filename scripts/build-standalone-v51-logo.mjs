@@ -34,13 +34,15 @@ function rep1(s, oldStr, newStr, label) {
 }
 
 function checkInvariants(s) {
+  const is53 = s.includes('standalone-build v53');
   const inv = [
     [STAMP, 1],
     ['standalone-build v50', 1],
     // Logo 1x (v51) bzw. 2x hell/dunkel (v52-Nachfolger: automatischer Wechsel mit Farbschema).
     ['viewBox="0 0 621 170"', s.includes('standalone-build v52') ? 2 : 1],
     ['logo-chip-v51', 1],
-    ['<h1 class="text-xl font-bold tracking-tight">{{t(\'appTitle\')}}</h1>', 1],
+    ['<h1 class="text-xl font-bold tracking-tight">{{t(\'appTitle\')}}</h1>', is53 ? 0 : 1],
+    ['<h1 class="sr-only">{{t(\'appTitle\')}}</h1>', is53 ? 1 : 0],
     // Kein externes Bild, keine Daten-URI (reines Inline-SVG).
     ['<img', 0],
   ];

@@ -31,7 +31,12 @@ test('v51-Stempel und Kette intakt', async () => {
 
 test('L2: Logo-Chip vor App-Titel (Inline-SVG, kein Netz)', async () => {
   const s = await readFile(STANDALONE, 'utf8');
-  const H1 = '<h1 class="text-xl font-bold tracking-tight">{{t(\'appTitle\')}}</h1>';
+  const H1_OLD = '<h1 class="text-xl font-bold tracking-tight">{{t(\'appTitle\')}}</h1>';
+  const H1_NEW = '<h1 class="sr-only">{{t(\'appTitle\')}}</h1>';
+  const is53 = s.includes('standalone-build v53');
+  assert.equal(cnt(s, H1_OLD), is53 ? 0 : 1, 'H1-Anker v53-Toleranz (alt 1x pre-v53, 0x mit v53)');
+  assert.equal(cnt(s, H1_NEW), is53 ? 1 : 0, 'H1-Anker v53-Toleranz (neu sr-only 0 pre, 1 mit v53)');
+  const H1 = is53 ? H1_NEW : H1_OLD;
   const v52 = s.includes('standalone-build v52');
   assert.equal(cnt(s, H1), 1, 'H1-Anker fehlt/mehrdeutig');
   if (v52) {
